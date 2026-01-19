@@ -1,0 +1,8 @@
+node_modules/
+api/node_modules/
+student-dashboard-react/node_modules/
+*.log
+.DS_Store
+dist/
+build/
+.env

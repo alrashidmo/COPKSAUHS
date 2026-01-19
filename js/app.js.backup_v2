@@ -1,0 +1,2503 @@
+﻿/**
+ * Mock Data Store
+ * Simulates a database with local storage persistence
+ */
+
+const INITIAL_DATA = {
+    students: [
+        { id: 'S2025001', name: 'Raghad Saleh Abdullah Alajmi', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 98 },
+        { id: 'S2025002', name: 'Hussh Naif Albahlal', gpa: 3.5, risk: 'low', completedRotations: 3, attendance: 95 },
+        { id: 'S2025003', name: 'Khuzama Hamoud J Alamri', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 100 },
+        { id: 'S2025004', name: 'Lina Moshrif Alamri', gpa: 3.2, risk: 'medium', completedRotations: 2, attendance: 88 },
+        { id: 'S2025005', name: 'Ghala Mohammad B Alomari', gpa: 3.7, risk: 'low', completedRotations: 4, attendance: 96 },
+        { id: 'S2025006', name: 'Mashael Abdullah Almutairi', gpa: 2.8, risk: 'high', completedRotations: 1, attendance: 75 },
+        { id: 'S2025007', name: 'Raneem Muharib Alanazi', gpa: 3.6, risk: 'low', completedRotations: 4, attendance: 94 },
+        { id: 'S2025008', name: 'Ruyuf Abdullah Alshuqayr', gpa: 3.4, risk: 'low', completedRotations: 3, attendance: 92 },
+        { id: 'S2025009', name: 'Sadeem Abdulaziz Alamri', gpa: 3.95, risk: 'low', completedRotations: 5, attendance: 99 },
+        { id: 'S2025010', name: 'Khawla Ahmed Alrubeyan', gpa: 3.1, risk: 'medium', completedRotations: 2, attendance: 85 },
+        { id: 'S2025011', name: 'Sham Abdullah Al Enazi', gpa: 3.3, risk: 'low', completedRotations: 3, attendance: 90 },
+        { id: 'S2025012', name: 'Monirah Saleh N Alotaibi', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 97 },
+        { id: 'S2025013', name: 'Shaden Abdullah Alharbi', gpa: 2.9, risk: 'medium', completedRotations: 2, attendance: 82 },
+        { id: 'S2025014', name: 'Jinan Abdulrahman Alhuwayshil', gpa: 3.7, risk: 'low', completedRotations: 4, attendance: 95 },
+        { id: 'S2025015', name: 'Muneerah Faisal Al Boushal', gpa: 3.5, risk: 'low', completedRotations: 3, attendance: 93 },
+        { id: 'S2025016', name: 'Sarah Abdulaziz Bin Saqyah', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 98 },
+        { id: 'S2025017', name: 'Raghad Khlaf Alenazi', gpa: 3.0, risk: 'medium', completedRotations: 2, attendance: 80 },
+        { id: 'S2025018', name: 'Abdulrahman Sulaiman Alossimi', gpa: 3.6, risk: 'low', completedRotations: 4, attendance: 94 },
+        { id: 'S2025019', name: 'Raghad Sulaiman K Almutairi', gpa: 3.4, risk: 'low', completedRotations: 3, attendance: 91 },
+        { id: 'S2025020', name: 'Ruwayda Saeed Mohammed Alshahrani', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 96 },
+        { id: 'S2025021', name: 'Jod Amer Mohammed Aljuaidi', gpa: 3.2, risk: 'medium', completedRotations: 2, attendance: 87 },
+        { id: 'S2025022', name: 'Shoug Khalid Almousa', gpa: 3.7, risk: 'low', completedRotations: 4, attendance: 95 },
+        { id: 'S2025023', name: 'Amal Mohammed Aleanzi', gpa: 3.5, risk: 'low', completedRotations: 3, attendance: 93 },
+        { id: 'S2025024', name: 'Ghadah Meteb Alsanoni', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 99 },
+        { id: 'S2025025', name: 'Nouf Abdulaziz Alnajim', gpa: 3.1, risk: 'medium', completedRotations: 2, attendance: 84 },
+        { id: 'S2025026', name: 'Shoroog Saad Faleh Al Otaibi', gpa: 3.3, risk: 'low', completedRotations: 3, attendance: 89 },
+        { id: 'S2025027', name: 'Manar Mohammed Al Arifi', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 97 },
+        { id: 'S2025028', name: 'Albatoul Omran Alomran', gpa: 2.7, risk: 'high', completedRotations: 1, attendance: 72 },
+        { id: 'S2025029', name: 'Alhanouf Khaled Almister', gpa: 3.6, risk: 'low', completedRotations: 4, attendance: 94 },
+        { id: 'S2025030', name: 'Ghala Salem Obeidallah Alharbi', gpa: 3.4, risk: 'low', completedRotations: 3, attendance: 92 },
+        { id: 'S2025031', name: 'Ohoud Mansour M Almutairi', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 98 },
+        { id: 'S2025032', name: 'Mohammed Abdulrahman Almahanna', gpa: 3.0, risk: 'medium', completedRotations: 2, attendance: 81 },
+        { id: 'S2025033', name: 'Sultan Ali Aljardan', gpa: 3.5, risk: 'low', completedRotations: 3, attendance: 93 },
+        { id: 'S2025034', name: 'Lama Ibrahim Alfehaid', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 96 },
+        { id: 'S2025035', name: 'Abdulaziz Abdulrahman Alarifi', gpa: 3.2, risk: 'medium', completedRotations: 2, attendance: 86 },
+        { id: 'S2025036', name: 'Hissah Mohammed Alkyssir', gpa: 3.7, risk: 'low', completedRotations: 4, attendance: 95 },
+        { id: 'S2025037', name: 'Faris Salem Althobiti', gpa: 3.4, risk: 'low', completedRotations: 3, attendance: 91 },
+        { id: 'S2025038', name: 'Mohammad Abdulwahab Alfafi', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 99 },
+        { id: 'S2025039', name: 'Raghad Faisal Alwail', gpa: 3.1, risk: 'medium', completedRotations: 2, attendance: 83 },
+        { id: 'S2025040', name: 'Dana Emad Aloumi', gpa: 3.6, risk: 'low', completedRotations: 4, attendance: 94 },
+        { id: 'S2025041', name: 'Fahad Faisal Almutiri', gpa: 3.3, risk: 'low', completedRotations: 3, attendance: 88 },
+        { id: 'S2025042', name: 'Abdulmajeed Mohammed Alsuwaylihi', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 97 },
+        { id: 'S2025043', name: 'Riadh Mansor Arrais', gpa: 2.9, risk: 'medium', completedRotations: 2, attendance: 79 },
+        { id: 'S2025044', name: 'Ahmed Murdhi Alharbi', gpa: 3.7, risk: 'low', completedRotations: 4, attendance: 95 },
+        { id: 'S2025045', name: 'Abdulsalam Zarea Alanazi', gpa: 3.5, risk: 'low', completedRotations: 3, attendance: 92 },
+        { id: 'S2025046', name: 'Mohammed Farhan Alotebe', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 98 },
+        { id: 'S2025047', name: 'Abdullah Ibrahim Alkhulaifi', gpa: 3.0, risk: 'medium', completedRotations: 2, attendance: 80 },
+        { id: 'S2025048', name: 'Abdulrahman Majid Almadi', gpa: 3.6, risk: 'low', completedRotations: 4, attendance: 94 },
+        { id: 'S2025049', name: 'Yara Munif Alshammari', gpa: 3.4, risk: 'low', completedRotations: 3, attendance: 91 },
+        { id: 'S2025050', name: 'Mohammed Ibrahim Al Rudhyyan', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 96 },
+        { id: 'S2025051', name: 'Faisal Mohammed Alshehri', gpa: 3.2, risk: 'medium', completedRotations: 2, attendance: 85 },
+        { id: 'S2025052', name: 'Hamad Mohammed Alkhalaf', gpa: 3.7, risk: 'low', completedRotations: 4, attendance: 95 },
+        { id: 'S2025053', name: 'Saud Enad Alanazi', gpa: 3.5, risk: 'low', completedRotations: 3, attendance: 93 },
+        { id: 'S2025054', name: 'Sarah Saud Abdulaziz Bindulaym', gpa: 3.9, risk: 'low', completedRotations: 5, attendance: 99 },
+        { id: 'S2025055', name: 'Mohammad Fares Almoteb', gpa: 3.1, risk: 'medium', completedRotations: 2, attendance: 84 },
+        { id: 'S2025056', name: 'Bandar Sultan Aldawish', gpa: 3.6, risk: 'low', completedRotations: 4, attendance: 94 },
+        { id: 'S2025057', name: 'Fahad Ali Alomair', gpa: 3.3, risk: 'low', completedRotations: 3, attendance: 89 },
+        { id: 'S2025058', name: 'Batal Muhayya Aldosari', gpa: 3.8, risk: 'low', completedRotations: 4, attendance: 97 },
+        { id: 'S2025059', name: 'Nasser Trad Aldosari', gpa: 3.4, risk: 'low', completedRotations: 3, attendance: 92 }
+    ],
+    sites: [
+        { id: 'H001', name: 'King Abdulaziz Medical City', type: 'Hospital' },
+        { id: 'H002', name: 'King Faisal Specialist Hospital', type: 'Hospital' },
+        { id: 'H003', name: 'Prince Sultan Cardiac Center', type: 'Specialized Center' },
+        { id: 'C001', name: 'Al-Nahda PHC', type: 'Primary Care' }
+    ],
+    preceptors: [
+        // Internal Medicine
+        { name: 'Dr. Majed Alyami', title: 'Associate Professor', email: 'yamim@ksau-hs.edu.sa', specialty: 'Internal Medicine', availability: [true, true, true, false, false, true, true, false, true, true] },
+        { name: 'Dr. Omar Alshaya', title: 'Associate Professor', email: 'shayo@ksau-hs.edu.sa', specialty: 'Internal Medicine', availability: [false, false, true, true, true, false, false, true, false, false] },
+        { name: 'Dr. Fahad Aldhahri', title: 'Assistant Professor', email: 'aldhahrifa@MNGHA.MED.SA', specialty: 'Internal Medicine', availability: [true, true, false, false, true, true, true, true, false, true] },
+        { name: 'Dr. Dalal Alabdulkareem', title: 'Lecturer', email: 'abdulkareemda@MNGHA.MED.SA', specialty: 'Internal Medicine', availability: [true, false, true, true, false, true, false, true, true, true] },
+        { name: 'Dr. Abdulrahman Alturaiki', title: 'Clinical Pharmacist', email: 'alturaikiab@MNGHA.MED.SA', specialty: 'Internal Medicine', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Maha Almolaiki', title: 'Clinical Pharmacist', email: 'almolaikima@MNGHA.MED.SA', specialty: 'Internal Medicine', available: true, availability: [false, true, false, true, false, true, false, true, false, true] },
+        { name: 'Dr. Sumaya Al Mohareb', title: 'Assistant Dean', email: 'moharebsu@ksau-hs.edu.sa', specialty: 'Internal Medicine', availability: [true, true, false, false, false, false, true, true, true, true] },
+        { name: 'Dr. Kholoud Aljoudi', title: 'Assistant Professor', email: 'aljoudikh@MNGHA.MED.SA', specialty: 'Internal Medicine', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Metab Alwethairi', title: 'Clinical Pharmacy Specialist', email: 'WethairiM@MNGHA.MED.SA', specialty: 'Internal Medicine', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Abdulrahman Alamri', title: 'Assistant Professor', email: 'amriabdu@ksau-hs.edu.sa', specialty: 'Internal Medicine', availability: [false, false, false, true, true, true, false, false, false, true] },
+        { name: 'Dr. Atheer Aldairem', title: 'Assistant Professor', email: 'dairema@ksau-hs.edu.sa', specialty: 'Internal Medicine', availability: [true, true, true, false, false, false, true, true, true, false] },
+
+        // ICU
+        { name: 'Prof. Shmeylan Al Harbi', title: 'Associate Dean', email: 'harbish@ksau-hs.edu.sa', specialty: 'ICU', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Abdulrahman Alshaya', title: 'Assistant Professor', email: 'shayaab@ksau-hs.edu.sa', specialty: 'ICU', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Jawaher Algramish', title: 'Associate Professor', email: 'GramishJ@MNGHA.MED.SA', specialty: 'ICU', availability: [false, true, false, true, false, true, false, true, false, true] },
+        { name: 'Dr. Rahaf Alqahtani', title: 'Clinical Pharmacist', email: 'alqahtanira@MNGHA.MED.SA', specialty: 'ICU', availability: [true, true, false, false, true, true, false, false, true, true] },
+        { name: 'Dr. Lolowa Alswaidan', title: 'Assistant Professor', email: 'swaidanl@MNGHA.MED.SA', specialty: 'ICU', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Khalid Alsulaiman', title: 'Assistant Professor', email: 'alsulaimankh@MNGHA.MED.SA', specialty: 'ICU', availability: [true, true, true, true, false, false, false, false, true, true] },
+        { name: 'Dr. Nouf Alharthi', title: 'Clinical Pharmacist', email: 'alharthino@MNGHA.MED.SA', specialty: 'ICU', availability: [false, false, true, true, true, true, false, false, true, true] },
+        { name: 'Dr. Maram Aldossari', title: 'Clinical Pharmacist', email: 'Aldossarima6@MNGHA.MED.SA', specialty: 'ICU', availability: [true, true, true, false, false, false, true, true, true, false] },
+        { name: 'Dr. Maha Assadoon', title: 'Clinical Pharmacist', email: 'ASSADOONMA@MNGHA.MED.SA', specialty: 'ICU', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Abdulmajeed Alshehri', title: 'Assistant Professor', email: 'shehriabdul@ksau-hs.edu.sa', specialty: 'ICU', availability: [true, true, true, true, true, true, true, true, true, true] },
+
+        // Advanced Institutional
+        { name: 'Mr. Mohammed Alotaibi', title: 'Assistant Director', email: 'otaibim7@MNGHA.MED.SA', specialty: 'Institutional Practice', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Mr. Sultan Meashi', title: 'Supervisor', email: 'meashisu@MNGHA.MED.SA', specialty: 'Institutional Practice', availability: [false, false, false, true, true, true, true, true, false, false] },
+        { name: 'Dr. Hamoud Al Samhan', title: 'Supervisor', email: 'samhanh@ngha.med.sa', specialty: 'Institutional Practice', availability: [true, true, true, false, false, false, true, true, true, false] },
+
+        // Advanced Outpatient
+        { name: 'Mr. Thamer Alotaibi', title: 'Manager', email: 'otaibitk@MNGHA.MED.SA', specialty: 'Outpatient Practice', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Mr. Mohammed Alkathiri', title: 'Assistant Director', email: 'kathirim@ksau-hs.edu.sa', specialty: 'Outpatient Practice', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Col/ Rph. Mohammed Alrufaiq', title: 'Pharmacy Supervisor', email: 'alrufaiqmo@MNGHA.MED.SA', specialty: 'Outpatient Practice', availability: [true, true, false, false, true, true, false, false, true, true] },
+        { name: 'Mr. Abdullah Alroumi', title: 'Supervisor', email: 'alroumia@MNGHA.MED.SA', specialty: 'Outpatient Practice', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Mr. Saad Al Dhafian', title: 'Supervisor', email: 'aldafiansa@MNGHA.MED.SA', specialty: 'Outpatient Practice', availability: [false, true, false, true, false, true, false, true, false, true] },
+        { name: 'Dr. Emad Basalasel', title: 'Pharmacy Supervisor', email: 'BasalaselE@MNGHA.MED.SA', specialty: 'Outpatient Practice', availability: [true, true, true, false, false, false, true, true, true, false] },
+        { name: 'Dr. Laila Al Zahrani', title: 'Pharmacist', email: 'Zahranil@MNGHA.MED.SA', specialty: 'Outpatient Practice', availability: [true, true, true, true, true, true, true, true, true, true] },
+
+        // Solid Organ Transplant
+        { name: 'Dr. Khalifah Al Thiab', title: 'SOT Clinical Pharmacist', email: 'ThiabKh@MNGHA.MED.SA', specialty: 'Transplant', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Sara Albilal', title: 'SOT Clinical Pharmacist', email: 'albilalsa@MNGHA.MED.SA', specialty: 'Transplant', availability: [false, true, false, true, false, true, false, true, false, true] },
+
+        // Drug Information
+        { name: 'Dr. Laila Abu Esba', title: 'Lecturer', email: 'abuesbala@MNGHA.MED.SA', specialty: 'Drug Information', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Hind Almodaimegh', title: 'Clinical Pharmacy Specialist', email: 'modaimeghh@ksau-hs.edu.sa', specialty: 'Drug Information', availability: [true, false, true, false, true, false, true, false, true, false] },
+
+        // Nephrology
+        { name: 'Prof. Abdulmalik Alkatheri', title: 'Professor', email: 'katheria@MNGHA.MED.SA', specialty: 'Nephrology', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Numan Alabdan', title: 'Assistant Director', email: 'abdann@MNGHA.MED.SA', specialty: 'Nephrology', availability: [false, false, true, true, true, true, false, false, true, true] },
+        { name: 'Dr. Yousef Alrajhi', title: 'Assistant Professor', email: 'rajhiy@MNGHA.MED.SA', specialty: 'Nephrology', availability: [true, true, false, false, true, true, false, false, true, true] },
+
+        // Administration
+        { name: 'Dr. Yousef Al Aqeel', title: 'Clinical Pharmacy Specialist', email: 'alaqeely@ksau-hs.edu.sa', specialty: 'Administration', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Mr. Badr Alnasser', title: 'Manager', email: 'NasserB@MNGHA.MED.SA', specialty: 'Administration', availability: [true, false, true, false, true, false, true, false, true, false] },
+
+        // Oncology/Hematology
+        { name: 'Dr. Nada Alsuhebany', title: 'Assistant Professor', email: 'suhebanyn@ksau-hs.edu.sa', specialty: 'Oncology', availability: [false, false, false, false, false, false, false, false, false, false] },
+        { name: 'Dr. Ghada Alyousif', title: 'Associate Clinical Pharmacist', email: 'alyousifgh@MNGHA.MED.SA', specialty: 'Oncology', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Dema Almolaiki', title: 'Associate Clinical Pharmacist', email: 'almolaikide@MNGHA.MED.SA', specialty: 'Oncology', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Maha AlDoughaim', title: 'Assistant Professor', email: 'doughaimm@ksau-hs.edu.sa', specialty: 'Oncology', availability: [true, true, false, false, true, true, false, false, true, true] },
+        { name: 'Dr. Mohammed Al Zahrani', title: 'Assistant Professor', email: 'alzahranimoham@ksau-hs.edu.sa', specialty: 'Oncology', availability: [false, true, false, true, false, true, false, true, false, true] },
+
+        // Pediatrics
+        { name: 'Dr. Diana Almutairi', title: 'Clinical Pharmacist', email: 'almutairidi@MNGHA.MED.SA', specialty: 'Pediatrics', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Meshary Almeshary', title: 'Clinical Pharmacist', email: 'almesharyme@MNGHA.MED.SA', specialty: 'Pediatrics', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Reham Alhoraibi', title: 'Clinical Pharmacist', email: 'alhoraibire@MNGHA.MED.SA', specialty: 'Pediatrics', availability: [true, true, false, false, true, true, false, false, true, true] },
+        { name: 'Dr. Kholoud Alaamer', title: 'Clinical Pharmacist', email: 'alaamerkh@MNGHA.MED.SA', specialty: 'Pediatrics', availability: [false, false, true, true, true, true, false, false, true, true] },
+        { name: 'Dr. Hessa Almuqati', title: 'Clinical Pharmacist', email: 'almuqatihe@MNGHA.MED.SA', specialty: 'Pediatrics', availability: [true, true, true, false, false, false, true, true, true, false] },
+        { name: 'Dr. Shaima Alshareef', title: 'Clinical Pharmacist', email: 'alshareefsh@MNGHA.MED.SA', specialty: 'Pediatrics', availability: [true, false, true, false, true, false, true, false, true, false] },
+
+        // Cardiology
+        { name: 'Dr. Lama Alfehaid', title: 'Assistant Professor', email: 'fehaidl@ksau-hs.edu.sa', specialty: 'Cardiology', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Hisham Badreldin', title: 'Associate Professor', email: 'aldeenh@ksau-hs.edu.sa', specialty: 'Cardiology', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Dr. Sarah Alyousif', title: 'Assistant Professor', email: 'yousifs@MNGHA.MED.SA', specialty: 'Cardiology', availability: [true, true, false, false, true, true, false, false, true, true] },
+        { name: 'Dr. Majed Almutairi', title: 'Clinical Pharmacist', email: 'Almutairima27@MNGHA.MED.SA', specialty: 'Cardiology', availability: [false, false, true, true, true, true, false, false, true, true] },
+        { name: 'Dr. Sultan Al Raddadi', title: 'Clinical Pharmacist', email: 'raddadis@ngha.med.sa', specialty: 'Cardiology', availability: [true, true, true, false, false, false, true, true, true, false] },
+        { name: 'Dr. Alaa Al Anazi', title: 'Clinical Pharmacist', email: 'Alenazi-alenazial3@MNGHA.MED.SA', specialty: 'Cardiology', availability: [true, false, true, false, true, false, true, false, true, false] },
+
+        // Infectious Diseases
+        { name: 'Dr. Khalid bin Saleh', title: 'Assistant Professor', email: 'salehk@ksau-hs.edu.sa', specialty: 'Infectious Diseases', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Hajar Alqahtani', title: 'Clinical Pharmacist', email: 'Alqahtaniha2@MNGHA.MED.SA', specialty: 'Infectious Diseases', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'D. Shuroug Alowais', title: 'Assistant Professor', email: 'owaiss@ksau-hs.edu.sa', specialty: 'Infectious Diseases', availability: [true, true, false, false, true, true, false, false, true, true] },
+
+        // Neonatal
+        { name: 'Dr. Faisal Alsehli', title: 'Assistant Professor', email: 'sehlief@MNGHA.MED.SA', specialty: 'Neonatal', availability: [true, true, true, true, true, true, true, true, true, true] },
+
+        // Pharmacoeconomic
+        { name: 'Dr. Hana Alabdulkarim', title: 'Director', email: 'alabdulkarimha@MNGHA.MED.SA', specialty: 'Pharmacoeconomic', availability: [false, false, false, false, false, false, false, false, false, false] },
+
+        // Quality Assurance
+        { name: 'Dr. Saleh Alanizi', title: 'Assistant Professor', email: 'anazis@MNGHA.MED.SA', specialty: 'Quality Assurance', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Haya Almufrij', title: 'Q.I Pharmacist', email: 'MufrijH@MNGHA.MED.SA', specialty: 'Quality Assurance', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Ms. Fawzyah Almutairi', title: 'Q.I Pharmacist', email: 'MutairiF@MNGHA.MED.SA', specialty: 'Quality Assurance', availability: [true, true, false, false, true, true, false, false, true, true] },
+
+        // Medication Safety
+        { name: 'Dr. Hani Alhamdan', title: 'Chairman', email: 'hamdanhs@MNGHA.MED.SA', specialty: 'Medication Safety', availability: [true, true, true, true, true, true, true, true, true, true] },
+        { name: 'Dr. Ghada Almardawi', title: 'Specialist', email: 'MardawiG@MNGHA.MED.SA', specialty: 'Medication Safety', availability: [true, false, true, false, true, false, true, false, true, false] },
+        { name: 'Ms. Arwa Balharth', title: 'Specialist', email: 'balhartha@MNGHA.MED.SA', specialty: 'Medication Safety', availability: [true, true, false, false, true, true, false, false, true, true] },
+        { name: 'Ms. Norah bin Sabbar', title: 'Specialist', email: 'binsabbarno@MNGHA.MED.SA', specialty: 'Medication Safety', availability: [false, false, true, true, true, true, false, false, true, true] },
+
+        // Emergency Medicine
+        { name: 'Dr. Mohammed Alrashed', title: 'Assistant Professor', email: 'alrashidm@ksau-hs.edu.sa', specialty: 'Emergency Medicine', availability: [true, true, true, true, true, true, true, true, true, true] },
+
+        // Academia
+        { name: 'Prof. Abdulkareem Albekairy', title: 'Dean', email: 'bekairya@MNGHA.MED.SA', specialty: 'Academia', availability: [false, false, false, false, false, false, false, false, false, false] }
+    ],
+    outcomes: {
+        glo: [
+            { id: '1.0', desc: 'Knowledge and Understanding' },
+            { id: '2.0', desc: 'Skills' },
+            { id: '3.0', desc: 'Values' }
+        ],
+        plo: [
+            { id: '1.3', desc: 'Describe pathophysiology...' },
+            { id: '2.3', desc: 'Identify drug related problems...' },
+            { id: '3.1', desc: 'Advocate patients rights...' }
+        ],
+        clo: [
+            { id: 'CLO-IM-1', desc: 'Manage internal medicine cases', ploIds: ['1.3', '2.3'] },
+            { id: 'CLO-ICU-1', desc: 'Handle critical care patients', ploIds: ['2.3', '3.1'] }
+        ],
+        rlo: [
+            { id: 'RLO-IM-01', desc: 'Daily rounds participation', cloIds: ['CLO-IM-1'] },
+            { id: 'RLO-ICU-01', desc: 'Ventilator settings review', cloIds: ['CLO-ICU-1'] }
+        ]
+    },
+    stats: {
+        evaluations: {
+            studentAvg: 4.5,
+            preceptorAvg: 4.2,
+            siteAvg: 4.0
+        },
+        domains: {
+            knowledge: 85,
+            skills: 78,
+            values: 92
+        }
+    },
+    rotations: [
+        { id: 'R001', block: 1, studentId: 'S001', siteId: 'H001', site: 'KAMC - Riyadh', preceptor: 'Dr. Majed Alyami', type: 'Internal Medicine', status: 'Completed' },
+        { id: 'R002', block: 1, studentId: 'S002', siteId: 'H002', site: 'KFSH&RC', preceptor: 'Dr. Omar Alshaya', type: 'Ambulatory Care', status: 'Completed' },
+        { id: 'R003', block: 2, studentId: 'S001', siteId: 'H003', site: 'PSCC', preceptor: 'Dr. Lama Alfehaid', type: 'Cardiology', status: 'In Progress' },
+        { id: 'R004', block: 2, studentId: 'S004', siteId: 'C001', site: 'Al-Nahda PHC', preceptor: 'Dr. Khalid bin Saleh', type: 'Community', status: 'In Progress' },
+    ],
+    ippe_meta: {
+        clos: [
+            { id: '1.1', domain: 'Knowledge', desc: 'Foundational Knowledge' },
+            { id: '1.2', domain: 'Knowledge', desc: 'Essentials for Practice' },
+            { id: '2.1', domain: 'Skills', desc: 'Patient Care' },
+            { id: '2.2', domain: 'Skills', desc: 'Problem Solving' },
+            { id: '3.1', domain: 'Values', desc: 'Professionalism' },
+            { id: '3.2', domain: 'Values', desc: 'Communication' }
+        ],
+        epas: [
+            'Collect & Assess Information', 'Identify DRPs', 'Recommend Therapy',
+            'Safety Tasks', 'Communication', 'Documentation', 'QA Standards',
+            'Controlled Substances', 'Ethics'
+        ],
+        domains: [
+            'Professionalism', 'Service Learning', 'Shadow Learning',
+            'Patient Care', 'Practice Skills', 'Professional Development'
+        ],
+        sessions: [
+            'QA I', 'QA II', 'IV Room', 'Outpatient', 'Inpatient',
+            'Compounding', 'Packaging', 'KAIMRC', 'Informatics', 'Amb Care'
+        ]
+    }
+};
+
+class Store {
+    constructor() {
+        this.init();
+    }
+
+    init() {
+        const STORAGE_KEY = 'appe_data_v9';
+        const saved = localStorage.getItem(STORAGE_KEY);
+        let loadedData = null;
+
+        if (saved) {
+            try {
+                loadedData = JSON.parse(saved);
+                // Basic validation
+                if (!loadedData || !Array.isArray(loadedData.students)) {
+                    console.warn('Corrupted data found in local storage. Resetting to default.');
+                    loadedData = null;
+                }
+            } catch (e) {
+                console.error('Error parsing local storage data:', e);
+                loadedData = null;
+            }
+        }
+
+        this.data = loadedData || JSON.parse(JSON.stringify(INITIAL_DATA)); // Deep copy to avoid reference issues
+
+        // Always run seed to hydrate missing new fields (like assessments)
+        try {
+            this.seedIPPEData();
+        } catch (e) {
+            console.error('Error seeding data:', e);
+            // If seeding fails, try to reset to initial data again without seeding (or minimal seeding)
+            this.data = JSON.parse(JSON.stringify(INITIAL_DATA));
+        }
+
+        this.save();
+    }
+
+    save() {
+        localStorage.setItem('appe_data_v9', JSON.stringify(this.data));
+    }
+
+    seedIPPEData() {
+        const sessionsList = [
+            'QA I', 'QA II', 'IV Room', 'Outpatient', 'Inpatient',
+            'Compounding', 'Packaging', 'KAIMRC', 'Health Informatics', 'Ambulatory Care',
+            'Inventory Management', 'Patient Counseling', 'Drug Information', 'Medication Safety', 'Narcotics Control',
+            'Clinical Rounds', 'Journal Club', 'Case Presentation', 'Topic Discussion', 'Interprofessional Rounds',
+            'Discharge Counseling', 'Medication Reconciliation', 'Anticoagulation Clinic', 'Diabetes Clinic', 'Hypertension Clinic',
+            'Oncology Pharmacy', 'Pediatric Pharmacy', 'Emergency Medicine', 'Critical Care', 'Infectious Diseases'
+        ];
+
+        this.data.students.forEach((student, index) => {
+            // 1. Demographics
+            if (!student.demographics) {
+                student.demographics = {
+                    badgeNumber: `B${2025000 + index}`,
+                    gender: Math.random() > 0.5 ? 'Female' : 'Male',
+                    group: `Group ${String.fromCharCode(65 + (index % 5))}` // Groups A-E
+                };
+            }
+
+            // 2. Attendance & Absence Tracking
+            if (!student.attendanceRecords) {
+                student.attendanceRecords = [];
+                let excusedCount = 0;
+                let unexcusedCount = 0;
+
+                // Generate some random absences
+                for (let i = 0; i < 20; i++) { // Simulate 20 weeks
+                    if (Math.random() > 0.9) {
+                        const isExcused = Math.random() > 0.4;
+                        if (isExcused) excusedCount++;
+                        else unexcusedCount++;
+
+                        student.attendanceRecords.push({
+                            date: `2024-09-${10 + i}`,
+                            status: isExcused ? 'Excused' : 'Unexcused',
+                            reason: isExcused ? 'Medical appointment' : 'Overslept',
+                            documented: isExcused
+                        });
+                    }
+                }
+                student.attendanceStats = {
+                    excused: excusedCount,
+                    unexcused: unexcusedCount,
+                    compliance: Math.max(0, 100 - ((excusedCount + unexcusedCount * 2) * 2)) // Mock calc
+                };
+            }
+
+            // 3. Professionalism Dashboard
+            if (!student.professionalism) {
+                student.professionalism = {
+                    score: Math.floor(Math.random() * 3) + 7, // 7-10
+                    categories: {
+                        punctuality: Math.floor(Math.random() * 2) + 8,
+                        dressCode: 10,
+                        responsibility: Math.floor(Math.random() * 3) + 7,
+                        confidentiality: 10,
+                        behavior: 10
+                    },
+                    violations: [],
+                    trend: [8, 9, 9, 8, 9, 10] // Mock trend
+                };
+
+                if (student.professionalism.score < 9) {
+                    student.professionalism.violations.push({
+                        date: '2024-09-15',
+                        category: 'Punctuality',
+                        note: 'Late arrival to morning huddle',
+                        corrected: Math.random() > 0.5
+                    });
+                }
+            }
+
+            // 16. Misconduct & 17. AI Policy
+            if (!student.misconduct) {
+                student.misconduct = [];
+                if (Math.random() > 0.95) {
+                    student.misconduct.push({
+                        date: '2024-10-01',
+                        type: Math.random() > 0.5 ? 'Plagiarism' : 'AI Misuse',
+                        category: 'Reflection',
+                        action: 'Warning Letter',
+                        resolution: 'Counseling Session'
+                    });
+                }
+            }
+
+            // 5. Session-by-Session Tracking
+            if (!student.competencies) {
+                student.competencies = {
+                    clos: {},
+                    epas: {},
+                    domains: {},
+                    sessions: []
+                };
+
+                // Seed CLOs (0-100%)
+                this.data.ippe_meta.clos.forEach(clo => {
+                    student.competencies.clos[clo.id] = Math.floor(Math.random() * 30) + 70;
+                });
+
+                // Seed EPAs (1-5)
+                this.data.ippe_meta.epas.forEach(epa => {
+                    student.competencies.epas[epa] = Math.floor(Math.random() * 2) + 3;
+                });
+
+                // Seed Domains (0-100%)
+                this.data.ippe_meta.domains.forEach(dom => {
+                    student.competencies.domains[dom] = Math.floor(Math.random() * 20) + 80;
+                });
+
+                // Seed 30 Sessions
+                sessionsList.forEach((sess, idx) => {
+                    student.competencies.sessions.push({
+                        id: idx + 1,
+                        name: sess,
+                        status: Math.random() > 0.1 ? 'Completed' : 'Pending',
+                        score: Math.floor(Math.random() * 2) + 3, // 3-5
+                        preceptor: 'Dr. Preceptor',
+                        site: 'KAMC',
+                        strengths: 'Good communication',
+                        weaknesses: 'Needs more confidence'
+                    });
+                });
+            }
+
+            // 13. Site & 14. Preceptor Evaluations (Mock Data)
+            if (!student.evaluations) {
+                student.evaluations = {
+                    site: { score: 4.5, comments: 'Great learning environment' },
+                    preceptor: { score: 4.8, comments: 'Very supportive' }
+                };
+            }
+
+            // 15. Assessments (Mid-Year, End-Year, Portfolio, EPA, Simulation)
+            if (!student.assessments) {
+                student.assessments = {
+                    midYear: {
+                        score: Math.floor(Math.random() * 20) + 80,
+                        competencies: { '1.1': 3, '2.1': 3, '3.1': 3 } // Mock competency ratings
+                    },
+                    endYear: {
+                        score: Math.floor(Math.random() * 20) + 80,
+                        competencies: { '1.1': 4, '2.1': 4, '3.1': 4 }
+                    },
+                    portfolio: {
+                        score: Math.floor(Math.random() * 20) + 80,
+                        status: Math.random() > 0.9 ? 'Late' : 'Submitted'
+                    },
+                    epa: {
+                        score: Math.floor(Math.random() * 20) + 80,
+                        level: Math.floor(Math.random() * 3) + 2 // Levels 2-5
+                    },
+                    simulation: {
+                        score: Math.floor(Math.random() * 20) + 80,
+                        completed: true
+                    }
+                };
+            }
+        });
+    }
+
+    addStudent(student) {
+        this.data.students.push(student);
+        this.save();
+    }
+
+    getStudents() {
+        return this.data.students || [];
+    }
+
+    getHighRiskStudents() {
+        return this.data.students.filter(s => s.risk === 'high' || s.risk === 'medium');
+    }
+
+    getStudentAttendance(studentId) {
+        const student = this.data.students.find(s => s.id === studentId);
+        return student ? student.attendanceRecords : [];
+    }
+
+    getStudentProfessionalism(studentId) {
+        const student = this.data.students.find(s => s.id === studentId);
+        return student ? student.professionalism : null;
+    }
+
+    getStudentGrades(studentId) {
+        const student = this.data.students.find(s => s.id === studentId);
+        return student ? student.grades : null;
+    }
+
+    getIPPEMeta() {
+        return this.data.ippe_meta;
+    }
+
+    getStudentCompetencies(studentId) {
+        const student = this.data.students.find(s => s.id === studentId);
+        return student ? student.competencies : null;
+    }
+
+    // Sites
+    getSites() {
+        return this.data.sites;
+    }
+
+    // Rotations
+    getRotations() {
+        return this.data.rotations || [];
+    }
+
+    // Preceptors
+    getPreceptors() {
+        return this.data.preceptors || [];
+    }
+
+    isPreceptorAvailable(preceptorName, blockNumber) {
+        const preceptor = this.data.preceptors.find(p => p.name === preceptorName);
+        if (!preceptor || !preceptor.availability) return false;
+        // Block number is 1-indexed, array is 0-indexed
+        return preceptor.availability[blockNumber - 1];
+    }
+
+    // Outcomes
+    getOutcomes() {
+        return this.data.outcomes || {};
+    }
+
+    // Stats
+    getStats() {
+        return this.data.stats || {};
+    }
+
+    // Student Assessments
+    getStudentAssessments(studentId) {
+        const student = this.data.students.find(s => s.id === studentId);
+        return student ? student.assessments : null;
+    }
+
+    // Calculate Student Grade
+    calculateStudentGrade(studentId) {
+        const student = this.data.students.find(s => s.id === studentId);
+        if (!student || !student.assessments) return null;
+
+        const assessments = student.assessments;
+        const prof = student.professionalism || { score: 10, violations: [] };
+
+        // New Weights
+        const weights = {
+            professionalism: 30,
+            midYear: 10,
+            endYear: 20,
+            portfolio: 15,
+            epa: 10,
+            simulation: 15
+        };
+
+        // 1. Professionalism (30%)
+        // Penalty: Lose 20% of TOTAL grade if uncorrected violation exists
+        // For now, we assume any violation in the list triggers this if not explicitly marked 'corrected'
+        const hasUncorrectedViolation = prof.violations.some(v => !v.corrected);
+        let professionalismScore = 100; // Base score
+        // If score < 6/10, it's a risk, but the 20% penalty is specific to the rule
+        // The user said "loses 20% of the grade". This usually means 20 percentage points from the final grade.
+        // However, standard grading usually calculates component score. 
+        // Let's calculate component score first.
+        // If score is 10/10 -> 100%. 
+        professionalismScore = (prof.score / 10) * 100;
+
+        let professionalismPenalty = 0;
+        if (hasUncorrectedViolation) {
+            professionalismPenalty = 20; // 20% of total grade means we might need to deduct from final, or set this component to 0?
+            // "student loses 20% of the grade" -> Likely 20 points off the final grade.
+            // I will track this as a specific deduction.
+        }
+
+        // 2. Mid-Year (10%) & 3. Final (20%)
+        // Penalty: 5% of grade for each persisting 'unsatisfactory'
+        const countUnsatisfactory = (evalObj) => {
+            if (!evalObj || !evalObj.competencies) return 0;
+            return Object.values(evalObj.competencies).filter(val => val === 1).length; // Assuming 1 is Unsatisfactory
+        };
+
+        const midYearUnsatisfactoryCount = countUnsatisfactory(assessments.midYear);
+        const finalYearUnsatisfactoryCount = countUnsatisfactory(assessments.endYear);
+
+        const midYearPenalty = midYearUnsatisfactoryCount * 5; // 5% per item
+        const finalYearPenalty = finalYearUnsatisfactoryCount * 5;
+
+        const midYearScore = assessments.midYear?.score || 100; // Default to 100 if not set, or calculate from items
+        const finalYearScore = assessments.endYear?.score || 100;
+
+        // 4. Portfolio (15%)
+        // Penalty: 2-8% for late/incomplete
+        let portfolioPenalty = 0;
+        if (assessments.portfolio?.status === 'Late') portfolioPenalty = 5; // Average 5%
+        if (assessments.portfolio?.status === 'Incomplete') portfolioPenalty = 8;
+        const portfolioScore = assessments.portfolio?.score || 100;
+
+        // 5. EPA (10%)
+        const epaScore = assessments.epa?.score || 0;
+
+        // 6. Simulation (15%)
+        const simulationScore = assessments.simulation?.score || 0;
+
+        // Calculate Weighted Total
+        let weightedTotal =
+            (professionalismScore * 0.30) +
+            (midYearScore * 0.10) +
+            (finalYearScore * 0.20) +
+            (portfolioScore * 0.15) +
+            (epaScore * 0.10) +
+            (simulationScore * 0.15);
+
+        // Apply Penalties (Deducted from the Final Grade directly based on "loses X% of the grade")
+        const totalPenalty = professionalismPenalty + midYearPenalty + finalYearPenalty + portfolioPenalty;
+        let finalGrade = weightedTotal - totalPenalty;
+        if (finalGrade < 0) finalGrade = 0;
+
+        return {
+            finalGrade: Math.round(finalGrade * 10) / 10,
+            weightedTotal: Math.round(weightedTotal * 10) / 10,
+            totalPenalty: totalPenalty,
+            components: {
+                professionalism: {
+                    weight: 30,
+                    score: professionalismScore,
+                    penalty: professionalismPenalty,
+                    note: hasUncorrectedViolation ? 'Uncorrected Violation (-20%)' : ''
+                },
+                midYear: {
+                    weight: 10,
+                    score: midYearScore,
+                    penalty: midYearPenalty,
+                    note: midYearUnsatisfactoryCount > 0 ? `${midYearUnsatisfactoryCount} Unsatisfactory Items (-${midYearPenalty}%)` : ''
+                },
+                endYear: {
+                    weight: 20,
+                    score: finalYearScore,
+                    penalty: finalYearPenalty,
+                    note: finalYearUnsatisfactoryCount > 0 ? `${finalYearUnsatisfactoryCount} Unsatisfactory Items (-${finalYearPenalty}%)` : ''
+                },
+                portfolio: {
+                    weight: 15,
+                    score: portfolioScore,
+                    penalty: portfolioPenalty,
+                    note: portfolioPenalty > 0 ? `Status: ${assessments.portfolio?.status} (-${portfolioPenalty}%)` : ''
+                },
+                epa: { weight: 10, score: epaScore, penalty: 0 },
+                simulation: { weight: 15, score: simulationScore, penalty: 0 }
+            }
+        };
+    }
+
+    // Dashboard KPIs
+    getKPIs() {
+        return {
+            totalStudents: this.data.students.length,
+            activeRotations: this.data.rotations.filter(r => r.status === 'In Progress').length,
+            avgGPA: (this.data.students.reduce((acc, s) => acc + s.gpa, 0) / this.data.students.length).toFixed(2),
+            highRiskCount: this.data.students.filter(s => s.risk === 'high').length
+        };
+    }
+}
+
+// Initialize Store
+const store = new Store();
+window.appStore = store;
+
+class App {
+    constructor() {
+        this.store = window.appStore;
+        this.root = document.getElementById('app-root');
+        this.title = document.getElementById('page-title');
+        this.init();
+    }
+
+    init() {
+        this.setupNavigation();
+        this.render('dashboard');
+    }
+
+    setupNavigation() {
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = e.target.dataset.view;
+
+                // Update active state
+                navLinks.forEach(l => l.classList.remove('active'));
+                e.target.classList.add('active');
+
+                this.render(view);
+            });
+        });
+    }
+
+    render(view, param) {
+        this.currentView = view;
+        this.root.innerHTML = ''; // Clear content
+
+        switch (view) {
+            case 'students':
+                this.renderStudentList();
+                break;
+            case 'student-details':
+                this.renderStudentDetails(param);
+                break;
+            case 'rotations':
+                this.renderRotationSchedule();
+                break;
+            case 'evaluations':
+                this.renderEvaluations();
+                break;
+            case 'stats':
+                this.renderStatsDashboard();
+                break;
+            case 'preceptors':
+                this.renderPreceptorDirectory();
+                break;
+            case 'outcome-mapping':
+                this.renderOutcomeMapping();
+                break;
+            case 'settings':
+                this.renderComingSoon('Settings');
+                break;
+            case 'help':
+                this.renderComingSoon('Help');
+                break;
+            case 'ippe1':
+                this.renderIPPE1();
+                break;
+            case 'ippe2':
+                this.renderIPPE2();
+                break;
+            case 'ippe3':
+                this.renderIPPE3();
+                break;
+            case 'ippe-community':
+                this.renderIPPECommunity();
+                break;
+            case 'ippe-dashboard':
+                this.renderIPPEDashboard();
+                break;
+            case 'ippe-tracker':
+                this.renderStudentTracker();
+                break;
+            case 'ippe-attendance':
+                this.renderComingSoon('Attendance Log');
+                break;
+            case 'ippe-professionalism':
+                this.renderComingSoon('Professionalism');
+                break;
+            case 'ippe-grades':
+                this.renderComingSoon('Grading Center');
+                break;
+            case 'ippe-competency':
+                this.renderCompetencyDashboard();
+                break;
+            case 'ippe-clo':
+                this.renderCLODashboard();
+                break;
+            case 'ippe-epa':
+                this.renderEPADashboard();
+                break;
+            case 'ippe-domains':
+                this.renderDomainDashboard();
+                break;
+            case 'appe':
+            case 'dashboard':
+                this.renderAPPE();
+                break;
+            case 'reports':
+                this.root.innerHTML = '<h2>Reports - Coming Soon</h2>';
+                break;
+            default:
+                this.root.innerHTML = '<h2>Page Under Construction</h2>';
+        }
+    }
+
+    renderStudentList() {
+        this.title.textContent = 'Student Master Database';
+        const students = this.store.getStudents();
+
+        const rows = students.map(s => {
+            const riskClass = s.risk === 'high' ? 'risk-high' : (s.risk === 'medium' ? 'risk-warning' : '');
+            const riskBadge = s.risk === 'high'
+                ? '<span class="risk-badge badge-danger">High Risk</span>'
+                : (s.risk === 'medium' ? '<span class="risk-badge badge-warning">Watch</span>' : '<span class="risk-badge badge-success">On Track</span>');
+
+            return `
+            <tr class="${riskClass}">
+                    <td>${s.id}</td>
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.gpa}</td>
+                    <td>${s.completedRotations} / 10</td>
+                    <td>${s.attendance}%</td>
+                    <td>${riskBadge}</td>
+                    <td>
+                        <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="app.render('student-details', '${s.id}')">View</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+
+        const html = `
+            <div class="card mb-4">
+                <div class="flex-between">
+                    <div style="display:flex; gap:1rem;">
+                        <input type="text" placeholder="Search students..." style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; width: 300px;">
+                            <select style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+                                <option>All Cohorts</option>
+                                <option>Class of 2025</option>
+                            </select>
+                    </div>
+                    <button id="btn-add-student" class="btn btn-primary">+ Add Student</button>
+                </div>
+            </div>
+
+            <!-- Simple Add Student Modal (Hidden by default) -->
+            <div id="add-student-modal" class="card mb-4 hidden" style="border: 2px solid var(--primary-gold);">
+                <h3>Add New Student</h3>
+                <form id="form-add-student" style="margin-top:1rem; display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+                    <div>
+                        <label style="display:block; margin-bottom:0.5rem;">Student ID</label>
+                        <input type="text" name="id" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:0.5rem;">Full Name</label>
+                        <input type="text" name="name" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:0.5rem;">GPA</label>
+                        <input type="number" step="0.01" name="gpa" required style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; margin-bottom:0.5rem;">Risk Status</label>
+                        <select name="risk" style="width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
+                            <option value="low">Low (On Track)</option>
+                            <option value="medium">Medium (Watch)</option>
+                            <option value="high">High (At Risk)</option>
+                        </select>
+                    </div>
+                    <div style="grid-column: span 2; text-align: right; margin-top:1rem;">
+                        <button type="button" id="btn-cancel-add" class="btn btn-outline" style="margin-right:0.5rem;">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Student</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>GPA</th>
+                            <th>Rotations</th>
+                            <th>Attendance</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        this.root.innerHTML = html;
+
+        // Add Student Logic
+        const btnAdd = document.getElementById('btn-add-student');
+        const modal = document.getElementById('add-student-modal');
+        const btnCancel = document.getElementById('btn-cancel-add');
+        const form = document.getElementById('form-add-student');
+
+        if (btnAdd) {
+            btnAdd.addEventListener('click', () => {
+                modal.classList.remove('hidden');
+            });
+        }
+
+        if (btnCancel) {
+            btnCancel.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                const newStudent = {
+                    id: formData.get('id'),
+                    name: formData.get('name'),
+                    gpa: parseFloat(formData.get('gpa')),
+                    risk: formData.get('risk'),
+                    completedRotations: 0,
+                    attendance: 100
+                };
+
+                this.store.addStudent(newStudent);
+                this.renderStudentList(); // Re-render to show new student
+            });
+        }
+    }
+
+    renderStudentDetails(studentId) {
+        const student = this.store.getStudents().find(s => s.id === studentId);
+        if (!student) {
+            this.root.innerHTML = '<h3>Student not found</h3>';
+            return;
+        }
+
+        this.title.textContent = `Student Details: ${student.name}`;
+        const grades = this.store.calculateStudentGrade(studentId);
+        const assessments = this.store.getStudentAssessments(studentId);
+
+        // Helper to format rows
+        const renderRow = (label, data) => `
+            <tr>
+                <td><strong>${label}</strong></td>
+                <td>${data.weight}%</td>
+                <td>${data.score.toFixed(1)}%</td>
+                <td style="color: ${data.penalty > 0 ? 'var(--danger)' : 'inherit'};">
+                    ${data.penalty > 0 ? `-${data.penalty}% (${data.note})` : '-'}
+                </td>
+            </tr>
+        `;
+
+        const html = `
+            <div class="card mb-4">
+                <button class="btn btn-outline" onclick="app.render('students')">? Back to List</button>
+                <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h2>${student.name}</h2>
+                        <p class="text-muted">ID: ${student.id} | GPA: ${student.gpa}</p>
+                    </div>
+                    <div style="text-align: right;">
+                        <h3 style="font-size: 2rem; color: ${grades.finalGrade >= 75 ? 'var(--primary-green)' : 'var(--danger)'};">
+                            ${grades.finalGrade}%
+                        </h3>
+                        <span class="risk-badge ${grades.finalGrade >= 75 ? 'badge-success' : 'badge-danger'}">
+                            ${grades.finalGrade >= 75 ? 'PASSING' : 'FAILING RISK'}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>Standardized Grading Dashboard</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 40%;">Instrument</th>
+                                <th>Weight</th>
+                                <th>Score (100%)</th>
+                                <th>Penalty / Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderRow('Professionalism', grades.components.professionalism)}
+                            ${renderRow('Mid-Year Written Evaluation', grades.components.midYear)}
+                            ${renderRow('End-Year Written Evaluation', grades.components.endYear)}
+                            ${renderRow('Portfolio Evaluation', grades.components.portfolio)}
+                            ${renderRow('Entrustable Professional Activities (EPA)', grades.components.epa)}
+                            ${renderRow('Simulation-Based Assessment', grades.components.simulation)}
+                            <tr style="background-color: #f9f9f9; font-weight: bold;">
+                                <td>FINAL GRADE</td>
+                                <td>100%</td>
+                                <td>${grades.weightedTotal}% (Gross)</td>
+                                <td style="color: var(--danger);">${grades.totalPenalty > 0 ? `Total Penalty: -${grades.totalPenalty}%` : ''}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
+                    <p><strong>* Passing Score:</strong> =75%</p>
+                    <p><strong>* Automatic Failure Conditions:</strong> Uncorrected professionalism violations, excessive absences, or failing critical safety checks.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="margin-top: 2rem;">
+                <div class="card">
+                    <h3>Professionalism Violations</h3>
+                    ${student.professionalism?.violations?.length > 0 ? `
+                        <ul style="list-style: none; padding: 0;">
+                            ${student.professionalism.violations.map(v => `
+                                <li style="padding: 0.5rem; border-bottom: 1px solid #eee; color: var(--danger);">
+                                    <strong>${v.date}:</strong> ${v.category} - ${v.note} 
+                                    ${v.corrected ? '<span class="badge-success">Corrected</span>' : '<span class="badge-danger">Uncorrected</span>'}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : '<p class="text-muted">No violations recorded.</p>'}
+                </div>
+
+                <div class="card">
+                    <h3>Assessment Status</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;">
+                            <strong>Portfolio Status:</strong> 
+                            <span class="${assessments?.portfolio.status === 'Late' ? 'text-danger' : ''}">
+                                ${assessments?.portfolio.status || 'Pending'}
+                            </span>
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <strong>EPA Level:</strong> 
+                            ${assessments?.epa.level || 'N/A'}/5
+                        </li>
+                        <li style="margin-bottom: 0.5rem;">
+                            <strong>Simulation:</strong> 
+                            ${assessments?.simulation.completed ? 'Completed' : 'Pending'}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+        this.root.innerHTML = html;
+    }
+    renderIPPEDashboard(level, title, filterId = 'all') {
+        try {
+            this.title.textContent = title;
+            const allStudents = this.store.getStudents();
+
+            // Filter Logic
+            let students = allStudents;
+            if (filterId !== 'all') {
+                students = allStudents.filter(s => s.id === filterId);
+            }
+
+            // Navigation Tabs
+            const tabs = [
+                { id: 'overview', label: 'Overview & Risk' },
+                { id: 'tracking', label: 'Tracking & Roster' },
+                { id: 'competency', label: 'Competency & Sessions' },
+                { id: 'assessments', label: 'Assessments & Grading' },
+                { id: 'admin', label: 'Admin & Reports' }
+            ];
+
+            // Use a unique active tab key for each level to persist state if needed, or default to overview
+            // For simplicity, we'll pass activeTab as an argument or manage it via a property if we want persistence.
+            // Here, we'll assume 'overview' is default or passed via a separate mechanism if we want to support deep linking later.
+            // But since the method signature in the switch case doesn't support activeTab easily without state, 
+            // we will default to 'overview' and handle tab switching by re-rendering with the same level.
+            // To support tab switching, we need to know WHICH tab is active. 
+            // We can store the active tab in the App instance or pass it. 
+            // Let's use a simple approach: The 'render' method in App class doesn't pass activeTab.
+            // We will modify the tab buttons to call 'app.renderIPPEDashboardWithTab' or similar.
+
+            // Actually, the previous implementation used `activeTab` as an argument. 
+            // Let's keep `renderIPPEDashboard` flexible.
+            // We need to handle the initial call from the router (which won't have activeTab) vs tab clicks.
+
+            if (!this.currentIPPETab) this.currentIPPETab = 'overview';
+            const activeTab = this.currentIPPETab;
+
+            const tabNav = `
+            <div class="tab-nav" style="margin-bottom: 1.5rem; border-bottom: 2px solid #eee;">
+                ${tabs.map(tab => `
+                        <button 
+                            class="btn ${activeTab === tab.id ? 'btn-primary' : 'btn-outline'}" 
+                            style="margin-right: 0.5rem; border-bottom: ${activeTab === tab.id ? 'none' : '1px solid transparent'};"
+                            onclick="app.switchIPPETab('${level}', '${tab.id}', '${filterId}')"
+                        >
+                            ${tab.label}
+                        </button>
+                    `).join('')
+                }
+                </div>
+            `;
+
+            let content = '';
+            switch (activeTab) {
+                case 'overview':
+                    if (level === 'ippe2') {
+                        content = this.renderIPPE2_Overview(allStudents, students, filterId);
+                    } else if (level === 'ippe3') {
+                        content = this.renderIPPE3_Overview(allStudents, students, filterId);
+                    } else {
+                        content = this.renderIPPE1_Overview(allStudents, students, filterId, level);
+                    }
+                    break;
+                case 'tracking':
+                    content = this.renderIPPE_Tracking(students);
+                    break;
+                case 'competency':
+                    content = this.renderIPPE_Competency(students);
+                    break;
+                case 'assessments':
+                    content = this.renderIPPE_Assessments(students);
+                    break;
+                case 'admin':
+                    content = this.renderIPPE_Admin(students);
+                    break;
+            }
+
+            this.root.innerHTML = tabNav + content;
+
+            // Initialize Charts if on Overview tab
+            if (activeTab === 'overview') {
+                this.initIPPECharts(students, level);
+            }
+
+        } catch (e) {
+            console.error(`Error in renderIPPEDashboard (${level}):`, e);
+            this.root.innerHTML = `<div class="card" style="color: red; padding: 2rem;">
+                <h3>Error Loading Dashboard</h3>
+                <p>${e.message}</p>
+                <pre>${e.stack}</pre>
+            </div>`;
+        }
+    }
+
+    switchIPPETab(level, tabId, filterId) {
+        this.currentIPPETab = tabId;
+        this.renderIPPEDashboard(level, this.getIPPETitle(level), filterId);
+    }
+
+    getIPPETitle(level) {
+        switch (level) {
+            case 'ippe1': return 'IPPE I: Community Pharmacy';
+            case 'ippe2': return 'IPPE II: Institutional';
+            case 'ippe3': return 'IPPE III: Clinical';
+            case 'ippe-community': return 'IPPE Community';
+            default: return 'IPPE Dashboard';
+        }
+    }
+
+    renderIPPE1(filterId = 'all') {
+        this.currentIPPETab = this.currentIPPETab || 'overview';
+        this.renderIPPEDashboard('ippe1', 'IPPE I: Community Pharmacy', filterId);
+    }
+
+    renderIPPE2(filterId = 'all') {
+        this.currentIPPETab = this.currentIPPETab || 'overview';
+        this.renderIPPEDashboard('ippe2', 'IPPE II: Institutional', filterId);
+    }
+
+    renderIPPE3(filterId = 'all') {
+        this.currentIPPETab = this.currentIPPETab || 'overview';
+        this.renderIPPEDashboard('ippe3', 'IPPE III: Clinical', filterId);
+    }
+
+    renderIPPECommunity(filterId = 'all') {
+        this.currentIPPETab = this.currentIPPETab || 'overview';
+        this.renderIPPEDashboard('ippe-community', 'IPPE Community', filterId);
+    }
+
+    renderIPPE1_Overview(allStudents, filteredStudents, filterId, level = 'ippe1') {
+        // Helper to calculate average of a property across students
+        const calcAvg = (list, accessor) => {
+            const validValues = list.map(accessor).filter(v => v !== null && v !== undefined && !isNaN(v));
+            if (validValues.length === 0) return 0;
+            return validValues.reduce((a, b) => a + b, 0) / validValues.length;
+        };
+
+        // 1. Total Enrolled
+        const totalEnrolled = filteredStudents.length;
+
+        // 2. Attendance Rate
+        const avgAttendance = calcAvg(filteredStudents, s => s.attendance);
+
+        // 3. Hours Completed vs Required (Assuming 30 sessions * 4 hours = 120 hours)
+        const totalSessions = filteredStudents.reduce((acc, s) => acc + (s.competencies?.sessions?.filter(sess => sess.status === 'Completed').length || 0), 0);
+        const avgSessions = totalSessions / (filteredStudents.length || 1);
+        const hoursCompleted = avgSessions * 4;
+        const hoursRequired = 120;
+
+        // 4. Avg Rubric Score per CLO
+        const avgCLOScore = calcAvg(filteredStudents, s => {
+            const clos = Object.values(s.competencies?.clos || {});
+            if (clos.length === 0) return 0;
+            return clos.reduce((a, b) => a + b, 0) / clos.length;
+        });
+
+        // 5. Avg Professionalism
+        const avgProfessionalism = calcAvg(filteredStudents, s => s.professionalism?.score || 0);
+
+        // 6. Avg Mid-Year Eval
+        const avgMidYear = calcAvg(filteredStudents, s => {
+            const grade = this.store.calculateStudentGrade(s.id);
+            return grade?.components?.midYear?.score || 0;
+        });
+
+        // 7. Avg End-Year Eval
+        const avgEndYear = calcAvg(filteredStudents, s => {
+            const grade = this.store.calculateStudentGrade(s.id);
+            return grade?.components?.endYear?.score || 0;
+        });
+
+        // 8. Avg Portfolio
+        const avgPortfolio = calcAvg(filteredStudents, s => {
+            const grade = this.store.calculateStudentGrade(s.id);
+            return grade?.components?.portfolio?.score || 0;
+        });
+
+        // 9. Avg EPA
+        const avgEPA = calcAvg(filteredStudents, s => {
+            const epas = Object.values(s.competencies?.epas || {});
+            if (epas.length === 0) return 0;
+            return epas.reduce((a, b) => a + b, 0) / epas.length;
+        });
+
+        // 10. Avg Simulation
+        const avgSimulation = calcAvg(filteredStudents, s => {
+            const grade = this.store.calculateStudentGrade(s.id);
+            return grade?.components?.simulation?.score || 0;
+        });
+
+        // 11. Highest and Lowest Grade (Ranking)
+        const allGrades = filteredStudents.map(s => this.store.calculateStudentGrade(s.id)?.finalGrade || 0);
+        const highestGrade = Math.max(...allGrades, 0);
+        const lowestGrade = Math.min(...allGrades, 0);
+
+        // Render
+        return `
+            <div class="card mb-4">
+                <div class="flex-between">
+                    <h3>Program Overview & Metrics</h3>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <label><strong>Filter Student:</strong></label>
+                        <select onchange="app.switchIPPETab('${level}', 'overview', this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="all" ${filterId === 'all' ? 'selected' : ''}>All Students</option>
+                            ${allStudents.map(s => `<option value="${s.id}" ${filterId === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistical Charts Row -->
+            <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Attendance Overview</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartAttendance"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Performance Metrics</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartPerformance"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Grade Distribution</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartGrades"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                <div class="card stat-card">
+                    <span class="stat-label">Total Enrolled</span>
+                    <span class="stat-value">${totalEnrolled}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Attendance Rate</span>
+                    <span class="stat-value">${avgAttendance.toFixed(1)}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Hours Completed</span>
+                    <span class="stat-value">${hoursCompleted.toFixed(0)} / ${hoursRequired}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg CLO Score</span>
+                    <span class="stat-value">${avgCLOScore.toFixed(1)}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Professionalism</span>
+                    <span class="stat-value">${avgProfessionalism.toFixed(1)}/10</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Mid-Year Eval</span>
+                    <span class="stat-value">${avgMidYear.toFixed(1)}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg End-Year Eval</span>
+                    <span class="stat-value">${avgEndYear.toFixed(1)}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Portfolio</span>
+                    <span class="stat-value">${avgPortfolio.toFixed(1)}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg EPA Score</span>
+                    <span class="stat-value">${avgEPA.toFixed(1)}/5</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Simulation</span>
+                    <span class="stat-value">${avgSimulation.toFixed(1)}%</span>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1rem;">
+                <h3>?? Grade Ranking System</h3>
+                <div style="display: flex; justify-content: space-around; margin-top: 1rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--primary-green);">
+                            ${highestGrade.toFixed(1)}%
+                        </div>
+                        <div style="font-weight: bold; color: #666;">Highest Grade</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--danger);">
+                            ${lowestGrade.toFixed(1)}%
+                        </div>
+                        <div style="font-weight: bold; color: #666;">Lowest Grade</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    initIPPECharts(students, level) {
+        if (level === 'ippe2') {
+            // IPPE II Charts
+            const ctxIV = document.getElementById('chartIVAccuracy').getContext('2d');
+            new Chart(ctxIV, {
+                type: 'line',
+                data: {
+                    labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                    datasets: [{
+                        label: 'Accuracy (%)',
+                        data: [88, 92, 95, 98],
+                        borderColor: '#1B5E20',
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            const ctxInterventions = document.getElementById('chartInterventions').getContext('2d');
+            new Chart(ctxInterventions, {
+                type: 'pie',
+                data: {
+                    labels: ['Dosing', 'Interaction', 'Allergy', 'Other'],
+                    datasets: [{
+                        data: [40, 30, 20, 10],
+                        backgroundColor: ['#1B5E20', '#C5B358', '#dc3545', '#6c757d']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        } else if (level === 'ippe3') {
+            // IPPE III Charts
+            const ctxDomains = document.getElementById('chartClinicalDomains').getContext('2d');
+            new Chart(ctxDomains, {
+                type: 'radar',
+                data: {
+                    labels: ['Patient Care', 'Knowledge', 'Communication', 'Professionalism', 'Collab'],
+                    datasets: [{
+                        label: 'Class Avg',
+                        data: [4.2, 4.5, 4.0, 4.8, 4.3],
+                        backgroundColor: 'rgba(27, 94, 32, 0.2)',
+                        borderColor: '#1B5E20'
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { r: { min: 0, max: 5 } } }
+            });
+
+            const ctxLoad = document.getElementById('chartPatientLoad').getContext('2d');
+            new Chart(ctxLoad, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Students',
+                        data: Array.from({ length: 20 }, () => ({ x: Math.random() * 10 + 5, y: Math.random() * 5 + 1 })), // Mock data
+                        backgroundColor: '#C5B358'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: 'Cases Logged' } },
+                        y: { title: { display: true, text: 'Complexity (1-5)' } }
+                    }
+                }
+            });
+        } else {
+            // IPPE I Charts (Default)
+            // 1. Attendance Chart
+            const avgAttendance = students.reduce((acc, s) => acc + (s.attendance || 0), 0) / (students.length || 1);
+            const ctxAttendance = document.getElementById('chartAttendance').getContext('2d');
+            new Chart(ctxAttendance, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Present', 'Absent'],
+                    datasets: [{
+                        data: [avgAttendance, 100 - avgAttendance],
+                        backgroundColor: ['#1B5E20', '#dc3545'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // 2. Performance Chart
+            const metrics = {
+                'CLO': students.reduce((acc, s) => acc + (Object.values(s.competencies?.clos || {}).reduce((a, b) => a + b, 0) / (Object.values(s.competencies?.clos || {}).length || 1)), 0) / (students.length || 1),
+                'Prof': students.reduce((acc, s) => acc + (s.professionalism?.score || 0), 0) / (students.length || 1) * 10, // Scale to 100
+                'Mid': students.reduce((acc, s) => acc + (this.store.calculateStudentGrade(s.id)?.components?.midYear?.score || 0), 0) / (students.length || 1),
+                'End': students.reduce((acc, s) => acc + (this.store.calculateStudentGrade(s.id)?.components?.endYear?.score || 0), 0) / (students.length || 1),
+                'EPA': students.reduce((acc, s) => acc + (Object.values(s.competencies?.epas || {}).reduce((a, b) => a + b, 0) / (Object.values(s.competencies?.epas || {}).length || 1)), 0) / (students.length || 1) * 20 // Scale to 100
+            };
+
+            const ctxPerformance = document.getElementById('chartPerformance').getContext('2d');
+            new Chart(ctxPerformance, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(metrics),
+                    datasets: [{
+                        label: 'Avg Score (%)',
+                        data: Object.values(metrics),
+                        backgroundColor: '#C5B358',
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, max: 100 }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Common Grade Distribution Chart (All Levels)
+        const grades = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0 };
+        students.forEach(s => {
+            const score = this.store.calculateStudentGrade(s.id)?.finalGrade || 0;
+            if (score >= 90) grades['A']++;
+            else if (score >= 80) grades['B']++;
+            else if (score >= 70) grades['C']++;
+            else if (score >= 60) grades['D']++;
+            else grades['F']++;
+        });
+
+        const ctxGrades = document.getElementById('chartGrades').getContext('2d');
+        new Chart(ctxGrades, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(grades),
+                datasets: [{
+                    data: Object.values(grades),
+                    backgroundColor: ['#28a745', '#1B5E20', '#ffc107', '#fd7e14', '#dc3545'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right' }
+                }
+            }
+        });
+    }
+
+    renderIPPE2_Overview(allStudents, filteredStudents, filterId, level = 'ippe2') {
+        // Helper to calculate average
+        const calcAvg = (list, accessor) => {
+            const validValues = list.map(accessor).filter(v => v !== null && v !== undefined && !isNaN(v));
+            if (validValues.length === 0) return 0;
+            return validValues.reduce((a, b) => a + b, 0) / validValues.length;
+        };
+
+        // 1. Total Enrolled
+        const totalEnrolled = filteredStudents.length;
+
+        // Mock Metrics for IPPE II (Institutional)
+        // In a real app, these would come from filteredStudents data
+        const avgIVAccuracy = 94.5;
+        const totalMedRecs = 1250;
+        const avgMedRecs = (totalMedRecs / (filteredStudents.length || 1)).toFixed(1);
+        const totalInteractions = 340;
+        const avgInteractions = (totalInteractions / (filteredStudents.length || 1)).toFixed(1);
+
+        // Mocking other metrics to fill the grid and match IPPE I density
+        const avgSterileCompounding = 88.5;
+        const avgProfessionalism = calcAvg(filteredStudents, s => s.professionalism?.score || 0); // Reuse if available
+        const avgMidYear = 85.2;
+        const avgEndYear = 89.5;
+        const avgPortfolio = 92.0;
+        const avgEPA = 4.1;
+        const avgSimulation = 87.5;
+
+        // Grade Ranking (Mock or Real)
+        const allGrades = filteredStudents.map(s => this.store.calculateStudentGrade(s.id)?.finalGrade || 0);
+        const highestGrade = Math.max(...allGrades, 0);
+        const lowestGrade = Math.min(...allGrades, 0);
+
+        return `
+            <div class="card mb-4">
+                <div class="flex-between">
+                    <h3>IPPE II: Institutional Overview</h3>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <label><strong>Filter Student:</strong></label>
+                        <select onchange="app.switchIPPETab('${level}', 'overview', this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="all" ${filterId === 'all' ? 'selected' : ''}>All Students</option>
+                            ${allStudents.map(s => `<option value="${s.id}" ${filterId === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Statistical Charts Row -->
+            <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">IV Admixture Accuracy</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartIVAccuracy"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Intervention Types</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartInterventions"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Grade Distribution</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartGrades"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                <div class="card stat-card">
+                    <span class="stat-label">Total Enrolled</span>
+                    <span class="stat-value">${totalEnrolled}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg IV Accuracy</span>
+                    <span class="stat-value">${avgIVAccuracy}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Med Recs</span>
+                    <span class="stat-value">${avgMedRecs}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Interactions</span>
+                    <span class="stat-value">${avgInteractions}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Sterile Compounding</span>
+                    <span class="stat-value">${avgSterileCompounding}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Professionalism</span>
+                    <span class="stat-value">${avgProfessionalism.toFixed(1)}/10</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Mid-Year Eval</span>
+                    <span class="stat-value">${avgMidYear}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg End-Year Eval</span>
+                    <span class="stat-value">${avgEndYear}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg Portfolio</span>
+                    <span class="stat-value">${avgPortfolio}%</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg EPA Score</span>
+                    <span class="stat-value">${avgEPA}/5</span>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 1rem;">
+                <h3>?? Grade Ranking System</h3>
+                <div style="display: flex; justify-content: space-around; margin-top: 1rem;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--primary-green);">
+                            ${highestGrade.toFixed(1)}%
+                        </div>
+                        <div style="font-weight: bold; color: #666;">Highest Grade</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2.5rem; color: var(--danger);">
+                            ${lowestGrade.toFixed(1)}%
+                        </div>
+                        <div style="font-weight: bold; color: #666;">Lowest Grade</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderIPPE3_Overview(allStudents, filteredStudents, filterId) {
+        const totalEnrolled = filteredStudents.length;
+        // Mock metrics for IPPE III
+        const soapAvg = 4.2;
+        const casesLogged = 850;
+        const clinicalInterventions = 420;
+
+        return `
+            <div class="card mb-4">
+                <div class="flex-between">
+                    <h3>IPPE III: Clinical Overview</h3>
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <label><strong>Filter Student:</strong></label>
+                        <select onchange="app.switchIPPETab('ippe3', 'overview', this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+                            <option value="all" ${filterId === 'all' ? 'selected' : ''}>All Students</option>
+                            ${allStudents.map(s => `<option value="${s.id}" ${filterId === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 2rem;">
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Clinical Domain Performance</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartClinicalDomains"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Patient Load vs Complexity</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartPatientLoad"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4 style="margin-bottom: 1rem; color: var(--primary-green);">Grade Distribution</h4>
+                    <div style="height: 200px; position: relative;">
+                        <canvas id="chartGrades"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+                <div class="card stat-card">
+                    <span class="stat-label">Total Enrolled</span>
+                    <span class="stat-value">${totalEnrolled}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Avg SOAP Score</span>
+                    <span class="stat-value">${soapAvg}/5.0</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Patient Cases</span>
+                    <span class="stat-value">${casesLogged}</span>
+                </div>
+                <div class="card stat-card">
+                    <span class="stat-label">Clinical Interventions</span>
+                    <span class="stat-value">${clinicalInterventions}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    renderIPPE_Tracking(students) {
+        return `
+            <div class="card">
+                <h3>Student Roster & Attendance</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Group</th>
+                                <th>Gender</th>
+                                <th>Attendance %</th>
+                                <th>Excused</th>
+                                <th>Unexcused</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${students.map(s => `
+                                <tr>
+                                    <td>${s.id}</td>
+                                    <td><a href="#" onclick="app.render('student-details', '${s.id}')">${s.name}</a></td>
+                                    <td>${s.demographics?.group || '-'}</td>
+                                    <td>${s.demographics?.gender || '-'}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <div style="width: 50px; background: #eee; height: 6px; border-radius: 3px;">
+                                                <div style="width: ${s.attendance}%; background: ${s.attendance >= 90 ? 'var(--primary-green)' : 'var(--danger)'}; height: 100%; border-radius: 3px;"></div>
+                                            </div>
+                                            ${s.attendance}%
+                                        </div>
+                                    </td>
+                                    <td>${s.attendanceStats?.excused || 0}</td>
+                                    <td>${s.attendanceStats?.unexcused || 0}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            `;
+    }
+
+    renderIPPE_Competency(students) {
+        return `
+            <div class="card">
+                <h3>Competency & Session Tracking</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Sessions Completed (of 30)</th>
+                                <th>Avg CLO Score</th>
+                                <th>Avg EPA Level</th>
+                                <th>Simulation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${students.map(s => {
+            const sessionsDone = s.competencies?.sessions?.filter(sess => sess.status === 'Completed').length || 0;
+            const avgCLO = s.competencies?.clos ? (Object.values(s.competencies.clos).reduce((a, b) => a + b, 0) / Object.values(s.competencies.clos).length) : 0;
+            const avgEPA = s.competencies?.epas ? (Object.values(s.competencies.epas).reduce((a, b) => a + b, 0) / Object.values(s.competencies.epas).length) : 0;
+
+            return `
+                                <tr>
+                                    <td><strong>${s.name}</strong></td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <progress value="${sessionsDone}" max="30" style="width: 80px;"></progress>
+                                            ${sessionsDone}/30
+                                        </div>
+                                    </td>
+                                    <td>${avgCLO.toFixed(1)}%</td>
+                                    <td>${avgEPA.toFixed(1)}/5</td>
+                                    <td>${s.assessments?.simulation?.completed ? '<span class="badge-success">Pass</span>' : '<span class="badge-warning">Pending</span>'}</td>
+                                </tr>
+                                `;
+        }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            `;
+    }
+    renderIPPE_Assessments(students) {
+        return `
+            <div class="card">
+                <h3>Assessment Status</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Mid-Year Eval</th>
+                                <th>Final Eval</th>
+                                <th>Portfolio</th>
+                                <th>Final Grade</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${students.map(s => {
+            const grades = this.store.calculateStudentGrade(s.id);
+            return `
+                                <tr>
+                                    <td><strong>${s.name}</strong></td>
+                                    <td>${grades.components.midYear.score > 0 ? 'Submitted' : 'Pending'}</td>
+                                    <td>${grades.components.endYear.score > 0 ? 'Submitted' : 'Pending'}</td>
+                                    <td>${grades.components.portfolio.score > 0 ? 'Submitted' : 'Pending'}</td>
+                                    <td>
+                                        <span class="${grades.finalGrade >= 75 ? 'badge-success' : 'badge-danger'}">
+                                            ${grades.finalGrade}%
+                                        </span>
+                                    </td>
+                                </tr>
+                                `;
+        }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            `;
+    }
+
+    renderIPPE_Admin(students) {
+        // Risk Analysis Logic
+        const atRiskStudents = students.filter(s => {
+            const grade = this.store.calculateStudentGrade(s.id)?.finalGrade || 0;
+            return s.attendance < 85 || grade < 75;
+        });
+
+        return `
+            <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Administrative Actions</h3>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="app.exportReport('pdf')">?? Export PDF Report</button>
+                        <button class="btn btn-outline" onclick="app.exportReport('excel')">?? Export Excel</button>
+                        <button class="btn btn-outline" onclick="alert('Sending Notifications...')">?? Send Risk Notifications</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Misconduct & Incidents</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        ${students.flatMap(s => s.misconduct || []).map(m => `
+                            <li style="padding: 0.5rem; border-bottom: 1px solid #eee;">
+                                <strong style="color: var(--danger);">${m.type}</strong> - ${m.date}
+                                <br><small>${m.action}</small>
+                            </li>
+                        `).join('') || '<li class="text-muted">No recent incidents.</li>'}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top: 2rem; border-left: 4px solid var(--danger);">
+                <h3>?? At-Risk Students Report</h3>
+                <p class="text-muted">Students with < 85% attendance or < 75% grade.</p>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Issue Type</th>
+                                <th>Value</th>
+                                <th>Action Required</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${atRiskStudents.map(s => {
+            const grade = this.store.calculateStudentGrade(s.id)?.finalGrade || 0;
+            const issue = s.attendance < 85 ? 'Low Attendance' : 'Failing Grade';
+            const value = s.attendance < 85 ? `${s.attendance}%` : `${grade}%`;
+            return `
+                                    <tr>
+                                        <td><strong>${s.name}</strong></td>
+                                        <td style="color: var(--danger);">${issue}</td>
+                                        <td>${value}</td>
+                                        <td><button class="btn btn-sm btn-outline">Contact</button></td>
+                                    </tr>
+                                `;
+        }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        `;
+    }
+
+    renderAPPE(filterId = 'all') {
+        this.title.textContent = 'Program Overview & APPE Dashboard';
+        const allStudents = this.store.getStudents();
+
+        // Filter students based on selection
+        let students = allStudents;
+        if (filterId !== 'all') {
+            students = allStudents.filter(s => s.id === filterId);
+        }
+
+        const kpis = this.store.getKPIs(); // Get Program Overview KPIs
+
+        // Calculate comprehensive metrics from filtered students
+        const currentBlock = 4;
+        const totalBlocks = 10;
+
+        // Helper function to calculate averages
+        const calcAvg = (list, accessor) => {
+            const validValues = list.map(accessor).filter(v => v !== null && v !== undefined && !isNaN(v));
+            if (validValues.length === 0) return 0;
+            return validValues.reduce((a, b) => a + b, 0) / validValues.length;
+        };
+
+        // 1. Average Final Evaluation Score (per block + overall)
+        const evalScoresPerBlock = [4.2, 4.5, 4.3, 4.6, 0, 0, 0, 0, 0, 0]; // Blocks 1-10
+        const overallEvalScore = (evalScoresPerBlock.slice(0, currentBlock).reduce((a, b) => a + b, 0) / currentBlock).toFixed(2);
+
+        // 2. Attendance Compliance Rate (calculated from filtered students)
+        const attendanceCompliance = calcAvg(students, s => s.attendance).toFixed(1);
+
+        // 3. Preceptor-to-Student Ratio
+        const preceptorRatio = "1:2";
+
+        // 4. Community Services (Total Hours) - sum from filtered students
+        const communityServiceHours = students.length * 25; // Mock: 25 hours per student
+
+        // 5. Students at Risk (Low Eval or Attendance) - count from filtered students
+        const atRiskStudents = students.filter(s => {
+            const grade = this.store.calculateStudentGrade(s.id)?.finalGrade || 0;
+            return s.attendance < 85 || grade < 75;
+        });
+        const atRiskCount = atRiskStudents.length;
+
+        const html = `
+    <!-- Filter Dropdown -->
+    <div class="card mb-4">
+        <div class="flex-between">
+            <h3>Program Overview & Metrics</h3>
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <label><strong>Filter Student:</strong></label>
+                <select onchange="app.renderAPPE(this.value)" style="padding: 0.5rem; border-radius: 4px; border: 1px solid #ccc;">
+                    <option value="all" ${filterId === 'all' ? 'selected' : ''}>All Students</option>
+                    ${allStudents.map(s => `<option value="${s.id}" ${filterId === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Program Overview Section -->
+    <div class="dashboard-grid" style="margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 2rem;">
+        <div class="card stat-card">
+            <span class="stat-label">Total Students</span>
+            <span class="stat-value">${filterId === 'all' ? kpis.totalStudents : students.length}</span>
+        </div>
+        <div class="card stat-card">
+            <span class="stat-label">Active Rotations</span>
+            <span class="stat-value">${kpis.activeRotations}</span>
+        </div>
+        <div class="card stat-card">
+            <span class="stat-label">Average GPA</span>
+            <span class="stat-value">${filterId === 'all' ? kpis.avgGPA : calcAvg(students, s => s.gpa).toFixed(2)}</span>
+        </div>
+        <div class="card stat-card" style="border-left: 4px solid var(--danger);">
+            <span class="stat-label">High Risk Students</span>
+            <span class="stat-value" style="color: var(--danger);">${filterId === 'all' ? kpis.highRiskCount : students.filter(s => s.risk === 'high').length}</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card stat-card">
+            <span class="stat-label">Overall Evaluation Score</span>
+            <span class="stat-value">${overallEvalScore} / 5.0</span>
+            <small class="text-muted">Avg across completed blocks</small>
+        </div>
+        <div class="card stat-card">
+            <span class="stat-label">Attendance Compliance</span>
+            <span class="stat-value">${attendanceCompliance}%</span>
+        </div>
+        <div class="card stat-card">
+            <span class="stat-label">Preceptor Ratio</span>
+            <span class="stat-value">${preceptorRatio}</span>
+        </div>
+        <div class="card stat-card">
+            <span class="stat-label">Community Service Hours</span>
+            <span class="stat-value">${communityServiceHours}</span>
+        </div>
+        <div class="card stat-card" style="border-left: 4px solid var(--danger);">
+            <span class="stat-label">Students at Risk</span>
+            <span class="stat-value" style="color: var(--danger);">${atRiskCount}</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; margin-top: 2rem;">
+        <div class="card">
+            <h3>Evaluation Score Trend (By Block)</h3>
+            <div style="height: 300px; position: relative;">
+                <canvas id="chartEvalByBlock"></canvas>
+            </div>
+        </div>
+        <div class="card">
+            <h3>${filterId === 'all' ? 'Top 10 Students (GPA)' : 'Student Performance'}</h3>
+            <ul style="list-style: none; padding: 0; margin-top: 1rem;">${filterId === 'all'
+                ? students.sort((a, b) => b.gpa - a.gpa).slice(0, 10).map((s, i) => `
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                        <span><strong>${i + 1}.</strong> ${s.name}</span>
+                        <span class="badge-success">${s.gpa}</span>
+                    </li>
+                `).join('')
+                : students.map((s, i) => `
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                        <span><strong>${s.name}</strong></span>
+                        <span class="badge-success">${s.gpa}</span>
+                    </li>
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                        <span>Completed Rotations: <strong>${s.completedRotations} / 10</strong></span>
+                    </li>
+                    <li style="padding: 0.5rem 0; border-bottom: 1px solid #eee;">
+                        <span>Attendance: <strong>${s.attendance}%</strong></span>
+                    </li>
+                `).join('')
+            }
+            </ul>
+        </div>
+    </div>
+
+    <div class="dashboard-grid" style="margin-top: 2rem;">
+        <div class="card">
+            <h3>${filterId === 'all' ? 'Students at Risk (Detailed View)' : 'Risk Assessment'}</h3>
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Risk Factor</th>
+                            <th>Current Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${atRiskStudents.length > 0 ? atRiskStudents.map(s => {
+                const grade = this.store.calculateStudentGrade(s.id)?.finalGrade || 0;
+                const riskFactor = s.attendance < 85 ? `Low Attendance (${s.attendance}%)` : `Low Grade (${grade}%)`;
+                const status = grade < 75 ? 'Remediation' : 'Monitoring';
+                return `
+                        <tr>
+                            <td><strong>${s.name}</strong></td>
+                            <td style="color: var(--danger);">${riskFactor}</td>
+                            <td>${status}</td>
+                            <td><button class="btn btn-sm btn-outline">View Profile</button></td>
+                        </tr>
+                            `;
+            }).join('') : '<tr><td colspan="4" class="text-muted" style="text-align: center;">No students at risk</td></tr>'}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Site Evaluation Summary</h3>
+            <div style="display: flex; align-items: center; justify-content: center; height: 200px; color: #666;">
+                [Site Ratings Heatmap Placeholder]
+            </div>
+        </div>
+    </div>
+
+    <!--Rotation Progress Tracker-->
+    <div class="card" style="margin-top: 2rem;">
+        <h3>Rotation Progress Tracker</h3>
+        <div style="margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span><strong>Block 4 in Progress</strong> (Week 3 of 4)</span>
+                <span>75% Complete</span>
+            </div>
+            <div style="width: 100%; background: #eee; height: 20px; border-radius: 10px; overflow: hidden;">
+                <div style="width: 75%; background: var(--primary-green); height: 100%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+                <span>Start: Oct 1</span>
+                <span>End: Oct 28</span>
+            </div>
+        </div>
+    </div>
+    `;
+        this.root.innerHTML = html;
+
+        // Initialize Charts
+        setTimeout(() => {
+            const ctx = document.getElementById('chartEvalByBlock');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Block 1', 'Block 2', 'Block 3', 'Block 4', 'Block 5', 'Block 6', 'Block 7', 'Block 8', 'Block 9', 'Block 10'],
+                        datasets: [{
+                            label: 'Evaluation Score',
+                            data: evalScoresPerBlock,
+                            borderColor: '#1B5E20',
+                            backgroundColor: 'rgba(27, 94, 32, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 5
+                            }
+                        }
+                    }
+                });
+            }
+        }, 100);
+    }
+
+    renderRotationModal(block = 4) {
+        const modalHtml = `
+    <div class="modal-overlay" onclick="this.remove()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3>Rotation Block ${block} Details</h3>
+                <button class="btn-close" onclick="this.closest('.modal-overlay').remove()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <div>
+                        <label><strong>Rotation Type</strong></label>
+                        <p>Internal Medicine</p>
+                    </div>
+                    <div>
+                        <label><strong>Site</strong></label>
+                        <p>KAMC - Riyadh (Main Hospital)</p>
+                    </div>
+                    <div>
+                        <label><strong>Preceptor</strong></label>
+                        <p>Dr. Sarah Al-Ahmed</p>
+                    </div>
+                    <div>
+                        <label><strong>Duration</strong></label>
+                        <p>4 Weeks (Oct 1 - Oct 28)</p>
+                    </div>
+                </div>
+                <h4>Learning Objectives</h4>
+                <ul style="margin-bottom: 1rem;">
+                    <li>Demonstrate proficiency in medication reconciliation.</li>
+                    <li>Develop comprehensive care plans for complex patients.</li>
+                    <li>Participate in interprofessional rounds daily.</li>
+                </ul>
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="alert('Edit Rotation')">Edit Assignment</button>
+                    <button class="btn btn-outline" onclick="alert('View Evaluations')">View Evaluations</button>
+                </div>
+            </div>
+        </div>
+            </div>
+    `;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+    }
+
+    filterAPPE(type) {
+        alert(`Filtering dashboard by site type: ${type}`);
+        // In a real app, this would re-render the dashboard with filtered data
+    }
+
+    filterAPPEByStudent(studentId) {
+        if (studentId === 'all') {
+            alert('Showing all students');
+        } else {
+            const student = this.store.getStudents().find(s => s.id === studentId);
+            alert(`Filtering dashboard for: ${student ? student.name : 'Unknown Student'}\n\nThis would show only data for this student across all rotations.`);
+        }
+        // In a real app, this would re-render the dashboard with filtered student data
+    }
+
+    filterByDisease(disease) {
+        alert(`Drilling down to cases for: ${disease}`);
+    }
+
+    viewCaseLogs() {
+        alert('Opening detailed Case Logs view...');
+    }
+
+
+
+
+
+    renderCLODashboard() {
+        this.title.textContent = 'CLO Achievement Dashboard';
+        const meta = this.store.getIPPEMeta();
+        const students = this.store.getStudents();
+
+        const cloStats = meta.clos.map(clo => {
+            const avg = students.reduce((acc, s) => acc + (s.competencies?.clos[clo.id] || 0), 0) / students.length;
+            return { ...clo, avg };
+        });
+
+        const html = `
+    <div class="card">
+                <button class="btn btn-outline btn-sm" onclick="app.render('ippe-competency')">? Back to Competency Hub</button>
+                <h3 style="margin-top: 1rem;">CLO Performance Heatmap</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>CLO ID</th>
+                                <th>Domain</th>
+                                <th>Description</th>
+                                <th>Class Average</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${cloStats.map(c => `
+                                <tr>
+                                    <td><strong>${c.id}</strong></td>
+                                    <td>${c.domain}</td>
+                                    <td>${c.desc}</td>
+                                    <td>${c.avg.toFixed(1)}%</td>
+                                    <td>
+                                        <div style="width: 100%; background: #eee; height: 8px; border-radius: 4px;">
+                                            <div style="width: ${c.avg}%; background: var(--primary-green); height: 100%; border-radius: 4px;"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    `;
+        this.root.innerHTML = html;
+    }
+
+    renderEPADashboard() {
+        this.title.textContent = 'EPA Dashboard';
+        const meta = this.store.getIPPEMeta();
+        const students = this.store.getStudents();
+
+        const epaStats = meta.epas.map(epa => {
+            const avg = students.reduce((acc, s) => acc + (s.competencies?.epas[epa] || 0), 0) / students.length;
+            return { name: epa, avg };
+        });
+
+        const html = `
+    <div class="card">
+                <button class="btn btn-outline btn-sm" onclick="app.render('ippe-competency')">? Back to Competency Hub</button>
+                <h3 style="margin-top: 1rem;">EPA Mastery Levels (1-5)</h3>
+                <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                    ${epaStats.map(e => `
+                        <div class="card" style="border: 1px solid #eee;">
+                            <h4>${e.name}</h4>
+                            <div style="font-size: 2rem; font-weight: bold; color: var(--primary-blue);">${e.avg.toFixed(1)}</div>
+                            <small>Class Average</small>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+    `;
+        this.root.innerHTML = html;
+    }
+
+    renderDomainDashboard() {
+        this.title.textContent = 'Domain Performance Dashboard';
+        const meta = this.store.getIPPEMeta();
+        const students = this.store.getStudents();
+
+        const domainStats = meta.domains.map(dom => {
+            const avg = students.reduce((acc, s) => acc + (s.competencies?.domains[dom] || 0), 0) / students.length;
+            return { name: dom, avg };
+        });
+
+        const html = `
+    <div class="card">
+                <button class="btn btn-outline btn-sm" onclick="app.render('ippe-competency')">? Back to Competency Hub</button>
+                <h3 style="margin-top: 1rem;">Domain Achievement (0-100%)</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Domain</th>
+                                <th>Class Average</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${domainStats.map(d => `
+                                <tr>
+                                    <td><strong>${d.name}</strong></td>
+                                    <td>${d.avg.toFixed(1)}%</td>
+                                    <td>
+                                        <div style="width: 100%; background: #eee; height: 8px; border-radius: 4px;">
+                                            <div style="width: ${d.avg}%; background: var(--primary-blue); height: 100%; border-radius: 4px;"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    `;
+        this.root.innerHTML = html;
+    }
+
+    renderCompetencyDashboard() {
+        this.currentIPPETab = 'competency';
+        this.renderIPPEDashboard('ippe1', 'Competency Dashboard');
+    }
+
+    renderRotationSchedule() {
+        this.title.textContent = 'Rotation Schedule (Blocks 1-10)';
+        const students = this.store.getStudents();
+        const allRotations = this.store.getRotations();
+        const preceptors = this.store.getPreceptors();
+
+        const getRotation = (studentId, block) => {
+            return allRotations.find(r => r.studentId === studentId && r.block === block);
+        };
+
+        const rows = students.map(s => {
+            let cells = '';
+            for (let i = 1; i <= 10; i++) {
+                const rotation = getRotation(s.id, i);
+                const cellContent = rotation
+                    ? `<span class="rotation-chip" title="${rotation.preceptor}">${rotation.site}</span>`
+                    : '<span class="empty-slot">-</span>';
+                cells += `<td>${cellContent}</td>`;
+            }
+            return `
+    <tr>
+    <td><strong>${s.name}</strong></td>
+                    ${cells}
+                </tr>
+    `;
+        }).join('');
+
+        const html = `
+    <div class="card mb-4">
+        <div class="flex-between">
+            <div style="display:flex; gap:1rem; align-items:center;">
+                <div style="display:flex; gap:0.5rem;">
+                    <span class="badge-success" style="width:12px; height:12px; display:inline-block; border-radius:50%;"></span> Completed
+                    <span class="badge-warning" style="width:12px; height:12px; display:inline-block; border-radius:50%;"></span> In Progress
+                </div>
+            </div>
+            <button id="btn-assign-rotation" class="btn btn-primary">+ Assign Rotation</button>
+        </div>
+            </div>
+
+    <div class="data-table-container" style="overflow-x: auto;">
+        <table class="data-table" style="min-width: 1200px;">
+            <thead>
+                <tr>
+                    <th style="position:sticky; left:0; background:white; z-index:10;">Student</th>
+                    <th>Block 1</th><th>Block 2</th><th>Block 3</th><th>Block 4</th><th>Block 5</th>
+                    <th>Block 6</th><th>Block 7</th><th>Block 8</th><th>Block 9</th><th>Block 10</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${rows}
+            </tbody>
+        </table>
+    </div>
+`;
+
+        this.root.innerHTML = html;
+    }
+
+    renderEvaluations() {
+        const html = `
+    <div class="dashboard-grid" style="grid-template-columns: 1fr 3fr;">
+                <div class="card">
+                    <h3>Available Forms</h3>
+                    <ul class="nav-menu" style="margin-top: 1rem;">
+                        <li class="nav-item"><a href="#" class="nav-link active" style="color: var(--primary-green); background: var(--light-green);">Mid-Rotation Eval</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link" style="color: var(--text-dark);">Final Evaluation</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link" style="color: var(--text-dark);">Professionalism Incident</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link" style="color: var(--text-dark);">Site Evaluation</a></li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="flex-between mb-4">
+                        <h2>Mid-Rotation Student Evaluation</h2>
+                        <span class="badge-warning risk-badge">Draft</span>
+                    </div>
+                    <form>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display:block; margin-bottom:0.5rem;">Student Name</label>
+                            <input type="text" class="form-control" value="Raghad Saleh" disabled style="width: 100%; padding: 0.5rem;">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display:block; margin-bottom:0.5rem;">Rotation Site</label>
+                            <input type="text" class="form-control" value="KAMC - Riyadh" disabled style="width: 100%; padding: 0.5rem;">
+                        </div>
+                        
+                        <h4>Competency Domains</h4>
+                        <div style="margin-top: 1rem; border: 1px solid #eee; padding: 1rem; border-radius: 4px;">
+                            <p><strong>1. Patient Care</strong></p>
+                            <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                                <label><input type="radio" name="d1"> Exceeds Expectations</label>
+                                <label><input type="radio" name="d1"> Meets Expectations</label>
+                                <label><input type="radio" name="d1"> Needs Improvement</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    `;
+        this.root.innerHTML = html;
+    }
+
+    renderStatsDashboard() {
+        const stats = this.store.getStats();
+        const html = `
+    <div class="dashboard-grid">
+                <div class="card">
+                    <h3>Evaluation Averages</h3>
+                    <div style="margin-top: 1rem;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                            <span>Student Self-Eval</span>
+                            <strong>${stats.evaluations.studentAvg}/5.0</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                            <span>Preceptor Eval</span>
+                            <strong>${stats.evaluations.preceptorAvg}/5.0</strong>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span>Site Eval</span>
+                            <strong>${stats.evaluations.siteAvg}/5.0</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Domain Performance</h3>
+                    <canvas id="chart-domains"></canvas>
+                </div>
+            </div>
+    `;
+        this.root.innerHTML = html;
+    }
+
+    renderPreceptorDirectory() {
+        const preceptors = this.store.getPreceptors();
+        const html = `
+    <div class="card mb-4">
+        <div class="flex-between">
+            <input type="text" placeholder="Search preceptors..." style="padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; width: 300px;">
+                <button class="btn btn-primary">+ Add Preceptor</button>
+        </div>
+            </div>
+    <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+        ${preceptors.map(p => `
+                    <div class="card">
+                        <div style="display:flex; justify-content:space-between; align-items:start;">
+                            <div>
+                                <h4>${p.name}</h4>
+                                <p style="color: #666; font-size: 0.9rem;">${p.title}</p>
+                                <span class="badge-success" style="font-size: 0.8rem; padding: 2px 6px; border-radius: 4px;">${p.specialty}</span>
+                            </div>
+                            <div style="width: 40px; height: 40px; background: #eee; border-radius: 50%; display:flex; align-items:center; justify-content:center;">
+                                ??
+                            </div>
+                        </div>
+                        <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
+                            <small>?? ${p.email}</small>
+                        </div>
+                    </div>
+                `).join('')}
+    </div>
+`;
+        this.root.innerHTML = html;
+    }
+
+    renderOutcomeMapping() {
+        const outcomes = this.store.getOutcomes();
+        const html = `
+    <div class="card">
+                <h3>Curriculum Map (PLOs to CLOs)</h3>
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Program Learning Outcome (PLO)</th>
+                                <th>Mapped Courses/CLOs</th>
+                                <th>Assessment Method</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${outcomes.plo.map(p => `
+                                <tr>
+                                    <td><strong>${p.id}</strong>: ${p.desc}</td>
+                                    <td>
+                                        ${outcomes.clo.filter(c => c.ploIds.includes(p.id)).map(c =>
+            `<span class="badge-warning" style="margin-right: 0.5rem;">${c.id}</span>`
+        ).join('')}
+                                    </td>
+                                    <td>Rubric, Exam, Portfolio</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+    `;
+        this.root.innerHTML = html;
+    }
+
+    renderStudentTracker() {
+        this.renderStudentList(); // Re-use student list for now
+    }
+
+    renderComingSoon(title) {
+        this.title.textContent = title;
+        this.root.innerHTML = `
+    <div class="card" style="text-align: center; padding: 3rem;">
+                <h2>?? Under Construction</h2>
+                <p>The ${title} module is currently being developed.</p>
+                <button class="btn btn-primary" onclick="app.render('dashboard')" style="margin-top: 1rem;">Return Home</button>
+            </div>
+    `;
+    }
+
+    initCharts() {
+        // Mock Chart.js implementation since we don't have the library loaded in this environment
+        // In a real app, this would initialize Chart.js instances
+        const ctxRotations = document.getElementById('chart-rotations');
+        if (ctxRotations) {
+            // Placeholder for chart
+            ctxRotations.style.height = '200px';
+            ctxRotations.style.background = '#f9f9f9';
+            ctxRotations.style.display = 'flex';
+            ctxRotations.style.alignItems = 'center';
+            ctxRotations.style.justifyContent = 'center';
+            ctxRotations.innerHTML = '<span style="color:#999">Rotation Distribution Chart</span>';
+        }
+    }
+}
+
+// Initialize App
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.appStore) {
+        window.app = new App();
+    } else {
+        console.error('Store not initialized');
+        document.body.innerHTML = '<h1 style="color:red; padding:2rem;">Error: Data Store Failed to Load</h1>';
+    }
+});
+

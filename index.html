@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KSAU-HS Clinical Affairs Dashboard</title>
+    <!-- Google Fonts: Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css?v=8">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Global Navigation -->
+        <nav class="global-nav">
+            <div class="global-nav-brand">
+                <span>🏛️</span> College of Pharmacy
+            </div>
+            <ul class="global-nav-menu">
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="academic">Academic Affairs</a>
+                </li>
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link active" data-unit="clinical">Clinical Affairs</a>
+                </li>
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="qa">Quality Assurance Unit</a>
+                </li>
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="research">Research Unit</a>
+                </li>
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="alumni">Alumni Unit</a>
+                </li>
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="community">Community Service</a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Unit Navigation (Secondary) -->
+        <div class="unit-nav-container">
+            <!-- QA Unit Nav (Hidden by default) -->
+            <!-- QA Unit Nav (Hidden/Removed for Redesign) -->
+            <aside class="sidebar unit-nav hidden" id="nav-qa">
+                <div class="brand">Quality Assurance</div>
+                <!-- Content removed as it is now duplicated in the top white tab bar -->
+            </aside>
+
+            <!-- Research Unit Nav (Hidden by default) -->
+            <aside class="sidebar unit-nav hidden" id="nav-research">
+                <div class="brand">Research Unit</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="research-projects"><span class="nav-icon">🧪</span>
+                            Projects</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="research-publications"><span class="nav-icon">📚</span>
+                            Publications</a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Academic Affairs Nav (Hidden by default) -->
+            <aside class="sidebar unit-nav hidden" id="nav-academic">
+                <div class="brand">Academic Affairs</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="dept-practice">
+                            <span class="nav-icon">💊</span> Pharmacy Practice
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="dept-science">
+                            <span class="nav-icon">🔬</span> Pharm. Sciences
+                        </a>
+                    </li>
+
+                </ul>
+            </aside>
+
+            <!-- Clinical Affairs Nav (New) -->
+            <aside class="sidebar unit-nav hidden" id="nav-clinical">
+                <div class="brand">Clinical Affairs</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="student-portal">
+                            <span class="nav-icon">🎓</span> Student Portal
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="ippe1">
+                            <span class="nav-icon">🏥</span> IPPE-1
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="ippe2">
+                            <span class="nav-icon">🩺</span> IPPE-2
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="appe-experience-hub">
+                            <span class="nav-icon">🎓</span> APPE Experience Hub
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Alumni Unit Nav (Hidden by default) -->
+            <aside class="sidebar unit-nav hidden" id="nav-alumni">
+                <div class="brand">Alumni Unit</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-events">
+                            <span class="nav-icon">📅</span> Events
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-network">
+                            <span class="nav-icon">🤝</span> Networking
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Community Service Unit Nav (Hidden by default) -->
+            <aside class="sidebar unit-nav hidden" id="nav-community">
+                <div class="brand">Community Service</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="community-initiatives">
+                            <span class="nav-icon">🌍</span> Initiatives
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="community-volunteering">
+                            <span class="nav-icon">🤲</span> Volunteering
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Clinical Affairs Nav (Active by default) -->
+            <aside class="sidebar unit-nav" id="nav-clinical">
+                <div class="brand">
+                    <span>🎓</span> Clinical Affairs
+                </div>
+
+                <!-- Program Selector -->
+                <div class="program-selector">
+                    <label for="program-dropdown" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">Select Program:</label>
+                    <select id="program-dropdown" class="program-dropdown">
+                        <option value="pharmd">PharmD Program</option>
+                        <option value="pharmacy-tech">Pharmacy Technician</option>
+                    </select>
+                </div>
+
+                <!-- Location Filter (shown only for Pharmacy Technician) -->
+                <div class="location-filter hidden" id="location-filter">
+                    <label for="location-dropdown" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">Select Campus:</label>
+                    <select id="location-dropdown" class="program-dropdown">
+                        <option value="all">All Campuses</option>
+                        <option value="riyadh">Riyadh</option>
+                        <option value="jeddah">Jeddah</option>
+                    </select>
+                </div>
+
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-view="home">
+                            <span class="nav-icon">🏠</span> Home
+                        </a>
+                    </li>
+
+                    <!-- PharmD Program Navigation (Default) -->
+                    <div class="program-nav" id="pharmd-nav">
+                        <li class="nav-section-header">
+                            PharmD Rotations
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ippe1" data-program="pharmd">
+                                <span class="nav-icon">1️⃣</span> IPPE I
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ippe2" data-program="pharmd">
+                                <span class="nav-icon">2️⃣</span> IPPE II
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ippe3" data-program="pharmd">
+                                <span class="nav-icon">3️⃣</span> IPPE III
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ippe-community" data-program="pharmd">
+                                <span class="nav-icon">🏘️</span> IPPE Community
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="appe-experience-hub" data-program="pharmd">
+                                <span class="nav-icon">🎓</span> APPE Experience Hub <span class="location-badge">Riyadh</span>
+                            </a>
+                        </li>
+                    </div>
+
+                    <!-- Pharmacy Technician Navigation (Hidden by default) -->
+                    <div class="program-nav hidden" id="pharmacy-tech-nav">
+                        <li class="nav-section-header">
+                            Pharmacy Technician Rotations
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ipte1" data-program="pharmacy-tech">
+                                <span class="nav-icon">1️⃣</span> IPTE I
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ipte2" data-program="pharmacy-tech">
+                                <span class="nav-icon">2️⃣</span> IPTE II
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="ipte3" data-program="pharmacy-tech">
+                                <span class="nav-icon">3️⃣</span> IPTE III
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-view="apte" data-program="pharmacy-tech">
+                                <span class="nav-icon">🎓</span> APTE
+                            </a>
+                        </li>
+                    </div>
+
+                    <!-- Student Portal Section -->
+                    <li class="nav-section-header">
+                        Student Portal
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="student-awards">
+                            <span class="nav-icon">🏆</span> Student Awards
+                        </a>
+                    </li>
+
+                    <!-- Management Section -->
+                    <li class="nav-section-header">
+                        Management
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="students">
+                            <span class="nav-icon">👥</span> Students DB
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="rotations">
+                            <span class="nav-icon">📅</span> Rotations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="preceptors">
+                            <span class="nav-icon">👨‍⚕️</span> Preceptors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="outcomes">
+                            <span class="nav-icon">🎯</span> Outcomes
+                        </a>
+                    </li>
+                </ul>
+                <div class="user-profile-mini"
+                    style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
+                    <small style="opacity: 0.7;">Logged in as</small>
+                    <div><strong>Dr. Admin</strong></div>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 class="page-title" id="page-title">Program Overview</h1>
+                <div class="user-actions">
+                    <select id="user-switcher" class="btn btn-outline"
+                        style="background: transparent; -webkit-appearance: none; cursor: pointer; border-color: #ddd;">
+                        <option value="admin">👤 View as Admin</option>
+                        <option value="student">🎓 View as Student (Raghad)</option>
+                    </select>
+                    <button class="btn btn-outline">🔔 Notifications</button>
+                    <button class="btn btn-primary">Export Data</button>
+                </div>
+            </header>
+
+            <div class="content-area" id="app-root">
+                <!-- Content will be injected here by JS -->
+                <div class="loading">Loading Dashboard...</div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="js/app.js?v=3600"></script>
+    <script src="js/program-switcher.js?v=1"></script>
+    <script src="js/outcomes-dashboard.js?v=1"></script>
+    <script src="js/appe-hub.js?v=20260111180000"></script>
+    <script src="js/evaluation-system.js?v=1"></script>
+    <script src="js/attendance-schedule.js?v=1"></script>
+    <script src="js/matching-algorithm.js?v=1"></script>
+</body>
+
+</html>

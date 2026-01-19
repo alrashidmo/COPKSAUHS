@@ -1,0 +1,87 @@
+    renderIPPE1_Overview(allStudents, filteredStudents, filterId, level) {
+        // Calculate Metrics
+        const totalEnrolled = filteredStudents.length;
+        const avgAttendance = Math.round(filteredStudents.reduce((a, b) => a + b.attendance, 0) / totalEnrolled) || 0;
+        const avgGpa = (filteredStudents.reduce((a, b) => a + b.gpa, 0) / totalEnrolled).toFixed(2);
+        
+        // Mock Risk Count
+        const riskCount = filteredStudents.filter(s => s.attendance < 85 || s.gpa < 3.0).length;
+
+        return `
+            <!-- Top Stats Row -->
+            <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
+                <div class="card stat-card">
+                    <span class="stat-label">Total Students</span>
+                    <span class="stat-value">${totalEnrolled}</span>
+                    <small>Class of 2025</small>
+                </div>
+                <div class="card stat-card" style="border-left: 4px solid var(--primary-green);">
+                    <span class="stat-label">Avg Attendance</span>
+                    <span class="stat-value">${avgAttendance}%</span>
+                    <small>Target: 95%</small>
+                </div>
+                <div class="card stat-card" style="border-left: 4px solid var(--primary-gold);">
+                    <span class="stat-label">Avg GPA</span>
+                    <span class="stat-value">${avgGpa}</span>
+                    <small>Keep > 3.0</small>
+                </div>
+                <div class="card stat-card" style="border-left: 4px solid var(--danger);">
+                    <span class="stat-label">At-Risk Students</span>
+                    <span class="stat-value" style="color: var(--danger);">${riskCount}</span>
+                    <small>Need Intervention</small>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="dashboard-grid" style="margin-bottom: 2rem;">
+                <!-- Weighted Ranking (Modern Shape) -->
+                <div class="card" style="grid-column: span 2;">
+                    <div class="flex-between mb-4">
+                        <h3 style="margin:0;">🏆 Student Performance Ranking (Weighted)</h3>
+                        <select style="padding:0.25rem; border-radius:4px; border:1px solid #ddd;">
+                            <option>Top 10</option>
+                            <option>Bottom 10</option>
+                        </select>
+                    </div>
+                    <div style="height: 350px; position: relative;">
+                        <canvas id="chartRanking"></canvas>
+                    </div>
+                    <div style="margin-top:1rem; display:flex; gap:1rem; justify-content:center; font-size:0.8rem; color:#666;">
+                        <span><span style="color:#4facfe">●</span> Academic (30%)</span>
+                        <span><span style="color:#00f2fe">●</span> Professionalism (20%)</span>
+                        <span><span style="color:#43e97b">●</span> IPPE Perf (30%)</span>
+                        <span><span style="color:#fa709a">●</span> Extra (20%)</span>
+                    </div>
+                </div>
+
+                <!-- Missing Shapes Filled -->
+                <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                    
+                    <!-- Attendance Overview -->
+                    <div class="card" style="flex:1;">
+                        <h4 style="margin-bottom:1rem;">Attendance Overview</h4>
+                        <div style="height: 150px; position: relative;">
+                            <canvas id="chartAttendance"></canvas>
+                        </div>
+                    </div>
+
+                     <!-- Grade Distribution -->
+                    <div class="card" style="flex:1;">
+                        <h4 style="margin-bottom:1rem;">Grade Distribution</h4>
+                        <div style="height: 150px; position: relative;">
+                            <canvas id="chartGrades"></canvas>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Performance Metrics Radar -->
+            <div class="card mb-4">
+                 <h4 style="margin-bottom:1rem;">Performance Metrics (Cohort Profile)</h4>
+                 <div style="height: 300px; position: relative;">
+                    <canvas id="chartPerformance"></canvas>
+                 </div>
+            </div>
+        `;
+    }
