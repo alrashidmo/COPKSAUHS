@@ -1,0 +1,643 @@
+// This is your Prisma schema file
+// Comprehensive schema for APPE Student Portal System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ========================================
+// ENUMS
+// ========================================
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  COORDINATOR
+  LEADERSHIP
+  PRECEPTOR
+}
+
+enum Campus {
+  RIYADH
+  JEDDAH
+  ALAHSA
+  MADINAH
+  ABHA
+}
+
+enum Program {
+  IPPE
+  APPE
+  IPTE
+  APTE
+}
+
+enum RotationType {
+  COMMUNITY_PHARMACY
+  HOSPITAL_PHARMACY
+  AMBULATORY_CARE
+  CLINICAL_SPECIALTY
+  RESEARCH
+  ELECTIVE
+}
+
+enum Status {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+  PENDING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipationType {
+  CONFERENCE
+  WORKSHOP
+  PROJECT
+  RESEARCH
+  COMMUNITY_SERVICE
+  VOLUNTEER
+}
+
+enum ParticipationLevel {
+  COLLEGE
+  UNIVERSITY
+  NATIONAL
+  INTERNATIONAL
+}
+
+enum AwardCategory {
+  ACADEMIC
+  RESEARCH
+  LEADERSHIP
+  COMMUNITY
+  INNOVATION
+  CLINICAL
+  COMPETITION
+  SCHOLARSHIP
+}
+
+enum ClearanceType {
+  VACCINE
+  BLS_CERTIFICATION
+  OSHA_TRAINING
+  TB_TEST
+  MEDICAL_CLEARANCE
+  BACKGROUND_CHECK
+  INSURANCE
+  ID_BADGE
+  DRUG_SCREENING
+}
+
+enum ClearanceStatus {
+  NOT_SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum SurveyType {
+  COURSE_EVALUATION
+  ROTATION_EVALUATION
+  PRECEPTOR_EVALUATION
+  SITE_EVALUATION
+  PROGRAM_EVALUATION
+  SATISFACTION_SERVICES
+  SATISFACTION_CLINICAL
+  CUSTOM
+}
+
+enum QuestionType {
+  LIKERT_SCALE
+  MULTIPLE_CHOICE
+  SHORT_TEXT
+  LONG_TEXT
+  RATING
+  YES_NO
+}
+
+// ========================================
+// USER & AUTHENTICATION
+// ========================================
+
+model User {
+  id            String        @id @default(cuid())
+  email         String        @unique
+  password      String
+  role          UserRole
+  isActive      Boolean       @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile?
+  auditLogs         AuditLog[]
+  
+  @@index([email])
+  @@index([role])
+}
+
+model StudentProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  studentId         String    @unique
+  firstName         String
+  lastName          String
+  arabicName        String?
+  phoneNumber       String?
+  campus            Campus
+  program           Program
+  enrollmentYear    Int
+  gpa               Float?
+  cumulativeGPA     Float?
+  expectedGraduation DateTime?
+  emergencyContact  String?
+  emergencyPhone    String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  user                  User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rotationAssignments   RotationAssignment[]
+  surveyResponses       SurveyResponse[]
+  participationRecords  ParticipationRecord[]
+  awardRecords          AwardRecord[]
+  clearanceItems        StudentClearanceItem[]
+  evaluations           Evaluation[]
+  trainingLogs          TrainingLog[]
+  attendanceRequests    AttendanceRequest[]
+  fileUploads           FileUpload[]
+
+  @@index([studentId])
+  @@index([userId])
+  @@index([campus])
+  @@index([program])
+}
+
+// ========================================
+// COURSES & ROTATIONS
+// ========================================
+
+model Course {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  name            String
+  arabicName      String?
+  credits         Int
+  program         Program
+  description     String?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  rotations       Rotation[]
+
+  @@index([code])
+  @@index([program])
+}
+
+model Rotation {
+  id              String          @id @default(cuid())
+  courseId        String
+  name            String
+  rotationType    RotationType
+  blockNumber     Int
+  startDate       DateTime
+  endDate         DateTime
+  requiredHours   Int
+  maxStudents     Int
+  description     String?
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  course          Course                  @relation(fields: [courseId], references: [id])
+  assignments     RotationAssignment[]
+  siteRotations   SiteRotation[]
+
+  @@index([courseId])
+  @@index([rotationType])
+  @@index([startDate])
+}
+
+model Site {
+  id              String    @id @default(cuid())
+  name            String
+  arabicName      String?
+  type            String
+  campus          Campus
+  address         String?
+  city            String
+  contactPerson   String?
+  contactEmail    String?
+  contactPhone    String?
+  capacity        Int
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  preceptors      Preceptor[]
+  siteRotations   SiteRotation[]
+
+  @@index([campus])
+  @@index([city])
+}
+
+model SiteRotation {
+  id              String    @id @default(cuid())
+  siteId          String
+  rotationId      String
+  availableSlots  Int
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  site            Site      @relation(fields: [siteId], references: [id])
+  rotation        Rotation  @relation(fields: [rotationId], references: [id])
+  assignments     RotationAssignment[]
+
+  @@unique([siteId, rotationId])
+  @@index([siteId])
+  @@index([rotationId])
+}
+
+model Preceptor {
+  id              String    @id @default(cuid())
+  siteId          String
+  firstName       String
+  lastName        String
+  arabicName      String?
+  title           String
+  specialty       String?
+  email           String?
+  phone           String?
+  maxStudents     Int       @default(2)
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  // Relations
+  site            Site                    @relation(fields: [siteId], references: [id])
+  assignments     RotationAssignment[]
+
+  @@index([siteId])
+}
+
+model RotationAssignment {
+  id                String    @id @default(cuid())
+  studentProfileId  String
+  siteRotationId    String
+  preceptorId       String?
+  status            Status    @default(PENDING)
+  matchScore        Float?
+  preferenceRank    Int?
+  assignedAt        DateTime?
+  completedAt       DateTime?
+  hoursCompleted    Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile  @relation(fields: [studentProfileId], references: [id])
+  siteRotation      SiteRotation    @relation(fields: [siteRotationId], references: [id])
+  preceptor         Preceptor?      @relation(fields: [preceptorId], references: [id])
+  evaluations       Evaluation[]
+
+  @@index([studentProfileId])
+  @@index([siteRotationId])
+  @@index([status])
+}
+
+// ========================================
+// SURVEYS & EVALUATIONS
+// ========================================
+
+model SurveyTemplate {
+  id              String      @id @default(cuid())
+  title           String
+  description     String?
+  surveyType      SurveyType
+  isAnonymous     Boolean     @default(false)
+  isActive        Boolean     @default(true)
+  createdBy       String
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  // Relations
+  questions       SurveyQuestion[]
+  assignments     SurveyAssignment[]
+
+  @@index([surveyType])
+  @@index([isActive])
+}
+
+model SurveyQuestion {
+  id              String        @id @default(cuid())
+  surveyTemplateId String
+  questionText    String
+  arabicText      String?
+  questionType    QuestionType
+  isRequired      Boolean       @default(true)
+  order           Int
+  options         Json?         // For MCQ and Likert options
+  metadata        Json?         // Additional config
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  // Relations
+  surveyTemplate  SurveyTemplate    @relation(fields: [surveyTemplateId], references: [id], onDelete: Cascade)
+  answers         SurveyAnswer[]
+
+  @@index([surveyTemplateId])
+  @@index([order])
+}
+
+model SurveyAssignment {
+  id                String    @id @default(cuid())
+  surveyTemplateId  String
+  studentProfileId  String?   // Null for group assignments
+  targetCampus      Campus?
+  targetProgram     Program?
+  dueDate           DateTime?
+  assignedAt        DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  surveyTemplate    SurveyTemplate    @relation(fields: [surveyTemplateId], references: [id])
+  responses         SurveyResponse[]
+
+  @@index([surveyTemplateId])
+  @@index([studentProfileId])
+  @@index([dueDate])
+}
+
+model SurveyResponse {
+  id                  String    @id @default(cuid())
+  surveyAssignmentId  String
+  studentProfileId    String
+  isComplete          Boolean   @default(false)
+  submittedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  // Relations
+  surveyAssignment    SurveyAssignment  @relation(fields: [surveyAssignmentId], references: [id])
+  studentProfile      StudentProfile    @relation(fields: [studentProfileId], references: [id])
+  answers             SurveyAnswer[]
+
+  @@unique([surveyAssignmentId, studentProfileId])
+  @@index([studentProfileId])
+  @@index([submittedAt])
+}
+
+model SurveyAnswer {
+  id                String    @id @default(cuid())
+  surveyResponseId  String
+  questionId        String
+  answerValue       Json      // Flexible: string, number, array, etc.
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relations
+  surveyResponse    SurveyResponse  @relation(fields: [surveyResponseId], references: [id], onDelete: Cascade)
+  question          SurveyQuestion  @relation(fields: [questionId], references: [id])
+
+  @@unique([surveyResponseId, questionId])
+  @@index([questionId])
+}
+
+// ========================================
+// PARTICIPATION & AWARDS
+// ========================================
+
+model ParticipationRecord {
+  id                String              @id @default(cuid())
+  studentProfileId  String
+  title             String
+  type              ParticipationType
+  level             ParticipationLevel
+  organizer         String?
+  eventDate         DateTime
+  role              String?
+  hours             Float?
+  description       String?
+  status            Status              @default(DRAFT)
+  submittedAt       DateTime?
+  approvedAt        DateTime?
+  approvedBy        String?
+  rejectionReason   String?
+  evidenceUrl       String?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile      @relation(fields: [studentProfileId], references: [id])
+
+  @@index([studentProfileId])
+  @@index([type])
+  @@index([level])
+  @@index([status])
+}
+
+model AwardRecord {
+  id                String            @id @default(cuid())
+  studentProfileId  String
+  title             String
+  awardingBody      String
+  level             ParticipationLevel
+  category          AwardCategory
+  dateReceived      DateTime
+  description       String?
+  status            Status            @default(DRAFT)
+  submittedAt       DateTime?
+  approvedAt        DateTime?
+  approvedBy        String?
+  rejectionReason   String?
+  certificateUrl    String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile    @relation(fields: [studentProfileId], references: [id])
+
+  @@index([studentProfileId])
+  @@index([category])
+  @@index([level])
+  @@index([status])
+}
+
+// ========================================
+// CLEARANCE & REQUIREMENTS
+// ========================================
+
+model ClearanceCatalogItem {
+  id              String          @id @default(cuid())
+  name            String
+  type            ClearanceType
+  description     String?
+  isRequired      Boolean         @default(true)
+  validityDays    Int?            // How long before expiry
+  program         Program?        // Null = all programs
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // Relations
+  studentItems    StudentClearanceItem[]
+
+  @@index([type])
+  @@index([program])
+}
+
+model StudentClearanceItem {
+  id                    String                @id @default(cuid())
+  studentProfileId      String
+  catalogItemId         String
+  status                ClearanceStatus       @default(NOT_SUBMITTED)
+  evidenceUrl           String?
+  submittedAt           DateTime?
+  approvedAt            DateTime?
+  expiryDate            DateTime?
+  approvedBy            String?
+  rejectionReason       String?
+  notes                 String?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  // Relations
+  studentProfile        StudentProfile        @relation(fields: [studentProfileId], references: [id])
+  catalogItem           ClearanceCatalogItem  @relation(fields: [catalogItemId], references: [id])
+
+  @@unique([studentProfileId, catalogItemId])
+  @@index([studentProfileId])
+  @@index([status])
+  @@index([expiryDate])
+}
+
+// ========================================
+// EVALUATIONS & ASSESSMENTS
+// ========================================
+
+model Evaluation {
+  id                    String              @id @default(cuid())
+  studentProfileId      String
+  rotationAssignmentId  String
+  evaluationType        String              // "mid-rotation", "final", "self-reflection"
+  dueDate               DateTime?
+  submittedAt           DateTime?
+  score                 Float?
+  feedback              String?
+  status                Status              @default(PENDING)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  // Relations
+  studentProfile        StudentProfile      @relation(fields: [studentProfileId], references: [id])
+  rotationAssignment    RotationAssignment  @relation(fields: [rotationAssignmentId], references: [id])
+
+  @@index([studentProfileId])
+  @@index([rotationAssignmentId])
+  @@index([status])
+}
+
+// ========================================
+// ATTENDANCE & LOGS
+// ========================================
+
+model AttendanceRequest {
+  id                String          @id @default(cuid())
+  studentProfileId  String
+  requestType       String          // "absence", "late", "leave"
+  requestDate       DateTime
+  startDate         DateTime
+  endDate           DateTime?
+  reason            String
+  status            Status          @default(PENDING)
+  approvedBy        String?
+  approvedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile  @relation(fields: [studentProfileId], references: [id])
+
+  @@index([studentProfileId])
+  @@index([status])
+}
+
+model TrainingLog {
+  id                String          @id @default(cuid())
+  studentProfileId  String
+  logDate           DateTime
+  hoursLogged       Float
+  activities        String?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  // Relations
+  studentProfile    StudentProfile  @relation(fields: [studentProfileId], references: [id])
+
+  @@index([studentProfileId])
+  @@index([logDate])
+}
+
+// ========================================
+// FILE UPLOADS
+// ========================================
+
+model FileUpload {
+  id                String          @id @default(cuid())
+  studentProfileId  String?
+  fileName          String
+  fileUrl           String
+  fileType          String
+  fileSize          Int
+  uploadedBy        String
+  relatedEntity     String?         // "clearance", "award", "participation", etc.
+  relatedEntityId   String?
+  createdAt         DateTime        @default(now())
+
+  // Relations
+  studentProfile    StudentProfile? @relation(fields: [studentProfileId], references: [id])
+
+  @@index([studentProfileId])
+  @@index([relatedEntity, relatedEntityId])
+}
+
+// ========================================
+// AUDIT & LOGGING
+// ========================================
+
+model AuditLog {
+  id          String    @id @default(cuid())
+  userId      String
+  action      String
+  entity      String
+  entityId    String?
+  oldValue    Json?
+  newValue    Json?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([entity])
+  @@index([createdAt])
+}

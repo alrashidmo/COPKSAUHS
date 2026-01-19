@@ -1,0 +1,489 @@
+// This is your Prisma schema file
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTH & RBAC
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String
+  lastName      String
+  isActive      Boolean   @default(true)
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  auditLogs     AuditLog[]
+  importRuns    ImportRun[]
+  
+  @@index([email])
+  @@index([roleId])
+  @@map("users")
+}
+
+model Role {
+  id          String       @id @default(uuid())
+  name        String       @unique // Student, Preceptor, Coordinator, Admin, Leadership
+  description String?
+  permissions Permission[]
+  users       User[]
+  
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid())
+  resource    String   // students, preceptors, imports, validation_rules, etc.
+  action      String   // view, edit, import, export, manage_rules, manage_users
+  roleId      String
+  role        Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  
+  @@unique([roleId, resource, action])
+  @@map("permissions")
+}
+
+// ============================================
+// MASTER DATA
+// ============================================
+
+model Course {
+  id             String   @id @default(uuid())
+  code           String   @unique // IPPE-I, IPPE-II, APPE, IPTE-I, etc.
+  name           String
+  description    String?
+  campus         Campus
+  academicYear   String
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  rotationBlocks RotationBlock[]
+  students       Student[]
+  
+  @@map("courses")
+}
+
+model RotationBlock {
+  id          String    @id @default(uuid())
+  name        String    // Block 1, Block 2, etc.
+  courseId    String
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  startDate   DateTime
+  endDate     DateTime
+  campus      Campus
+  cohort      String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  assignments Assignment[]
+  
+  @@index([courseId])
+  @@map("rotation_blocks")
+}
+
+model Student {
+  id              String       @id @default(uuid())
+  studentId       String       @unique // University ID like 42-1-1-1-0394
+  firstName       String
+  lastName        String
+  email           String       @unique
+  phone           String?
+  gender          Gender
+  courseId        String
+  course          Course       @relation(fields: [courseId], references: [id])
+  cohort          String       // 2026, 2027
+  campus          Campus
+  isActive        Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  
+  assignments     Assignment[]
+  requirements    StudentRequirement[]
+  evaluations     Evaluation[]
+  
+  @@index([studentId])
+  @@index([courseId])
+  @@map("students")
+}
+
+model Preceptor {
+  id                String      @id @default(uuid())
+  title             String      // Dr., Prof.
+  firstName         String
+  lastName          String
+  email             String      @unique
+  phone             String?
+  extension         String?
+  specialty         String
+  department        String?
+  licenseNumber     String?
+  licenseExpiry     DateTime?
+  maxStudents       Int         @default(6)
+  trainingCompleted Boolean     @default(false)
+  isActive          Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  
+  assignments       Assignment[]
+  
+  @@index([email])
+  @@map("preceptors")
+}
+
+model Site {
+  id                String    @id @default(uuid())
+  name              String
+  type              SiteType
+  address           String?
+  city              String
+  campus            Campus
+  capacity          Int       @default(0)
+  currentStudents   Int       @default(0)
+  agreementExpiry   DateTime?
+  contactName       String?
+  contactEmail      String?
+  contactPhone      String?
+  requirements      String?   // JSON string
+  isActive          Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  assignments       Assignment[]
+  
+  @@map("sites")
+}
+
+model RequirementCatalog {
+  id              String     @id @default(uuid())
+  code            String     @unique
+  name            String
+  category        String     // Immunization, Background Check, Training, etc.
+  description     String?
+  expiryDays      Int?       // null = no expiry
+  evidenceType    String     // Document, Certificate, Date
+  isMandatory     Boolean    @default(true)
+  mandatoryFor    String[]   // Array of course codes
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  studentReqs     StudentRequirement[]
+  
+  @@map("requirements_catalog")
+}
+
+model AssessmentCatalog {
+  id              String     @id @default(uuid())
+  code            String     @unique
+  name            String
+  version         String     @default("1.0")
+  type            String     // EPA, Rubric, Quiz
+  category        String     // Clinical Skills, Professional Behavior
+  scoringScale    String     // JSON: {min: 0, max: 100, passingScore: 70}
+  rubricCriteria  String?    // JSON array of criteria
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  evaluations     Evaluation[]
+  
+  @@map("assessments_catalog")
+}
+
+// ============================================
+// ASSIGNMENTS & EVALUATIONS
+// ============================================
+
+model Assignment {
+  id             String        @id @default(uuid())
+  studentId      String
+  student        Student       @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  blockId        String
+  block          RotationBlock @relation(fields: [blockId], references: [id], onDelete: Cascade)
+  preceptorId    String
+  preceptor      Preceptor     @relation(fields: [preceptorId], references: [id])
+  siteId         String
+  site           Site          @relation(fields: [siteId], references: [id])
+  rotationType   String
+  startDate      DateTime
+  endDate        DateTime
+  matchScore     Float?        // 0-100
+  preferenceRank Int?          // Student's original preference rank
+  status         AssignmentStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  
+  evaluations    Evaluation[]
+  
+  @@index([studentId])
+  @@index([preceptorId])
+  @@index([blockId])
+  @@map("assignments")
+}
+
+model Evaluation {
+  id             String            @id @default(uuid())
+  assignmentId   String
+  assignment     Assignment        @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  studentId      String
+  student        Student           @relation(fields: [studentId], references: [id])
+  assessmentId   String
+  assessment     AssessmentCatalog @relation(fields: [assessmentId], references: [id])
+  score          Float?
+  passed         Boolean?
+  feedback       String?
+  submittedBy    String?           // Preceptor ID
+  submittedAt    DateTime?
+  dueDate        DateTime
+  status         EvaluationStatus  @default(PENDING)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  
+  @@index([assignmentId])
+  @@index([studentId])
+  @@map("evaluations")
+}
+
+model StudentRequirement {
+  id             String              @id @default(uuid())
+  studentId      String
+  student        Student             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  requirementId  String
+  requirement    RequirementCatalog  @relation(fields: [requirementId], references: [id])
+  status         ComplianceStatus    @default(PENDING)
+  evidenceUrl    String?
+  completedDate  DateTime?
+  expiryDate     DateTime?
+  verifiedBy     String?
+  verifiedAt     DateTime?
+  notes          String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  
+  @@unique([studentId, requirementId])
+  @@index([studentId])
+  @@map("student_requirements")
+}
+
+// ============================================
+// IMPORTS & DATA QUALITY
+// ============================================
+
+model ImportRun {
+  id           String       @id @default(uuid())
+  datasetType  String       // students, preceptors, sites, etc.
+  fileName     String
+  fileSize     Int
+  totalRows    Int
+  successRows  Int          @default(0)
+  errorRows    Int          @default(0)
+  status       ImportStatus @default(PROCESSING)
+  uploadedBy   String
+  uploader     User         @relation(fields: [uploadedBy], references: [id])
+  startedAt    DateTime     @default(now())
+  completedAt  DateTime?
+  errorFileUrl String?
+  
+  errors       ImportError[]
+  
+  @@index([uploadedBy])
+  @@index([datasetType])
+  @@map("import_runs")
+}
+
+model ImportError {
+  id           String    @id @default(uuid())
+  importRunId  String
+  importRun    ImportRun @relation(fields: [importRunId], references: [id], onDelete: Cascade)
+  rowNumber    Int
+  columnName   String?
+  errorType    String    // missing_required, invalid_format, duplicate, constraint_violation
+  errorMessage String
+  rawData      String?   // JSON of the row data
+  createdAt    DateTime  @default(now())
+  
+  @@index([importRunId])
+  @@map("import_errors")
+}
+
+model ValidationRule {
+  id          String   @id @default(uuid())
+  name        String
+  dataset     String   // students, preceptors, assignments
+  field       String?
+  ruleType    String   // required, range, enum, regex, custom
+  config      String   // JSON: {min, max, pattern, allowedValues, etc.}
+  errorMsg    String
+  severity    String   // error, warning, info
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("validation_rules")
+}
+
+// ============================================
+// AUTOMATION
+// ============================================
+
+model AutomationRule {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  trigger     String   // record_created, record_updated, expiry_approaching, schedule_published, evaluation_overdue
+  conditions  String   // JSON: [{field, operator, value}]
+  actions     String   // JSON: [{type, config}] - notify, lock_record, create_task, escalate, webhook
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  runs        AutomationRun[]
+  
+  @@map("automation_rules")
+}
+
+model AutomationRun {
+  id        String           @id @default(uuid())
+  ruleId    String
+  rule      AutomationRule   @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  status    AutomationStatus @default(RUNNING)
+  input     String?          // JSON of input data
+  output    String?          // JSON of result
+  error     String?
+  startedAt DateTime         @default(now())
+  endedAt   DateTime?
+  
+  @@index([ruleId])
+  @@map("automation_runs")
+}
+
+model NotificationTemplate {
+  id          String   @id @default(uuid())
+  code        String   @unique // license_expiry_warning, evaluation_overdue, etc.
+  name        String
+  subject     String
+  bodyHtml    String
+  bodyText    String?
+  variables   String[] // {{preceptorName}}, {{expiryDate}}, etc.
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@map("notification_templates")
+}
+
+// ============================================
+// AUDIT & SECURITY
+// ============================================
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  action      AuditAction
+  resource    String   // Table name
+  resourceId  String   // Record ID
+  beforeData  String?  // JSON
+  afterData   String?  // JSON
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model DataQualityMetric {
+  id            String   @id @default(uuid())
+  dataset       String   // students, preceptors, etc.
+  campus        Campus?
+  completeness  Float    // 0-100%
+  duplicates    Int      @default(0)
+  invalidEnums  Int      @default(0)
+  outliers      Int      @default(0)
+  totalRecords  Int
+  calculatedAt  DateTime @default(now())
+  
+  @@index([dataset])
+  @@index([calculatedAt])
+  @@map("data_quality_metrics")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum Campus {
+  RIYADH
+  JEDDAH
+  AL_AHSA
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum SiteType {
+  HOSPITAL
+  CLINIC
+  COMMUNITY_PHARMACY
+  INDUSTRY
+  ACADEMIC
+  REGULATORY
+}
+
+enum AssignmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum EvaluationStatus {
+  PENDING
+  SUBMITTED
+  OVERDUE
+}
+
+enum ComplianceStatus {
+  PENDING
+  APPROVED
+  EXPIRED
+  REJECTED
+}
+
+enum ImportStatus {
+  PROCESSING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum AutomationStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  EXPORT
+  IMPORT
+}

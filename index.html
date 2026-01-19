@@ -114,16 +114,95 @@
 
             <!-- Alumni Unit Nav (Hidden by default) -->
             <aside class="sidebar unit-nav hidden" id="nav-alumni">
-                <div class="brand">Alumni Unit</div>
+                <div class="brand">🎓 Alumni Unit Dashboard</div>
+                
+                <!-- Program Filter -->
+                <div class="program-selector">
+                    <label for="alumni-program-filter" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.25rem; display: block;">Program Filter:</label>
+                    <select id="alumni-program-filter" class="program-dropdown">
+                        <option value="all">All Programs</option>
+                        <option value="bpharm">BPharm</option>
+                        <option value="pharmd">PharmD</option>
+                        <option value="technician">Pharmacy Technician</option>
+                    </select>
+                </div>
+
                 <ul class="nav-menu">
+                    <!-- Core Sections -->
+                    <li class="nav-section-header">Executive Overview</li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" data-view="alumni-events">
-                            <span class="nav-icon">📅</span> Events
+                        <a href="#" class="nav-link" data-view="alumni-overview">
+                            <span class="nav-icon">🧭</span> Alumni Overview
+                        </a>
+                    </li>
+
+                    <li class="nav-section-header">Alumni Management</li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-directory">
+                            <span class="nav-icon">👤</span> Alumni Directory
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link" data-view="alumni-network">
-                            <span class="nav-icon">🤝</span> Networking
+                        <a href="#" class="nav-link" data-view="alumni-outcomes">
+                            <span class="nav-icon">📊</span> Outcomes Tracking
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="postgraduate-tracking">
+                            <span class="nav-icon">🎓</span> Postgraduate & Certification
+                        </a>
+                    </li>
+
+                    <li class="nav-section-header">Engagement & Programs</li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-engagement">
+                            <span class="nav-icon">🤝</span> Engagement Tracking
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="mentorship-program">
+                            <span class="nav-icon">🧠</span> Mentorship Program
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="preceptor-pipeline">
+                            <span class="nav-icon">🏥</span> Preceptor & Training Sites
+                        </a>
+                    </li>
+
+                    <li class="nav-section-header">Communication & Recognition</li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-events">
+                            <span class="nav-icon">📅</span> Events & Communication
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-achievements">
+                            <span class="nav-icon">🏆</span> Achievements & Recognition
+                        </a>
+                    </li>
+
+                    <li class="nav-section-header">Feedback & Compliance</li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-feedback">
+                            <span class="nav-icon">📣</span> Feedback & Surveys
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-documents">
+                            <span class="nav-icon">📁</span> Documents & Records
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-governance">
+                            <span class="nav-icon">🔐</span> Data Governance & Privacy
+                        </a>
+                    </li>
+
+                    <li class="nav-section-header">Advanced Analytics</li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="alumni-ecosystem">
+                            <span class="nav-icon">🔄</span> Alumni-Student Ecosystem
                         </a>
                     </li>
                 </ul>

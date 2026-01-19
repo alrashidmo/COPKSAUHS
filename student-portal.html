@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APPE Student Information Portal - KSAU-HS</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .portal-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1B5E20, #2E7D32);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
+        }
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+        }
+        .content {
+            padding: 2rem;
+        }
+        .login-section {
+            max-width: 400px;
+            margin: 2rem auto;
+        }
+        .form-section {
+            display: none;
+        }
+        .form-section.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #2E7D32;
+        }
+        .form-group input:disabled {
+            background: #f5f5f5;
+            cursor: not-allowed;
+        }
+        .info-card {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+        }
+        .warning-card {
+            background: #FFF3E0;
+            border-left: 4px solid #FF9800;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 6px;
+        }
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #2E7D32;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1B5E20;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+        }
+        .btn-secondary {
+            background: #757575;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #616161;
+        }
+        .btn-block {
+            width: 100%;
+        }
+        .section-header {
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            color: #2E7D32;
+            font-weight: 600;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .success-message {
+            background: #E8F5E9;
+            border: 2px solid #4CAF50;
+            color: #1B5E20;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        .success-message h3 {
+            margin: 0 0 0.5rem 0;
+            color: #2E7D32;
+        }
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .content {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-container">
+        <div class="header">
+            <h1>🎓 APPE Student Information Portal</h1>
+            <p>King Saud bin Abdulaziz University for Health Sciences</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">College of Pharmacy - APPE Block 1 Spring 2026</p>
+        </div>
+
+        <div class="content">
+            <!-- LOGIN SECTION -->
+            <div id="loginSection" class="login-section active">
+                <div class="info-card">
+                    <strong>📌 Instructions:</strong> Enter your university ID to access your information form. Make sure all information is accurate before submitting.
+                </div>
+
+                <div class="form-group">
+                    <label for="studentId">Student ID</label>
+                    <input type="text" id="studentId" placeholder="e.g., 38-1-1-1-0601" autocomplete="off">
+                </div>
+
+                <button class="btn btn-primary btn-block" onclick="studentLogin()">
+                    🔐 Access My Information
+                </button>
+
+                <p style="text-align: center; color: #666; margin-top: 1.5rem; font-size: 0.9rem;">
+                    For technical support, contact: <strong>appe@ksau-hs.edu.sa</strong>
+                </p>
+            </div>
+
+            <!-- FORM SECTION -->
+            <div id="formSection" class="form-section">
+                <div class="warning-card">
+                    <strong>⚠️ Important:</strong> Please review all information carefully. Once submitted, you cannot edit your information. Contact administration for corrections.
+                </div>
+
+                <div class="section-header">📋 Personal Information</div>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Student ID</label>
+                        <input type="text" id="editStudentId" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Full Name (Arabic)</label>
+                        <input type="text" id="nameArabic" placeholder="الاسم بالكامل">
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Full Name (English) *</label>
+                        <input type="text" id="nameEnglish" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>National ID / Iqama Number *</label>
+                        <input type="text" id="nationalId" placeholder="10-digit ID" maxlength="10" required>
+                    </div>
+                </div>
+
+                <div class="section-header">📞 Contact Information</div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Mobile Number *</label>
+                        <input type="tel" id="mobile" placeholder="05XXXXXXXX" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Personal Email *</label>
+                        <input type="email" id="email" placeholder="your.email@example.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Emergency Contact Name *</label>
+                    <input type="text" id="emergencyName" placeholder="Full name of emergency contact" required>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Emergency Contact Number *</label>
+                        <input type="tel" id="emergencyPhone" placeholder="05XXXXXXXX" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Relationship to Student *</label>
+                        <select id="emergencyRelation" required>
+                            <option value="">-- Select --</option>
+                            <option value="Parent">Parent</option>
+                            <option value="Spouse">Spouse</option>
+                            <option value="Sibling">Sibling</option>
+                            <option value="Other Family">Other Family</option>
+                            <option value="Friend">Friend</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section-header">🏠 Address Information</div>
+
+                <div class="form-group">
+                    <label>Current Residential Address *</label>
+                    <textarea id="address" rows="2" placeholder="Full address including district and city" required></textarea>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>City *</label>
+                        <select id="city" required>
+                            <option value="">-- Select --</option>
+                            <option value="Riyadh">Riyadh</option>
+                            <option value="Jeddah">Jeddah</option>
+                            <option value="Dammam">Dammam</option>
+                            <option value="Al-Ahsa">Al-Ahsa</option>
+                            <option value="Madinah">Madinah</option>
+                            <option value="Makkah">Makkah</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Postal Code</label>
+                        <input type="text" id="postalCode" placeholder="5-digit code" maxlength="5">
+                    </div>
+                </div>
+
+                <div class="section-header">🚗 Transportation</div>
+
+                <div class="form-group">
+                    <label>Do you have your own transportation? *</label>
+                    <select id="ownTransport" required>
+                        <option value="">-- Select --</option>
+                        <option value="Yes">Yes - I have a car</option>
+                        <option value="No">No - I need public transport access</option>
+                        <option value="Shared">Shared - I can carpool</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Valid Saudi Driving License?</label>
+                    <select id="drivingLicense">
+                        <option value="">-- Select --</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+
+                <div class="section-header">🏥 Medical & Special Requirements</div>
+
+                <div class="form-group">
+                    <label>Do you have any medical conditions that may affect rotation placement?</label>
+                    <select id="medicalConditions" onchange="toggleMedicalDetails()">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes - I need accommodations</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="medicalDetailsGroup" style="display: none;">
+                    <label>Medical Condition Details (confidential)</label>
+                    <textarea id="medicalDetails" rows="3" placeholder="Please describe briefly so we can provide appropriate accommodations"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Special Accommodations Needed</label>
+                    <textarea id="specialAccommodations" rows="2" placeholder="e.g., Prayer room access, dietary requirements, accessibility needs"></textarea>
+                </div>
+
+                <div class="section-header">📄 Additional Information</div>
+
+                <div class="form-group">
+                    <label>T-Shirt Size (for ID badge and events)</label>
+                    <select id="tshirtSize">
+                        <option value="">-- Select --</option>
+                        <option value="S">Small</option>
+                        <option value="M">Medium</option>
+                        <option value="L">Large</option>
+                        <option value="XL">X-Large</option>
+                        <option value="XXL">XX-Large</option>
+                    </select>
+                </div>
+
+                <div class="info-card" style="margin-top: 2rem;">
+                    <input type="checkbox" id="confirmAccuracy" style="margin-right: 0.5rem;">
+                    <label for="confirmAccuracy" style="display: inline; font-weight: normal;">
+                        I confirm that all information provided is accurate and complete to the best of my knowledge.
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn btn-secondary" onclick="backToLogin()">
+                        ← Back
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="submitStudentInfo()">
+                        ✅ Submit Information
+                    </button>
+                </div>
+            </div>
+
+            <!-- SUCCESS SECTION -->
+            <div id="successSection" class="form-section">
+                <div class="success-message">
+                    <h3>✅ Submission Successful!</h3>
+                    <p>Your information has been submitted successfully.</p>
+                    <p style="margin-top: 1rem;">Reference ID: <strong id="submissionRef"></strong></p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">
+                        The APPE administration team will review your submission. You will receive a confirmation email within 24 hours.
+                    </p>
+                </div>
+
+                <div class="info-card">
+                    <strong>📌 Next Steps:</strong>
+                    <ol style="margin: 0.5rem 0 0 1.2rem; padding: 0;">
+                        <li>Check your email for confirmation</li>
+                        <li>Submit your rotation preferences (deadline: Jan 25, 2026)</li>
+                        <li>Complete compliance requirements in the dashboard</li>
+                    </ol>
+                </div>
+
+                <button class="btn btn-primary btn-block" onclick="location.reload()">
+                    🏠 Return to Login
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Student database (in production, this would come from backend)
+        const studentDatabase = {
+            '38-1-1-1-0601': { name: 'Mohammad Fares Almoteb', program: 'PharmD Y5' },
+            '39-1-1-1-0116': { name: 'Nasser Trad Aldosari', program: 'PharmD Y5' },
+            '41-1-1-1-0050': { name: 'Abdullah Ibrahim Alkhulaifi', program: 'PharmD Y5' },
+            '41-1-1-1-0152': { name: 'Saud Enad Alanazi', program: 'PharmD Y5' },
+            '41-1-1-1-0350': { name: 'Batal Muhayya Aldosari', program: 'PharmD Y5' },
+            '41-1-1-1-0523': { name: 'Faisal Mohammed Alshehri', program: 'PharmD Y5' },
+            '42-1-1-1-0017': { name: 'Ahmed Murdhi Alharbi', program: 'PharmD Y5' },
+            '42-1-1-1-0055': { name: 'Bandar Sultan Aldawish', program: 'PharmD Y5' },
+            '42-1-1-1-0076': { name: 'Hamad Mohammed Alkhalaf', program: 'PharmD Y5' },
+            '42-1-1-1-0114': { name: 'Riadh Mansor Arrais', program: 'PharmD Y5' },
+            '42-1-1-1-0148': { name: 'Sultan Ali Aljardan', program: 'PharmD Y5' },
+            '42-1-1-1-0201': { name: 'Anas Faleh Alshehri', program: 'PharmD Y5' },
+            '42-1-1-1-0324': { name: 'Abdulaziz Ibrahim Alessa', program: 'PharmD Y5' },
+            '42-1-1-1-0377': { name: 'Abdulrahman Abdullah Alghamdi', program: 'PharmD Y5' },
+            '42-1-1-1-0552': { name: 'Abdulrahman Ibrahim Alotaibi', program: 'PharmD Y5' },
+            '42-1-1-1-0601': { name: 'Meshal Mostafa Almqbali', program: 'PharmD Y5' },
+            '42-1-1-1-0759': { name: 'Abdullah Mohammed Hussain Alzubaidy', program: 'PharmD Y5' },
+            '42-1-1-1-0797': { name: 'Anas Oqab Almalki', program: 'PharmD Y5' },
+            '42-1-1-1-0850': { name: 'Abdulmajeed Salem Almalki', program: 'PharmD Y5' },
+            '43-1-1-1-0226': { name: 'Mohammed Fahad Albarrak', program: 'PharmD Y5' },
+            '43-1-1-1-0350': { name: 'Khaled Abdullah Alkhathlan', program: 'PharmD Y5' },
+            '43-1-1-1-0459': { name: 'Meshal Rafe Alzahrani', program: 'PharmD Y5' },
+            '43-1-1-1-0601': { name: 'Abdulaziz Khalid Alhenaki', program: 'PharmD Y5' },
+            '43-1-1-1-0797': { name: 'Faisal Jameel Ashour', program: 'PharmD Y5' },
+            '43-1-1-1-0850': { name: 'Ziyad Sameer Hawsawi', program: 'PharmD Y5' },
+            '43-1-1-1-0902': { name: 'Moath Khaleel Yousef', program: 'PharmD Y5' }
+            // Add remaining 33 students...
+        };
+
+        let currentStudent = null;
+
+        function studentLogin() {
+            const studentId = document.getElementById('studentId').value.trim();
+            
+            if (!studentId) {
+                alert('❌ Please enter your Student ID');
+                return;
+            }
+
+            if (!studentDatabase[studentId]) {
+                alert('❌ Student ID not found. Please check and try again.');
+                return;
+            }
+
+            currentStudent = {
+                id: studentId,
+                ...studentDatabase[studentId]
+            };
+
+            // Pre-fill form
+            document.getElementById('editStudentId').value = currentStudent.id;
+            document.getElementById('nameEnglish').value = currentStudent.name;
+
+            // Show form section
+            document.getElementById('loginSection').classList.remove('active');
+            document.getElementById('formSection').classList.add('active');
+        }
+
+        function backToLogin() {
+            document.getElementById('formSection').classList.remove('active');
+            document.getElementById('loginSection').classList.add('active');
+            currentStudent = null;
+        }
+
+        function toggleMedicalDetails() {
+            const hasMedical = document.getElementById('medicalConditions').value === 'Yes';
+            document.getElementById('medicalDetailsGroup').style.display = hasMedical ? 'block' : 'none';
+        }
+
+        function submitStudentInfo() {
+            // Validation
+            if (!document.getElementById('confirmAccuracy').checked) {
+                alert('❌ Please confirm that all information is accurate');
+                return;
+            }
+
+            const requiredFields = [
+                'nationalId', 'mobile', 'email', 'emergencyName', 
+                'emergencyPhone', 'emergencyRelation', 'address', 
+                'city', 'ownTransport'
+            ];
+
+            for (let field of requiredFields) {
+                if (!document.getElementById(field).value.trim()) {
+                    alert(`❌ Please fill in all required fields (*)`);
+                    return;
+                }
+            }
+
+            // Validate mobile number (Saudi format)
+            const mobile = document.getElementById('mobile').value;
+            if (!/^05\d{8}$/.test(mobile)) {
+                alert('❌ Mobile number must be 10 digits starting with 05');
+                return;
+            }
+
+            const emergencyPhone = document.getElementById('emergencyPhone').value;
+            if (!/^05\d{8}$/.test(emergencyPhone)) {
+                alert('❌ Emergency contact number must be 10 digits starting with 05');
+                return;
+            }
+
+            // Collect all data
+            const submissionData = {
+                studentId: currentStudent.id,
+                studentName: currentStudent.name,
+                nameArabic: document.getElementById('nameArabic').value,
+                nationalId: document.getElementById('nationalId').value,
+                mobile: document.getElementById('mobile').value,
+                email: document.getElementById('email').value,
+                emergencyName: document.getElementById('emergencyName').value,
+                emergencyPhone: document.getElementById('emergencyPhone').value,
+                emergencyRelation: document.getElementById('emergencyRelation').value,
+                address: document.getElementById('address').value,
+                city: document.getElementById('city').value,
+                postalCode: document.getElementById('postalCode').value,
+                ownTransport: document.getElementById('ownTransport').value,
+                drivingLicense: document.getElementById('drivingLicense').value,
+                medicalConditions: document.getElementById('medicalConditions').value,
+                medicalDetails: document.getElementById('medicalDetails').value,
+                specialAccommodations: document.getElementById('specialAccommodations').value,
+                tshirtSize: document.getElementById('tshirtSize').value,
+                submittedAt: new Date().toISOString()
+            };
+
+            // In production, this would send to backend API
+            console.log('Submitting student information:', submissionData);
+            
+            // Save to localStorage (temporary storage - in production use backend)
+            let submissions = JSON.parse(localStorage.getItem('studentSubmissions') || '[]');
+            submissions.push(submissionData);
+            localStorage.setItem('studentSubmissions', JSON.stringify(submissions));
+
+            // Generate reference number
+            const refNumber = 'APPE2026-' + currentStudent.id.replace(/-/g, '') + '-' + Date.now().toString().slice(-6);
+            document.getElementById('submissionRef').textContent = refNumber;
+
+            // Show success
+            document.getElementById('formSection').classList.remove('active');
+            document.getElementById('successSection').classList.add('active');
+
+            // Send notification (in production)
+            console.log('📧 Email notification sent to:', submissionData.email);
+            console.log('📧 Admin notification sent to: appe@ksau-hs.edu.sa');
+        }
+    </script>
+</body>
+</html>

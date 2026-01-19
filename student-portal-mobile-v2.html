@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1B5E20">
+    <title>APPE Student Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1B5E20;
+            --primary-light: #4CAF50;
+            --primary-dark: #0d3310;
+            --bg-gray: #f5f7fa;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-gray);
+            color: var(--text-dark);
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 70px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0 0 1.5rem 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.875rem;
+        }
+
+        /* Content */
+        .content {
+            padding: 1rem;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 0.375rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-yellow {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-gray {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        /* Status Indicators */
+        .status-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .status-dot.green { background: var(--success); }
+        .status-dot.yellow { background: var(--warning); }
+        .status-dot.red { background: var(--danger); }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option:has(input:checked) {
+            border-color: var(--primary-light);
+            background: #f0fdf4;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 0.75rem;
+            width: auto;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.875rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-light);
+            color: white;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 0.5rem 0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            border: none;
+            background: none;
+            color: var(--text-gray);
+            cursor: pointer;
+            transition: color 0.2s;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--primary-light);
+        }
+
+        .nav-item svg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .nav-label {
+            font-size: 0.625rem;
+            font-weight: 500;
+        }
+
+        /* Info Row */
+        .info-row {
+            display: flex;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            color: var(--primary-light);
+            flex-shrink: 0;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--primary));
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-info {
+            background: #fef3c7;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-size: 0.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            color: #92400e;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem;
+            padding: 0 0.25rem;
+        }
+
+        /* Traffic Light */
+        .traffic-light {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .traffic-light.green {
+            background: #dcfce7;
+        }
+
+        .traffic-light.yellow {
+            background: #fef3c7;
+        }
+
+        .traffic-light.red {
+            background: #fee2e2;
+        }
+
+        /* Award Category Icons */
+        .category-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M13.8 12H3"/>
+                    </svg>
+                </div>
+                <h1 class="login-title">APPE Student Portal</h1>
+                <p style="color: var(--text-gray);">Advanced Pharmacy Practice Experience</p>
+            </div>
+
+            <div class="demo-info">
+                <strong>Demo Login:</strong><br>
+                Email: ahmed.almansour@student.ksau-hs.edu.sa<br>
+                Password: (any password)
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="emailInput" value="ahmed.almansour@student.ksau-hs.edu.sa" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="passwordInput" value="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <!-- TAB 1: Survey -->
+        <div id="surveyPage" class="page active">
+            <div class="header">
+                <h1>📋 Surveys</h1>
+                <p>Complete your assigned surveys</p>
+            </div>
+
+            <div class="content">
+                <!-- PHRD 4.1: Student Satisfaction with Services -->
+                <div class="card" onclick="openSurvey('phrd41')">
+                    <div class="card-header">
+                        <div>
+                            <div style="color: var(--primary-light); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">PHRD 4.1</div>
+                            <h3 class="card-title">Student Satisfaction with Services</h3>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.5rem;">Academic advising, student support, facilities</p>
+                        </div>
+                        <span class="badge badge-yellow">In Progress</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-gray); font-size: 0.875rem;">
+                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Due: Jan 31, 2026
+                    </div>
+                </div>
+
+                <!-- PHRD 4.2: Student Satisfaction with Clinical Rotation -->
+                <div class="card" onclick="openSurvey('phrd42')">
+                    <div class="card-header">
+                        <div>
+                            <div style="color: var(--primary-light); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">PHRD 4.2</div>
+                            <h3 class="card-title">Clinical Rotation Satisfaction</h3>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.5rem;">Community Pharmacy rotation feedback</p>
+                        </div>
+                        <span class="badge badge-gray">Not Started</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-gray); font-size: 0.875rem;">
+                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Due: Feb 15, 2026
+                    </div>
+                </div>
+
+                <!-- Course Evaluation -->
+                <div class="card" onclick="openSurvey('courseEval')">
+                    <div class="card-header">
+                        <div>
+                            <div style="color: var(--primary-light); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">COURSE EVALUATION</div>
+                            <h3 class="card-title">APPE Rotation Evaluation</h3>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.5rem;">Evaluate your rotation experience</p>
+                        </div>
+                        <span class="badge badge-green">Submitted</span>
+                    </div>
+                    <div style="color: var(--text-gray); font-size: 0.875rem;">
+                        Submitted on Jan 10, 2026
+                    </div>
+                </div>
+
+                <!-- Program Evaluation -->
+                <div class="card" onclick="openSurvey('programEval')">
+                    <div class="card-header">
+                        <div>
+                            <div style="color: var(--primary-light); font-size: 0.75rem; font-weight: 600; margin-bottom: 0.25rem;">PROGRAM EVALUATION</div>
+                            <h3 class="card-title">Pharm.D Program Feedback</h3>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.5rem;">Overall program quality assessment</p>
+                        </div>
+                        <span class="badge badge-gray">Not Started</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-gray); font-size: 0.875rem;">
+                        <svg style="width: 1rem; height: 1rem;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        Due: Mar 1, 2026
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: Participation -->
+        <div id="participationPage" class="page">
+            <div class="header">
+                <h1>🎯 Participation</h1>
+                <p>Track conferences & community service</p>
+            </div>
+
+            <div class="content">
+                <!-- Add New Button -->
+                <button class="btn btn-primary" onclick="showAddParticipation()" style="margin-bottom: 1rem;">
+                    ➕ Add New Activity
+                </button>
+
+                <!-- PHRD 4.4 Section -->
+                <h3 class="section-header">
+                    🎓 Conference & Project Acceptance (PHRD 4.4)
+                </h3>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Research Poster Presentation</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.25rem;">Saudi Pharmaceutical Society Conference</p>
+                        </div>
+                        <span class="badge badge-green">Approved</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                        <strong>Level:</strong> <span>National</span>
+                        <strong>Role:</strong> <span>Presenter</span>
+                        <strong>Date:</strong> <span>Dec 15, 2025</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Clinical Pharmacy Workshop</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.25rem;">KSAU-HS Annual Symposium</p>
+                        </div>
+                        <span class="badge badge-yellow">Pending</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                        <strong>Level:</strong> <span>University</span>
+                        <strong>Role:</strong> <span>Attendee</span>
+                        <strong>Date:</strong> <span>Jan 20, 2026</span>
+                    </div>
+                </div>
+
+                <!-- Community Service Section -->
+                <h3 class="section-header">
+                    🤝 Community Service Activities
+                </h3>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Health Awareness Campaign</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.25rem;">Diabetes awareness at local mall</p>
+                        </div>
+                        <span class="badge badge-green">Approved</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                        <strong>Hours:</strong> <span>8 hours</span>
+                        <strong>Date:</strong> <span>Nov 14, 2025</span>
+                        <strong>Organizer:</strong> <span>Saudi Red Crescent</span>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Medication Review Clinic</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem; margin-top: 0.25rem;">Free medication counseling for elderly</p>
+                        </div>
+                        <span class="badge badge-green">Approved</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                        <strong>Hours:</strong> <span>12 hours</span>
+                        <strong>Date:</strong> <span>Oct 5, 2025</span>
+                        <strong>Organizer:</strong> <span>Community Health Center</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: Student Awards -->
+        <div id="awardsPage" class="page">
+            <div class="header">
+                <h1>🏆 Student Awards</h1>
+                <p>Your achievement portfolio</p>
+            </div>
+
+            <div class="content">
+                <!-- Add Award Button -->
+                <button class="btn btn-primary" onclick="showAddAward()" style="margin-bottom: 1rem;">
+                    ➕ Add New Award
+                </button>
+
+                <!-- Awards List -->
+                <div class="card">
+                    <div style="display: flex; gap: 1rem; align-items: start;">
+                        <div class="category-icon" style="background: #fef3c7;">🎓</div>
+                        <div style="flex: 1;">
+                            <div class="card-header" style="margin-bottom: 0.5rem;">
+                                <div>
+                                    <h4 style="font-weight: 600;">Dean's Honor List</h4>
+                                    <p style="color: var(--text-gray); font-size: 0.875rem;">College of Pharmacy</p>
+                                </div>
+                                <span class="badge badge-green">Verified</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                                <strong>Level:</strong> <span>🏛️ University</span>
+                                <strong>Category:</strong> <span>Academic</span>
+                                <strong>Date:</strong> <span>May 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; gap: 1rem; align-items: start;">
+                        <div class="category-icon" style="background: #dbeafe;">🔬</div>
+                        <div style="flex: 1;">
+                            <div class="card-header" style="margin-bottom: 0.5rem;">
+                                <div>
+                                    <h4 style="font-weight: 600;">Best Research Poster</h4>
+                                    <p style="color: var(--text-gray); font-size: 0.875rem;">Saudi Pharmaceutical Society</p>
+                                </div>
+                                <span class="badge badge-green">Verified</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                                <strong>Level:</strong> <span>🇸🇦 National</span>
+                                <strong>Category:</strong> <span>Research</span>
+                                <strong>Date:</strong> <span>Dec 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; gap: 1rem; align-items: start;">
+                        <div class="category-icon" style="background: #dcfce7;">💊</div>
+                        <div style="flex: 1;">
+                            <div class="card-header" style="margin-bottom: 0.5rem;">
+                                <div>
+                                    <h4 style="font-weight: 600;">Clinical Excellence Award</h4>
+                                    <p style="color: var(--text-gray); font-size: 0.875rem;">King Abdulaziz Medical City</p>
+                                </div>
+                                <span class="badge badge-yellow">Pending</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; font-size: 0.875rem; color: var(--text-gray);">
+                                <strong>Level:</strong> <span>🏢 College</span>
+                                <strong>Category:</strong> <span>Clinical</span>
+                                <strong>Date:</strong> <span>Jan 2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Summary Stats -->
+                <div class="card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white;">
+                    <h4 style="font-weight: 600; margin-bottom: 1rem;">Achievement Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold;">3</div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">Total Awards</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold;">2</div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">Verified</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 2rem; font-weight: bold;">1</div>
+                            <div style="font-size: 0.75rem; opacity: 0.9;">National</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: Clinical Affairs -->
+        <div id="clinicalPage" class="page">
+            <div class="header">
+                <h1>🏥 Clinical Affairs</h1>
+                <p>Training command center</p>
+            </div>
+
+            <div class="content">
+                <!-- My Training Overview -->
+                <h3 class="section-header">📍 My Training Overview</h3>
+                
+                <div class="card">
+                    <div style="background: #eff6ff; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <div style="font-weight: 600; color: #1e40af; margin-bottom: 0.25rem;">Current Rotation</div>
+                        <div style="font-size: 1.125rem; font-weight: bold; color: #1e3a8a;">Community Pharmacy</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                        </svg>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">Program</div>
+                            <div style="font-weight: 500;">APPE (Advanced)</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">Site & Preceptor</div>
+                            <div style="font-weight: 500;">Al-Nahdi Pharmacy - Riyadh</div>
+                            <div style="font-size: 0.875rem; color: var(--text-gray);">Pharm. Khalid Abdullah</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">Duration</div>
+                            <div style="font-weight: 500;">Jan 5 - Feb 14, 2026 (6 weeks)</div>
+                            <div style="font-size: 0.875rem; color: var(--primary-light);">Status: Active</div>
+                        </div>
+                    </div>
+
+                    <div class="info-row">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">Required Hours</div>
+                            <div style="font-weight: 500;">240 hours required</div>
+                            <div style="background: #f3f4f6; border-radius: 0.5rem; height: 0.5rem; margin-top: 0.5rem; overflow: hidden;">
+                                <div style="background: var(--primary-light); height: 100%; width: 60%;"></div>
+                            </div>
+                            <div style="font-size: 0.75rem; color: var(--primary-light); margin-top: 0.25rem;">144/240 hours completed (60%)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Clearance & Requirements -->
+                <h3 class="section-header">🚦 Clearance & Requirements</h3>
+                
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="traffic-light green">✅</div>
+                            <div>
+                                <div style="font-weight: 600;">BLS Certification</div>
+                                <div style="font-size: 0.75rem; color: var(--text-gray);">Expires: Dec 2026</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="traffic-light yellow">⚠️</div>
+                            <div>
+                                <div style="font-weight: 600;">Hepatitis B Vaccine</div>
+                                <div style="font-size: 0.75rem; color: var(--warning);">Expires: Feb 2026 (30 days)</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.75rem;">Upload</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="traffic-light green">✅</div>
+                            <div>
+                                <div style="font-weight: 600;">TB Test</div>
+                                <div style="font-size: 0.75rem; color: var(--text-gray);">Completed: Oct 2025</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <div class="traffic-light red">❌</div>
+                            <div>
+                                <div style="font-weight: 600;">OSHA Training</div>
+                                <div style="font-size: 0.75rem; color: var(--danger);">Missing - Required</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" style="width: auto; padding: 0.5rem 1rem; font-size: 0.75rem;">Upload</button>
+                    </div>
+                </div>
+
+                <!-- Assessments & Evaluations -->
+                <h3 class="section-header">📝 Assessments & Evaluations</h3>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Mid-Rotation Evaluation</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem;">Preceptor feedback</p>
+                        </div>
+                        <span class="badge badge-green">Completed</span>
+                    </div>
+                    <div style="color: var(--text-gray); font-size: 0.875rem;">
+                        Submitted by preceptor on Jan 22, 2026
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Final Evaluation</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem;">Comprehensive assessment</p>
+                        </div>
+                        <span class="badge badge-gray">Pending</span>
+                    </div>
+                    <div style="color: var(--text-gray); font-size: 0.875rem;">
+                        Due: Feb 14, 2026
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 style="font-weight: 600; margin-bottom: 0.75rem;">Student Self-Reflection</h4>
+                    <textarea placeholder="Reflect on your learning experience..." style="margin-bottom: 0.75rem;"></textarea>
+                    <button class="btn btn-secondary">Save Reflection</button>
+                </div>
+
+                <!-- Attendance & Logs -->
+                <h3 class="section-header">📅 Attendance & Logs</h3>
+                
+                <div class="card">
+                    <h4 style="font-weight: 600; margin-bottom: 1rem;">Absence Requests</h4>
+                    <button class="btn btn-primary">Request Absence</button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div>
+                            <h4 style="font-weight: 600;">Recent Absence Request</h4>
+                            <p style="color: var(--text-gray); font-size: 0.875rem;">Medical appointment</p>
+                        </div>
+                        <span class="badge badge-green">Approved</span>
+                    </div>
+                    <div style="color: var(--text-gray); font-size: 0.875rem;">
+                        Date: Jan 15, 2026 | Reason: Doctor's appointment
+                    </div>
+                </div>
+
+                <!-- Documents & Resources -->
+                <h3 class="section-header">📄 Documents & Resources</h3>
+                
+                <div class="card" style="background: #f9fafb;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <svg style="width: 2rem; height: 2rem; color: #ef4444;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600;">Rotation Manual</div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">Community Pharmacy Guide (PDF)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="background: #f9fafb;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <svg style="width: 2rem; height: 2rem; color: #3b82f6;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600;">Student Handbook</div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">APPE Policies & Procedures (PDF)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card" style="background: #f9fafb;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                        <svg style="width: 2rem; height: 2rem; color: var(--success);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        <div>
+                            <div style="font-weight: 600;">Evaluation Forms</div>
+                            <div style="font-size: 0.75rem; color: var(--text-gray);">Assessment templates (DOCX)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" onclick="showPage('survey')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                </svg>
+                <span class="nav-label">Survey</span>
+            </button>
+            <button class="nav-item" onclick="showPage('participation')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+                    <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                </svg>
+                <span class="nav-label">Participation</span>
+            </button>
+            <button class="nav-item" onclick="showPage('awards')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0012 0V2z"></path>
+                </svg>
+                <span class="nav-label">Awards</span>
+            </button>
+            <button class="nav-item" onclick="showPage('clinical')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 7h-9M14 17H5M6 3v4M10 3v4M6 13v8M10 13v8"></path>
+                    <circle cx="18" cy="17" r="3"></circle>
+                </svg>
+                <span class="nav-label">Clinical</span>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+        });
+
+        // Navigation
+        function showPage(pageName) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            // Show selected page
+            document.getElementById(pageName + 'Page').classList.add('active');
+            
+            // Update nav active state
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        // Survey Functions
+        function openSurvey(surveyId) {
+            alert('Opening survey: ' + surveyId + '\n\nIn a real application, this would open the survey form.');
+        }
+
+        // Participation Functions
+        function showAddParticipation() {
+            alert('Add New Participation\n\nThis would open a form to submit:\n- Conference/Project details\n- Community service activity\n- Upload evidence\n- Select type and level');
+        }
+
+        // Awards Functions
+        function showAddAward() {
+            alert('Add New Award\n\nThis would open a form to submit:\n- Award title\n- Awarding body\n- Level (college/university/national/international)\n- Category (academic/research/leadership/etc.)\n- Date received\n- Upload certificate');
+        }
+
+        // Logout
+        function logout() {
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+            // Reset to first tab
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.getElementById('surveyPage').classList.add('active');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APPE Experience Hub - Clinical Affairs</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/appe-hub.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, #1B5E20 0%, #2E7D32 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 4px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h1 {
+            font-size: 22px;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .nav-section {
+            margin-bottom: 30px;
+        }
+
+        .nav-section-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .nav-item {
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            font-weight: 600;
+        }
+
+        .nav-item-icon {
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            font-size: 28px;
+            color: #1B5E20;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-icon {
+            font-size: 32px;
+        }
+
+        .card-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #1B5E20;
+            margin-bottom: 5px;
+        }
+
+        .card-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Compliance Status */
+        .compliance-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .compliance-status.green {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+
+        .compliance-status.yellow {
+            background: #FFF9C4;
+            color: #F57F17;
+        }
+
+        .compliance-status.red {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .status-dot.green { background: #4CAF50; }
+        .status-dot.yellow { background: #FFC107; }
+        .status-dot.red { background: #F44336; }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #1B5E20;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1B5E20;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2E7D32;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #D32F2F;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #C62828;
+        }
+
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            transition: width 0.3s;
+        }
+
+        .progress-fill.yellow { background: #FFC107; }
+        .progress-fill.red { background: #F44336; }
+
+        /* Alert Box */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-info {
+            background: #E3F2FD;
+            color: #1565C0;
+            border-left: 4px solid #1976D2;
+        }
+
+        .alert-warning {
+            background: #FFF9C4;
+            color: #F57F17;
+            border-left: 4px solid #FBC02D;
+        }
+
+        .alert-danger {
+            background: #FFEBEE;
+            color: #C62828;
+            border-left: 4px solid #D32F2F;
+        }
+
+        .alert-success {
+            background: #E8F5E9;
+            color: #2E7D32;
+            border-left: 4px solid #4CAF50;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1B5E20;
+        }
+
+        .close-modal {
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #1B5E20;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1B5E20;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .stat-change.positive {
+            color: #4CAF50;
+        }
+
+        .stat-change.negative {
+            color: #F44336;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>🎓 APPE Experience Hub</h1>
+                <p>Clinical Affairs Management</p>
+            </div>
+
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-section-title">Overview</div>
+                    <div class="nav-item active" data-section="dashboard">
+                        <span class="nav-item-icon">📊</span>
+                        <span>Dashboard</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Student Management</div>
+                    <div class="nav-item" data-section="students">
+                        <span class="nav-item-icon">👨‍🎓</span>
+                        <span>Students</span>
+                    </div>
+                    <div class="nav-item" data-section="compliance">
+                        <span class="nav-item-icon">✅</span>
+                        <span>Compliance Tracking</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Placements</div>
+                    <div class="nav-item" data-section="rotations">
+                        <span class="nav-item-icon">📅</span>
+                        <span>Rotation Blocks</span>
+                    </div>
+                    <div class="nav-item" data-section="matching">
+                        <span class="nav-item-icon">🎯</span>
+                        <span>Matching Algorithm</span>
+                    </div>
+                    <div class="nav-item" data-section="assignments">
+                        <span class="nav-item-icon">📌</span>
+                        <span>Assignments</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Assessments</div>
+                    <div class="nav-item" data-section="evaluations">
+                        <span class="nav-item-icon">📝</span>
+                        <span>Evaluations</span>
+                    </div>
+                    <div class="nav-item" data-section="epas">
+                        <span class="nav-item-icon">⭐</span>
+                        <span>EPA Tracking</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Resources</div>
+                    <div class="nav-item" data-section="preceptors">
+                        <span class="nav-item-icon">👨‍⚕️</span>
+                        <span>Preceptors</span>
+                    </div>
+                    <div class="nav-item" data-section="sites">
+                        <span class="nav-item-icon">🏥</span>
+                        <span>Sites</span>
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Reports</div>
+                    <div class="nav-item" data-section="reports">
+                        <span class="nav-item-icon">📈</span>
+                        <span>Analytics</span>
+                    </div>
+                    <div class="nav-item" data-section="automation">
+                        <span class="nav-item-icon">🤖</span>
+                        <span>Automation</span>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="page-header">
+                    <h2>📊 APPE Dashboard</h2>
+                    <p>Real-time overview of Advanced Pharmacy Practice Experience program</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Total Students</div>
+                        <div class="stat-change positive">↑ 12% vs last cohort</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">142</div>
+                        <div class="stat-label">Compliant (GREEN)</div>
+                        <div class="stat-change positive">↑ 91%</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">45</div>
+                        <div class="stat-label">Active Rotations</div>
+                        <div class="stat-change">Current period</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Evaluation Completion</div>
+                        <div class="stat-change positive">↑ On target</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚡ Quick Actions</h3>
+                    </div>
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="showSection('rotations')">Create Rotation Block</button>
+                        <button class="btn btn-primary" onclick="showSection('matching')">Run Matching Algorithm</button>
+                        <button class="btn btn-secondary" onclick="showSection('reports')">Generate Reports</button>
+                        <button class="btn btn-secondary" onclick="showSection('compliance')">View Compliance</button>
+                    </div>
+                </div>
+
+                <!-- Alerts -->
+                <div style="margin-top: 30px;">
+                    <div class="alert alert-warning">
+                        <span>⚠️</span>
+                        <span><strong>14 students</strong> have items expiring within 30 days - Reminders sent automatically</span>
+                    </div>
+                    <div class="alert alert-info">
+                        <span>ℹ️</span>
+                        <span><strong>3 evaluations</strong> are due this week - Preceptors notified</span>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card" style="margin-top: 30px;">
+                    <div class="card-header">
+                        <h3 class="card-title">🕒 Recent Activity</h3>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Event</th>
+                                    <th>User</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>10:30 AM</td>
+                                    <td>Rotation assignment confirmed</td>
+                                    <td>Ahmed Al-Rashid</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Confirmed</span></td>
+                                </tr>
+                                <tr>
+                                    <td>09:15 AM</td>
+                                    <td>Evaluation submitted (Mid-rotation)</td>
+                                    <td>Dr. Sarah Johnson (Preceptor)</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Submitted</span></td>
+                                </tr>
+                                <tr>
+                                    <td>08:45 AM</td>
+                                    <td>Compliance document uploaded (BLS)</td>
+                                    <td>Fatima Al-Zahrani</td>
+                                    <td><span class="compliance-status yellow"><span class="status-dot yellow"></span>Pending Review</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Students Section -->
+            <section id="students-section" class="content-section">
+                <div class="page-header">
+                    <h2>👨‍🎓 Student Management</h2>
+                    <p>View and manage student profiles and performance</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Students</h3>
+                        <button class="btn btn-primary" onclick="openModal('add-student-modal')">+ Add Student</button>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Program</th>
+                                    <th>Compliance Status</th>
+                                    <th>Current Rotation</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="students-table-body">
+                                <tr>
+                                    <td>PHD2023001</td>
+                                    <td>Ahmed Al-Rashid</td>
+                                    <td>PharmD - Year 5</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>GREEN (100%)</span></td>
+                                    <td>APPE Block 1 - King Fahad Medical City</td>
+                                    <td><button class="btn btn-secondary" onclick="viewStudentDetails('PHD2023001')">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>PHD2023002</td>
+                                    <td>Fatima Al-Zahrani</td>
+                                    <td>PharmD - Year 5</td>
+                                    <td><span class="compliance-status yellow"><span class="status-dot yellow"></span>YELLOW (87%)</span></td>
+                                    <td>APPE Block 1 - National Guard Hospital</td>
+                                    <td><button class="btn btn-secondary" onclick="viewStudentDetails('PHD2023002')">View</button></td>
+                                </tr>
+                                <tr>
+                                    <td>PHD2023003</td>
+                                    <td>Mohammed Al-Qahtani</td>
+                                    <td>PharmD - Year 5</td>
+                                    <td><span class="compliance-status red"><span class="status-dot red"></span>RED (62%)</span></td>
+                                    <td><em>Not assigned - Blocked</em></td>
+                                    <td><button class="btn btn-danger" onclick="viewStudentDetails('PHD2023003')">Fix Issues</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Compliance Section -->
+            <section id="compliance-section" class="content-section">
+                <div class="page-header">
+                    <h2>✅ Compliance Tracking</h2>
+                    <p>Traffic light system for student readiness monitoring</p>
+                </div>
+
+                <!-- Compliance Overview -->
+                <div class="card-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">🟢 GREEN Status</div>
+                                <div class="card-value">142</div>
+                                <div class="card-label">Ready for scheduling (91%)</div>
+                            </div>
+                            <div class="status-dot green" style="width: 60px; height: 60px;"></div>
+                        </div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            100% compliant, no items expiring within 30 days
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">🟡 YELLOW Status</div>
+                                <div class="card-value">11</div>
+                                <div class="card-label">Warning state (7%)</div>
+                            </div>
+                            <div class="status-dot yellow" style="width: 60px; height: 60px;"></div>
+                        </div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            1-3 items pending OR items expiring soon
+                        </p>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-title">🔴 RED Status</div>
+                                <div class="card-value">3</div>
+                                <div class="card-label">Blocked (2%)</div>
+                            </div>
+                            <div class="status-dot red" style="width: 60px; height: 60px;"></div>
+                        </div>
+                        <p style="font-size: 13px; color: #666; margin-top: 10px;">
+                            4+ items pending OR any item expired - <strong>CANNOT BE SCHEDULED</strong>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Compliance Requirements -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Required Compliance Items</h3>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Requirement</th>
+                                    <th>Compliance Rate</th>
+                                    <th>Expiring Soon (30 days)</th>
+                                    <th>Expired</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>BLS Certification</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 95%"></div>
+                                        </div>
+                                        95%
+                                    </td>
+                                    <td>8 students</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>TB Test</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 98%"></div>
+                                        </div>
+                                        98%
+                                    </td>
+                                    <td>5 students</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>Background Check (CBC)</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill yellow" style="width: 88%"></div>
+                                        </div>
+                                        88%
+                                    </td>
+                                    <td>12 students</td>
+                                    <td>2</td>
+                                </tr>
+                                <tr>
+                                    <td>Hepatitis B Vaccine</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 100%"></div>
+                                        </div>
+                                        100%
+                                    </td>
+                                    <td>0</td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td>Professional Liability Insurance</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 97%"></div>
+                                        </div>
+                                        97%
+                                    </td>
+                                    <td>4 students</td>
+                                    <td>0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Automated Reminders -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">🤖 Automated Compliance Monitoring</h3>
+                    </div>
+                    <div style="padding: 10px 0;">
+                        <div class="alert alert-success">
+                            <span>✓</span>
+                            <span><strong>Daily Check:</strong> Runs every day at 3:00 AM - Next run in 16 hours</span>
+                        </div>
+                        <p style="margin: 15px 0; color: #666;">Automatic reminders sent:</p>
+                        <ul style="color: #666; margin-left: 20px;">
+                            <li><strong>60 days before expiry:</strong> Info notification (IN_APP)</li>
+                            <li><strong>30 days before expiry:</strong> Warning (EMAIL + IN_APP)</li>
+                            <li><strong>14 days before expiry:</strong> Urgent (EMAIL + SMS + IN_APP)</li>
+                            <li><strong>7 days before expiry:</strong> Critical (EMAIL + SMS + IN_APP + coordinator alert)</li>
+                            <li><strong>Day of expiry:</strong> Status changes to RED, student automatically blocked</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Matching Algorithm Section -->
+            <section id="matching-section" class="content-section">
+                <div class="page-header">
+                    <h2>🎯 Intelligent Matching Algorithm</h2>
+                    <p>Optimal student-to-site assignment using multi-criteria optimization</p>
+                </div>
+
+                <div class="alert alert-info">
+                    <span>ℹ️</span>
+                    <span>The matching algorithm assigns students to rotation sites based on preferences, compliance, capacity, and diversity scoring.</span>
+                </div>
+
+                <!-- Algorithm Configuration -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">⚙️ Algorithm Configuration</h3>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Select Rotation Block</label>
+                        <select class="form-control" id="rotation-block-select">
+                            <option value="">-- Select Block --</option>
+                            <option value="block1">APPE Block 1 - Fall 2026 (156 students)</option>
+                            <option value="block2">APPE Block 2 - Winter 2026 (142 students)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Scoring Weights (must total 100%)</label>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <label style="font-size: 13px; color: #666;">Preference Match</label>
+                                <input type="number" class="form-control" value="40" max="100" min="0">
+                                <small style="color: #999;">Default: 40%</small>
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; color: #666;">Geographic Proximity</label>
+                                <input type="number" class="form-control" value="20" max="100" min="0">
+                                <small style="color: #999;">Default: 20%</small>
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; color: #666;">Site Quality</label>
+                                <input type="number" class="form-control" value="15" max="100" min="0">
+                                <small style="color: #999;">Default: 15%</small>
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; color: #666;">Rotation Diversity</label>
+                                <input type="number" class="form-control" value="15" max="100" min="0">
+                                <small style="color: #999;">Default: 15%</small>
+                            </div>
+                            <div>
+                                <label style="font-size: 13px; color: #666;">Preceptor Balance</label>
+                                <input type="number" class="form-control" value="10" max="100" min="0">
+                                <small style="color: #999;">Default: 10%</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="runMatching()">🚀 Run Matching Algorithm</button>
+                    <button class="btn btn-secondary" onclick="previewMatching()">👁️ Preview Results</button>
+                </div>
+
+                <!-- Matching Results -->
+                <div id="matching-results" class="card" style="margin-top: 20px; display: none;">
+                    <div class="card-header">
+                        <h3 class="card-title">✅ Matching Results</h3>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #4CAF50;">142</div>
+                            <div class="stat-label">Successfully Matched</div>
+                            <div class="stat-change positive">91% match rate</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #F44336;">14</div>
+                            <div class="stat-label">Unmatched</div>
+                            <div class="stat-change">Requires manual assignment</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">78.5</div>
+                            <div class="stat-label">Avg. Matching Score</div>
+                            <div class="stat-change">(out of 100)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">65%</div>
+                            <div class="stat-label">Got 1st Preference</div>
+                            <div class="stat-change positive">92 students</div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-success" style="margin-top: 20px;">
+                        <span>✓</span>
+                        <span>All constraints validated successfully. Ready to publish assignments.</span>
+                    </div>
+
+                    <div style="display: flex; gap: 15px; margin-top: 20px;">
+                        <button class="btn btn-primary">📤 Publish Assignments</button>
+                        <button class="btn btn-secondary">📥 Export Results</button>
+                        <button class="btn btn-secondary">🔄 Re-run with Different Weights</button>
+                    </div>
+                </div>
+
+                <!-- Constraints Info -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">📋 Validated Constraints</h3>
+                    </div>
+                    <ul style="color: #666; margin: 15px 0 0 20px; line-height: 1.8;">
+                        <li>✅ Student compliance status = GREEN (100%)</li>
+                        <li>✅ Site capacity not exceeded</li>
+                        <li>✅ Preceptor student limits respected</li>
+                        <li>✅ No scheduling conflicts</li>
+                        <li>✅ Prerequisites completed</li>
+                        <li>✅ Preceptor licenses active</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Evaluations Section -->
+            <section id="evaluations-section" class="content-section">
+                <div class="page-header">
+                    <h2>📝 Evaluations & Assessments</h2>
+                    <p>Manage midpoint, final, and self-evaluations with auto-grading</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Completion Rate</div>
+                        <div class="stat-change positive">On target</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3</div>
+                        <div class="stat-label">Pending This Week</div>
+                        <div class="stat-change">Due in 5 days</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2</div>
+                        <div class="stat-label">Overdue</div>
+                        <div class="stat-change negative">Escalated to admin</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">85.3</div>
+                        <div class="stat-label">Avg. Grade</div>
+                        <div class="stat-change">Current cohort</div>
+                    </div>
+                </div>
+
+                <!-- Auto-Grade Formula -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">🤖 Automated Grade Calculation</h3>
+                    </div>
+                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-top: 10px;">
+                        <p style="font-weight: 600; margin-bottom: 10px;">Final Grade Formula:</p>
+                        <p style="font-family: monospace; font-size: 16px; color: #1B5E20;">
+                            Final Grade = (Midpoint × 30%) + (Final Eval × 50%) + (EPA Avg × 15%) + (Attendance × 5%)
+                        </p>
+                        <p style="margin-top: 15px; color: #666; font-size: 14px;">
+                            <strong>Pass Threshold:</strong> ≥ 70% | <strong>Failing:</strong> &lt; 70% (automatic remediation flag)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Evaluation List -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Evaluations</h3>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Rotation</th>
+                                    <th>Type</th>
+                                    <th>Preceptor</th>
+                                    <th>Score</th>
+                                    <th>Status</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Ahmed Al-Rashid</td>
+                                    <td>APPE Block 1</td>
+                                    <td>Midpoint</td>
+                                    <td>Dr. Sarah Johnson</td>
+                                    <td>88%</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Submitted</span></td>
+                                    <td>Jan 5, 2026</td>
+                                </tr>
+                                <tr>
+                                    <td>Fatima Al-Zahrani</td>
+                                    <td>APPE Block 1</td>
+                                    <td>Midpoint</td>
+                                    <td>Dr. Abdullah Al-Mutairi</td>
+                                    <td>-</td>
+                                    <td><span class="compliance-status yellow"><span class="status-dot yellow"></span>Pending</span></td>
+                                    <td>Jan 12, 2026</td>
+                                </tr>
+                                <tr>
+                                    <td>Nora Al-Ghamdi</td>
+                                    <td>APPE Block 1</td>
+                                    <td>Final</td>
+                                    <td>Dr. Khalid Al-Otaibi</td>
+                                    <td>-</td>
+                                    <td><span class="compliance-status red"><span class="status-dot red"></span>Overdue</span></td>
+                                    <td>Jan 8, 2026</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EPA Tracking Section -->
+            <section id="epas-section" class="content-section">
+                <div class="page-header">
+                    <h2>⭐ EPA Tracking</h2>
+                    <p>Entrustable Professional Activities - Longitudinal competency development</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">EPA Domains</h3>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>EPA Code</th>
+                                    <th>Domain</th>
+                                    <th>Students at Level 4+</th>
+                                    <th>Avg. Level</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>EPA-1</td>
+                                    <td>Patient Care and Safety</td>
+                                    <td>85%</td>
+                                    <td>3.8</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 85%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>EPA-2</td>
+                                    <td>Medication Therapy Management</td>
+                                    <td>78%</td>
+                                    <td>3.6</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 78%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>EPA-3</td>
+                                    <td>Health and Wellness</td>
+                                    <td>82%</td>
+                                    <td>3.7</td>
+                                    <td>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" style="width: 82%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Entrustment Levels</h3>
+                    </div>
+                    <div style="padding: 10px 0;">
+                        <ul style="color: #666; margin-left: 20px; line-height: 1.8;">
+                            <li><strong>Level 1:</strong> Observation Only</li>
+                            <li><strong>Level 2:</strong> Direct Supervision</li>
+                            <li><strong>Level 3:</strong> Indirect Supervision</li>
+                            <li><strong>Level 4:</strong> Unsupervised Practice ⭐ (Target)</li>
+                            <li><strong>Level 5:</strong> Able to Supervise Others</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports-section" class="content-section">
+                <div class="page-header">
+                    <h2>📈 Analytics & Reports</h2>
+                    <p>Accreditation-ready reports and data analytics</p>
+                </div>
+
+                <div class="card-grid">
+                    <div class="card" style="cursor: pointer;" onclick="generateReport('compliance')">
+                        <div class="card-icon">📊</div>
+                        <div class="card-title">Compliance Summary</div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">Student readiness overview by cohort</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="generateReport('rotation')">
+                        <div class="card-icon">📅</div>
+                        <div class="card-title">Rotation Completion</div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">Completion rates by block and program</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="generateReport('evaluation')">
+                        <div class="card-icon">📝</div>
+                        <div class="card-title">Evaluation Completion</div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">Preceptor compliance and timeliness</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="generateReport('site')">
+                        <div class="card-icon">🏥</div>
+                        <div class="card-title">Site Utilization</div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">Capacity analysis by site and city</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="generateReport('preceptor')">
+                        <div class="card-icon">👨‍⚕️</div>
+                        <div class="card-title">Preceptor Workload</div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">Student distribution and performance</p>
+                    </div>
+                    <div class="card" style="cursor: pointer;" onclick="generateReport('accreditation')">
+                        <div class="card-icon">🎓</div>
+                        <div class="card-title">Accreditation Evidence</div>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">ACPE/NCAAA ready evidence packs</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Automation Section -->
+            <section id="automation-section" class="content-section">
+                <div class="page-header">
+                    <h2>🤖 Automation Dashboard</h2>
+                    <p>View and manage automated workflows</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Scheduled Automation Jobs</h3>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Job Name</th>
+                                    <th>Schedule</th>
+                                    <th>Last Run</th>
+                                    <th>Next Run</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Daily Compliance Check</td>
+                                    <td>Every day at 3:00 AM</td>
+                                    <td>Today at 3:00 AM</td>
+                                    <td>Tomorrow at 3:00 AM</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Evaluation Reminders</td>
+                                    <td>Every day at 8:00 AM</td>
+                                    <td>Today at 8:00 AM</td>
+                                    <td>Tomorrow at 8:00 AM</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>License Expiry Check</td>
+                                    <td>Every Sunday at 2:00 AM</td>
+                                    <td>Jan 7, 2026</td>
+                                    <td>Jan 14, 2026</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Active</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Attendance Calculation</td>
+                                    <td>Every day at 8:00 PM</td>
+                                    <td>Yesterday at 8:00 PM</td>
+                                    <td>Today at 8:00 PM</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Active</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Automated Actions</h3>
+                    </div>
+                    <div class="data-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Action</th>
+                                    <th>Affected Users</th>
+                                    <th>Result</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>3:00 AM</td>
+                                    <td>Compliance status updated</td>
+                                    <td>156 students</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>Success</span></td>
+                                </tr>
+                                <tr>
+                                    <td>3:05 AM</td>
+                                    <td>Expiry reminders sent (30-day warning)</td>
+                                    <td>14 students</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>14 emails sent</span></td>
+                                </tr>
+                                <tr>
+                                    <td>8:00 AM</td>
+                                    <td>Evaluation due reminders (7-day)</td>
+                                    <td>8 preceptors</td>
+                                    <td><span class="compliance-status green"><span class="status-dot green"></span>8 emails sent</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const section = this.getAttribute('data-section');
+                showSection(section);
+                
+                // Update active state
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        function showSection(sectionName) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionName + '-section').classList.add('active');
+        }
+
+        function runMatching() {
+            document.getElementById('matching-results').style.display = 'block';
+            alert('Matching algorithm running...\n\nThis will:\n1. Validate all constraints\n2. Score all student-site pairs\n3. Run Hungarian algorithm\n4. Generate optimal assignments\n\nIn production, this connects to the backend API.');
+        }
+
+        function previewMatching() {
+            alert('Preview mode: View results without saving assignments');
+        }
+
+        function generateReport(type) {
+            alert(`Generating ${type} report...\n\nIn production, this will generate PDF/Excel reports using the backend API.`);
+        }
+
+        function viewStudentDetails(studentId) {
+            alert(`Opening student profile for ${studentId}\n\nWill show:\n- Full compliance checklist\n- Rotation history\n- Evaluations and grades\n- EPA progression\n- Documents`);
+        }
+
+        function openModal(modalId) {
+            alert('Modal functionality - In production, this will open forms for data entry');
+        }
+
+        // Initialize
+        console.log('APPE Experience Hub loaded successfully');
+        console.log('Connected to design documents:');
+        console.log('- Database Schema: DATABASE_SCHEMA.sql');
+        console.log('- API Routes: API_ROUTES.js');
+        console.log('- Automation Rules: AUTOMATION_RULES.js');
+        console.log('- Matching Algorithm: MATCHING_ALGORITHM.js');
+    </script>
+</body>
+</html>
