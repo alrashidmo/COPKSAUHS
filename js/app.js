@@ -8949,7 +8949,7 @@ window.renderFacultyDashboard = () => {
 // ALUMNI UNIT METHODS
 // ======================
 
-Dashboard.prototype.renderAlumniOverview = function() {
+App.prototype.renderAlumniOverview = function() {
     this.title.textContent = '🧭 Alumni Overview';
     const db = ALUMNI_DATABASE;
     const totalAlumni = db.alumni.length + 235; // Mock total
@@ -9040,7 +9040,7 @@ Dashboard.prototype.renderAlumniOverview = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniDirectory = function() {
+App.prototype.renderAlumniDirectory = function() {
     this.title.textContent = '👤 Alumni Directory';
     const db = ALUMNI_DATABASE;
     const alumni = db.alumni;
@@ -9097,7 +9097,7 @@ Dashboard.prototype.renderAlumniDirectory = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniOutcomes = function() {
+App.prototype.renderAlumniOutcomes = function() {
     this.title.textContent = '📊 Alumni Outcomes Tracking';
     const db = ALUMNI_DATABASE;
     const outcomes = db.employment_outcomes;
@@ -9169,7 +9169,7 @@ Dashboard.prototype.renderAlumniOutcomes = function() {
     `;
 };
 
-Dashboard.prototype.renderPostgraduateTracking = function() {
+App.prototype.renderPostgraduateTracking = function() {
     this.title.textContent = '🎓 Postgraduate & Certification Tracking';
     const db = ALUMNI_DATABASE;
     const pgData = db.postgraduate;
@@ -9231,7 +9231,7 @@ Dashboard.prototype.renderPostgraduateTracking = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniEngagement = function() {
+App.prototype.renderAlumniEngagement = function() {
     this.title.textContent = '🤝 Alumni Engagement & Participation';
     const db = ALUMNI_DATABASE;
     const eng = db.engagement;
@@ -9295,7 +9295,7 @@ Dashboard.prototype.renderAlumniEngagement = function() {
     `;
 };
 
-Dashboard.prototype.renderMentorshipProgram = function() {
+App.prototype.renderMentorshipProgram = function() {
     this.title.textContent = '🧠 Mentorship Program';
     const db = ALUMNI_DATABASE;
     const ment = db.mentorship;
@@ -9362,7 +9362,7 @@ Dashboard.prototype.renderMentorshipProgram = function() {
     `;
 };
 
-Dashboard.prototype.renderPreceptorPipeline = function() {
+App.prototype.renderPreceptorPipeline = function() {
     this.title.textContent = '🏥 Preceptor & Training Sites Pipeline';
     const db = ALUMNI_DATABASE;
     const precep = db.preceptorship;
@@ -9424,7 +9424,7 @@ Dashboard.prototype.renderPreceptorPipeline = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniEvents = function() {
+App.prototype.renderAlumniEvents = function() {
     this.title.textContent = '📅 Events & Communication Center';
     const db = ALUMNI_DATABASE;
     const events = db.events;
@@ -9463,7 +9463,7 @@ Dashboard.prototype.renderAlumniEvents = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniAchievements = function() {
+App.prototype.renderAlumniAchievements = function() {
     this.title.textContent = '🏆 Achievements & Recognition';
     const db = ALUMNI_DATABASE;
     const achievements = db.achievements;
@@ -9520,7 +9520,7 @@ Dashboard.prototype.renderAlumniAchievements = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniFeedback = function() {
+App.prototype.renderAlumniFeedback = function() {
     this.title.textContent = '📣 Feedback & Surveys';
     const db = ALUMNI_DATABASE;
     const feedback = db.feedback;
@@ -9585,7 +9585,7 @@ Dashboard.prototype.renderAlumniFeedback = function() {
     `;
 };
 
-Dashboard.prototype.renderAlumniDocuments = function() {
+App.prototype.renderAlumniDocuments = function() {
     this.title.textContent = '📁 Documents & Records';
     const db = ALUMNI_DATABASE;
     const docs = db.documents;
@@ -9809,7 +9809,6 @@ document.addEventListener('DOMContentLoaded', function() {
     if (alumniGlobalLink) alumniGlobalLink.classList.add('active');
     
     // Setup unit navigation
-    const globalNavLinks = document.querySelectorAll('.global-nav-link');
     globalNavLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
@@ -9897,10 +9896,23 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Initialize with Alumni Overview by default
-    if (app && typeof app.renderAlumniOverview === 'function') {
-        app.renderAlumniOverview();
-    } else if (app && typeof app.handleNavigation === 'function') {
-        app.handleNavigation('student-portal');
+    // Initialize with Alumni Overview by default (fail fast with on-page error)
+    try {
+        if (!window.ALUMNI_DATABASE) {
+            throw new Error('ALUMNI_DATABASE not loaded. Check alumni-data.js request.');
+        }
+        if (app && typeof app.renderAlumniOverview === 'function') {
+            app.renderAlumniOverview();
+        } else if (app && typeof app.handleNavigation === 'function') {
+            app.handleNavigation('student-portal');
+        } else {
+            throw new Error('App instance missing render/init methods.');
+        }
+    } catch (err) {
+        console.error('Alumni init error:', err);
+        const root = document.getElementById('app-root');
+        if (root) {
+            root.innerHTML = '<div style="padding:1.5rem; background:#ffebee; border:1px solid #f44336; color:#b71c1c; border-radius:8px;">Initialization error: ' + (err && err.message ? err.message : err) + '</div>';
+        }
     }
 });
