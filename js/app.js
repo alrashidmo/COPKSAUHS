@@ -12187,12 +12187,8 @@ window.initializeApp = function() {
                         }
                     }, 50);
                     
-                    // Mark clinical tab as active
-                    const clinicalTab = document.querySelector('[data-unit="clinical"]');
-                    if (clinicalTab) {
-                        clinicalTab.classList.add('active');
-                        console.log('Clinical tab marked as active');
-                    }
+                    // DO NOT auto-switch to clinical - let user selection control the view
+                    // This prevents the auto-switch issue where student view was replaced after 4-5 seconds
                 } catch (renderError) {
                     console.error('Error calling render:', renderError);
                 }
