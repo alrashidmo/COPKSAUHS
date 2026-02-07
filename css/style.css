@@ -1301,12 +1301,17 @@ main {
     gap: 0;
     padding: 0.5rem;
     flex: 1;
+    overflow: visible !important;
+    list-style: none;
+    margin: 0;
 }
 
 .sidebar.unit-nav .nav-item {
     width: 100%;
     margin-bottom: 0;
     white-space: normal;
+    display: block;
+    list-style: none;
 }
 
 .sidebar.unit-nav .nav-link {
@@ -1338,8 +1343,6 @@ main {
     color: var(--primary-green);
     font-weight: 600;
 }
-}
-
 
 .sidebar.unit-nav.hidden {
     display: none !important;
