@@ -118,16 +118,6 @@ body {
 
 /* Unit Navigation Container (Secondary) */
 .unit-nav-container {
-    /* Move secondary nav visually into the white header area */
-    background-color: var(--bg-white);
-    border-bottom: 1px solid var(--border-color);
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Unit navigation container holds all sidebars and main content */
-.unit-nav-container {
     display: flex;
     flex-direction: row;
     width: 100%;
@@ -1232,7 +1222,6 @@ body {
 .app-container.admin-hub-full .unit-nav-container {
     display: none !important;
 }
-}
 
 /* Global nav takes first row */
 .global-nav {
@@ -1242,15 +1231,6 @@ body {
 }
 
 /* Content area wrapper uses flexbox so hidden sidebar doesn't take space */
-.unit-nav-container {
-    display: flex;
-    flex-direction: row;
-    grid-column: 1;
-    grid-row: 2;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
 
 /* Main content takes the rest */
 main {
