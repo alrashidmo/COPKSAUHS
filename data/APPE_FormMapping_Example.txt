@@ -1,0 +1,28 @@
+SIMPLE APPE EVALUATION - ONE YEAR - 10 ROTATIONS
+===============================================
+
+Example structure (MODIFY THIS BASED ON YOUR ACTUAL FORM):
+
+Your Microsoft Form Questions:
+----------------------------
+1. Student Name? → Student name
+2. Preceptor Name? → Preceptor 
+3. Which Rotation? → Rotation (choose from 10)
+4. Site Location? → Site (where this rotation happened)
+5. Overall, how would you rate this rotation? → Rating (Excellent/Very Good/Good/Fair/Poor)
+6. Date? → Date
+
+CSV Export Format (from Microsoft Forms):
+-----------------------------------------
+Student Name,Preceptor,Rotation,Site,Rating,Date
+Ahmed Al-Rasheed,Dr. Ahmad AlBadr,Internal Medicine,Hospital Main,Excellent,2026-01-20
+Fatima Ahmed,Dr. Salah Khalil,Cardiology,Cardiac Center,Very Good,2026-01-21
+...
+
+TO DO:
+------
+1. Export your Microsoft Form data as CSV
+2. Paste the FIRST ROW (headers) here
+3. Tell me your 10 rotation names
+4. I will update the dashboard to match EXACTLY
+

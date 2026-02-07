@@ -1,0 +1,798 @@
+/**
+ * ADMIN HUB DATA MODEL
+ * Complete system for request management, SLA tracking, and admin workflows
+ * Generated: 2026-01-31
+ */
+
+window.AdminHubModel = {
+    // ============================================
+    // A) CORE DATA STRUCTURES
+    // ============================================
+
+    /**
+     * SLA RULES by Unit and Request Type
+     * Format: {unit}_{type} → { working_days, escalation_rules }
+     */
+    slaRules: {
+        'academic_support': { stage1: 3, stage2: 5, escalation: true },
+        'academic_tutoring': { stage1: 2, stage2: 4, escalation: true },
+        'academic_appeal': { stage1: 5, stage2: 7, escalation: true },
+        'academic_remediation': { stage1: 4, stage2: 6, escalation: true },
+        
+        'clinical_rotation_change': { stage1: 2, stage2: 3, escalation: true },
+        'clinical_site_issue': { stage1: 1, stage2: 2, escalation: true },
+        'clinical_preceptor_concern': { stage1: 2, stage2: 3, escalation: true },
+        'clinical_schedule': { stage1: 2, stage2: 4, escalation: true },
+        
+        'qa_complaint': { stage1: 5, stage2: 7, escalation: true },
+        'qa_appeal': { stage1: 7, stage2: 10, escalation: true },
+        'qa_investigation': { stage1: 10, stage2: 15, escalation: true },
+        
+        'research_conference': { stage1: 7, stage2: 14, escalation: true },
+        'research_abstract': { stage1: 3, stage2: 5, escalation: true },
+        'research_travel': { stage1: 5, stage2: 7, escalation: true },
+        
+        'alumni_mentorship': { stage1: 3, stage2: 5, escalation: false },
+        'alumni_verification': { stage1: 2, stage2: 3, escalation: false },
+        
+        'community_participation': { stage1: 3, stage2: 5, escalation: false },
+        'community_hours': { stage1: 2, stage2: 4, escalation: false }
+    },
+
+    /**
+     * REQUEST STATUSES & WORKFLOW STATES
+     */
+    statuses: {
+        'new': { label: 'New', color: '#FF6B6B', icon: '🆕' },
+        'pending_review': { label: 'Pending Review', color: '#FFA500', icon: '⏳' },
+        'pending_student': { label: 'Waiting for Student', color: '#FFD700', icon: '📧' },
+        'pending_docs': { label: 'Awaiting Documents', color: '#FFC0CB', icon: '📎' },
+        'pending_site': { label: 'Awaiting Site Confirmation', color: '#87CEEB', icon: '🔄' },
+        'in_progress': { label: 'In Progress', color: '#4CAF50', icon: '🔄' },
+        'approved': { label: 'Approved', color: '#228B22', icon: '✅' },
+        'rejected': { label: 'Rejected', color: '#8B0000', icon: '❌' },
+        'closed': { label: 'Closed', color: '#808080', icon: '🔒' },
+        'escalated': { label: 'Escalated', color: '#FF1493', icon: '🚨' }
+    },
+
+    /**
+     * UNITS & CONFIGURATIONS
+     */
+    units: [
+        {
+            id: 'academic',
+            name: 'Academic Affairs',
+            icon: '📚',
+            head: 'Dr. Sarah Al-Mansour',
+            headEmail: 'sarah.mansour@ksauhs.edu.sa',
+            coordinator: 'Ahmed Al-Otaibi',
+            coordinator_email: 'ahmed.otaibi@ksauhs.edu.sa',
+            requestTypes: ['support', 'tutoring', 'appeal', 'remediation'],
+            avgResponseTime: 2.5,
+            slaCompliance: 94,
+            pendingRequests: 12
+        },
+        {
+            id: 'clinical',
+            name: 'Clinical Affairs',
+            icon: '🏥',
+            head: 'Dr. Fatima Al-Rashid',
+            headEmail: 'fatima.rashid@ksauhs.edu.sa',
+            coordinator: 'Noor Al-Dosari',
+            coordinator_email: 'noor.dosari@ksauhs.edu.sa',
+            requestTypes: ['rotation_change', 'site_issue', 'preceptor_concern', 'schedule'],
+            avgResponseTime: 1.8,
+            slaCompliance: 97,
+            pendingRequests: 18
+        },
+        {
+            id: 'qa',
+            name: 'Quality Assurance',
+            icon: '✓',
+            head: 'Dr. Mohammed Al-Shammari',
+            headEmail: 'mohammed.shammari@ksauhs.edu.sa',
+            coordinator: 'Layla Al-Zahra',
+            coordinator_email: 'layla.zahra@ksauhs.edu.sa',
+            requestTypes: ['complaint', 'appeal', 'investigation'],
+            avgResponseTime: 4.2,
+            slaCompliance: 89,
+            pendingRequests: 8
+        },
+        {
+            id: 'research',
+            name: 'Research Unit',
+            icon: '🔬',
+            head: 'Dr. Karim Al-Malik',
+            headEmail: 'karim.malik@ksauhs.edu.sa',
+            coordinator: 'Rania Al-Jaber',
+            coordinator_email: 'rania.jaber@ksauhs.edu.sa',
+            requestTypes: ['conference', 'abstract', 'travel'],
+            avgResponseTime: 5.5,
+            slaCompliance: 92,
+            pendingRequests: 6
+        },
+        {
+            id: 'alumni',
+            name: 'Alumni Unit',
+            icon: '🎓',
+            head: 'Dr. Samira Al-Rashid',
+            headEmail: 'samira.rashid@ksauhs.edu.sa',
+            coordinator: 'Hana Al-Khalid',
+            coordinator_email: 'hana.khalid@ksauhs.edu.sa',
+            requestTypes: ['mentorship', 'verification'],
+            avgResponseTime: 3.0,
+            slaCompliance: 95,
+            pendingRequests: 4
+        },
+        {
+            id: 'community',
+            name: 'Community Service',
+            icon: '🤝',
+            head: 'Dr. Aisha Al-Johara',
+            headEmail: 'aisha.johara@ksauhs.edu.sa',
+            coordinator: 'Maha Al-Ayouni',
+            coordinator_email: 'maha.ayouni@ksauhs.edu.sa',
+            requestTypes: ['participation', 'hours'],
+            avgResponseTime: 2.8,
+            slaCompliance: 96,
+            pendingRequests: 5
+        }
+    ],
+
+    /**
+     * REQUEST TYPE TAXONOMY
+     */
+    requestTypeMapping: {
+        'academic': {
+            'support': { label: 'Academic Support', icon: '📖' },
+            'tutoring': { label: 'Tutoring/Mentorship', icon: '👨‍🏫' },
+            'appeal': { label: 'Grade Appeal', icon: '📝' },
+            'remediation': { label: 'Remediation Plan', icon: '🎯' }
+        },
+        'clinical': {
+            'rotation_change': { label: 'Rotation Change Request', icon: '🔄' },
+            'site_issue': { label: 'Site Issue/Concern', icon: '⚠️' },
+            'preceptor_concern': { label: 'Preceptor Concern', icon: '👨‍⚕️' },
+            'schedule': { label: 'Schedule Conflict', icon: '📅' }
+        },
+        'qa': {
+            'complaint': { label: 'Student Complaint', icon: '📢' },
+            'appeal': { label: 'Appeal/Grievance', icon: '⚖️' },
+            'investigation': { label: 'Investigation', icon: '🔍' }
+        },
+        'research': {
+            'conference': { label: 'Conference Participation', icon: '🗣️' },
+            'abstract': { label: 'Abstract/Poster Support', icon: '📄' },
+            'travel': { label: 'Travel Authorization', icon: '✈️' }
+        },
+        'alumni': {
+            'mentorship': { label: 'Mentorship Request', icon: '🤝' },
+            'verification': { label: 'Alumni Verification', icon: '✓' }
+        },
+        'community': {
+            'participation': { label: 'Participation Request', icon: '📋' },
+            'hours': { label: 'Hours Verification', icon: '⏱️' }
+        }
+    },
+
+    /**
+     * ADMIN STAFF & ROLES
+     */
+    adminUsers: [
+        {
+            id: 'admin001',
+            name: 'Dr. Abdullah Al-Dosari',
+            email: 'abdullah.dosari@ksauhs.edu.sa',
+            role: 'super_admin',
+            units: ['academic', 'clinical', 'qa', 'research', 'alumni', 'community'],
+            permissions: ['view_all', 'approve_all', 'export', 'analytics', 'settings'],
+            activeRequests: 45
+        },
+        {
+            id: 'coord001',
+            name: 'Ahmed Al-Otaibi',
+            email: 'ahmed.otaibi@ksauhs.edu.sa',
+            role: 'unit_coordinator',
+            units: ['academic'],
+            permissions: ['view_unit', 'approve_unit', 'assign', 'export'],
+            activeRequests: 12
+        },
+        {
+            id: 'coord002',
+            name: 'Noor Al-Dosari',
+            email: 'noor.dosari@ksauhs.edu.sa',
+            role: 'unit_coordinator',
+            units: ['clinical'],
+            permissions: ['view_unit', 'approve_unit', 'assign', 'export'],
+            activeRequests: 18
+        },
+        {
+            id: 'coord003',
+            name: 'Layla Al-Zahra',
+            email: 'layla.zahra@ksauhs.edu.sa',
+            role: 'unit_coordinator',
+            units: ['qa'],
+            permissions: ['view_unit', 'approve_unit', 'assign', 'export'],
+            activeRequests: 8
+        },
+        {
+            id: 'staff001',
+            name: 'Mona Al-Jabri',
+            email: 'mona.jabri@ksauhs.edu.sa',
+            role: 'admin_staff',
+            units: ['academic', 'clinical'],
+            permissions: ['view_assigned', 'update_assigned'],
+            activeRequests: 7
+        },
+        {
+            id: 'staff002',
+            name: 'Rashid Al-Qahtani',
+            email: 'rashid.qahtani@ksauhs.edu.sa',
+            role: 'admin_staff',
+            units: ['research', 'alumni'],
+            permissions: ['view_assigned', 'update_assigned'],
+            activeRequests: 5
+        }
+    ],
+
+    /**
+     * SAMPLE REQUESTS (DEMO DATA)
+     * Real requests across all units with various statuses
+     */
+    requests: [
+        // ACADEMIC AFFAIRS
+        {
+            id: 'COP-REQ-2026-000101',
+            studentId: '441210049',
+            studentName: 'Fatima Al-Rashid',
+            unit: 'academic',
+            type: 'support',
+            status: 'pending_review',
+            priority: 'high',
+            createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+            assignedTo: 'coord001',
+            notes: 'Student struggling with pharmacokinetics course',
+            attachments: ['course_transcript.pdf'],
+            nextAction: 'Schedule tutoring session'
+        },
+        {
+            id: 'COP-REQ-2026-000102',
+            studentId: '441210050',
+            studentName: 'Mohammed Al-Anzi',
+            unit: 'academic',
+            type: 'tutoring',
+            status: 'pending_student',
+            priority: 'medium',
+            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+            assignedTo: 'staff001',
+            notes: 'Tutoring assigned - awaiting student confirmation',
+            attachments: [],
+            nextAction: 'Wait for student to accept tutoring'
+        },
+        // CLINICAL AFFAIRS
+        {
+            id: 'COP-REQ-2026-000201',
+            studentId: '441210051',
+            studentName: 'Sara Al-Dosari',
+            unit: 'clinical',
+            type: 'rotation_change',
+            status: 'pending_site',
+            priority: 'high',
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 0.5 * 24 * 60 * 60 * 1000),
+            assignedTo: 'coord002',
+            notes: 'Urgent rotation change - awaiting site confirmation',
+            attachments: ['site_confirmation.pdf'],
+            nextAction: 'Confirm with preceptor'
+        },
+        {
+            id: 'COP-REQ-2026-000202',
+            studentId: '441210052',
+            studentName: 'Ali Al-Shammari',
+            unit: 'clinical',
+            type: 'site_issue',
+            status: 'escalated',
+            priority: 'high',
+            createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+            assignedTo: 'coord002',
+            notes: 'SLA breached - site conditions unacceptable',
+            attachments: ['incident_report.pdf', 'photos.zip'],
+            nextAction: 'Escalate to Clinical Head'
+        },
+        // QA UNIT
+        {
+            id: 'COP-REQ-2026-000301',
+            studentId: '441210053',
+            studentName: 'Layla Al-Qahtani',
+            unit: 'qa',
+            type: 'complaint',
+            status: 'pending_review',
+            priority: 'high',
+            createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+            assignedTo: 'coord003',
+            notes: 'Confidential: Complaint regarding faculty conduct',
+            attachments: ['complaint_form.pdf'],
+            nextAction: 'Schedule investigation'
+        },
+        // RESEARCH UNIT
+        {
+            id: 'COP-REQ-2026-000401',
+            studentId: '441210054',
+            studentName: 'Hana Al-Malik',
+            unit: 'research',
+            type: 'conference',
+            status: 'pending_docs',
+            priority: 'medium',
+            createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 8 * 24 * 60 * 60 * 1000),
+            assignedTo: 'staff002',
+            notes: 'Conference participation request - missing abstract',
+            attachments: ['conference_details.pdf'],
+            nextAction: 'Request abstract submission'
+        },
+        // ALUMNI UNIT
+        {
+            id: 'COP-REQ-2026-000501',
+            studentId: '441210055',
+            studentName: 'Omar Al-Rashid',
+            unit: 'alumni',
+            type: 'verification',
+            status: 'approved',
+            priority: 'low',
+            createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 0.5 * 24 * 60 * 60 * 1000),
+            assignedTo: 'staff002',
+            notes: 'Alumni verification approved',
+            attachments: ['degree_certificate.pdf'],
+            nextAction: 'Send verification letter'
+        },
+        // COMMUNITY SERVICE
+        {
+            id: 'COP-REQ-2026-000601',
+            studentId: '441210056',
+            studentName: 'Nadia Al-Ayouni',
+            unit: 'community',
+            type: 'participation',
+            status: 'in_progress',
+            priority: 'medium',
+            createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+            slaDueAt: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+            assignedTo: 'coord003',
+            notes: 'Community service participation in progress',
+            attachments: [],
+            nextAction: 'Collect participation certificate'
+        }
+    ],
+
+    // ============================================
+    // B) HELPER METHODS & CALCULATIONS
+    // ============================================
+
+    /**
+     * Calculate SLA Status
+     * Returns: { status: 'ok'|'warning'|'breached', daysRemaining, hoursRemaining }
+     */
+    getSLAStatus(request) {
+        const now = new Date();
+        const slaDue = new Date(request.slaDueAt);
+        const diffMs = slaDue - now;
+        const diffHours = diffMs / (1000 * 60 * 60);
+        const diffDays = diffHours / 24;
+
+        if (diffMs < 0) {
+            return { status: 'breached', daysRemaining: Math.ceil(diffDays), hoursRemaining: Math.round(diffHours % 24), color: '#FF0000' };
+        } else if (diffHours <= 48) {
+            return { status: 'warning', daysRemaining: Math.ceil(diffDays), hoursRemaining: Math.round(diffHours % 24), color: '#FFA500' };
+        } else {
+            return { status: 'ok', daysRemaining: Math.ceil(diffDays), hoursRemaining: Math.round(diffHours % 24), color: '#28A745' };
+        }
+    },
+
+    /**
+     * Calculate days pending
+     */
+    getDaysPending(createdAt) {
+        const days = Math.floor((new Date() - new Date(createdAt)) / (1000 * 60 * 60 * 24));
+        return days;
+    },
+
+    /**
+     * Get KPI metrics
+     */
+    getKPIMetrics() {
+        const now = new Date();
+        const oneWeekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+
+        const newCount = this.requests.filter(r => new Date(r.createdAt) > new Date(now - 1 * 24 * 60 * 60 * 1000)).length;
+        const pendingCount = this.requests.filter(r => ['pending_review', 'pending_student', 'pending_docs', 'pending_site', 'in_progress'].includes(r.status)).length;
+        const overdueCount = this.requests.filter(r => {
+            const sla = this.getSLAStatus(r);
+            return sla.status === 'breached';
+        }).length;
+        const resolvedCount = this.requests.filter(r => ['approved', 'closed'].includes(r.status) && new Date(r.updatedAt || r.createdAt) > oneWeekAgo).length;
+        const waitingCount = this.requests.filter(r => r.status === 'pending_student').length;
+
+        return {
+            new: newCount,
+            pending: pendingCount,
+            overdue: overdueCount,
+            resolved: resolvedCount,
+            waiting: waitingCount
+        };
+    },
+
+    /**
+     * Get RAG status
+     * Red: >= 5 breached
+     * Amber: 2-4 breached or 5+ warning
+     * Green: < 2 breached
+     */
+    getRAGStatus() {
+        const breachedCount = this.requests.filter(r => this.getSLAStatus(r).status === 'breached').length;
+        const warningCount = this.requests.filter(r => this.getSLAStatus(r).status === 'warning').length;
+
+        if (breachedCount >= 5) {
+            return { status: 'red', color: '#FF0000', message: `${breachedCount} overdue requests require immediate action`, icon: '🔴' };
+        } else if (breachedCount >= 2 || warningCount >= 5) {
+            return { status: 'amber', color: '#FFA500', message: `${breachedCount} overdue, ${warningCount} at risk`, icon: '🟠' };
+        } else {
+            return { status: 'green', color: '#28A745', message: 'All SLAs within target', icon: '🟢' };
+        }
+    },
+
+    /**
+     * Get unit summary
+     */
+    getUnitSummary() {
+        return this.units.map(unit => {
+            const unitRequests = this.requests.filter(r => r.unit === unit.id);
+            const newCount = unitRequests.filter(r => r.status === 'new').length;
+            const pendingCount = unitRequests.filter(r => ['pending_review', 'pending_student', 'pending_docs', 'pending_site', 'in_progress'].includes(r.status)).length;
+            const overdueCount = unitRequests.filter(r => this.getSLAStatus(r).status === 'breached').length;
+
+            return {
+                id: unit.id,
+                name: unit.name,
+                icon: unit.icon,
+                new: newCount,
+                pending: pendingCount,
+                overdue: overdueCount,
+                total: unitRequests.length,
+                avgResponseTime: unit.avgResponseTime,
+                slaCompliance: unit.slaCompliance
+            };
+        });
+    },
+
+    /**
+     * Get critical requests (sorted by SLA urgency)
+     */
+    getCriticalRequests(limit = 10) {
+        return this.requests
+            .filter(r => !['approved', 'closed', 'rejected'].includes(r.status))
+            .map(r => ({
+                ...r,
+                slaInfo: this.getSLAStatus(r),
+                daysPending: this.getDaysPending(r.createdAt),
+                unitInfo: this.units.find(u => u.id === r.unit)
+            }))
+            .sort((a, b) => {
+                // Breached first
+                if (a.slaInfo.status === 'breached' && b.slaInfo.status !== 'breached') return -1;
+                if (a.slaInfo.status !== 'breached' && b.slaInfo.status === 'breached') return 1;
+                // Then by priority (high first)
+                const priorityMap = { high: 0, medium: 1, low: 2 };
+                if (priorityMap[a.priority] !== priorityMap[b.priority]) {
+                    return priorityMap[a.priority] - priorityMap[b.priority];
+                }
+                // Then by days remaining
+                return a.slaInfo.daysRemaining - b.slaInfo.daysRemaining;
+            })
+            .slice(0, limit);
+    },
+
+    /**
+     * Filter requests by role and user
+     */
+    getRequestsByRole(userRole, userId, userUnits) {
+        if (userRole === 'super_admin') {
+            return this.requests;
+        } else if (userRole === 'unit_coordinator') {
+            return this.requests.filter(r => userUnits.includes(r.unit));
+        } else if (userRole === 'admin_staff') {
+            return this.requests.filter(r => r.assignedTo === userId);
+        }
+        return [];
+    },
+
+    getDashboardStats() {
+        const totalStudents = new Set(this.requests.map(r => r.studentId)).size;
+        const activeTickets = this.requests.filter(r => !['approved', 'rejected', 'closed'].includes(r.status)).length;
+        let avgResponseTime = 2.4;
+        const units = this.getUnitSummary();
+        if (units && units.length > 0) {
+            const totalAvg = units.reduce((sum, u) => sum + (u.avgResponseTime || 0), 0);
+            avgResponseTime = (totalAvg / units.length).toFixed(1);
+        }
+        const now = new Date();
+        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const resolvedToday = this.requests.filter(r => {
+            const updatedDate = new Date(r.updatedAt || r.createdAt);
+            const updatedStart = new Date(updatedDate.getFullYear(), updatedDate.getMonth(), updatedDate.getDate());
+            return ['approved', 'closed'].includes(r.status) && updatedStart.getTime() === todayStart.getTime();
+        }).length;
+        return { totalStudents, activeTickets, avgResponseTime, resolvedToday };
+    },
+
+    getRequestTrends() {
+        const trends = {};
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const dayStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+            const dayEnd = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+            trends[dateStr] = this.requests.filter(r => {
+                const createdDate = new Date(r.createdAt);
+                return createdDate >= dayStart && createdDate < dayEnd;
+            }).length;
+        }
+        return trends;
+    },
+
+    getUnitPerformance() {
+        return this.units.map(u => {
+            const unitReqs = this.requests.filter(r => r.unit === u.id);
+            const breachedCount = unitReqs.filter(r => this.getSLAStatus(r).status === 'breached').length;
+            const totalActive = unitReqs.filter(r => !['approved', 'rejected', 'closed'].includes(r.status)).length;
+            return {
+                name: u.name,
+                icon: u.icon,
+                totalRequests: unitReqs.length,
+                activeRequests: totalActive,
+                breachedSLA: breachedCount,
+                slaCompliance: u.slaCompliance,
+                avgResponseTime: u.avgResponseTime
+            };
+        });
+    },
+
+    getAdminUsers() {
+        return this.adminUsers.map(user => ({
+            ...user,
+            assignedCount: this.requests.filter(r => r.assignedTo === user.id).length,
+            completedCount: this.requests.filter(r => r.assignedTo === user.id && ['approved', 'closed'].includes(r.status)).length
+        }));
+    },
+
+    getSystemAlerts() {
+        const alerts = [];
+        const breachedCount = this.requests.filter(r => this.getSLAStatus(r).status === 'breached').length;
+        if (breachedCount >= 3) {
+            alerts.push({ type: 'error', icon: '🔴', title: `${breachedCount} SLA Breaches`, message: 'Critical: Multiple requests have exceeded SLA' });
+        }
+        const warningCount = this.requests.filter(r => this.getSLAStatus(r).status === 'warning').length;
+        if (warningCount >= 5) {
+            alerts.push({ type: 'warning', icon: '🟠', title: `${warningCount} At Risk`, message: 'Requests approaching SLA deadline' });
+        }
+        const newCount = this.requests.filter(r => r.status === 'new').length;
+        if (newCount > 0) {
+            alerts.push({ type: 'info', icon: '🔵', title: `${newCount} New Requests`, message: 'Awaiting initial review' });
+        }
+        return alerts;
+    },
+
+    /**
+     * STUDENT SIGNUP MANAGEMENT
+     */
+    pendingApprovals: [
+        {
+            id: 'signup001',
+            studentId: '441210060',
+            name: 'Mohammed Al-Dosari',
+            email: 'm.dosari@ksauhs.edu.sa',
+            phone: '+966501234567',
+            requestedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            status: 'pending',
+            classPreference: 'P2',
+            notes: 'New student registration'
+        },
+        {
+            id: 'signup002',
+            studentId: '441210061',
+            name: 'Fatima Al-Ghamdi',
+            email: 'f.ghamdi@ksauhs.edu.sa',
+            phone: '+966502345678',
+            requestedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+            status: 'pending',
+            classPreference: 'P3',
+            notes: 'Transfer from another program'
+        },
+        {
+            id: 'signup003',
+            studentId: '441210062',
+            name: 'Ahmed Al-Shammari',
+            email: 'a.shammari@ksauhs.edu.sa',
+            phone: '+966503456789',
+            requestedAt: new Date(Date.now() - 6 * 60 * 60 * 1000),
+            status: 'pending',
+            classPreference: 'P1',
+            notes: 'First year enrollment'
+        }
+    ],
+
+    approvedStudents: [
+        {
+            id: 'stud001',
+            studentId: '441210001',
+            name: 'Hana Al-Malik',
+            email: 'hana.malik@ksauhs.edu.sa',
+            class: 'P4',
+            approvedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+            status: 'active'
+        },
+        {
+            id: 'stud002',
+            studentId: '441210002',
+            name: 'Omar Al-Mansour',
+            email: 'omar.mansour@ksauhs.edu.sa',
+            class: 'P2',
+            approvedAt: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
+            status: 'active'
+        }
+    ],
+
+    pendingAdminSignups: [
+        {
+            id: 'admin-signup001',
+            staffId: 'STAFF001',
+            name: 'Dr. Noor Al-Qahtani',
+            email: 'n.qahtani@ksauhs.edu.sa',
+            phone: '+966501112222',
+            requestedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+            status: 'pending',
+            department: 'Academic',
+            role: 'Coordinator'
+        }
+    ],
+
+    approvedAdminUsers: [
+        {
+            id: 'admin001',
+            staffId: 'ADMIN001',
+            name: 'Dr. Khalid Al-Rashid',
+            email: 'k.rashid@ksauhs.edu.sa',
+            department: 'Clinical',
+            role: 'Director',
+            approvedAt: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000),
+            status: 'active'
+        }
+    ],
+
+    getPendingApprovals() {
+        // Get pending approvals from both model data and localStorage
+        const localStoragePendings = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+        const modelStudentPendings = this.pendingApprovals.filter(s => s.status === 'pending');
+        const modelAdminPendings = this.pendingAdminSignups.filter(s => s.status === 'pending');
+        
+        // Combine and remove duplicates based on ID
+        const combined = [...modelStudentPendings, ...modelAdminPendings, ...localStoragePendings];
+        const uniqueMap = new Map();
+        
+        combined.forEach(item => {
+            if (!uniqueMap.has(item.id)) {
+                uniqueMap.set(item.id, item);
+            }
+        });
+        
+        return Array.from(uniqueMap.values()).filter(s => s.status === 'pending');
+    },
+
+    getStudentSignups() {
+        return this.getPendingApprovals().filter(s => s.accountType !== 'admin');
+    },
+
+    getAdminSignups() {
+        return this.getPendingApprovals().filter(s => s.accountType === 'admin');
+    },
+
+    approveStudent(signupId, classAssigned) {
+        // Check in localStorage first
+        let localStoragePendings = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+        let signup = localStoragePendings.find(s => s.id === signupId);
+        
+        // If not in localStorage, check model
+        if (!signup) {
+            signup = this.pendingApprovals.find(s => s.id === signupId);
+        }
+        
+        if (signup) {
+            signup.status = 'approved';
+            signup.classAssigned = classAssigned;
+            signup.approvedAt = new Date();
+            
+            // Update localStorage if it exists there
+            if (localStoragePendings.find(s => s.id === signupId)) {
+                localStorage.setItem('pendingSignups', JSON.stringify(localStoragePendings));
+            } else {
+                // Update model
+                const modelSignup = this.pendingApprovals.find(s => s.id === signupId);
+                if (modelSignup) {
+                    modelSignup.status = 'approved';
+                    modelSignup.classAssigned = classAssigned;
+                }
+            }
+            
+            // Add to approved students
+            this.approvedStudents.push({
+                id: 'stud' + Date.now(),
+                studentId: signup.studentId,
+                name: signup.name,
+                email: signup.email,
+                class: classAssigned,
+                approvedAt: new Date(),
+                status: 'active'
+            });
+            
+            console.log('✅ Student approved:', signup.name, 'Class:', classAssigned);
+            return true;
+        }
+        return false;
+    },
+
+    rejectStudent(signupId, reason) {
+        // Check in localStorage first
+        let localStoragePendings = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+        let signup = localStoragePendings.find(s => s.id === signupId);
+        
+        // If not in localStorage, check model
+        if (!signup) {
+            signup = this.pendingApprovals.find(s => s.id === signupId);
+        }
+        
+        if (signup) {
+            signup.status = 'rejected';
+            signup.rejectReason = reason;
+            signup.rejectedAt = new Date();
+            
+            // Update localStorage if it exists there
+            if (localStoragePendings.find(s => s.id === signupId)) {
+                localStorage.setItem('pendingSignups', JSON.stringify(localStoragePendings));
+            } else {
+                // Update model
+                const modelSignup = this.pendingApprovals.find(s => s.id === signupId);
+                if (modelSignup) {
+                    modelSignup.status = 'rejected';
+                    modelSignup.rejectReason = reason;
+                }
+            }
+            
+            console.log('❌ Student rejected:', signup.name, 'Reason:', reason);
+            return true;
+        }
+        return false;
+    },
+
+    getSystemAlerts() {
+        const alerts = [];
+        const breachedCount = this.requests.filter(r => this.getSLAStatus(r).status === 'breached').length;
+        if (breachedCount >= 3) {
+            alerts.push({ type: 'error', icon: '🔴', title: `${breachedCount} SLA Breaches`, message: 'Critical: Multiple requests have exceeded SLA' });
+        }
+        const warningCount = this.requests.filter(r => this.getSLAStatus(r).status === 'warning').length;
+        if (warningCount >= 5) {
+            alerts.push({ type: 'warning', icon: '🟠', title: `${warningCount} At Risk`, message: 'Requests approaching SLA deadline' });
+        }
+        const newCount = this.requests.filter(r => r.status === 'new').length;
+        if (newCount > 0) {
+            alerts.push({ type: 'info', icon: '🔵', title: `${newCount} New Requests`, message: 'Awaiting initial review' });
+        }
+        return alerts;
+    }
+};
+
+console.log('✅ Admin Hub Model Loaded - %d requests initialized', window.AdminHubModel.requests.length);

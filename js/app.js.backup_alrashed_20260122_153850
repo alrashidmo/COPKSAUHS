@@ -958,113 +958,37 @@ class App {
     }
 
     setupGlobalNavigation() {
-        try {
-            const globalLinks = document.querySelectorAll('.global-nav-link');
-            const unitNavs = document.querySelectorAll('.unit-nav');
-            const mainContent = document.querySelector('.main-content');
-            const app = this;
+        const globalLinks = document.querySelectorAll('.global-nav-link');
+        const unitNavs = document.querySelectorAll('.unit-nav');
 
-            console.log(`Setting up global nav with ${globalLinks.length} links`);
+        globalLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const unit = e.currentTarget.dataset.unit;
 
-            globalLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const unit = this.dataset.unit;
-                    console.log(`Clicked tab: ${unit}`);
+                // Update active state
+                globalLinks.forEach(l => l.classList.remove('active'));
+                e.currentTarget.classList.add('active');
 
-                    // Update active state
-                    globalLinks.forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-
-                    // Always show content
-                    if (mainContent) mainContent.style.display = 'flex';
-                    
-                    // Ensure unit-nav-container is visible by default
-                    const unitNavContainer = document.querySelector('.unit-nav-container');
-                    if (unitNavContainer) {
-                        unitNavContainer.style.display = 'flex';
+                // Toggle Unit Navs
+                unitNavs.forEach(nav => {
+                    nav.classList.add('hidden');
+                    if (nav.id === `nav-${unit}`) {
+                        nav.classList.remove('hidden');
                     }
-
-                    // Show correct sidebar based on unit
-                    let hasSidebarForThisUnit = false;
-                    unitNavs.forEach(nav => {
-                        if (nav.id === `nav-${unit}`) {
-                            nav.classList.remove('hidden');
-                            nav.style.display = 'flex';
-                            hasSidebarForThisUnit = true;
-                        } else {
-                            nav.classList.add('hidden');
-                            nav.style.display = 'none';
-                        }
-                    });
-
-                    // Apply full-width layout only if this unit has NO sidebar
-                    const appContainer = document.querySelector('.app-container');
-                    if (appContainer) {
-                        appContainer.classList.toggle('admin-hub-full', !hasSidebarForThisUnit);
-                    }
-                    if (unitNavContainer) {
-                        unitNavContainer.style.display = hasSidebarForThisUnit ? 'flex' : 'none';
-                    }
-
-                    // Render content for the selected unit
-                    if (unit === 'qa') {
-                        app.render('qa-strategic', { title: 'Quality Assurance Unit' });
-                        app.setActiveNav('qa-strategic');
-                    } else if (unit === 'research') {
-                        app.render('research-overview', { title: 'Research Unit' });
-                        app.setActiveNav('research-overview');
-                    } else if (unit === 'academic') {
-                        app.render('academic-overview', { title: 'Academic Affairs' });
-                        app.setActiveNav('academic-overview');
-                    } else if (unit === 'alumni') {
-                        app.render('alumni-overview', { title: 'Alumni Unit' });
-                        app.setActiveNav('alumni-overview');
-                    } else if (unit === 'community') {
-                        app.render('community-service', { title: 'Community Service Unit' });
-                        app.setActiveNav('community-service');
-                    } else if (unit === 'student-portal') {
-                        app.render('student-home', { title: 'Student Portal' });
-                        app.setActiveNav('student-dashboard');
-                    } else if (unit === 'clinical') {
-                        app.render('home');
-                        app.setActiveNav('home');
-                    } else if (unit === 'admin-home') {
-                        // Hide sidebars and their container to avoid blank space
-                        if (unitNavContainer) {
-                            unitNavContainer.style.display = 'none';
-                        }
-                        unitNavs.forEach(nav => {
-                            nav.classList.add('hidden');
-                            nav.style.display = 'none';
-                        });
-                        // Switch to full-width layout (no sidebar column)
-                        const appContainer = document.querySelector('.app-container');
-                        if (appContainer) {
-                            appContainer.classList.add('admin-hub-full');
-                        }
-                        const adminHome = document.getElementById('admin-home');
-                        if (adminHome) {
-                            adminHome.classList.add('hidden');
-                            adminHome.style.display = 'none';
-                        }
-                        const appRoot = document.getElementById('app-root');
-                        if (appRoot) {
-                            appRoot.style.display = 'block';
-                            appRoot.style.visibility = 'visible';
-                        }
-                        app.render('admin-hub');
-                        app.setActiveNav('admin-hub');
-                    }
-                    
-                    // Scroll to top
-                    window.scrollTo(0, 0);
                 });
+
+                // Set default view for unit
+                switch (unit) {
+                    case 'qa': this.render('qa-strategic', { title: 'Quality Assurance Unit' }); this.setActiveNav('qa-strategic'); break;
+                    case 'research': this.render('research-overview', { title: 'Research Unit' }); this.setActiveNav('research-overview'); break;
+                    case 'academic': this.render('academic-overview', { title: 'Academic Affairs' }); this.setActiveNav('academic-overview'); break;
+                    case 'alumni': this.render('alumni-overview', { title: 'Alumni Unit' }); this.setActiveNav('alumni-overview'); break;
+                    case 'community': this.render('community-service', { title: 'Community Service Unit' }); this.setActiveNav('community-service'); break;
+                    case 'clinical': this.render('home'); this.setActiveNav('home'); break;
+                }
             });
-            console.log('Global navigation setup complete');
-        } catch (error) {
-            console.error('Error setting up global navigation:', error);
-        }
+        });
     }
 
     setupNavigation() {
@@ -2367,33 +2291,8 @@ class App {
         this.root.innerHTML = ''; // Clear content
 
         switch (view) {
-            case 'admin-hub':
-                this.renderAdminHub();
-                break;
             case 'home':
                 this.renderHomePage();
-                break;
-            // Student Portal Views
-            case 'student-dashboard':
-                StudentPortal.renderDashboard();
-                break;
-            case 'student-home':
-                StudentPortal.renderHome();
-                break;
-            case 'student-evaluations':
-                this.renderComingSoon('My Evaluations');
-                break;
-            case 'student-schedule':
-                this.renderComingSoon('My Schedule');
-                break;
-            case 'student-profile':
-                this.renderComingSoon('My Profile');
-                break;
-            case 'student-transcripts':
-                this.renderComingSoon('Transcripts');
-                break;
-            case 'student-announcements':
-                this.renderComingSoon('Announcements');
                 break;
             case 'students':
                 this.renderStudentList();
@@ -2483,13 +2382,6 @@ class App {
                 break;
             case 'student-portal':
                 this.renderStudentPortal();
-                break;
-            case 'student-awards':
-                if (typeof window.getAPPEContent === 'function') {
-                    this.root.innerHTML = window.getAPPEContent('awards');
-                } else {
-                    this.root.innerHTML = '<h2>Student Awards</h2><p>Loading awards data...</p>';
-                }
                 break;
             case 'appe-experience-hub':
                 if (typeof window.renderAPPEExperienceHub === 'function') {
@@ -2617,486 +2509,6 @@ class App {
         }
     }
 
-    /**
-     * ADMIN HUB - COMMAND CENTER
-     */
-    renderAdminHub() {
-        try {
-            this.title.textContent = '🏢 Admin Hub - Command Center';
-            
-            // Check if model is loaded
-            if (!window.AdminHubModel) {
-                console.error('AdminHubModel not loaded!');
-                this.root.innerHTML = `<div style="padding: 2rem; color: red;">
-                    <h3>Error: Admin Hub Model Not Loaded</h3>
-                    <p>The admin-hub-model.js file did not load properly.</p>
-                    <p>Try refreshing the page (Ctrl+F5).</p>
-                </div>`;
-                return;
-            }
-            
-            const model = window.AdminHubModel;
-            
-            console.log('✅ AdminHubModel loaded, requests count:', model.requests.length);
-            console.log('✅ Calculating KPI metrics...');
-            
-            // Verify model methods exist
-            if (typeof model.getKPIMetrics !== 'function') throw new Error('getKPIMetrics not a function');
-            if (typeof model.getRAGStatus !== 'function') throw new Error('getRAGStatus not a function');
-            if (typeof model.getUnitSummary !== 'function') throw new Error('getUnitSummary not a function');
-            if (typeof model.getCriticalRequests !== 'function') throw new Error('getCriticalRequests not a function');
-            
-            const kpis = model.getKPIMetrics();
-            console.log('✅ KPIs calculated:', kpis);
-            
-            const rag = model.getRAGStatus();
-            console.log('✅ RAG status:', rag);
-            
-            const unitSummary = model.getUnitSummary();
-            console.log('✅ Unit summary retrieved:', unitSummary.length, 'units');
-            
-            const criticalRequests = model.getCriticalRequests(15);
-            console.log('✅ Critical requests retrieved:', criticalRequests.length, 'requests');
-            
-            // Get new analytics data
-            const trends = model.getRequestTrends();
-            const unitPerf = model.getUnitPerformance();
-            const adminUsers = model.getAdminUsers();
-            const systemAlerts = model.getSystemAlerts();
-            const pendingApprovals = model.getPendingApprovals();
-            console.log('✅ All analytics data loaded');
-            console.log('✅ Pending student approvals:', pendingApprovals.length);
-            
-            const dashboardStats = model.getDashboardStats();
-            console.log('✅ Dashboard stats calculated:', dashboardStats);
-            console.log('   - Total Students:', dashboardStats.totalStudents);
-            console.log('   - Active Tickets:', dashboardStats.activeTickets);
-            console.log('   - Avg Response Time:', dashboardStats.avgResponseTime);
-            console.log('   - Resolved Today:', dashboardStats.resolvedToday);
-            
-            // RAG Alert Bar
-            console.log('✅ Building RAG bar...');
-            const ragBar = `
-                <div style="background: #1565C0; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
-                    <span style="font-size: 2rem;">${rag.icon}</span>
-                    <div>
-                        <strong style="font-size: 1.1rem;">System Status</strong>
-                        <p style="margin: 0.25rem 0 0 0; font-size: 0.95rem;">${rag.message}</p>
-                    </div>
-                </div>
-            `;
-            
-            // Dashboard Stat Cards
-            console.log('✅ Building stat cards...');
-            console.log('   Total Students:', dashboardStats.totalStudents, 'Active Tickets:', dashboardStats.activeTickets);
-            const statCards = `
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">👥</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.totalStudents}</div>
-                        <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Total Students</div>
-                    </div>
-                    
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #FF9800; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎫</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.activeTickets}</div>
-                        <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Active Tickets</div>
-                    </div>
-                    
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #2196F3; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">⏱️</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.avgResponseTime}h</div>
-                        <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Avg Response Time</div>
-                    </div>
-                    
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">✅</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.resolvedToday}</div>
-                        <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Resolved Today</div>
-                    </div>
-                </div>
-            `;
-            
-            // KPI Tiles
-            console.log('✅ Building KPI tiles...');
-            const kpiTiles = `
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
-                    <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 2.5rem; color: #FF6B6B; font-weight: bold;">${kpis.new}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">🆕 New Today</div>
-                    </div>
-                    <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 2.5rem; color: #FFA500; font-weight: bold;">${kpis.pending}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">⏳ Pending</div>
-                    </div>
-                    <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 2.5rem; color: #FF0000; font-weight: bold;">${kpis.overdue}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">🔴 Overdue</div>
-                    </div>
-                    <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 2.5rem; color: #28A745; font-weight: bold;">${kpis.resolved}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">✅ Resolved</div>
-                    </div>
-                    <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
-                        <div style="font-size: 2.5rem; color: #FFD700; font-weight: bold;">${kpis.waiting}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📧 Waiting</div>
-                    </div>
-                </div>
-            `;
-            
-            // Requests by Unit Table
-            console.log('✅ Building unit summary table...');
-            const unitTableRows = unitSummary.map(u => `
-                <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 0.75rem; font-weight: 500;">${u.icon} ${u.name}</td>
-                    <td style="padding: 0.75rem; text-align: center;"><span style="background: #FF6B6B; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold;">${u.new}</span></td>
-                    <td style="padding: 0.75rem; text-align: center;"><span style="background: #FFA500; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold;">${u.pending}</span></td>
-                    <td style="padding: 0.75rem; text-align: center;"><span style="background: #FF0000; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.9rem; font-weight: bold;">${u.overdue}</span></td>
-                    <td style="padding: 0.75rem; text-align: center;">${u.avgResponseTime.toFixed(1)}h</td>
-                    <td style="padding: 0.75rem; text-align: center; color: ${u.slaCompliance >= 95 ? '#28A745' : '#FFA500'}; font-weight: bold;">${u.slaCompliance}%</td>
-                </tr>
-            `).join('');
-            
-            const unitTable = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">📊 Requests by Unit</h3>
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead>
-                            <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                <th style="padding: 0.75rem; text-align: left;">Unit</th>
-                                <th style="padding: 0.75rem; text-align: center;">New</th>
-                                <th style="padding: 0.75rem; text-align: center;">Pending</th>
-                                <th style="padding: 0.75rem; text-align: center;">Overdue</th>
-                                <th style="padding: 0.75rem; text-align: center;">Avg Response</th>
-                                <th style="padding: 0.75rem; text-align: center;">SLA %</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${unitTableRows}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
-            // Critical Requests Table
-            console.log('✅ Building critical requests table...');
-            const criticalRows = criticalRequests.map((req, idx) => {
-                const statusInfo = model.statuses[req.status];
-                const daysPending = Math.floor((new Date() - new Date(req.createdAt)) / (1000 * 60 * 60 * 24));
-                const priorityColor = req.priority === 'high' ? '#FF0000' : (req.priority === 'medium' ? '#FFA500' : '#28A745');
-                
-                return `
-                    <tr style="border-bottom: 1px solid #eee; ${req.slaInfo.status === 'breached' ? 'background: #FFE6E6;' : ''}">
-                        <td style="padding: 0.75rem; font-weight: 500;">${req.id}</td>
-                        <td style="padding: 0.75rem;">${req.studentName}</td>
-                        <td style="padding: 0.75rem;">${req.type}</td>
-                        <td style="padding: 0.75rem;">${req.unitInfo.name}</td>
-                        <td style="padding: 0.75rem;"><span style="background: ${statusInfo.color}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">${statusInfo.label}</span></td>
-                        <td style="padding: 0.75rem; text-align: center;">${daysPending}d</td>
-                        <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: ${req.slaInfo.color};">
-                            ${req.slaInfo.status === 'breached' ? '🔴 ' : (req.slaInfo.status === 'warning' ? '🟠 ' : '🟢 ')}
-                            ${Math.abs(req.slaInfo.daysRemaining)}d
-                        </td>
-                        <td style="padding: 0.75rem;">
-                            <span style="background: ${priorityColor}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
-                                ${req.priority.toUpperCase()[0]}
-                            </span>
-                        </td>
-                        <td style="padding: 0.75rem;">
-                            <button class="btn btn-sm btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; margin-right: 0.25rem;" onclick="alert('Approve: ${req.id}')">✓</button>
-                            <button class="btn btn-sm btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="alert('View: ${req.id}')">View</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-            
-            const criticalTable = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">🚨 My Action Required (Top 15)</h3>
-                    <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                            <thead>
-                                <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                    <th style="padding: 0.75rem; text-align: left;">Request ID</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Student</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Type</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Unit</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Status</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Days</th>
-                                    <th style="padding: 0.75rem; text-align: center;">SLA</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Priority</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${criticalRows}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
-            
-            // REAL-TIME ALERTS SECTION
-            console.log('✅ Building alerts section...');
-            const alertsSection = `
-                <div class="card mb-4" style="border-top: 4px solid #FF9800; background: linear-gradient(135deg, rgba(255,152,0,0.05) 0%, rgba(255,152,0,0.02) 100%);">
-                    <h3 style="margin: 0 0 1rem 0;">🔔 Real-Time Alerts</h3>
-                    ${systemAlerts.length > 0 ? systemAlerts.map(alert => `
-                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid ${alert.type === 'error' ? '#FF0000' : (alert.type === 'warning' ? '#FF9800' : '#2196F3')}; display: flex; gap: 1rem; align-items: flex-start;">
-                            <span style="font-size: 1.5rem;">${alert.icon}</span>
-                            <div style="flex: 1;">
-                                <strong>${alert.title}</strong>
-                                <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; color: #666;">${alert.message}</p>
-                            </div>
-                        </div>
-                    `).join('') : '<p style="color: #999;">No active alerts - System operating normally</p>'}
-                </div>
-            `;
-            
-            // REQUEST TRENDS SECTION
-            console.log('✅ Building trends section...');
-            const trendsChart = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">📈 Request Trends (Last 7 Days)</h3>
-                    <div style="display: flex; gap: 1rem; align-items: flex-end; height: 150px; margin: 1rem 0;">
-                        ${Object.entries(trends).map(([date, count]) => `
-                            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                                <div style="width: 100%; background: linear-gradient(180deg, #4CAF50 0%, #81C784 100%); border-radius: 4px 4px 0 0; height: ${Math.max(20, count * 20)}px; position: relative; min-height: 20px;" title="${count} requests">
-                                    <span style="position: absolute; top: -1.5rem; left: 50%; transform: translateX(-50%); font-weight: bold; color: #333; font-size: 0.9rem;">${count}</span>
-                                </div>
-                                <small style="color: #666; font-size: 0.8rem;">${date}</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            // UNIT PERFORMANCE SECTION
-            console.log('✅ Building unit performance section...');
-            const unitPerfSection = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">📊 Unit Performance</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                        ${unitPerf.map(unit => `
-                            <div style="background: linear-gradient(135deg, rgba(76,175,80,0.05) 0%, rgba(76,175,80,0.02) 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid #E8F5E9;">
-                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                                    <span style="font-size: 2rem;">${unit.icon}</span>
-                                    <div>
-                                        <strong>${unit.name}</strong>
-                                        <p style="margin: 0; font-size: 0.85rem; color: #666;">SLA: ${unit.slaCompliance}%</p>
-                                    </div>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #FF6B6B;">${unit.totalRequests}</div>
-                                        <small style="color: #999;">Total</small>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #FFA500;">${unit.activeRequests}</div>
-                                        <small style="color: #999;">Active</small>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #FF0000;">${unit.breachedSLA}</div>
-                                        <small style="color: #999;">Breached</small>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #2196F3;">${unit.avgResponseTime}h</div>
-                                        <small style="color: #999;">Avg Response</small>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            // QUICK ACTIONS SECTION
-            console.log('✅ Building quick actions section...');
-            const quickActions = `
-                <div class="card mb-4" style="border-top: 4px solid #2196F3;">
-                    <h3 style="margin: 0 0 1rem 0;">⚡ Quick Actions</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">✅ Approve All</button>
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">📋 Assign Staff</button>
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #F44336 0%, #EF5350 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">🚨 Escalate</button>
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #2196F3 0%, #64B5F6 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">📊 Export Report</button>
-                    </div>
-                </div>
-            `;
-            
-            // USER MANAGEMENT SECTION
-            console.log('✅ Building user management section...');
-            const userMgmt = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">👥 Admin Staff Directory</h3>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                        <thead>
-                            <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                <th style="padding: 0.75rem; text-align: left;">Name</th>
-                                <th style="padding: 0.75rem; text-align: left;">Role</th>
-                                <th style="padding: 0.75rem; text-align: center;">Assigned</th>
-                                <th style="padding: 0.75rem; text-align: center;">Completed</th>
-                                <th style="padding: 0.75rem; text-align: center;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${adminUsers.map(user => `
-                                <tr style="border-bottom: 1px solid #eee;">
-                                    <td style="padding: 0.75rem;"><strong>${user.name}</strong></td>
-                                    <td style="padding: 0.75rem;"><span style="background: #E3F2FD; color: #1565C0; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">${user.role.replace(/_/g, ' ').toUpperCase()}</span></td>
-                                    <td style="padding: 0.75rem; text-align: center; font-weight: bold;">${user.assignedCount}</td>
-                                    <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: #4CAF50;">${user.completedCount}</td>
-                                    <td style="padding: 0.75rem; text-align: center;">
-                                        <span style="background: #C8E6C9; color: #2E7D32; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">Active</span>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
-            // STUDENT APPROVALS SECTION
-            console.log('✅ Building student approvals section...');
-            const studentApprovals = `
-                <div class="card mb-4" style="border-top: 4px solid #FF5722;">
-                    <h3 style="margin: 0 0 1rem 0;">🎓 Student Access Management</h3>
-                    ${pendingApprovals.length > 0 ? `
-                        <div style="background: #FFEBEE; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #FF5722;">
-                            <strong style="color: #C62828;">⚠️ ${pendingApprovals.length} pending student approval(s)</strong>
-                        </div>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
-                            <thead>
-                                <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                    <th style="padding: 0.75rem; text-align: left;">Student Name</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Email</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Phone</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Class Preference</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Requested</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${pendingApprovals.map(signup => {
-                                    const daysAgo = Math.floor((new Date() - new Date(signup.requestedAt)) / (1000 * 60 * 60 * 24));
-                                    return `
-                                        <tr style="border-bottom: 1px solid #eee; background: #FFF3E0;">
-                                            <td style="padding: 0.75rem; font-weight: 600;">${signup.name}</td>
-                                            <td style="padding: 0.75rem;">${signup.email}</td>
-                                            <td style="padding: 0.75rem;">${signup.phone}</td>
-                                            <td style="padding: 0.75rem; text-align: center;">
-                                                <span style="background: #E1F5FE; color: #01579B; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">${signup.classPreference}</span>
-                                            </td>
-                                            <td style="padding: 0.75rem; text-align: center; font-size: 0.9rem; color: #666;">${daysAgo} days ago</td>
-                                            <td style="padding: 0.75rem; text-align: center;">
-                                                <select style="padding: 0.4rem; margin-right: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                                                    <option value="">Assign Class</option>
-                                                    <option value="P1">P1 (First Year)</option>
-                                                    <option value="P2">P2 (Second Year)</option>
-                                                    <option value="P3">P3 (Third Year)</option>
-                                                    <option value="P4">P4 (Final Year)</option>
-                                                </select>
-                                                <button style="background: #4CAF50; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 0.3rem;" onclick="alert('Approved: ${signup.name}')">✅ Approve</button>
-                                                <button style="background: #F44336; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="alert('Rejected: ${signup.name}')">❌ Reject</button>
-                                            </td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    ` : `
-                        <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
-                            <strong style="color: #2E7D32;">✅ All pending students approved!</strong>
-                            <p style="margin: 0.5rem 0 0 0; color: #558B2F;">No new signup requests awaiting review</p>
-                        </div>
-                    `}
-                    
-                    <h4 style="margin: 2rem 0 1rem 0;">📋 Approved Students (${model.approvedStudents.length})</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        ${model.approvedStudents.map(student => `
-                            <div style="background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0.05) 100%); padding: 1rem; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                                <div style="font-weight: bold; color: #333; margin-bottom: 0.5rem;">${student.name}</div>
-                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">${student.email}</div>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <span style="background: #C8E6C9; color: #1B5E20; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: bold; font-size: 0.8rem;">${student.class}</span>
-                                    <span style="background: #E0F2F1; color: #004D40; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">✓ Active</span>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-            
-            // SYSTEM CONTROLS SECTION
-            console.log('✅ Building system controls section...');
-            const systemControls = `
-                <div class="card mb-4" style="border-top: 4px solid #9C27B0;">
-                    <h3 style="margin: 0 0 1rem 0;">⚙️ System Controls</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                        <div style="background: #F3E5F5; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #9C27B0;">
-                            <h4 style="margin: 0 0 0.75rem 0;">SLA Settings</h4>
-                            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Configure SLA thresholds for each unit type</p>
-                            <button style="background: #9C27B0; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Configure</button>
-                        </div>
-                        <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #4CAF50;">
-                            <h4 style="margin: 0 0 0.75rem 0;">Unit Configuration</h4>
-                            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Manage units, heads, and coordinators</p>
-                            <button style="background: #4CAF50; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Manage</button>
-                        </div>
-                        <div style="background: #FFF3E0; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #FF9800;">
-                            <h4 style="margin: 0 0 0.75rem 0;">Notifications</h4>
-                            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Setup email and SMS alerts</p>
-                            <button style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Setup</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            // Assemble full HTML
-            console.log('✅ Assembling final HTML...');
-            const html = `
-                <div style="padding: 2rem; height: 100%; overflow-y: scroll; overflow-x: hidden; box-sizing: border-box;">
-                    ${ragBar}
-                    ${statCards}
-                    ${alertsSection}
-                    ${trendsChart}
-                    ${unitPerfSection}
-                    ${quickActions}
-                    ${userMgmt}
-                    ${studentApprovals}
-                    ${systemControls}
-                    ${kpiTiles}
-                    ${unitTable}
-                    ${criticalTable}
-                    <div style="text-align: center; color: #999; font-size: 0.9rem; margin-top: 2rem;">
-                        <p>Last updated: ${new Date().toLocaleTimeString()}</p>
-                        <p style="font-size: 0.85rem;">All times in working days</p>
-                    </div>
-                </div>
-            `;
-            
-            this.root.innerHTML = html;
-            
-            console.log('✅ Admin Hub rendered successfully');
-            
-        } catch (error) {
-            console.error('❌ Error in renderAdminHub:', error);
-            console.error('Stack:', error.stack);
-            this.root.innerHTML = `<div style="padding: 2rem; color: red;">
-                <h3>❌ Error Loading Admin Hub</h3>
-                <p><strong>Error Message:</strong> ${error.message}</p>
-                <p><strong>Type:</strong> ${error.name}</p>
-                <details style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
-                    <summary style="cursor: pointer; font-weight: bold;">Stack Trace</summary>
-                    <pre style="overflow: auto; font-size: 0.8rem;">${error.stack || 'No stack trace'}</pre>
-                </details>
-                <p style="margin-top: 1rem; font-size: 0.9rem; color: #666;">
-                    Try refreshing the page (Ctrl+F5). If the problem persists, check the browser console (F12).
-                </p>
-            </div>`;
-        }
-    }
-
     renderIPPE1() {
         this.renderHomePage('ippe1', 'overview', 'all');
     }
@@ -3105,15 +2517,28 @@ class App {
         try {
             this.title.textContent = 'Clinical Affairs Hub';
             
-            // Clear and render immediately
-            this.root.innerHTML = '';
+            // Simple quick render first
+            this.root.innerHTML = `
+                <div style="padding: 2rem;">
+                    <h2>Welcome to Clinical Affairs Dashboard</h2>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 2rem 0;">
+                        <button class="btn btn-primary" onclick="app.render('home')">IPPE Overview</button>
+                        <button class="btn btn-outline" onclick="alert('APPE Hub - Coming Soon')">APPE Hub</button>
+                        <button class="btn btn-outline" onclick="app.render('alumni-overview')">Alumni Unit</button>
+                        <button class="btn btn-outline" onclick="alert('QA Unit - Coming Soon')">QA Unit</button>
+                    </div>
+                    <div style="background: #f5f5f5; padding: 1.5rem; border-radius: 8px;">
+                        <p>Select an option above to get started. Loading full dashboard...</p>
+                    </div>
+                </div>
+            `;
             
-            // Load full content immediately instead of waiting
-            this._renderHomePageFull(activeTab, subTab, filterId);
+            // Load full content asynchronously
+            setTimeout(() => this._renderHomePageFull(activeTab, subTab, filterId), 200);
             
         } catch (error) {
             console.error('Error in renderHomePage:', error);
-            this.root.innerHTML = `<div style="padding: 2rem; color: red;"><h3>Error Loading Home Page</h3><pre>${error.message}</pre></div>`;
+            this.root.innerHTML = `<div style="padding: 2rem; color: red;"><h3>Error</h3><pre>${error.message}</pre></div>`;
         }
     }
 
@@ -3149,7 +2574,7 @@ class App {
                 { id: 'ippe2', label: 'IPPE II' },
                 { id: 'ippe3', label: 'IPPE III' },
                 { id: 'community', label: 'Community' },
-                { id: 'appe', label: 'APPE Experience Hub' }
+                { id: 'appe', label: 'APPE' }
             ];
 
             const tabNav = `
@@ -3229,16 +2654,8 @@ class App {
                 new Chart(document.getElementById('chartEnd'), { type: 'line', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.endYear), borderColor: '#555', pointBackgroundColor: bgColors }] }, options: scale });
                 new Chart(document.getElementById('chartPort'), { type: 'pie', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.portfolio), backgroundColor: bgColors }] }, options: noScale });
 
-            } else if (activeTab === 'appe') {
-                // --- APPE TAB: Show Full APPE Experience Hub ---
-                if (typeof window.renderAPPEExperienceHub === 'function') {
-                    this.root.innerHTML = tabNav + `<div class="fade-in-up">${window.renderAPPEExperienceHub()}</div>`;
-                } else {
-                    this.root.innerHTML = tabNav + `<div class="card"><h3>APPE Experience Hub not available</h3></div>`;
-                    console.error('renderAPPEExperienceHub function not found');
-                }
             } else {
-                // --- SPECIFIC COURSE DASHBOARDS (IPPE I, II, III, Community) ---
+                // --- SPECIFIC COURSE DASHBOARDS ---
                 // Get content from helper
                 const dash = this.getIPPEDashboardContent(activeTab, subTab, filterId);
 
@@ -8851,11 +8268,6 @@ class App {
     }
 
     renderStudentPortal() {
-        this.title.textContent = 'Student Portal - Home';
-        StudentPortal.renderHome();
-    }
-
-    renderStudentPortalOld() {
         this.title.textContent = 'Student Portal';
 
         // Mock Session Logic (Week 10 as per prompt)
@@ -12110,100 +11522,6 @@ window.renderFacultyDashboard = () => {
 window.showAPPEHub = function() {
     if (window.app && typeof window.app.render === 'function') {
         window.app.render('appe-experience-hub');
-    }
-};
-
-// Initialize the app on login
-window.initializeApp = function() {
-    console.log('=== initializeApp START ===');
-    
-    try {
-        // First, make sure content areas are visible
-        const mainContent = document.querySelector('.main-content');
-        const appRoot = document.getElementById('app-root');
-        const pageTitle = document.getElementById('page-title');
-        const unitNavContainer = document.querySelector('.unit-nav-container');
-        
-        console.log('mainContent exists:', !!mainContent);
-        console.log('appRoot exists:', !!appRoot);
-        console.log('pageTitle exists:', !!pageTitle);
-        
-        // FORCE VISIBILITY
-        if (mainContent) {
-            mainContent.style.display = 'flex';
-            mainContent.style.visibility = 'visible';
-            mainContent.style.overflow = 'auto';
-        }
-        
-        if (appRoot) {
-            appRoot.style.display = 'block';
-            appRoot.style.visibility = 'visible';
-            appRoot.style.minHeight = 'auto';
-        }
-        
-        if (unitNavContainer) {
-            unitNavContainer.style.display = 'flex';
-            unitNavContainer.style.visibility = 'visible';
-        }
-        
-        // Hide admin home
-        const adminHome = document.getElementById('admin-home');
-        if (adminHome) {
-            adminHome.style.display = 'none';
-            adminHome.classList.add('hidden');
-        }
-        
-        // Create the app instance if needed
-        if (!window.app && window.appStore) {
-            console.log('Creating new App instance...');
-            window.app = new App();
-            console.log('App instance created:', !!window.app);
-        } else {
-            console.log('App already exists or appStore missing');
-        }
-        
-        // Wait for app to fully initialize
-        setTimeout(function() {
-            console.log('Ensuring app-root is visible...');
-            const appRoot = document.getElementById('app-root');
-            if (appRoot) {
-                appRoot.style.display = 'block';
-                appRoot.style.visibility = 'visible';
-            }
-            
-            console.log('Rendering content after delay...');
-            if (window.app && typeof window.app.render === 'function') {
-                try {
-                    console.log('Calling app.render("home")');
-                    window.app.render('home');
-                    console.log('Content rendered successfully');
-                    
-                    // Ensure app-root is still visible after render
-                    setTimeout(() => {
-                        const appRoot = document.getElementById('app-root');
-                        if (appRoot) {
-                            appRoot.style.display = 'block';
-                            console.log('app-root display set to block');
-                        }
-                    }, 50);
-                    
-                    // Mark clinical tab as active
-                    const clinicalTab = document.querySelector('[data-unit="clinical"]');
-                    if (clinicalTab) {
-                        clinicalTab.classList.add('active');
-                        console.log('Clinical tab marked as active');
-                    }
-                } catch (renderError) {
-                    console.error('Error calling render:', renderError);
-                }
-            } else {
-                console.error('app.render not available. app:', window.app, 'render:', window.app?.render);
-            }
-        }, 600);
-        
-        console.log('=== initializeApp END ===');
-    } catch (error) {
-        console.error('Fatal error in initializeApp:', error);
     }
 };
 

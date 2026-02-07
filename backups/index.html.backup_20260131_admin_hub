@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=10">
+    <link rel="stylesheet" href="css/style.css?v=8">
     <link rel="stylesheet" href="css/student-portal.css?v=1">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -329,8 +329,6 @@
             position: relative;
             overflow: visible;
             z-index: 10;
-            grid-column: 1 / -1;
-            grid-row: 3;
         }
 
         .admin-home.hidden {
@@ -537,7 +535,7 @@
                     <h2 class="login-form-title">Welcome Back</h2>
                     <p class="login-form-subtitle">Sign in to access the Student Portal</p>
 
-                    <form id="loginForm" onsubmit="event.preventDefault(); AuthSystem.handleLogin(event);">
+                    <form onsubmit="event.preventDefault(); AuthSystem.handleLogin(event);">
                         <!-- Account Type Selection -->
                         <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #1a1a1a; font-size: 0.95rem;">
                             Select Account Type
@@ -581,105 +579,6 @@
                                 <div class="demo-account-cred">ID: admin001 | Pass: admin123</div>
                             </div>
                         </div>
-                        
-                        <!-- Signup Link -->
-                        <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #E0E0E0;">
-                            <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">New student? Request access</p>
-                            <button type="button" class="login-button" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);" onclick="toggleSignup()">
-                                📝 Signup
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <!-- STUDENT SIGNUP FORM (hidden by default) -->
-                    <form id="signupForm" style="display: none;">
-                        <div class="login-form-title">Request Portal Access</div>
-                        <div class="login-form-subtitle">Fill out the form below to request account access</div>
-                        
-                        <!-- Account Type Selection -->
-                        <label style="display: block; margin-bottom: 12px; font-weight: 600; color: #1a1a1a; font-size: 0.95rem;">
-                            Account Type
-                        </label>
-                        <div class="account-type-selector" style="margin-bottom: 1.5rem;">
-                            <button type="button" class="account-type-btn active" data-signup-type="student" onclick="SignupForm.selectAccountType('student')" style="flex: 1;">
-                                <span class="account-type-icon">🎓</span>
-                                <span>Student Account</span>
-                            </button>
-                            <button type="button" class="account-type-btn" data-signup-type="admin" onclick="SignupForm.selectAccountType('admin')" style="flex: 1;">
-                                <span class="account-type-icon">👨‍💼</span>
-                                <span>Admin Account</span>
-                            </button>
-                        </div>
-
-                        <input type="hidden" id="signupAccountType" value="student">
-                        
-                        <div class="login-form-group">
-                            <label>Full Name</label>
-                            <input type="text" id="signupName" placeholder="Your full name" required>
-                        </div>
-                        
-                        <div class="login-form-group" id="studentIdGroup">
-                            <label>Student ID</label>
-                            <input type="text" id="signupStudentId" placeholder="Your student ID" required>
-                        </div>
-
-                        <div class="login-form-group" id="staffIdGroup" style="display: none;">
-                            <label>Staff ID</label>
-                            <input type="text" id="signupStaffId" placeholder="Your staff ID">
-                        </div>
-                        
-                        <div class="login-form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="signupEmail" placeholder="your.email@ksauhs.edu.sa" required>
-                        </div>
-                        
-                        <div class="login-form-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="signupPhone" placeholder="+966 50 XXX XXXX" required>
-                        </div>
-                        
-                        <div class="login-form-group" id="classGroup">
-                            <label>Class/Year (Preference)</label>
-                            <select id="signupClass" required>
-                                <option value="">Select your year...</option>
-                                <option value="P1">P1 (First Year)</option>
-                                <option value="P2">P2 (Second Year)</option>
-                                <option value="P3">P3 (Third Year)</option>
-                                <option value="P4">P4 (Final Year)</option>
-                            </select>
-                        </div>
-
-                        <div class="login-form-group" id="departmentGroup" style="display: none;">
-                            <label>Department</label>
-                            <select id="signupDepartment" required>
-                                <option value="">Select department...</option>
-                                <option value="Academic">Academic Affairs</option>
-                                <option value="Clinical">Clinical Affairs</option>
-                                <option value="QA">Quality Assurance</option>
-                                <option value="Research">Research Unit</option>
-                                <option value="Alumni">Alumni Unit</option>
-                                <option value="Community">Community Service</option>
-                            </select>
-                        </div>
-
-                        <div class="login-form-group" id="roleGroup" style="display: none;">
-                            <label>Requested Role</label>
-                            <select id="signupRole" required>
-                                <option value="">Select role...</option>
-                                <option value="Coordinator">Coordinator</option>
-                                <option value="Manager">Manager</option>
-                                <option value="Director">Director</option>
-                                <option value="System Admin">System Admin</option>
-                            </select>
-                        </div>
-                        
-                        <button type="button" class="login-button" style="background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);" onclick="submitSignup()">
-                            ✅ Submit Request
-                        </button>
-                        
-                        <button type="button" class="login-button" style="background: #999; margin-top: 0.5rem;" onclick="toggleSignup()">
-                            ← Back to Login
-                        </button>
                     </form>
                 </div>
             </div>
@@ -688,7 +587,7 @@
 
     <div class="app-container hidden" id="portalContainer">
         <!-- Admin Home Page - HIDDEN -->
-        <section id="admin-home" class="admin-home">
+        <section id="admin-home" class="admin-home hidden" style="display: none !important;">
             <div class="admin-home-background"></div>
             <div class="admin-home-overlay"></div>
             <div class="admin-home-content">
@@ -733,8 +632,8 @@
                 <span>🏛️</span> College of Pharmacy
             </div>
             <ul class="global-nav-menu">
-                <li class="global-nav-item" id="home-nav-item">
-                    <a href="#" class="global-nav-link active" data-unit="admin-home">🏠 Admin Hub</a>
+                <li class="global-nav-item" id="home-nav-item" style="display: none;">
+                    <a href="#" class="global-nav-link" data-unit="admin-home">🏠 Admin Hub</a>
                 </li>
                 <li class="global-nav-item">
                     <a href="#" class="global-nav-link" data-unit="student-portal">👨‍🎓 Student Portal</a>
@@ -743,7 +642,7 @@
                     <a href="#" class="global-nav-link" data-unit="academic">Academic Affairs</a>
                 </li>
                 <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="clinical">Clinical Affairs</a>
+                    <a href="#" class="global-nav-link active" data-unit="clinical">Clinical Affairs</a>
                 </li>
                 <li class="global-nav-item">
                     <a href="#" class="global-nav-link" data-unit="qa">Quality Assurance Unit</a>
@@ -983,7 +882,7 @@
             </aside>
 
             <!-- Clinical Affairs Nav (Active by default) -->
-            <aside class="sidebar unit-nav hidden" id="nav-clinical">
+            <aside class="sidebar unit-nav" id="nav-clinical">
                 <div class="brand">
                     <span>🎓</span> Clinical Affairs
                 </div>
@@ -1128,18 +1027,17 @@
     </div>
 
     <!-- Application Scripts -->
-    <script src="js/student-portal.js?v=1" onerror="console.error('Failed to load: student-portal.js')"></script>
-    <script src="js/alumni-data.js?v=20260120019" onerror="console.error('Failed to load: alumni-data.js')"></script>
-    <script src="js/research-data.js?v=20260120019" onerror="console.error('Failed to load: research-data.js')"></script>
-    <script src="js/appe-hub_backup_20260119_220628.js?v=20260124001" onerror="console.error('Failed to load: appe-hub backup')"></script>
-    <script src="js/admin-hub-model.js?v=20260131010" onerror="console.error('Failed to load: admin-hub-model.js')"></script>
-    <script src="js/app.js?v=20260131010" onerror="console.error('Failed to load: app.js')"></script>
-    <script src="js/student-portal.js?v=20260131010" onerror="console.error('Failed to load: student-portal.js v2')"></script>
-    <script src="js/program-switcher.js?v=1" onerror="console.error('Failed to load: program-switcher.js')"></script>
-    <script src="js/outcomes-dashboard.js?v=1" onerror="console.error('Failed to load: outcomes-dashboard.js')"></script>
-    <script src="js/evaluation-system.js?v=1" onerror="console.error('Failed to load: evaluation-system.js')"></script>
-    <script src="js/attendance-schedule.js?v=1" onerror="console.error('Failed to load: attendance-schedule.js')"></script>
-    <script src="js/matching-algorithm.js?v=1" onerror="console.error('Failed to load: matching-algorithm.js')"></script>
+    <script src="js/student-portal.js?v=1"></script>
+    <script src="js/alumni-data.js?v=20260120019"></script>
+    <script src="js/research-data.js?v=20260120019"></script>
+    <script src="js/appe-hub_backup_20260119_220628.js?v=20260124001"></script>
+    <script src="js/admin-hub-model.js?v=20260131001"></script>
+    <script src="js/app.js?v=20260120019"></script>
+    <script src="js/program-switcher.js?v=1"></script>
+    <script src="js/outcomes-dashboard.js?v=1"></script>
+    <script src="js/evaluation-system.js?v=1"></script>
+    <script src="js/attendance-schedule.js?v=1"></script>
+    <script src="js/matching-algorithm.js?v=1"></script>
     <script>
         // ============================================
         // AUTHENTICATION SYSTEM
@@ -1147,7 +1045,6 @@
         const AuthSystem = {
             currentUser: null,
             currentUserRole: null,
-            currentUserName: null,
             selectedAccountType: 'student',
 
             // Demo accounts
@@ -1161,19 +1058,6 @@
                     'admin001': 'admin123',
                     'admin002': 'admin123'
                 }
-            },
-
-            // Student names mapped to IDs
-            studentNames: {
-                '441210049': 'Hana Al-Malik',
-                '441210050': 'Omar Al-Mansour',
-                '441210051': 'Sarah Al-Mutairi'
-            },
-
-            // Admin names mapped to IDs
-            adminNames: {
-                'admin001': 'Dr. Khalid Al-Rashid',
-                'admin002': 'Dr. Noor Al-Qahtani'
             },
 
             // Select account type (Student or Admin)
@@ -1210,17 +1094,6 @@
                 if (this.validateCredentials(userId, password, accountType)) {
                     this.currentUser = userId;
                     this.currentUserRole = accountType;
-                    
-                    // Get user name
-                    const namesMap = accountType === 'admin' ? this.adminNames : this.studentNames;
-                    this.currentUserName = namesMap[userId] || userId;
-                    
-                    console.log('✅ Login successful:', { 
-                        id: this.currentUser, 
-                        role: this.currentUserRole, 
-                        name: this.currentUserName 
-                    });
-                    
                     this.showPortal();
                     this.applyRoleBasedAccess();
                 } else {
@@ -1243,17 +1116,14 @@
                 document.getElementById('loginContainer').classList.add('hidden');
                 document.getElementById('portalContainer').classList.remove('hidden');
                 
-                // For non-admin users, initialize the app
-                if (this.currentUserRole !== 'admin') {
-                    // Initialize existing app if available
-                    if (typeof initializeApp === 'function') {
-                        initializeApp();
-                    }
-                    
-                    // Ensure app is ready
-                    if (window.appStore && !window.app) {
-                        window.app = new App();
-                    }
+                // Initialize existing app if available
+                if (typeof initializeApp === 'function') {
+                    initializeApp();
+                }
+                
+                // Ensure app is ready
+                if (window.appStore && !window.app) {
+                    window.app = new App();
                 }
             },
 
@@ -1307,11 +1177,7 @@
                         homeNavItem.style.display = 'block';
                     }
                     
-                    // For admin, automatically click Admin Hub tab
-                    const adminHubTab = globalNav.querySelector('[data-unit="admin-home"]');
-                    if (adminHubTab) {
-                        adminHubTab.click();
-                    }
+                    // For admin, DON'T hide the content - let initializeApp show it
                 }
 
                 // Add logout button to top bar
@@ -1333,7 +1199,6 @@
                 const adminHome = document.getElementById('admin-home');
                 if (adminHome) {
                     adminHome.classList.remove('hidden');
-                    adminHome.style.display = 'flex';
                 }
 
                 // Update page title
@@ -1362,7 +1227,7 @@
                 const logoutHTML = `
                     <div style="position: absolute; right: 20px; top: 15px; display: flex; align-items: center; gap: 15px;">
                         <span style="color: #666; font-size: 0.9rem;">
-                            👤 <strong>${this.currentUserName || this.currentUser}</strong> (${this.currentUserRole === 'admin' ? 'Admin' : 'Student'})
+                            👤 <strong>${this.currentUser}</strong> (${this.currentUserRole === 'admin' ? 'Admin' : 'Student'})
                         </span>
                         <button id="logoutBtn" style="
                             background: linear-gradient(135deg, #c62828 0%, #8b0000 100%);
@@ -1390,7 +1255,6 @@
                 if (confirm('Are you sure you want to sign out?')) {
                     this.currentUser = null;
                     this.currentUserRole = null;
-                    this.currentUserName = null;
                     document.getElementById('loginContainer').classList.remove('hidden');
                     document.getElementById('portalContainer').classList.add('hidden');
                     document.getElementById('userId').value = '';
@@ -1426,134 +1290,6 @@
                 adminHomeBg.style.backgroundAttachment = 'fixed';
             }
         });
-        
-        // SIGNUP FORM HANDLER
-        const SignupForm = {
-            currentType: 'student',
-
-            selectAccountType(type) {
-                this.currentType = type;
-                document.getElementById('signupAccountType').value = type;
-                
-                // Update button styles
-                document.querySelectorAll('[data-signup-type]').forEach(btn => btn.classList.remove('active'));
-                document.querySelector(`[data-signup-type="${type}"]`).classList.add('active');
-                
-                // Show/hide relevant fields
-                const isStudent = type === 'student';
-                document.getElementById('studentIdGroup').style.display = isStudent ? 'block' : 'none';
-                document.getElementById('staffIdGroup').style.display = isStudent ? 'none' : 'block';
-                document.getElementById('classGroup').style.display = isStudent ? 'block' : 'none';
-                document.getElementById('departmentGroup').style.display = isStudent ? 'none' : 'block';
-                document.getElementById('roleGroup').style.display = isStudent ? 'none' : 'block';
-                
-                // Update required fields
-                document.getElementById('signupStudentId').required = isStudent;
-                document.getElementById('signupClass').required = isStudent;
-                document.getElementById('signupStaffId').required = !isStudent;
-                document.getElementById('signupDepartment').required = !isStudent;
-                document.getElementById('signupRole').required = !isStudent;
-                
-                console.log('✅ Signup type changed to:', type);
-            }
-        };
-        
-        function toggleSignup() {
-            const loginForm = document.getElementById('loginForm');
-            const signupForm = document.getElementById('signupForm');
-            
-            loginForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none';
-            signupForm.style.display = signupForm.style.display === 'none' ? 'block' : 'none';
-            
-            // Reset signup form when toggling
-            if (signupForm.style.display !== 'none') {
-                SignupForm.currentType = 'student';
-                SignupForm.selectAccountType('student');
-            }
-        }
-        
-        function submitSignup() {
-            const accountType = document.getElementById('signupAccountType').value;
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const phone = document.getElementById('signupPhone').value;
-            
-            // Validate common fields
-            if (!name || !email || !phone) {
-                alert('⚠️ Please fill in all required fields');
-                return;
-            }
-            
-            // Validate email format
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                alert('⚠️ Please enter a valid email address');
-                return;
-            }
-            
-            let signupRequest;
-            
-            if (accountType === 'student') {
-                const studentId = document.getElementById('signupStudentId').value;
-                const classYear = document.getElementById('signupClass').value;
-                
-                if (!studentId || !classYear) {
-                    alert('⚠️ Please fill in all required fields');
-                    return;
-                }
-                
-                signupRequest = {
-                    id: 'signup' + Date.now(),
-                    accountType: 'student',
-                    studentId: studentId,
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    requestedAt: new Date(),
-                    status: 'pending',
-                    classPreference: classYear
-                };
-            } else {
-                const staffId = document.getElementById('signupStaffId').value;
-                const department = document.getElementById('signupDepartment').value;
-                const role = document.getElementById('signupRole').value;
-                
-                if (!staffId || !department || !role) {
-                    alert('⚠️ Please fill in all required fields');
-                    return;
-                }
-                
-                signupRequest = {
-                    id: 'signup' + Date.now(),
-                    accountType: 'admin',
-                    staffId: staffId,
-                    name: name,
-                    email: email,
-                    phone: phone,
-                    requestedAt: new Date(),
-                    status: 'pending',
-                    department: department,
-                    role: role
-                };
-            }
-            
-            // In a real app, this would send to server. For now, store in localStorage
-            let signups = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
-            signups.push(signupRequest);
-            localStorage.setItem('pendingSignups', JSON.stringify(signups));
-            
-            // Clear form and show success message
-            document.getElementById('signupForm').reset();
-            const typeLabel = accountType === 'student' ? '🎓 Student' : '👨‍💼 Admin';
-            const idField = accountType === 'student' ? `Student ID: ${signupRequest.studentId}` : `Staff ID: ${signupRequest.staffId}`;
-            
-            alert(`✅ Success!\n\nYour ${typeLabel} access request has been submitted.\n\nName: ${name}\n${idField}\n\nYour access will be approved by a system admin.\nYou'll receive an email at ${email} once approved.`);
-            
-            // Switch back to login
-            toggleSignup();
-            
-            console.log('✅ Signup submitted:', signupRequest);
-        }
     </script>
 </body>
 

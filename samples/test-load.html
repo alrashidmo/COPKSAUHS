@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS & JS Test</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { margin: 0; padding: 20px; font-family: Arial; }
+        .test-box { background: #1B5E20; color: white; padding: 20px; margin: 10px 0; border-radius: 8px; }
+    </style>
+</head>
+<body>
+    <h1>CSS & JS Loading Test</h1>
+    
+    <div class="test-box">
+        <h2>Test Box with CSS Variables</h2>
+        <p>If you see this with a green background, CSS is loading correctly.</p>
+    </div>
+    
+    <div id="testContent">
+        <p>JavaScript test: <span id="jsTest">Testing...</span></p>
+    </div>
+    
+    <h3>Files being loaded:</h3>
+    <ul>
+        <li>css/style.css - <span id="style-status">Checking...</span></li>
+        <li>css/student-portal.css - <span id="portal-status">Checking...</span></li>
+    </ul>
+    
+    <script>
+        document.getElementById('jsTest').textContent = 'JavaScript is working!';
+        
+        // Check if styles are applied
+        const testBox = document.querySelector('.test-box');
+        const computedStyle = window.getComputedStyle(testBox);
+        const bgColor = computedStyle.backgroundColor;
+        
+        document.getElementById('style-status').textContent = 'Loaded (BG: ' + bgColor + ')';
+        document.getElementById('portal-status').textContent = 'Check console';
+        
+        console.log('CSS loaded. Background color:', bgColor);
+    </script>
+</body>
+</html>

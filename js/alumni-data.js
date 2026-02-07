@@ -1,236 +1,180 @@
 /**
- * Comprehensive Alumni Database
- * Complete alumni data structure for dashboard
+ * Alumni Unit Dashboard - Complete Alumni Database & Functions
+ * 245 Total Alumni | 236 Active | 97% Employment Rate | 338 Board-Certified
+ * Generated: January 19, 2026
  */
 
-const ALUMNI_DATABASE = {
+const ALUMNI_DATA = {
+    // Alumni Statistics
+    stats: {
+        total: 245,
+        active: 236,
+        employmentRate: 97,
+        boardCertified: 338,
+        postgraduateTraining: 128,
+        alumniMentors: 42,
+        activePreceptors: 89,
+        trainingSites: 28
+    },
+
+    // Sample Alumni Records
     alumni: [
-        // Batch 1: PharmD 2020 Graduates
-        { id: 'ALM001', name: 'Dr. Ahmed Al-Rashid', graduationYear: 2020, program: 'PharmD', 
-          email: 'ahmed.alrashid@email.com', phone: '+966501234567', linkedin: 'linkedin.com/in/ahmed-alrashid',
-          city: 'Riyadh', country: 'Saudi Arabia',
-          currentEmployer: 'King Abdulaziz Medical City', jobTitle: 'Clinical Pharmacist - Cardiology',
-          mentorWilling: true, preceptorWilling: true, preceptorStatus: 'Active',
-          certification: { bcps: true, specialty: 'Cardiology', year: 2022 },
-          engagement: { guestLectures: 5, careerDays: 3, workshops: 2, panels: 4 },
-          mentees: 3, mentoringDuration: '24 months'
-        },
-        { id: 'ALM002', name: 'Dr. Fatima Al-Suwaidi', graduationYear: 2020, program: 'PharmD',
-          email: 'fatima.alsuwaidi@email.com', phone: '+966509876543', linkedin: 'linkedin.com/in/fatima-suwaidi',
-          city: 'Abu Dhabi', country: 'United Arab Emirates',
-          currentEmployer: 'Cleveland Clinic Abu Dhabi', jobTitle: 'Clinical Pharmacist - Internal Medicine',
-          mentorWilling: true, preceptorWilling: false, preceptorStatus: 'N/A',
-          certification: { bcps: true, specialty: 'Internal Medicine', year: 2021 },
-          engagement: { guestLectures: 3, careerDays: 2, workshops: 3, panels: 2 },
-          mentees: 2, mentoringDuration: '18 months'
-        },
-        { id: 'ALM003', name: 'Dr. Mohammad Al-Otaibi', graduationYear: 2020, program: 'PharmD',
-          email: 'mohammad.alotaibi@email.com', phone: '+966505555555', linkedin: 'linkedin.com/in/mohammad-otaibi',
-          city: 'Jeddah', country: 'Saudi Arabia',
-          currentEmployer: 'Saudi German Hospital', jobTitle: 'Pharmacy Manager - Institutional',
-          mentorWilling: false, preceptorWilling: true, preceptorStatus: 'Active',
-          certification: { bcps: false, specialty: 'Management', year: null },
-          engagement: { guestLectures: 2, careerDays: 1, workshops: 1, panels: 1 },
-          mentees: 0, mentoringDuration: '0 months'
-        },
-        // Batch 2: PharmD 2021 Graduates
-        { id: 'ALM004', name: 'Dr. Layan Al-Dossary', graduationYear: 2021, program: 'PharmD',
-          email: 'layan.dosary@email.com', phone: '+966503333333', linkedin: 'linkedin.com/in/layan-dosary',
-          city: 'Riyadh', country: 'Saudi Arabia',
-          currentEmployer: 'National Guard Hospital', jobTitle: 'Residency Coordinator',
-          mentorWilling: true, preceptorWilling: true, preceptorStatus: 'Pending',
-          certification: { bcps: false, specialty: 'Residency (PGY1)', year: 2022 },
-          engagement: { guestLectures: 1, careerDays: 2, workshops: 2, panels: 1 },
-          mentees: 4, mentoringDuration: '12 months'
-        },
-        { id: 'ALM005', name: 'Dr. Sara Al-Zahrani', graduationYear: 2021, program: 'PharmD',
-          email: 'sara.zahrani@email.com', phone: '+966502222222', linkedin: 'linkedin.com/in/sara-zahrani',
-          city: 'Dammam', country: 'Saudi Arabia',
-          currentEmployer: 'Johns Hopkins (Affiliate)', jobTitle: 'Clinical Pharmacist - Oncology',
-          mentorWilling: true, preceptorWilling: true, preceptorStatus: 'Active',
-          certification: { bcps: true, specialty: 'Oncology', year: 2023 },
-          engagement: { guestLectures: 4, careerDays: 3, workshops: 4, panels: 3 },
-          mentees: 5, mentoringDuration: '20 months'
-        },
-        // Batch 3: BPharm 2019 Graduates
-        { id: 'ALM006', name: 'Rph. Noor Al-Mutairi', graduationYear: 2019, program: 'BPharm',
-          email: 'noor.mutairi@email.com', phone: '+966514444444', linkedin: 'linkedin.com/in/noor-mutairi',
-          city: 'Kuwait City', country: 'Kuwait',
-          currentEmployer: 'Al-Sabah Hospital', jobTitle: 'Pharmacist - Community Practice',
-          mentorWilling: true, preceptorWilling: false, preceptorStatus: 'N/A',
-          certification: { bcps: false, specialty: 'Community', year: null },
-          engagement: { guestLectures: 0, careerDays: 1, workshops: 1, panels: 0 },
-          mentees: 1, mentoringDuration: '8 months'
-        },
-        { id: 'ALM007', name: 'Rph. Abdullah Al-Shehri', graduationYear: 2019, program: 'BPharm',
-          email: 'abdullah.shehri@email.com', phone: '+966506666666', linkedin: 'linkedin.com/in/abdullah-shehri',
-          city: 'Riyadh', country: 'Saudi Arabia',
-          currentEmployer: 'Ministry of Health', jobTitle: 'Pharmacy Inspector - Regulatory',
-          mentorWilling: false, preceptorWilling: false, preceptorStatus: 'N/A',
-          certification: { bcps: false, specialty: 'Regulatory', year: null },
-          engagement: { guestLectures: 0, careerDays: 0, workshops: 0, panels: 0 },
-          mentees: 0, mentoringDuration: '0 months'
-        },
-        // Batch 4: PharmD 2022 Graduates (Recent)
-        { id: 'ALM008', name: 'Dr. Hana Al-Harbi', graduationYear: 2022, program: 'PharmD',
-          email: 'hana.harbi@email.com', phone: '+966507777777', linkedin: 'linkedin.com/in/hana-harbi',
-          city: 'Riyadh', country: 'Saudi Arabia',
-          currentEmployer: 'Undergoing Residency', jobTitle: 'PGY1 Resident - Internal Medicine',
-          mentorWilling: true, preceptorWilling: false, preceptorStatus: 'N/A',
-          certification: { bcps: false, specialty: 'Residency (PGY1)', year: 2023 },
-          engagement: { guestLectures: 0, careerDays: 0, workshops: 0, panels: 0 },
-          mentees: 0, mentoringDuration: '0 months'
-        },
-        { id: 'ALM009', name: 'Dr. Khalid Al-Dowaisan', graduationYear: 2022, program: 'PharmD',
-          email: 'khalid.dowaisan@email.com', phone: '+966508888888', linkedin: 'linkedin.com/in/khalid-dowaisan',
-          city: 'Kuwait City', country: 'Kuwait',
-          currentEmployer: 'Mubarak Al-Kabir Hospital', jobTitle: 'Clinical Pharmacist',
-          mentorWilling: true, preceptorWilling: true, preceptorStatus: 'Active',
-          certification: { bcps: false, specialty: 'ICU', year: null },
-          engagement: { guestLectures: 1, careerDays: 1, workshops: 1, panels: 0 },
-          mentees: 2, mentoringDuration: '6 months'
-        },
-        { id: 'ALM010', name: 'Dr. Rana Al-Yousif', graduationYear: 2022, program: 'PharmD',
-          email: 'rana.yousif@email.com', phone: '+966509999999', linkedin: 'linkedin.com/in/rana-yousif',
-          city: 'Riyadh', country: 'Saudi Arabia',
-          currentEmployer: 'KAMC', jobTitle: 'Pharmacy Specialist - Drug Information',
-          mentorWilling: true, preceptorWilling: true, preceptorStatus: 'Approved',
-          certification: { bcps: false, specialty: 'Drug Information', year: null },
-          engagement: { guestLectures: 2, careerDays: 2, workshops: 2, panels: 1 },
-          mentees: 3, mentoringDuration: '10 months'
-        }
+        // Class of 2024
+        { id: 'A001', name: 'Dr. Sarah Al-Rashid', email: 'sarah.rashid@example.com', program: 'PharmD', graduationYear: 2024, status: 'employed', currentEmployer: 'KAMC Riyadh', jobTitle: 'Clinical Pharmacist - Oncology', boardCert: true, specialty: 'Oncology', engagement: 'active', mentorWilling: true, preceptorWilling: false },
+        { id: 'A002', name: 'Dr. Ahmed Al-Ghamdi', email: 'ahmed.ghamdi@example.com', program: 'PharmD', graduationYear: 2024, status: 'employed', currentEmployer: 'KFMC', jobTitle: 'Clinical Pharmacist - Cardiology', boardCert: true, specialty: 'Cardiology', engagement: 'active', mentorWilling: false, preceptorWilling: true },
+        { id: 'A003', name: 'Dr. Fatima Al-Otaibi', email: 'fatima.otaibi@example.com', program: 'PharmD', graduationYear: 2024, status: 'postgraduate', currentEmployer: 'UT Health', jobTitle: 'Resident', boardCert: false, specialty: 'Internal Medicine', engagement: 'moderate', mentorWilling: false, preceptorWilling: false },
+        { id: 'A004', name: 'Dr. Mohammed Al-Shehri', email: 'mohammed.shehri@example.com', program: 'PharmD', graduationYear: 2024, status: 'employed', currentEmployer: 'Pfizer SA', jobTitle: 'Clinical Research Manager', boardCert: false, specialty: 'Research', engagement: 'active', mentorWilling: false, preceptorWilling: false },
+        { id: 'A005', name: 'Dr. Hana Al-Zahra', email: 'hana.zahra@example.com', program: 'PharmD', graduationYear: 2024, status: 'employed', currentEmployer: 'Nahdi Pharmacy', jobTitle: 'Community Pharmacy Manager', boardCert: false, specialty: 'Community', engagement: 'low', mentorWilling: false, preceptorWilling: false },
+        { id: 'A006', name: 'Dr. Khalid Al-Dosari', email: 'khalid.dosari@example.com', program: 'PharmD', graduationYear: 2023, status: 'employed', currentEmployer: 'NGH', jobTitle: 'Clinical Pharmacist - ICU', boardCert: true, specialty: 'Critical Care', engagement: 'active', mentorWilling: true, preceptorWilling: true },
+        { id: 'A007', name: 'Dr. Noura Al-Harbi', email: 'noura.harbi@example.com', program: 'PharmD', graduationYear: 2023, status: 'postgraduate', currentEmployer: 'UC San Diego', jobTitle: 'Fellow', boardCert: true, specialty: 'Pediatrics', engagement: 'active', mentorWilling: true, preceptorWilling: false },
+        { id: 'A008', name: 'Dr. Rayan Al-Qahtani', email: 'rayan.qahtani@example.com', program: 'BPharm', graduationYear: 2023, status: 'employed', currentEmployer: 'Ministry of Health', jobTitle: 'Pharmacy Inspector', boardCert: false, specialty: 'Regulatory', engagement: 'moderate', mentorWilling: false, preceptorWilling: true },
+        { id: 'A009', name: 'Dr. Lama Al-Saleh', email: 'lama.saleh@example.com', program: 'PharmD', graduationYear: 2023, status: 'employed', currentEmployer: 'King Faisal', jobTitle: 'Clinical Pharmacist - Transplant', boardCert: true, specialty: 'Transplant', engagement: 'active', mentorWilling: true, preceptorWilling: true },
+        { id: 'A010', name: 'Dr. Hassan Al-Anazi', email: 'hassan.anazi@example.com', program: 'PharmD', graduationYear: 2023, status: 'employed', currentEmployer: 'KAMC', jobTitle: 'Pharmacy Director', boardCert: true, specialty: 'Administration', engagement: 'active', mentorWilling: true, preceptorWilling: true },
+        { id: 'A011', name: 'Dr. Maha Al-Mutairi', email: 'maha.mutairi@example.com', program: 'PharmD', graduationYear: 2022, status: 'postgraduate', currentEmployer: 'University of Michigan', jobTitle: 'PhD Candidate', boardCert: true, specialty: 'Pharmacokinetics', engagement: 'moderate', mentorWilling: false, preceptorWilling: false },
+        { id: 'A012', name: 'Dr. Jamal Al-Shammari', email: 'jamal.shammari@example.com', program: 'PharmD', graduationYear: 2022, status: 'employed', currentEmployer: 'AstraZeneca', jobTitle: 'Regional Manager', boardCert: false, specialty: 'Industry', engagement: 'low', mentorWilling: false, preceptorWilling: false },
     ],
-    
+
+    // Employment Outcomes
     employment_outcomes: {
-        total_employed: 245,
-        employed_6months: 218,
-        employed_12months: 238,
-        employment_rate_6m: 89,
         employment_rate_12m: 97,
-        outcomes: [
-            { outcome: 'Employed', count: 238, percentage: 65 },
-            { outcome: 'Residency', count: 45, percentage: 12 },
-            { outcome: 'Fellowship', count: 28, percentage: 8 },
-            { outcome: "Master's/PhD", count: 22, percentage: 6 },
-            { outcome: 'Military/Government', count: 18, percentage: 5 },
-            { outcome: 'Entrepreneurship', count: 16, percentage: 4 }
-        ],
+        employment_rate_6m: 95,
+        total_employed: 236,
         by_sector: {
-            'Hospital': 128,
-            'Community': 82,
-            'Industry': 35,
-            'Academia': 18,
-            'Regulatory': 12,
-            'Research': 8
+            'Hospital/Clinical': 107,
+            'Community Pharmacy': 47,
+            'Pharmaceutical Industry': 36,
+            'Government/Public Health': 28,
+            'Academic/Research': 18
         },
-        by_program: {
-            'PharmD': { employed: 215, rate: 98 },
-            'BPharm': { employed: 18, rate: 92 },
-            'Technician': { employed: 25, rate: 89 }
-        },
-        by_year: {
-            2019: { employed: 45, rate: 95 },
-            2020: { employed: 82, rate: 97 },
-            2021: { employed: 78, rate: 96 },
-            2022: { employed: 33, rate: 82 }
+        outcomes: [
+            { outcome: 'Employed (Full-time)', count: 165, percentage: 70 },
+            { outcome: 'Postgraduate Training', count: 128, percentage: 20 },
+            { outcome: 'Other', count: 38, percentage: 10 }
+        ]
+    },
+
+    // Postgraduate Data
+    postgraduate: [
+        { name: 'Dr. Fatima Al-Otaibi', type: 'Residency', cert: 'PGY-1', specialty: 'Internal Medicine', institution: 'UT Health San Antonio', year: 2024, status: 'Enrolled' },
+        { name: 'Dr. Noura Al-Harbi', type: 'Fellowship', cert: 'PGY-2', specialty: 'Pediatrics', institution: 'UC San Diego', year: 2023, status: 'Certified' },
+        { name: 'Dr. Maha Al-Mutairi', type: 'Board Certification', cert: 'BCPS', specialty: 'Pharmacokinetics', institution: 'University of Michigan', year: 2022, status: 'Certified' },
+    ],
+
+    // Mentorship Data
+    mentorship: {
+        total_mentors: 42,
+        total_mentees: 125,
+        avg_rating: 4.7,
+        active_pairs: 68,
+        mentor_specialties: {
+            'Oncology': 6,
+            'Critical Care': 8,
+            'Pediatrics': 5,
+            'Administration': 7,
+            'Industry': 9,
+            'Research': 7
         }
     },
 
-    postgraduate: [
-        { id: 'PG001', name: 'Dr. Ahmed Al-Rashid', type: 'Board Certification', cert: 'BCPS', specialty: 'Cardiology', institution: 'ACPE', country: 'USA', year: 2022, status: 'Certified' },
-        { id: 'PG002', name: 'Dr. Fatima Al-Suwaidi', type: 'Board Certification', cert: 'BCPS', specialty: 'Internal Medicine', institution: 'ACPE', country: 'USA', year: 2021, status: 'Certified' },
-        { id: 'PG003', name: 'Dr. Layan Al-Dossary', type: 'Residency', cert: 'PGY1', specialty: 'Internal Medicine', institution: 'KAMC', country: 'Saudi Arabia', year: 2022, status: 'In Progress' },
-        { id: 'PG004', name: 'Dr. Sara Al-Zahrani', type: 'Board Certification', cert: 'BCPS-AQ Oncology', specialty: 'Oncology', institution: 'ACPE', country: 'USA', year: 2023, status: 'Certified' },
-        { id: 'PG005', name: 'Dr. Hana Al-Harbi', type: 'Residency', cert: 'PGY1', specialty: 'Internal Medicine', institution: 'KAAUH', country: 'Saudi Arabia', year: 2023, status: 'In Progress' },
-    ],
+    // Preceptorship Data
+    preceptorship: {
+        total_preceptors: 89,
+        active_preceptors: 82,
+        training_sites: 28,
+        utilization_rate: 78,
+        current_load: 156,
+        total_capacity: 200,
+        pending_approval: 8,
+        by_type: {
+            'Hospital': 12,
+            'Community Pharmacy': 10,
+            'Clinic': 4,
+            'Industry': 2
+        }
+    },
 
+    // Engagement Data
     engagement: {
         guest_lectures: 25,
         career_days: 15,
         workshops: 18,
         panels: 12,
         conferences: 8,
-        advisory_boards: 5,
-        committees: 7,
-        total_engagements: 90,
-        active_alumni: 42
+        total_engagements: 78,
+        active_alumni: 156
     },
 
-    mentorship: {
-        total_mentors: 42,
-        total_mentees: 95,
-        active_pairs: 68,
-        avg_rating: 4.8,
-        mentor_specialties: {
-            'Clinical Practice': 18,
-            'Residency Preparation': 15,
-            'Career Development': 12,
-            'Board Exam Prep': 8,
-            'Research': 5,
-            'Leadership': 4
-        }
-    },
-
-    preceptorship: {
-        total_preceptors: 38,
-        active_preceptors: 32,
-        training_sites: 28,
-        site_coordinators: 12,
-        total_capacity: 450,
-        current_load: 315,
-        utilization_rate: 70,
-        pending_approval: 6,
-        by_type: {
-            'Hospital': 16,
-            'Community': 8,
-            'Institutional': 6,
-            'Specialty': 8
-        }
-    },
-
+    // Events
     events: [
-        { id: 'EVT001', title: 'Annual Reunion 2026', type: 'Reunion', date: '2026-03-15', location: 'King Saud University', attendees: 0, registered: 0, status: 'Upcoming' },
-        { id: 'EVT002', title: 'Career Development Webinar', type: 'Webinar', date: '2026-02-28', location: 'Online', attendees: 0, registered: 85, status: 'Upcoming' },
-        { id: 'EVT003', title: 'Alumni Networking Breakfast', type: 'Networking', date: '2026-01-30', location: 'Riyadh', attendees: 156, registered: 178, status: 'Upcoming' },
-        { id: 'EVT004', title: 'Board Exam Prep Workshop', type: 'Workshop', date: '2025-12-10', location: 'Online', attendees: 234, registered: 245, status: 'Completed' },
-        { id: 'EVT005', title: 'Residency Showcase', type: 'Career Day', date: '2025-11-15', location: 'KAMC', attendees: 189, registered: 210, status: 'Completed' }
+        { id: 'E001', title: 'Annual Alumni Gala 2025', date: '2025-10-15', location: 'KSAU-HS Campus', type: 'celebration', registered: 180, status: 'Upcoming' },
+        { id: 'E002', title: 'Career Development Workshop', date: '2025-11-20', location: 'Virtual', type: 'workshop', registered: 65, status: 'Upcoming' },
+        { id: 'E003', title: 'Research Symposium', date: '2025-12-10', location: 'KSAU-HS Campus', type: 'academic', registered: 95, status: 'Upcoming' }
     ],
 
+    // Achievements
     achievements: [
-        { id: 'ACH001', name: 'Dr. Ahmed Al-Rashid', achievement: 'Excellence in Clinical Practice', type: 'Award', year: 2023 },
-        { id: 'ACH002', name: 'Dr. Sara Al-Zahrani', achievement: '5 Publications in Peer-Reviewed Journals', type: 'Publication', year: 2023 },
-        { id: 'ACH003', name: 'Dr. Fatima Al-Suwaidi', achievement: 'Elected to Hospital Ethics Committee', type: 'Leadership', year: 2023 },
-        { id: 'ACH004', name: 'Dr. Layan Al-Dossary', achievement: 'Featured in National Health Magazine', type: 'Media', year: 2023 },
-        { id: 'ACH005', name: 'Dr. Mohammad Al-Otaibi', achievement: 'Best Pharmacy Manager Award', type: 'Award', year: 2023 }
-    ],
+        { name: 'Dr. Sarah Al-Rashid', achievement: 'Best Oncology Pharmacist Award', type: 'Award', year: 2025 },
+        { name: 'Dr. Hassan Al-Anazi', achievement: 'Published 3 papers in IJPP', type: 'Publication', year: 2025 },
+        { name: 'Dr. Khalid Al-Dosari', achievement: 'Elected Board Member', type: 'Leadership', year: 2024 },
+    ]
+};
 
-    feedback: {
-        total_responses: 234,
-        response_rate: 68,
-        program_satisfaction: 4.5,
-        curriculum_relevance: 4.3,
-        practice_readiness: 4.6,
-        employer_expectations: 4.4,
-        skills_gaps: ['Advanced Pharmacokinetics', 'Clinical Research', 'Healthcare Economics'],
-        survey_results: [
-            { metric: 'Overall Program Satisfaction', score: 4.5, trend: '+0.2' },
-            { metric: 'Curriculum Relevance', score: 4.3, trend: '+0.1' },
-            { metric: 'Practice Readiness', score: 4.6, trend: '+0.3' },
-            { metric: 'Mentorship Quality', score: 4.7, trend: '+0.4' },
-            { metric: 'Faculty Support', score: 4.4, trend: '+0.1' }
-        ]
+// Alumni Analytics Functions
+const ALUMNI_ANALYTICS = {
+    getEmploymentStats: function() {
+        const employed = ALUMNI_DATA.alumni.filter(a => a.status === 'employed').length;
+        const postgrad = ALUMNI_DATA.alumni.filter(a => a.status === 'postgraduate').length;
+        return {
+            employed,
+            postgraduate: postgrad,
+            other: ALUMNI_DATA.alumni.length - employed - postgrad
+        };
     },
 
-    documents: {
-        consent_forms: 245,
-        communication_history: 1250,
-        cv_submissions: 156,
-        certificates: 89,
-        participation_letters: 67
+    getBoardCertStats: function() {
+        const certified = ALUMNI_DATA.alumni.filter(a => a.boardCert).length;
+        return {
+            certified,
+            percentage: ((certified / ALUMNI_DATA.alumni.length) * 100).toFixed(1)
+        };
+    },
+
+    getGraduationYearStats: function() {
+        const byYear = {};
+        ALUMNI_DATA.alumni.forEach(a => {
+            byYear[a.graduationYear] = (byYear[a.graduationYear] || 0) + 1;
+        });
+        return byYear;
+    },
+
+    getProgramStats: function() {
+        const byProgram = {};
+        ALUMNI_DATA.alumni.forEach(a => {
+            byProgram[a.program] = (byProgram[a.program] || 0) + 1;
+        });
+        return byProgram;
+    },
+
+    getSpecialtyStats: function() {
+        const bySpecialty = {};
+        ALUMNI_DATA.alumni.forEach(a => {
+            bySpecialty[a.specialty] = (bySpecialty[a.specialty] || 0) + 1;
+        });
+        return bySpecialty;
+    },
+
+    getEngagementStats: function() {
+        const byEngagement = { active: 0, moderate: 0, low: 0 };
+        ALUMNI_DATA.alumni.forEach(a => {
+            byEngagement[a.engagement]++;
+        });
+        return byEngagement;
     }
 };
 
-// Export for use in app.js
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = ALUMNI_DATABASE;
-}
+// Make globally available
+window.ALUMNI_DATA = ALUMNI_DATA;
+window.ALUMNI_ANALYTICS = ALUMNI_ANALYTICS;
+window.ALUMNI_DATABASE = ALUMNI_DATA; // Alias for compatibility
+
+console.log('✅ Alumni Data Module Loaded - ' + ALUMNI_DATA.alumni.length + ' alumni records available');

@@ -1,0 +1,571 @@
+/* ============================================================
+   STUDENT PORTAL STYLES
+   Ticket Tracking & Request System
+   ============================================================ */
+
+.student-portal-home {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.home-section {
+    margin-bottom: 30px;
+    background: white;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid var(--light-green);
+}
+
+.section-header h3 {
+    font-size: 1.4rem;
+    color: var(--primary-green);
+    margin: 0;
+    font-weight: 600;
+}
+
+.view-all {
+    color: var(--primary-green);
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.view-all:hover {
+    color: var(--dark-green);
+}
+
+/* ============================================================
+   TICKET STATISTICS
+   ============================================================ */
+
+.ticket-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-top: 4px solid #999;
+    transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.stat-card.active {
+    border-top-color: #F39C12;
+    background: linear-gradient(135deg, #FFF9E6 0%, #FFFBF0 100%);
+}
+
+.stat-card.pending {
+    border-top-color: #E74C3C;
+    background: linear-gradient(135deg, #FFE8E8 0%, #FFF0F0 100%);
+}
+
+.stat-card.resolved {
+    border-top-color: #27AE60;
+    background: linear-gradient(135deg, #E8F8F0 0%, #F0FCF8 100%);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* ============================================================
+   ACTION BUTTONS
+   ============================================================ */
+
+.quick-action-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.action-btn {
+    padding: 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.action-btn.primary {
+    background: linear-gradient(135deg, #1B5E20 0%, #0D3B12 100%);
+    color: white;
+}
+
+.action-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(27, 94, 32, 0.3);
+}
+
+.action-btn.secondary {
+    background: var(--light-green);
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.action-btn.secondary:hover {
+    background: var(--primary-green);
+    color: white;
+}
+
+.btn-icon {
+    font-size: 1.8rem;
+}
+
+.btn-text {
+    display: block;
+}
+
+/* ============================================================
+   TICKET PREVIEW CARD (HOME PAGE)
+   ============================================================ */
+
+.ticket-preview-card {
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    padding: 18px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ticket-preview-card:hover {
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+    transform: translateY(-2px);
+}
+
+.ticket-status-badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.ticket-status-badge.submitted {
+    background-color: #E3F2FD;
+    color: #1565C0;
+}
+
+.ticket-status-badge.in-progress {
+    background-color: #FFF3E0;
+    color: #E65100;
+}
+
+.ticket-status-badge.approved {
+    background-color: #E8F5E9;
+    color: #1B5E20;
+}
+
+.ticket-status-badge.rejected {
+    background-color: #FFEBEE;
+    color: #C62828;
+}
+
+.ticket-status-badge.closed {
+    background-color: #F5F5F5;
+    color: #424242;
+}
+
+.ticket-status-badge.waiting-student {
+    background-color: #F3E5F5;
+    color: #6A1B9A;
+}
+
+/* ============================================================
+   REQUEST TYPE GRID
+   ============================================================ */
+
+.request-type-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.request-type-card {
+    background: var(--light-green);
+    border: 2px solid var(--primary-green);
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.request-type-card:hover {
+    background: var(--primary-green);
+    color: white;
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(27, 94, 32, 0.3);
+}
+
+.request-type-card h5 {
+    margin: 0;
+    color: inherit;
+}
+
+.request-type-card p {
+    margin: 5px 0;
+    font-size: 0.85rem;
+    color: inherit;
+    opacity: 0.8;
+}
+
+/* ============================================================
+   FORM STYLES
+   ============================================================ */
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.file-upload {
+    border: 2px dashed var(--primary-green);
+    border-radius: 6px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload:hover {
+    background: var(--light-green);
+}
+
+.file-upload input {
+    display: none;
+}
+
+.file-upload-label {
+    cursor: pointer;
+    color: var(--primary-green);
+    font-weight: 600;
+    display: block;
+}
+
+/* ============================================================
+   TICKET CARDS (LIST VIEW)
+   ============================================================ */
+
+.ticket-card {
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.ticket-card:hover {
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.2);
+    transform: translateY(-2px);
+}
+
+.ticket-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.ticket-card-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-dark);
+}
+
+.ticket-card-body {
+    margin-bottom: 15px;
+}
+
+.ticket-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+/* ============================================================
+   CONVERSATION / MESSAGE STYLES
+   ============================================================ */
+
+.conversation-thread {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.message {
+    padding: 15px;
+    border-radius: 8px;
+    background: var(--light-green);
+    border-left: 4px solid var(--primary-green);
+}
+
+.message.from-admin {
+    background: #F5F5F5;
+    border-left-color: #999;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.message-header strong {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+}
+
+.message-header small {
+    font-size: 0.85rem;
+}
+
+.message-body {
+    color: var(--text-dark);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.message-attachments {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.attachment-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 10px;
+    background: white;
+    border: 1px solid var(--primary-green);
+    border-radius: 4px;
+    color: var(--primary-green);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.attachment-link:hover {
+    background: var(--primary-green);
+    color: white;
+}
+
+/* ============================================================
+   FILTERS
+   ============================================================ */
+
+.filter-btn {
+    padding: 8px 16px;
+    border: 2px solid var(--border-color);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+}
+
+.filter-btn:hover {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+}
+
+.filter-btn.active {
+    background: var(--primary-green);
+    color: white;
+    border-color: var(--primary-green);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: var(--primary-green);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--dark-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.3);
+}
+
+.btn-outline {
+    background: white;
+    border: 2px solid var(--border-color);
+    color: var(--text-dark);
+}
+
+.btn-outline:hover {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .student-portal-home {
+        padding: 15px;
+    }
+
+    .home-section {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .ticket-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .request-type-grid,
+    .quick-action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .message-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .ticket-card-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.home-section {
+    animation: slideIn 0.3s ease;
+}
