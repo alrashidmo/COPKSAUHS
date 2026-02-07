@@ -12172,30 +12172,11 @@ window.initializeApp = function() {
                 appRoot.style.visibility = 'visible';
             }
             
-            console.log('Rendering content after delay...');
-            if (window.app && typeof window.app.render === 'function') {
-                try {
-                    console.log('Calling app.render("home")');
-                    window.app.render('home');
-                    console.log('Content rendered successfully');
-                    
-                    // Ensure app-root is still visible after render
-                    setTimeout(() => {
-                        const appRoot = document.getElementById('app-root');
-                        if (appRoot) {
-                            appRoot.style.display = 'block';
-                            console.log('app-root display set to block');
-                        }
-                    }, 50);
-                    
-                    // DO NOT auto-switch to clinical - let user selection control the view
-                    // This prevents the auto-switch issue where student view was replaced after 4-5 seconds
-                } catch (renderError) {
-                    console.error('Error calling render:', renderError);
-                }
-            } else {
-                console.error('app.render not available. app:', window.app, 'render:', window.app?.render);
-            }
+            // DO NOT auto-render for any user
+            // Let the tab clicks in applyRoleBasedAccess control what view is shown:
+            // - Admin users see Admin Hub (activated by admin-home tab click)
+            // - Students see Student Portal (activated by student-portal tab click)
+            console.log('App initialized - user view is controlled by their tab selection');
         }, 600);
         
         console.log('=== initializeApp END ===');

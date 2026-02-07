@@ -52,8 +52,9 @@ body {
 
 /* Layout */
 .app-container {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 50px 1fr;
     height: 100vh;
     width: 100%;
     overflow: hidden;
@@ -61,6 +62,8 @@ body {
 
 /* Global Navigation (Top Level) */
 .global-nav {
+    grid-column: 1 / -1;
+    grid-row: 1;
     background-color: var(--dark-green);
     color: white;
     padding: 0 2rem;
@@ -118,11 +121,15 @@ body {
 
 /* Unit Navigation Container (Secondary) */
 .unit-nav-container {
-    display: flex;
-    flex-direction: row;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+    grid-column: 1;
+    grid-row: 2;
+    display: flex !important;
+    flex-direction: column !important;
+    width: 260px !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    flex: 0 0 260px !important;
+    background: white;
 }
 
 
@@ -230,12 +237,16 @@ body {
 
 /* Main Content */
 .main-content {
+    grid-column: 2;
+    grid-row: 2;
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
     height: 100%;
     width: 100%;
+    background: var(--bg-light);
 }
 
 .top-bar {
@@ -1200,39 +1211,23 @@ body {
 }
 
 /* ============================================
-   CRITICAL LAYOUT FIXES
+   ADMIN HUB FULL-WIDTH LAYOUT
    ============================================ */
 
-/* The .app-container must wrap everything and use flexbox below nav */
-.app-container {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-template-rows: auto 1fr;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-}
-
-/* Admin hub uses full-width layout (no sidebar column) */
+/* When admin hub is full-width, change grid to single column */
 .app-container.admin-hub-full {
-    /* Flexbox naturally handles this */
+    grid-template-columns: 1fr;
 }
 
-/* When admin hub is full-width, hide sidebar container */
+/* Hide sidebar when in admin-hub-full mode */
 .app-container.admin-hub-full .unit-nav-container {
     display: none !important;
 }
 
-/* Global nav takes first row */
-.global-nav {
+/* Make main content span full width in admin-hub-full mode */
+.app-container.admin-hub-full .main-content {
     grid-column: 1;
-    grid-row: 1;
-    z-index: 200;
 }
-
-/* Content area wrapper uses flexbox so hidden sidebar doesn't take space */
-
-/* Main content takes the rest */
 main {
     flex: 1;
     display: flex;
@@ -1242,25 +1237,21 @@ main {
     min-width: 0;
 }
 
-.main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow: hidden;
-}
 
 /* All sidebars are positioned in the left column of the container */
 .sidebar.unit-nav {
-    width: 260px;
-    min-width: 260px;
-    overflow-y: auto;
-    background: white;
-    border-right: 1px solid var(--border-color);
+    width: 260px !important;
+    min-width: 260px !important;
+    overflow-y: auto !important;
+    background: white !important;
+    border-right: 1px solid var(--border-color) !important;
     display: flex !important;
-    flex-direction: column;
-    flex-shrink: 0;
-    padding: 0;
+    flex-direction: column !important;
+    flex-shrink: 0 !important;
+    padding: 0 !important;
+    visibility: visible !important;
+    position: relative !important;
+    z-index: 10 !important;
 }
 
 .sidebar.unit-nav .brand {
