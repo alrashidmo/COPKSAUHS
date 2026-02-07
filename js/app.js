@@ -939,11 +939,12 @@ class App {
             this.root.innerHTML = '<div style="padding: 2rem; text-align: center;"><h2>Loading...</h2></div>';
             
             // Render after a brief delay to let DOM update
+            // DON'T auto-render 'home' for non-admin users - they should stay on student portal
             setTimeout(() => {
                 try {
-                    console.log('Rendering home...');
-                    this.render('home');
-                    console.log('Home render complete');
+                    // Only render 'home' (clinical view) for admin users
+                    // Students will already have StudentPortal rendered from their tab click
+                    console.log('App initialization complete - NOT auto-rendering to preserve user view');
                 } catch (error) {
                     console.error('Error during render:', error);
                     this.root.innerHTML = `<div style="padding: 2rem; color: red;"><h2>Error Loading Dashboard</h2><pre>${error.message}\n${error.stack}</pre></div>`;

@@ -1243,17 +1243,14 @@
                 document.getElementById('loginContainer').classList.add('hidden');
                 document.getElementById('portalContainer').classList.remove('hidden');
                 
-                // For non-admin users, initialize the app
-                if (this.currentUserRole !== 'admin') {
-                    // Initialize existing app if available
-                    if (typeof initializeApp === 'function') {
-                        initializeApp();
-                    }
-                    
-                    // Ensure app is ready
-                    if (window.appStore && !window.app) {
-                        window.app = new App();
-                    }
+                // Initialize the app for all users
+                if (typeof initializeApp === 'function') {
+                    initializeApp();
+                }
+                
+                // Ensure app is ready
+                if (window.appStore && !window.app) {
+                    window.app = new App();
                 }
             },
 
