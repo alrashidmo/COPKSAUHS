@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -640,6 +640,16 @@
                             <input type="tel" id="signupPhone" placeholder="+966 50 XXX XXXX" required>
                         </div>
                         
+                        <div class="login-form-group">
+                            <label>Create Password</label>
+                            <input type="password" id="signupPassword" placeholder="Minimum 6 characters" required minlength="6">
+                        </div>
+                        
+                        <div class="login-form-group">
+                            <label>Confirm Password</label>
+                            <input type="password" id="signupConfirmPassword" placeholder="Re-enter your password" required minlength="6">
+                        </div>
+                        
                         <div class="login-form-group" id="classGroup">
                             <label>Class/Year (Preference)</label>
                             <select id="signupClass" required>
@@ -1128,14 +1138,17 @@
         </main>
     </div>
 
+    <!-- Firebase Integration (must load before app.js) -->
+    <script src="js/firebase-config.js?v=1" onerror="console.error('Failed to load: firebase-config.js')"></script>
+    <script src="js/firebase-service.js?v=1" onerror="console.error('Failed to load: firebase-service.js')"></script>
+
     <!-- Application Scripts -->
-    <script src="js/student-portal.js?v=1" onerror="console.error('Failed to load: student-portal.js')"></script>
     <script src="js/alumni-data.js?v=20260120019" onerror="console.error('Failed to load: alumni-data.js')"></script>
     <script src="js/research-data.js?v=20260120019" onerror="console.error('Failed to load: research-data.js')"></script>
     <script src="js/appe-hub_backup_20260119_220628.js?v=20260124001" onerror="console.error('Failed to load: appe-hub backup')"></script>
     <script src="js/admin-hub-model.js?v=20260207185000" onerror="console.error('Failed to load: admin-hub-model.js')"></script>
-    <script src="js/app.js?v=20260207185000" onerror="console.error('Failed to load: app.js')"></script>
-    <script src="js/student-portal.js?v=20260207185000" onerror="console.error('Failed to load: student-portal.js v2')"></script>
+    <script src="js/app.js?v=20260216170000" onerror="console.error('Failed to load: app.js')"></script>
+    <script src="js/student-portal.js?v=20260216170000" onerror="console.error('Failed to load: student-portal.js')"></script>
     <script src="js/program-switcher.js?v=1" onerror="console.error('Failed to load: program-switcher.js')"></script>
     <script src="js/outcomes-dashboard.js?v=1" onerror="console.error('Failed to load: outcomes-dashboard.js')"></script>
     <script src="js/evaluation-system.js?v=1" onerror="console.error('Failed to load: evaluation-system.js')"></script>
@@ -1212,9 +1225,26 @@
                     this.currentUser = userId;
                     this.currentUserRole = accountType;
                     
-                    // Get user name
-                    const namesMap = accountType === 'admin' ? this.adminNames : this.studentNames;
+                    // Get user name from default mapping
+                    let namesMap = accountType === 'admin' ? this.adminNames : this.studentNames;
                     this.currentUserName = namesMap[userId] || userId;
+                    
+                    // If not in default mapping, check approved students/admins
+                    if (this.currentUserName === userId) {
+                        if (accountType === 'student' && window.APPE_DATABASE?.students) {
+                            // Check APPE_DATABASE.students for approved students
+                            const approvedStudent = window.APPE_DATABASE.students.find(s => s.id === userId);
+                            if (approvedStudent) {
+                                this.currentUserName = approvedStudent.name;
+                            }
+                        } else if (accountType === 'admin' && window.AdminUsers) {
+                            // Check AdminUsers for approved admins
+                            const approvedAdmin = window.AdminUsers.find(a => a.id === userId);
+                            if (approvedAdmin) {
+                                this.currentUserName = approvedAdmin.name;
+                            }
+                        }
+                    }
                     
                     console.log('✅ Login successful:', { 
                         id: this.currentUser, 
@@ -1232,10 +1262,60 @@
 
             // Validate credentials
             validateCredentials(userId, password, accountType) {
+                console.log('\n🔐 ===== LOGIN VALIDATION START =====')
+                console.log(`User attempt: Type=${accountType}, ID=${userId}, PasswordValue="${password}"`);
+                
+                // Check default accounts
                 const accountList = this.accounts[accountType];
-                const isValid = accountList && accountList[userId] === password;
-                console.log(`Auth attempt: ${accountType} / ${userId} / ${password} = ${isValid}`);
-                console.log('Available accounts:', this.accounts[accountType]);
+                let isValid = accountList && accountList[userId] === password;
+                console.log(`1. Checking default ${accountType} accounts:`, isValid ? '✅ FOUND' : '❌ NOT FOUND');
+                if (accountList && accountList[userId]) {
+                    console.log(`   Default password for ${userId}: "${accountList[userId]}"`);
+                    console.log(`   Password match: ${accountList[userId] === password ? '✅ YES' : '❌ NO (mismatch)'}`);
+                }
+                
+                // If not found in default accounts, check AdminHubModel's approved credentials
+                if (!isValid) {
+                    console.log('2. Checking AdminHubModel.approvedCredentials...');
+                    let approvedAccounts = null;
+                    
+                    // First try AdminHubModel in memory
+                    if (window.AdminHubModel && window.AdminHubModel.approvedCredentials) {
+                        console.log('   AdminHubModel exists ✅');
+                        console.log('   Approved credentials structure:', window.AdminHubModel.approvedCredentials);
+                        approvedAccounts = window.AdminHubModel.approvedCredentials[accountType];
+                        console.log(`   Approved ${accountType} accounts in memory:`, Object.keys(approvedAccounts || {}));
+                    }
+                    
+                    // If not found in memory, check localStorage (for persistence after page reload)
+                    if (!approvedAccounts || Object.keys(approvedAccounts).length === 0) {
+                        console.log('3. Checking localStorage for approvedCredentials...');
+                        const storedCreds = JSON.parse(localStorage.getItem('approvedCredentials') || '{"student":{},"admin":{}}');
+                        approvedAccounts = storedCreds[accountType];
+                        console.log(`   Approved ${accountType} accounts in localStorage:`, Object.keys(approvedAccounts || {}));
+                    }
+                    
+                    if (approvedAccounts) {
+                        const storedPassword = approvedAccounts[userId];
+                        console.log(`   Stored password for ${userId}: "${storedPassword}"`);
+                        console.log(`   Provided password: "${password}"`);
+                        
+                        if (storedPassword === password) {
+                            console.log(`✅ APPROVED CREDENTIALS MATCHED for ${accountType}/${userId}`);
+                            isValid = true;
+                        } else {
+                            console.log(`❌ Password mismatch for ${userId}`);
+                            console.log(`   Expected: ${storedPassword}`);
+                            console.log(`   Got: ${password}`);
+                        }
+                    } else {
+                        console.log(`❌ No approved ${accountType} accounts found anywhere`);
+                    }
+                }
+                
+                console.log(`FINAL RESULT: ${isValid ? '✅ VALID' : '❌ INVALID'}`);
+                console.log('===== LOGIN VALIDATION END =====\n');
+                
                 return isValid;
             },
 
@@ -1472,9 +1552,9 @@
         
         function submitSignup() {
             const accountType = document.getElementById('signupAccountType').value;
-            const name = document.getElementById('signupName').value;
-            const email = document.getElementById('signupEmail').value;
-            const phone = document.getElementById('signupPhone').value;
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const phone = document.getElementById('signupPhone').value.trim();
             
             // Validate common fields
             if (!name || !email || !phone) {
@@ -1486,6 +1566,20 @@
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 alert('⚠️ Please enter a valid email address');
+                return;
+            }
+            
+            // Validate password
+            const password = document.getElementById('signupPassword').value.trim();
+            const confirmPassword = document.getElementById('signupConfirmPassword').value.trim();
+            
+            if (!password || password.length < 6) {
+                alert('⚠️ Password must be at least 6 characters');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('⚠️ Passwords do not match');
                 return;
             }
             
@@ -1507,6 +1601,7 @@
                     name: name,
                     email: email,
                     phone: phone,
+                    password: password,
                     requestedAt: new Date(),
                     status: 'pending',
                     classPreference: classYear
@@ -1528,6 +1623,7 @@
                     name: name,
                     email: email,
                     phone: phone,
+                    password: password,
                     requestedAt: new Date(),
                     status: 'pending',
                     department: department,
@@ -1537,8 +1633,25 @@
             
             // In a real app, this would send to server. For now, store in localStorage
             let signups = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+            
+            console.log('\n📝 ===== SIGNUP SUBMISSION =====');
+            console.log('Account Type:', accountType);
+            console.log('Signup Request Object:', signupRequest);
+            console.log('Password VALUE in request:', signupRequest.password);
+            console.log('Password EXISTS:', !!signupRequest.password);
+            console.log('Current localStorage signups BEFORE:', signups.length);
+            
             signups.push(signupRequest);
             localStorage.setItem('pendingSignups', JSON.stringify(signups));
+            
+            // Verify it was saved
+            const verifySaved = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+            const lastSaved = verifySaved[verifySaved.length - 1];
+            console.log('Current localStorage signups AFTER:', verifySaved.length);
+            console.log('Last signup in storage:', lastSaved);
+            console.log('Password VALUE in stored signup:', lastSaved?.password);
+            console.log('Password MATCH (original vs stored):', password === lastSaved?.password ? '✅ YES' : '❌ NO');
+            console.log('===== SIGNUP SUBMISSION END =====\n');
             
             // Clear form and show success message
             document.getElementById('signupForm').reset();
