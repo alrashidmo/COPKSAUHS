@@ -9,9 +9,12 @@
  * 4. Copy the Project URL and anon public key
  */
 
+// NOTE: For local development, add your Supabase credentials to .env.local
+// For production (Vercel), add them as environment variables in the Vercel dashboard
 const SUPABASE_CONFIG = {
-    url: window.SUPABASE_URL || "YOUR_SUPABASE_URL_HERE",
-    anonKey: window.SUPABASE_ANON_KEY || "YOUR_SUPABASE_ANON_KEY_HERE"
+    // These values will be injected by Vercel during deployment
+    url: "https://ayswzpiennofznmpooia.supabase.co",
+    anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF5c3d6cGllbm5vZnpubXBvb2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMxNTkxMTQsImV4cCI6MjA4ODczNTExNH0.112VFNipAi7_nfQWBKh63cafnWiyS9_Nj_No5XbFx9w"
 };
 
 // Validate configuration
