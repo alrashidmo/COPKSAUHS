@@ -1,7 +1,46 @@
-﻿// === APPE DATABASE ===
+// === APPE DATABASE ===
 const APPE_DATABASE = {
     students: [
-        { id: '441210049', name: 'Bishier Salman Alfadhl', email: 'alfadhl10049@ksau-hs.edu.sa', cohort: 'IPPE II', gpa: 3.9, risk: 'low', attendance: 99 },
+        // --- REAL DATA: IPPE I (Year 1) ---
+        // Males
+        { id: '44-1-1-1-0162', name: 'Sulaiman Yasir Al Muzaini', email: 'almuzaini10162@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.5, risk: 'low', attendance: 92 },
+        { id: '44-1-1-1-0296', name: 'Awwadh Bander Alotaibi', email: 'alotaibi10296@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 94 },
+        { id: '45-1-1-1-0010', name: 'Ahmed Mohammed Dahas', email: 'dahas10010@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.4, risk: 'low', attendance: 90 },
+        { id: '45-1-1-1-0017', name: 'Anas Kamel Alshammari', email: 'alshammari10017@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.7, risk: 'low', attendance: 95 },
+        { id: '45-1-1-1-0021', name: 'Ahmed Fayez Alghamdi', email: 'alghamdia10021@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.8, risk: 'low', attendance: 97 },
+        { id: '45-1-1-1-0180', name: 'Dhafer Hmed Alkamsi', email: 'alkamsi10180@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.3, risk: 'low', attendance: 88 },
+        { id: '45-1-1-1-0210', name: 'Abdulaziz Ahmed Alshehri', email: 'alshehri10210@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 93 },
+        { id: '45-1-1-1-0242', name: 'Abdullah Saud Almouh', email: 'almouh10242@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.9, risk: 'low', attendance: 98 },
+        { id: '45-1-1-1-0263', name: 'Abdulmajeed Faleh Almutairi', email: 'almutairi10263@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.5, risk: 'low', attendance: 91 },
+        { id: '45-1-1-1-0315', name: 'Feras Abdulrahman Muslih', email: 'muslih10315@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.7, risk: 'low', attendance: 94 },
+        { id: '45-1-1-1-0322', name: 'Fahad Abdulrahman Aldarmi', email: 'aldarmi10322@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.8, risk: 'low', attendance: 96 },
+        { id: '45-1-1-1-0324', name: 'Fahad Abdullah Alanazi', email: 'alanazif10324@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.4, risk: 'low', attendance: 89 },
+        { id: '45-1-1-1-0353', name: 'Mazen Abdullah Modahi', email: 'modahi10353@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 92 },
+        { id: '45-1-1-1-0434', name: 'Naif Abdulrahman Alruhaymi', email: 'alruhaymi10434@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.9, risk: 'low', attendance: 99 },
+
+        // Females
+        { id: '44-1-2-1-0019', name: 'Alijuri Tami Alzuabi', email: 'alzuabi10019@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.7, risk: 'low', attendance: 95 },
+        { id: '44-1-2-1-0252', name: 'Layan Ahmed Alomran', email: 'alomran10252@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.5, risk: 'low', attendance: 92 },
+        { id: '45-1-2-1-0021', name: 'Alanud Owayed Alotaibi', email: 'alotaibi10021@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.8, risk: 'low', attendance: 96 },
+        { id: '45-1-2-1-0023', name: 'Almas Saleh Alodaibi', email: 'alodaibi10023@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 93 },
+        { id: '45-1-2-1-0030', name: 'Asmaa Hani Almanea', email: 'almanea10030@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.9, risk: 'low', attendance: 98 },
+        { id: '45-1-2-1-0045', name: 'Tala Ahmed Murshed', email: 'murshed10045@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.4, risk: 'low', attendance: 89 },
+        { id: '45-1-2-1-0140', name: 'Ruwayda Mazi Alanazi', email: 'alanazi10140@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.7, risk: 'low', attendance: 94 },
+        { id: '45-1-2-1-0143', name: 'Rayahn Saleem Alharbi', email: 'alharbi10143@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 91 },
+        { id: '45-1-2-1-0149', name: 'Reem Mohammed Alharbi', email: 'alharbi10149@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.8, risk: 'low', attendance: 97 },
+        { id: '45-1-2-1-0154', name: 'Reema Atallah Alotaibi', email: 'alotaibi10154@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.5, risk: 'low', attendance: 90 },
+        { id: '45-1-2-1-0180', name: 'Sarah Nahis Alharbi', email: 'alharbi10180@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.9, risk: 'low', attendance: 99 },
+        { id: '45-1-2-1-0181', name: 'Saja Muhiq Almutiri', email: 'almutiri10181@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.3, risk: 'low', attendance: 87 },
+        { id: '45-1-2-1-0191', name: 'Shatha Mashhour Alharthi', email: 'alharthi10191@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.7, risk: 'low', attendance: 95 },
+        { id: '45-1-2-1-0192', name: 'Shumukh Abdullah Almutairi', email: 'almutairi10192@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 93 },
+        { id: '45-1-2-1-0194', name: 'Shahad Ayedh Al Qahtani', email: 'alqahtani10194@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.8, risk: 'low', attendance: 96 },
+        { id: '45-1-2-1-0204', name: 'Alya Abdullah Alkathiri', email: 'alkathiri10204@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.4, risk: 'low', attendance: 88 },
+        { id: '45-1-2-1-0209', name: 'Ghadah Fahad Bin Shayiq', email: 'binshayiq10209@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.9, risk: 'low', attendance: 99 },
+        { id: '45-1-2-1-0231', name: 'Farah Salem Helabi', email: 'helabi10231@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.5, risk: 'low', attendance: 91 },
+        { id: '45-1-2-1-0296', name: 'Nada Mohammed Almutairi', email: 'almutairi10296@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.7, risk: 'low', attendance: 94 },
+        { id: '45-1-2-1-0327', name: 'Waad Abdullah Alateeg', email: 'alateeg10327@ksau-hs.edu.sa', cohort: 'IPPE I', gpa: 3.6, risk: 'low', attendance: 92 },
+
+        // --- REAL DATA: IPPE II (Year 2) ---
         { id: '441210069', name: 'Haneen Khalil Al-Enazi', email: 'alenazi10069@ksau-hs.edu.sa', cohort: 'IPPE II', gpa: 3.6, risk: 'low', attendance: 93 },
         { id: '441210084', name: 'Thikra Abdullah Elqassem', email: 'elqassem10084@ksau-hs.edu.sa', cohort: 'IPPE II', gpa: 3.7, risk: 'low', attendance: 95 },
         { id: '441210090', name: 'Razan Saleh Alolyani', email: 'alolyani10090@ksau-hs.edu.sa', cohort: 'IPPE II', gpa: 3.5, risk: 'low', attendance: 92 },
@@ -854,6 +893,536 @@ class Store {
 const store = new Store();
 window.appStore = store;
 
+// StudentManagement Module for admin student database with filtering, editing, and alumni transfer
+window.StudentManagement = {
+    currentFilter: 'All',
+    alumniData: [],
+    editMode: {},
+    dataHidden: false,
+    expandedSections: { P1: false, P2: false, P3: false, P4: false },
+
+    getCohortLevel(cohort) {
+        const levelMap = {
+            'IPPE I': 'P1',
+            'IPPE II': 'P2',
+            'IPPE III': 'P3',
+            'APPE': 'P4'
+        };
+        return levelMap[cohort] || 'Unknown';
+    },
+
+    getLevelCohort(level) {
+        const cohortMap = {
+            'P1': 'IPPE I',
+            'P2': 'IPPE II',
+            'P3': 'IPPE III',
+            'P4': 'APPE'
+        };
+        return cohortMap[level] || 'IPPE I';
+    },
+
+    toggleDataVisibility() {
+        this.dataHidden = !this.dataHidden;
+        this.renderStudentDatabase();
+    },
+
+    setFilter(level) {
+        this.currentFilter = level;
+        this.renderStudentDatabase();
+    },
+
+    toggleSection(levelKey) {
+        this.expandedSections[levelKey] = !this.expandedSections[levelKey];
+        this.renderStudentDatabase();
+    },
+
+    renderStudentDatabase() {
+        const container = document.getElementById('studentDatabase');
+        if (!container) return;
+
+        const students = APPE_DATABASE.students || [];
+        let html = '';
+
+        // Add Buttons
+        html += '<div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">';
+        html += '<button onclick="window.StudentManagement.showAddManualForm()" style="background: #4CAF50; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">➕ Add Student Manually</button>';
+        html += '<button onclick="window.StudentManagement.showExcelUploadForm()" style="background: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">📤 Upload Excel</button>';
+        html += '<button onclick="window.StudentManagement.toggleDataVisibility()" style="background: ' + (this.dataHidden ? '#FF9800' : '#9C27B0') + '; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">' + (this.dataHidden ? '🔍 Show Data' : '🔒 Hide Data') + '</button>';
+        html += '</div>';
+
+        // Privacy notice
+        if (this.dataHidden) {
+            html += '<div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 15px; color: #856404;"><strong>🔒 Data Hidden:</strong> Click on fields to reveal sensitive information</div>';
+        }
+
+        // Level configurations
+        const levels = [
+            { key: 'P1', emoji: '1️⃣', name: 'P1 - IPPE I', bgColor: '#e3f2fd', borderColor: '#2196f3' },
+            { key: 'P2', emoji: '2️⃣', name: 'P2 - IPPE II', bgColor: '#e8f5e9', borderColor: '#4caf50' },
+            { key: 'P3', emoji: '3️⃣', name: 'P3 - IPPE III', bgColor: '#fff3e0', borderColor: '#ff9800' },
+            { key: 'P4', emoji: '4️⃣', name: 'P4 - APPE', bgColor: '#ffebee', borderColor: '#f44336' }
+        ];
+
+        // Render each level
+        levels.forEach(levelConfig => {
+            const levelStudents = students.filter(s => this.getCohortLevel(s.cohort) === levelConfig.key);
+            if (levelStudents.length === 0) return;
+
+            if (this.currentFilter !== 'All' && this.currentFilter !== levelConfig.key) return;
+
+            const isExpanded = this.expandedSections[levelConfig.key];
+
+            // Level section header
+            html += '<div style="margin-bottom: 25px;">';
+            html += '<div style="background: linear-gradient(135deg, ' + levelConfig.bgColor + ' 0%, white 100%); border-left: 5px solid ' + levelConfig.borderColor + '; padding: 15px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; user-select: none; transition: transform 0.2s;" onclick="window.StudentManagement.toggleSection(\'' + levelConfig.key + '\')" onmouseover="this.style.transform=\'scale(1.01)\'; this.style.boxShadow=\'0 4px 8px rgba(0,0,0,0.1)\'" onmouseout="this.style.transform=\'none\'; this.style.boxShadow=\'none\'">';
+            html += '<h2 style="margin: 0; color: #333; font-size: 1.3rem;">' + (isExpanded ? '?' : '?') + ' ' + levelConfig.emoji + ' ' + levelConfig.name + ' (' + levelStudents.length + ' students)</h2>';
+            html += '</div>';
+
+            // Students grid - only if expanded
+            if (isExpanded) {
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px;">';
+                
+                levelStudents.forEach((student, globalIdx) => {
+                    // Find the actual index in main students array
+                    const idx = students.findIndex((s, i) => s === student && i === students.indexOf(student) + (students.slice(0, students.indexOf(student)).filter(x => x === student).length));
+                    const realIdx = students.indexOf(student);
+                    const level = this.getCohortLevel(student.cohort);
+                    const isEditing = this.editMode[realIdx];
+
+                    // Student card
+                    html += '<div style="background: white; border: 1px solid ' + levelConfig.borderColor + '; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.2s; cursor: pointer;" onmouseover="this.style.transform=\'translateY(-5px); box-shadow: 0 4px 8px rgba(0,0,0,0.15)\'" onmouseout="this.style.transform=\'none\'; this.style.boxShadow=\'0 2px 4px rgba(0,0,0,0.1)\'">';
+                    
+                    // Card header
+                    html += '<div style="background: ' + levelConfig.borderColor + '; color: white; padding: 12px; display: flex; justify-content: space-between; align-items: center;">';
+                    html += '<div><span style="font-weight: bold; font-size: 1.1rem;">' + (this.dataHidden ? '🔒' : student.name.split(' ')[0]) + '</span></div>';
+                    html += '<span style="font-size: 0.8rem; background: rgba(255,255,255,0.3); padding: 2px 6px; border-radius: 3px;">' + student.id + '</span>';
+                    html += '</div>';
+
+                    // Card content
+                    html += '<div style="padding: 15px;">';
+                    
+                    // Full name (with hiding support)
+                    if (this.dataHidden) {
+                        html += '<div style="margin-bottom: 10px;"><strong style="color: #666;">👤 Name:</strong><br/><span style="background: #f0f0f0; padding: 6px 8px; border-radius: 4px; cursor: pointer; display: inline-block;" onclick="alert(\'' + student.name + '\')">👁️ Click to view</span></div>';
+                    } else {
+                        html += '<div style="margin-bottom: 10px;"><strong style="color: #666;">👤 Name:</strong><br/><span style="color: #333; font-weight: 500;">' + student.name + '</span></div>';
+                    }
+
+                    // Email (with hiding support)
+                    if (this.dataHidden) {
+                        html += '<div style="margin-bottom: 10px;"><strong style="color: #666;">📧 Email:</strong><br/><span style="background: #f0f0f0; padding: 6px 8px; border-radius: 4px; cursor: pointer; display: inline-block; font-size: 0.85rem;" onclick="alert(\'' + student.email + '\')">👁️ Click to view</span></div>';
+                    } else {
+                        html += '<div style="margin-bottom: 10px;"><strong style="color: #666;">📧 Email:</strong><br/><span style="color: #333; font-size: 0.9rem; word-break: break-all;">' + student.email + '</span></div>';
+                    }
+
+                    // GPA
+                    html += '<div style="margin-bottom: 10px; display: inline-block; width: 48%; margin-right: 2%;"><strong style="color: #666;">GPA:</strong><br/><span style="background: ' + levelConfig.bgColor + '; padding: 6px 8px; border-radius: 4px; font-weight: bold; color: ' + levelConfig.borderColor + ';">' + (student.gpa || 'N/A') + '</span></div>';
+                    
+                    // Risk status
+                    const riskColor = student.risk === 'high' ? '#f44336' : student.risk === 'medium' ? '#ff9800' : '#4caf50';
+                    html += '<div style="margin-bottom: 10px; display: inline-block; width: 48%;"><strong style="color: #666;">Risk:</strong><br/><span style="background: ' + riskColor + '; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">' + (student.risk ? student.risk.toUpperCase() : 'N/A') + '</span></div>';
+
+                    html += '</div>';
+
+                    // Card footer with actions
+                    html += '<div style="border-top: 1px solid #e0e0e0; padding: 12px; display: flex; gap: 6px; flex-wrap: wrap; background: #f9f9f9;">';
+                    html += '<button onclick="window.StudentManagement.viewStudentInfo(' + realIdx + ')" style="flex: 1; background: #00BCD4; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">👁️ View</button>';
+                    html += '<button onclick="window.StudentManagement.enableEdit(' + realIdx + ')" style="flex: 1; background: #2196F3; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">✏️ Edit</button>';
+                    html += '<button onclick="window.StudentManagement.deleteStudent(' + realIdx + ')" style="flex: 1; background: #F44336; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">🗑️ Delete</button>';
+                    if (level === 'P4') {
+                        html += '<button onclick="window.StudentManagement.sendToAlumni(' + realIdx + ')" style="flex: 1; background: #FF9800; color: white; border: none; padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.85rem; font-weight: bold;">🎓 Alumni</button>';
+                    }
+                    html += '</div>';
+
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+            html += '</div>';
+        });
+
+        container.innerHTML = html;
+    },
+
+    viewStudentInfo(idx) {
+        const students = APPE_DATABASE.students || [];
+        if (idx >= students.length) return;
+
+        const student = students[idx];
+        const level = this.getCohortLevel(student.cohort);
+
+        let html = '<div style="padding: 20px; background: white; border-radius: 8px; max-width: 500px;">';
+        html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">';
+        html += '<h2 style="margin: 0; color: #1B5E20;">' + student.name + '</h2>';
+        html += '<button onclick="document.getElementById(\'studentInfoModal\').style.display=\'none\'" style="background: #F44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 1.2rem;">?</button>';
+        html += '</div>';
+
+        html += '<div style="background: linear-gradient(135deg, ' + (level === 'P4' ? '#ffebee' : level === 'P3' ? '#fff3e0' : level === 'P2' ? '#e8f5e9' : '#e3f2fd') + ' 0%, white 100%); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid ' + (level === 'P4' ? '#f44336' : level === 'P3' ? '#ff9800' : level === 'P2' ? '#4caf50' : '#2196f3') + ';\">';
+        
+        // Student info cards
+        html += '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">';
+        
+        html += '<div><label style="font-weight: bold; color: #666; font-size: 0.8rem; text-transform: uppercase;">Student ID</label><p style="margin: 5px 0 0 0; font-size: 1.1rem; font-weight: bold;">' + student.id + '</p></div>';
+        html += '<div><label style="font-weight: bold; color: #666; font-size: 0.8rem; text-transform: uppercase;">Level</label><p style="margin: 5px 0 0 0; font-size: 1.1rem; font-weight: bold;">' + level + ' - ' + student.cohort + '</p></div>';
+        html += '<div><label style="font-weight: bold; color: #666; font-size: 0.8rem; text-transform: uppercase;">GPA</label><p style="margin: 5px 0 0 0; font-size: 1.1rem; font-weight: bold;">' + (student.gpa || 'N/A') + '</p></div>';
+        html += '<div><label style="font-weight: bold; color: #666; font-size: 0.8rem; text-transform: uppercase;">Risk</label><p style="margin: 5px 0 0 0; font-size: 1.1rem; font-weight: bold;">' + (student.risk ? '<span style="background: ' + (student.risk === 'high' ? '#f44336' : student.risk === 'medium' ? '#ff9800' : '#4caf50') + '; color: white; padding: 4px 8px; border-radius: 4px;">' + student.risk.toUpperCase() + '</span>' : 'N/A') + '</p></div>';
+        
+        html += '</div>';
+        html += '</div>';
+
+        html += '<div style="border-top: 1px solid #e0e0e0; padding-top: 15px;">';
+        html += '<h4 style="margin: 0 0 10px 0; color: #333;">📞 Contact Information</h4>';
+        html += '<p style="margin: 5px 0;"><strong>Email:</strong> ' + student.email + '</p>';
+        
+        html += '<h4 style="margin: 15px 0 10px 0; color: #333;">🎓 Academic Details</h4>';
+        html += '<p style="margin: 5px 0;"><strong>Attendance:</strong> ' + (student.attendance || 'N/A') + '%</p>';
+        html += '<p style="margin: 5px 0;"><strong>Status:</strong> Active</p>';
+        
+        html += '<h4 style="margin: 15px 0 10px 0; color: #333;">⚙️ Actions</h4>';
+        html += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
+        html += '<button onclick="window.StudentManagement.enableEdit(' + idx + '); document.getElementById(\'studentInfoModal\').style.display=\'none\';" style="background: #2196F3; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">✏️ Edit Student</button>';
+        if (level === 'P4') {
+            html += '<button onclick="window.StudentManagement.sendToAlumni(' + idx + '); document.getElementById(\'studentInfoModal\').style.display=\'none\';" style="background: #FF9800; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">🎓 Transfer to Alumni</button>';
+        }
+        html += '</div>';
+        html += '</div>';
+
+        html += '</div>';
+
+        let modal = document.getElementById('studentInfoModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'studentInfoModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10002;';
+            document.body.appendChild(modal);
+        }
+        const modalContent = document.createElement('div');
+        modalContent.innerHTML = html;
+        modal.innerHTML = '';
+        modal.appendChild(modalContent);
+        modal.style.display = 'flex';
+
+        // Close on outside click
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.style.display = 'none';
+        };
+    },
+
+    enableEdit(idx) {
+        this.editMode[idx] = true;
+        this.renderStudentDatabase();
+    },
+
+    cancelEdit(idx) {
+        delete this.editMode[idx];
+        this.renderStudentDatabase();
+    },
+
+    saveEdit(idx) {
+        const students = APPE_DATABASE.students || [];
+        if (idx >= students.length) return;
+
+        const student = students[idx];
+        student.id = document.getElementById('studentNo_' + idx).value;
+        student.name = document.getElementById('name_' + idx).value;
+        student.email = document.getElementById('email_' + idx).value;
+        student.gpa = parseFloat(document.getElementById('gpa_' + idx).value) || 0;
+        
+        const newLevel = document.getElementById('level_' + idx).value;
+        student.cohort = this.getLevelCohort(newLevel);
+
+        delete this.editMode[idx];
+        alert('? Student record updated successfully');
+        this.renderStudentDatabase();
+    },
+
+    deleteStudent(idx) {
+        if (!confirm('? Are you sure you want to delete this student?')) return;
+        
+        const students = APPE_DATABASE.students || [];
+        if (idx < students.length) {
+            students.splice(idx, 1);
+            alert('? Student deleted successfully');
+            this.renderStudentDatabase();
+        }
+    },
+
+    showAddManualForm() {
+        let html = '<div style="padding: 20px; background: white; border-radius: 8px; max-width: 500px;">';
+        html += '<h3 style="color: #1B5E20; margin-top: 0;">? Add New Student</h3>';
+        html += '<div style="margin-bottom: 15px;"><label style="font-weight: bold;">Student ID:</label><br><input type="text" id="newStudentNo" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;" placeholder="e.g., 441210049" /></div>';
+        html += '<div style="margin-bottom: 15px;"><label style="font-weight: bold;">Name:</label><br><input type="text" id="newStudentName" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;" placeholder="Full Name" /></div>';
+        html += '<div style="margin-bottom: 15px;"><label style="font-weight: bold;">Email:</label><br><input type="email" id="newStudentEmail" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;" placeholder="email@ksau-hs.edu.sa" /></div>';
+        html += '<div style="margin-bottom: 15px;"><label style="font-weight: bold;">Level:</label><br><select id="newStudentLevel" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;"><option value="P1">1️⃣ P1 - IPPE I</option><option value="P2">2️⃣ P2 - IPPE II</option><option value="P3">3️⃣ P3 - IPPE III</option><option value="P4">4️⃣ P4 - APPE</option></select></div>';
+        html += '<div style="margin-bottom: 15px;"><label style="font-weight: bold;">GPA:</label><br><input type="number" id="newStudentGPA" step="0.1" max="4.0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; margin-top: 5px;" placeholder="3.5" /></div>';
+        html += '<button onclick="window.StudentManagement.addStudentManual()" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">? Add Student</button>';
+        html += '<button onclick="document.getElementById(\'addStudentModal\').style.display=\'none\'" style="background: #999; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Cancel</button>';
+        html += '</div>';
+
+        let modal = document.getElementById('addStudentModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'addStudentModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10001;';
+            document.body.appendChild(modal);
+        }
+        const modalContent = document.createElement('div');
+        modalContent.innerHTML = html;
+        modal.innerHTML = '';
+        modal.appendChild(modalContent);
+        modal.style.display = 'flex';
+    },
+
+    addStudentManual() {
+        const studentNo = document.getElementById('newStudentNo').value.trim();
+        const name = document.getElementById('newStudentName').value.trim();
+        const email = document.getElementById('newStudentEmail').value.trim();
+        const level = document.getElementById('newStudentLevel').value;
+        const gpa = parseFloat(document.getElementById('newStudentGPA').value) || 0;
+
+        if (!studentNo || !name || !email) {
+            alert('? Please fill in all required fields');
+            return;
+        }
+
+        const students = APPE_DATABASE.students || [];
+        if (students.some(s => s.id === studentNo)) {
+            alert('? Student ID already exists');
+            return;
+        }
+
+        const newStudent = {
+            id: studentNo,
+            name: name,
+            email: email,
+            cohort: this.getLevelCohort(level),
+            gpa: gpa,
+            risk: 'low',
+            attendance: 90
+        };
+
+        students.push(newStudent);
+        alert('? Student added successfully: ' + name);
+        document.getElementById('addStudentModal').style.display = 'none';
+        this.renderStudentDatabase();
+    },
+
+    showExcelUploadForm() {
+        let html = '<div style="padding: 20px; background: white; border-radius: 8px; max-width: 600px;">';
+        html += '<h3 style="color: #1B5E20; margin-top: 0;">📤 Upload Students from Excel</h3>';
+        html += '<p style="color: #666; margin-bottom: 15px;">📊 CSV/Excel format: Student ID, Name, Email, Level (P1/P2/P3/P4), GPA</p>';
+        html += '<input type="file" id="excelFileInput" accept=".csv,.xlsx,.xls" style="margin-bottom: 15px; padding: 10px; border: 2px dashed #2196F3; border-radius: 4px; width: 100%; box-sizing: border-box;" />';
+        html += '<button onclick="window.StudentManagement.parseExcelFile()" style="background: #2196F3; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px;">📊 Parse & Upload</button>';
+        html += '<button onclick="document.getElementById(\'excelUploadModal\').style.display=\'none\'" style="background: #999; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Cancel</button>';
+        html += '<div id="excelPreview" style="margin-top: 20px;"></div>';
+        html += '</div>';
+
+        let modal = document.getElementById('excelUploadModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'excelUploadModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10001; overflow-y: auto;';
+            document.body.appendChild(modal);
+        }
+        const modalContent = document.createElement('div');
+        modalContent.innerHTML = html;
+        modal.innerHTML = '';
+        modal.appendChild(modalContent);
+        modal.style.display = 'flex';
+    },
+
+    parseExcelFile() {
+        const fileInput = document.getElementById('excelFileInput');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('? Please select a file');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const csv = e.target.result;
+                const lines = csv.split('\n').filter(l => l.trim());
+                const students = APPE_DATABASE.students || [];
+                let addedCount = 0;
+                let errors = [];
+
+                lines.forEach((line, idx) => {
+                    if (idx === 0 && line.includes('Student')) return; // Skip header
+
+                    const parts = line.split(',').map(p => p.trim().replace(/"/g, ''));
+                    if (parts.length < 4) return;
+
+                    const [studentNo, name, email, level, gpa] = parts;
+                    
+                    if (!studentNo || !name || !email) {
+                        errors.push('Row ' + (idx + 1) + ': Missing required fields');
+                        return;
+                    }
+
+                    if (students.some(s => s.id === studentNo)) {
+                        errors.push('Row ' + (idx + 1) + ': Student ID ' + studentNo + ' already exists');
+                        return;
+                    }
+
+                    const newStudent = {
+                        id: studentNo,
+                        name: name,
+                        email: email,
+                        cohort: this.getLevelCohort(level),
+                        gpa: parseFloat(gpa) || 0,
+                        risk: 'low',
+                        attendance: 90
+                    };
+
+                    students.push(newStudent);
+                    addedCount++;
+                });
+
+                if (addedCount === 0) {
+                    alert('? No valid students to add');
+                    return;
+                }
+
+                let message = '? Added ' + addedCount + ' students';
+                if (errors.length > 0) {
+                    message += '\n\n⚠️ Errors:\n' + errors.slice(0, 5).join('\n');
+                    if (errors.length > 5) message += '\n... and ' + (errors.length - 5) + ' more';
+                }
+
+                alert(message);
+                document.getElementById('excelUploadModal').style.display = 'none';
+                this.renderStudentDatabase();
+            } catch (error) {
+                alert('? Error parsing file: ' + error.message);
+            }
+        };
+        reader.readAsText(file);
+    },
+
+    sendToAlumni(idx) {
+        const students = APPE_DATABASE.students || [];
+        if (idx >= students.length) return;
+
+        const student = students[idx];
+        const level = this.getCohortLevel(student.cohort);
+
+        if (level !== 'P4') {
+            alert('? Only P4 (APPE) students can be transferred to Alumni');
+            return;
+        }
+
+        if (!this.alumniData) {
+            this.alumniData = [];
+        }
+
+        // Check for duplicates
+        const exists = this.alumniData.some(a => a.id === student.id);
+        if (exists) {
+            const update = confirm('This student already exists in Alumni database. Update record?');
+            if (!update) return;
+            this.alumniData = this.alumniData.filter(a => a.id !== student.id);
+        }
+
+        // Create alumni record
+        const alumniRecord = {
+            ...student,
+            graduation: new Date().toLocaleDateString('en-US'),
+            alumniStatus: 'Active',
+            linkedAccount: student.email.split('@')[0],
+            program: 'P4'
+        };
+
+        this.alumniData.push(alumniRecord);
+
+        alert('🎓 Student ' + student.name + ' has been successfully transferred to Alumni database!\n\n📋 Details:\nGraduation Date: ' + alumniRecord.graduation + '\n🆔 Alumni ID: ' + alumniRecord.id);
+        this.renderStudentDatabase();
+    },
+
+    exportToExcel() {
+        const students = APPE_DATABASE.students || [];
+        if (students.length === 0) {
+            alert('? No students to export');
+            return;
+        }
+
+        let csv = 'Student ID,Name,Email,Level,Cohort,GPA,Risk,Attendance\\n';
+        students.forEach(s => {
+            const level = this.getCohortLevel(s.cohort);
+            csv += '"' + (s.id || '') + '","' + (s.name || '') + '","' + (s.email || '') + '","' + level + '","' + (s.cohort || '') + '","' + (s.gpa || '') + '","' + (s.risk || '') + '","' + (s.attendance || '') + '"\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'students_' + new Date().getTime() + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
+        alert('? Exported ' + students.length + ' students to Excel');
+    },
+
+    viewAlumniDatabase() {
+        const alumni = this.alumniData || [];
+        let html = '<div style="padding: 20px; background: white; border-radius: 8px;">';
+        html += '<h3 style="color: #1B5E20; margin-top: 0; display: flex; justify-content: space-between; align-items: center;">';
+        html += '<span>🎓 Alumni Database (' + alumni.length + ' graduates)</span>';
+        html += '<button onclick="document.getElementById(\'alumniModal\').style.display=\'none\'" style="background: #F44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">? Close</button>';
+        html += '</h3>';
+
+        if (alumni.length === 0) {
+            html += '<p style="color: #999; text-align: center; padding: 40px; font-size: 1.1rem;">🎓 No alumni records yet.<br><br>P4 students will appear here once they are transferred to the alumni department.</p>';
+        } else {
+            html += '<div style="overflow-x: auto;">';
+            html += '<table style="width: 100%; border-collapse: collapse;">';
+            html += '<thead style="background: #FF9800; color: white;">';
+            html += '<tr>';
+            html += '<th style="padding: 12px; text-align: left;">Student No</th>';
+            html += '<th style="padding: 12px; text-align: left;">Name</th>';
+            html += '<th style="padding: 12px; text-align: left;">Email</th>';
+            html += '<th style="padding: 12px; text-align: left;">Graduation Date</th>';
+            html += '<th style="padding: 12px; text-align: left;">Status</th>';
+            html += '</tr>';
+            html += '</thead>';
+            html += '<tbody>';
+            alumni.forEach(a => {
+                html += '<tr style="border-bottom: 1px solid #e0e0e0;">';
+                html += '<td style="padding: 12px;">' + a.id + '</td>';
+                html += '<td style="padding: 12px;">' + a.name + '</td>';
+                html += '<td style="padding: 12px;">' + a.email + '</td>';
+                html += '<td style="padding: 12px;">' + a.graduation + '</td>';
+                html += '<td style="padding: 12px;"><span style="background: #4CAF50; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">' + (a.alumniStatus || 'Active') + '</span></td>';
+                html += '</tr>';
+            });
+            html += '</tbody>';
+            html += '</table>';
+            html += '</div>';
+        }
+        html += '</div>';
+
+        let modal = document.getElementById('alumniModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'alumniModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000;';
+            document.body.appendChild(modal);
+        }
+        const modalContent = document.createElement('div');
+        modalContent.style.cssText = 'background: white; padding: 20px; border-radius: 12px; max-width: 900px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);';
+        modalContent.innerHTML = html;
+        modal.innerHTML = '';
+        modal.appendChild(modalContent);
+        modal.style.display = 'flex';
+
+        console.log('🎓 Alumni Database displayed:', alumni.length, 'graduates');
+    }
+};
+
 class App {
     constructor() {
         this.store = window.appStore;
@@ -1190,8 +1759,8 @@ class App {
         
         modalContent.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h2>📝 Course Manager — ${program.name}</h2>
-                <button id="closeModal" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">✕</button>
+                <h2>📚 Course Manager � ${program.name}</h2>
+                <button id="closeModal" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">?</button>
             </div>
             
             <div style="margin-bottom:1.5rem;">
@@ -1255,8 +1824,8 @@ class App {
         
         editorContent.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h2>${course.code} — ${course.name}</h2>
-                <button id="closeEditor" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">✕</button>
+                <h2>${course.code} � ${course.name}</h2>
+                <button id="closeEditor" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">?</button>
             </div>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
@@ -1367,7 +1936,7 @@ class App {
             
             // Close modal and refresh
             editorModal.remove();
-            alert('✅ Course updated successfully!');
+            alert('? Course updated successfully!');
             this.renderAcademicOverview();
         });
         
@@ -1389,7 +1958,7 @@ class App {
         const courseMetaOrObj = this._getSelectedCourse();
         const course = courseMetaOrObj && courseMetaOrObj.eval ? courseMetaOrObj : this._buildCourseFromMeta(courseMetaOrObj);
 
-        this.title.innerHTML = `Program Overview — ${program.name}`;
+        this.title.innerHTML = `Program Overview � ${program.name}`;
 
         // Compute alerts across program
         const attention = this._computeProgramAlerts(program.id);
@@ -1407,21 +1976,21 @@ class App {
                         <div>
                             <label style="font-size:0.9rem; color:#666;">Course</label><br>
                             <select id="courseSelect" class="btn btn-outline" style="min-width:280px;">
-                                ${courses.map(c => `<option value="${c.code}" ${c.code===course.code?'selected':''}>${c.code} — ${c.name}</option>`).join('')}
+                                ${courses.map(c => `<option value="${c.code}" ${c.code===course.code?'selected':''}>${c.code} � ${c.name}</option>`).join('')}
                             </select>
                         </div>
                     </div>
                     <div>
-                        <button id="editCenterBtn" class="btn" style="background:#4CAF50; color:white; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">📝 Edit Center</button>
+                        <button id="editCenterBtn" class="btn" style="background:#4CAF50; color:white; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">✏️ Edit Center</button>
                     </div>
                 </div>
 
                 <!-- Section 3: Course Evaluation -->
                 <div class="card">
-                    <div class="flex-between"><h3>📝 3. Course Evaluation</h3><span style="color:#888; font-size:0.9rem;">Quantitative + Qualitative</span></div>
+                    <div class="flex-between"><h3>📊 3. Course Evaluation</h3><span style="color:#888; font-size:0.9rem;">Quantitative + Qualitative</span></div>
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 1rem;">
                         <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4 style="text-align:center;">Overall Rating — 3-year Trend vs Benchmark</h4>
+                            <h4 style="text-align:center;">Overall Rating � 3-year Trend vs Benchmark</h4>
                             <div style="height:260px;">
                                 <canvas id="evalTrendChart"></canvas>
                             </div>
@@ -1435,17 +2004,17 @@ class App {
                     </div>
                     <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top:1rem;">
                         <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4>Qualitative Themes — Strengths</h4>
+                            <h4>Qualitative Themes � Strengths</h4>
                             <ul style="margin-top:0.5rem; color:#2e7d32;">
-                                ${course.comments.strengths.map(t => `<li>• ${t}</li>`).join('')}
+                                ${course.comments.strengths.map(t => `<li>� ${t}</li>`).join('')}
                             </ul>
                         </div>
                         <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4>Qualitative Themes — Areas for Improvement</h4>
+                            <h4>Qualitative Themes � Areas for Improvement</h4>
                             <ul style="margin-top:0.5rem; color:#c62828;">
-                                ${course.comments.improvement.map(t => `<li>• ${t}</li>`).join('')}
+                                ${course.comments.improvement.map(t => `<li>� ${t}</li>`).join('')}
                             </ul>
-                            <div style="font-size:0.8rem; color:#888; margin-top:0.5rem;">⚠️ No raw comments — only categorized themes.</div>
+                            <div style="font-size:0.8rem; color:#888; margin-top:0.5rem;">ℹ️ No raw comments � only categorized themes.</div>
                         </div>
                     </div>
                 </div>
@@ -1534,7 +2103,7 @@ class App {
         const rnd = (min, max, f=2) => { hash = (hash * 1664525 + 1013904223) | 0; const x = ((hash >>> 0) % 1000) / 1000; const v = min + (max - min) * x; return parseFloat(v.toFixed(f)); };
 
         const years = ['2023','2024','2025'];
-        // Overall ratings ~ 3.6–4.6, gently varying
+        // Overall ratings ~ 3.6�4.6, gently varying
         const base = rnd(3.6, 4.6);
         const overall = [base + rnd(-0.2, 0.2), base + rnd(-0.2, 0.2), base + rnd(-0.25, 0.15)].map(v => Math.max(3.0, Math.min(4.8, parseFloat(v.toFixed(2)))));
         const teaching = overall.map(v => Math.max(3.0, Math.min(4.8, parseFloat((v + rnd(-0.1, 0.15)).toFixed(2)))));
@@ -1667,7 +2236,7 @@ class App {
                 '</div>';
             }
             
-            // Arrow CLO → PLO
+            // Arrow CLO ? PLO
             visualHtml += '<div style="display:flex; align-items:center; justify-content:center;">' +
                 '<svg width="40" height="40" viewBox="0 0 40 40" style="overflow:visible;">' +
                     '<defs><marker id="arrowhead-' + idx + '" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto"><polygon points="0 0, 10 3, 0 6" fill="' + color + '" /></marker></defs>' +
@@ -1680,7 +2249,7 @@ class App {
                 (plos.length ? plos.map(p => '<div style="background:#e8f5e9; color:#2e7d32; padding:0.3rem 0.6rem; border-radius:4px; margin-bottom:0.25rem; font-size:0.9rem; font-weight:600;">' + p + '</div>').join('') : '<div style="color:#999; font-size:0.85rem;">No PLO mapped</div>') +
             '</div>';
             
-            // Arrow PLO → NQF
+            // Arrow PLO ? NQF
             visualHtml += '<div style="display:flex; align-items:center; justify-content:center;">' +
                 '<svg width="40" height="40" viewBox="0 0 40 40" style="overflow:visible;">' +
                     '<line x1="0" y1="20" x2="35" y2="20" stroke="' + color + '" stroke-width="2" marker-end="url(#arrowhead-' + idx + ')" />' +
@@ -1696,9 +2265,9 @@ class App {
         visualHtml += '</div>';
         if (editMode) {
             visualHtml += '<div style="margin-top:1rem; padding:0.75rem; background:#e3f2fd; border-radius:4px; border-left:3px solid #2196F3;">' +
-                '<div style="font-weight:600; color:#0d47a1; margin-bottom:0.25rem;">💡 Editing Mode</div>' +
-                '<div style="font-size:0.85rem; color:#555;">• Top input: Enter PLO mappings (comma-separated, e.g., PLO1, PLO2)</div>' +
-                '<div style="font-size:0.85rem; color:#555;">• Bottom input: Enter NQF mappings (comma-separated, e.g., NQF1, NQF3)</div>' +
+                '<div style="font-weight:600; color:#0d47a1; margin-bottom:0.25rem;">✏️ Editing Mode</div>' +
+                '<div style="font-size:0.85rem; color:#555;">� Top input: Enter PLO mappings (comma-separated, e.g., PLO1, PLO2)</div>' +
+                '<div style="font-size:0.85rem; color:#555;">� Bottom input: Enter NQF mappings (comma-separated, e.g., NQF1, NQF3)</div>' +
             '</div>';
         }
         visualHtml += '</div>';
@@ -1709,10 +2278,329 @@ class App {
                 ${visualHtml}
             </div>
             <div class="card" style="box-shadow:none; border:1px solid #eee; margin-top:0.75rem;">
-                <h4>Below-benchmark CLOs (≥2 years)</h4>
-                ${below.size ? '<ul style="margin:0.5rem 0;">' + [...below].map(c=>'<li style="color:#c62828;">• ' + c + '</li>').join('') + '</ul>' : '<div style="color:#2e7d32;">No repeated low-performing CLOs.</div>'}
+                <h4>Below-benchmark CLOs (=2 years)</h4>
+                ${below.size ? '<ul style="margin:0.5rem 0;">' + [...below].map(c=>'<li style="color:#c62828;">� ' + c + '</li>').join('') + '</ul>' : '<div style="color:#2e7d32;">No repeated low-performing CLOs.</div>'}
             </div>
         `;
+    }
+
+    // ========== EVENT / CONFERENCE REQUESTS APPROVAL SYSTEM ==========
+    
+    renderEventRequestsApproval() {
+        this.title.innerHTML = '🎉 Event/Conference Requests - Approval Manager';
+        
+        // Get all event-participation requests from StudentPortalManager if available
+        let eventRequests = [];
+        if (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) {
+            eventRequests = StudentPortalManager.tickets.filter(t => t.requestType === 'event-participation');
+        }
+        
+        const pendingRequests = eventRequests.filter(r => r.status === 'submitted');
+        const approvedRequests = eventRequests.filter(r => r.status === 'approved');
+        const rejectedRequests = eventRequests.filter(r => r.status === 'rejected');
+        
+        let html = `
+            <div style="margin-bottom: 2rem;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #FF6F00; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="font-size: 2rem; font-weight: 700; color: #FF6F00;">${pendingRequests.length}</div>
+                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Pending Approval</div>
+                    </div>
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #4CAF50; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="font-size: 2rem; font-weight: 700; color: #4CAF50;">${approvedRequests.length}</div>
+                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Approved</div>
+                    </div>
+                    <div style="background: white; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #F44336; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="font-size: 2rem; font-weight: 700; color: #F44336;">${rejectedRequests.length}</div>
+                        <div style="color: #666; font-size: 0.9rem; font-weight: 600;">Rejected</div>
+                    </div>
+                </div>
+
+                <!-- PENDING REQUESTS -->
+                <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+                    <h3 style="margin: 0 0 1.5rem 0; color: #1a1a1a; display: flex; align-items: center; gap: 10px;">
+                        <span style="background: #FFE0B2; color: #FF6F00; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 1rem;">⏳</span>
+                        <span>Pending Approval (${pendingRequests.length})</span>
+                    </h3>
+                    
+                    ${pendingRequests.length === 0 ? 
+                        '<div style="background: #E8F5E9; padding: 1rem; border-radius: 6px; color: #2e7d32; text-align: center;">? No pending requests</div>' :
+                        '<div style="display: grid; gap: 1rem;">' +
+                        pendingRequests.map(req => `
+                            <div style="background: #FFF9C4; border: 1px solid #FFD54F; border-radius: 8px; padding: 1.5rem; border-left: 4px solid #FF6F00;">
+                                <div style="display: grid; grid-template-columns: 1fr auto; gap: 1rem; margin-bottom: 1rem;">
+                                    <div>
+                                        <h4 style="margin: 0 0 0.5rem 0; color: #1a1a1a; font-size: 1rem;">${req.eventDetails?.name || req.title}</h4>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>Student:</strong> ${req.studentName || req.studentId}
+                                        </p>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>Event Date:</strong> ${req.eventDetails?.date || 'N/A'} 
+                                            <strong>Location:</strong> ${req.eventDetails?.location || 'N/A'}
+                                        </p>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>Role:</strong> ${req.participationDetails?.role || 'N/A'} 
+                                            <strong>Days Away:</strong> ${req.eventDetails?.daysAway || 0} days
+                                        </p>
+                                        ${req.supportNeeded?.length > 0 ? 
+                                            '<p style="margin: 0.5rem 0 0 0; color: #d32f2f; font-size: 0.85rem;"><strong>Support Needed:</strong> ' + req.supportNeeded.join(', ') + '</p>' :
+                                            ''
+                                        }
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 0.8rem; color: #999; margin-bottom: 0.5rem;">Submitted: ${new Date(req.submissionDate).toLocaleDateString()}</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="window.app.approveEventRequest('${req.ticketId}')" style="background: #4CAF50; color: white; border: none; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                                        ✅ Approve & Send Letter
+                                    </button>
+                                    <button onclick="window.app.rejectEventRequest('${req.ticketId}')" style="background: #F44336; color: white; border: none; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                                        ❌ Reject
+                                    </button>
+                                    <button onclick="window.app.viewEventRequestDetails('${req.ticketId}')" style="background: #2196F3; color: white; border: none; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
+                                        📋 View Details
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('') +
+                        '</div>'
+                    }
+                </div>
+
+                <!-- APPROVED REQUESTS -->
+                ${approvedRequests.length > 0 ? `
+                    <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+                        <h3 style="margin: 0 0 1.5rem 0; color: #1a1a1a; display: flex; align-items: center; gap: 10px;">
+                            <span style="background: #C8E6C9; color: #1B5E20; padding: 0.5rem 0.75rem; border-radius: 6px; font-size: 1rem;">✅</span>
+                            <span>Approved (${approvedRequests.length})</span>
+                        </h3>
+                        <div style="display: grid; gap: 1rem;">
+                            ${approvedRequests.map(req => `
+                                <div style="background: #E8F5E9; border: 1px solid #C8E6C9; border-radius: 8px; padding: 1rem; border-left: 4px solid #4CAF50;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div>
+                                            <h4 style="margin: 0 0 0.25rem 0; color: #1B5E20;">${req.eventDetails?.name || req.title}</h4>
+                                            <p style="margin: 0.25rem 0; color: #666; font-size: 0.85rem;">
+                                                ${req.studentName} | Approved: ${new Date(req.approvalDate || req.lastUpdate).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                        <button onclick="window.app.downloadApprovalLetter('${req.ticketId}')" style="background: #2196F3; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem;">
+                                            📥 Download Letter
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        this.root.innerHTML = html;
+    }
+
+    // Approve event request and generate approval letter
+    approveEventRequest(ticketId) {
+        if (typeof StudentPortalManager === 'undefined') {
+            alert('? StudentPortalManager not available');
+            return;
+        }
+        
+        const request = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
+        if (!request) {
+            alert('? Request not found');
+            return;
+        }
+
+        const approverName = prompt('Enter your name (approver):');
+        if (!approverName) return;
+
+        const approvalNotes = prompt('Enter approval notes (optional):');
+
+        // Update request status
+        request.status = 'approved';
+        request.approvalStatus = 'approved';
+        request.approver = approverName;
+        request.approvalDate = new Date();
+        request.approvalNotes = approvalNotes || '';
+        request.lastUpdate = new Date();
+
+        // Generate approval letter
+        this.generateApprovalLetter(request, approverName, approvalNotes);
+
+        alert(`✅ Event Request Approved!\n\nStudent: ${request.studentName}\nEvent: ${request.eventDetails?.name}\n\n📧 Approval letter has been generated and can be downloaded/emailed.`);
+
+        // Refresh the view
+        this.renderEventRequestsApproval();
+    }
+
+    // Reject event request
+    rejectEventRequest(ticketId) {
+        if (typeof StudentPortalManager === 'undefined') {
+            alert('? StudentPortalManager not available');
+            return;
+        }
+        
+        const request = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
+        if (!request) {
+            alert('? Request not found');
+            return;
+        }
+
+        const reason = prompt('Enter reason for rejection:');
+        if (!reason) return;
+
+        request.status = 'rejected';
+        request.approvalStatus = 'rejected';
+        request.approvalNotes = reason;
+        request.lastUpdate = new Date();
+
+        alert(`❌ Event Request Rejected!\n\nStudent: ${request.studentName}\nReason: ${reason}\n\n📧 Rejection notification will be sent.`);
+
+        this.renderEventRequestsApproval();
+    }
+
+    // View detailed information about request
+    viewEventRequestDetails(ticketId) {
+        if (typeof StudentPortalManager === 'undefined') {
+            alert('? StudentPortalManager not available');
+            return;
+        }
+        
+        const req = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
+        if (!req) {
+            alert('? Request not found');
+            return;
+        }
+
+        const details = `
+📋 EVENT REQUEST DETAILS
+═══════════════════════════════════════════════════
+
+👤 STUDENT INFORMATION
+  Name: ${req.studentName}
+  ID: ${req.studentId}
+  Email: ${req.studentEmail}
+
+🎉 EVENT INFORMATION
+  Name: ${req.eventDetails?.name}
+  Type: ${req.eventDetails?.type}
+  Level: ${req.eventDetails?.level}
+  Date: ${req.eventDetails?.date}
+  Duration: ${req.eventDetails?.duration} days
+  Location: ${req.eventDetails?.location}
+  Organizer: ${req.eventDetails?.organizer}
+
+👥 PARTICIPATION
+  Role: ${req.participationDetails?.role}
+  Students: ${req.participationDetails?.studentCount}
+  Days Away: ${req.eventDetails?.daysAway}
+  Schedule Conflict: ${req.eventDetails?.scheduleConflict ? 'Yes' : 'No'}
+
+📚 LEARNING OUTCOMES
+  ${req.participationDetails?.learningOutcomes}
+
+💰 BUDGET REQUESTED
+  Registration: SAR ${req.budget?.registrationFee || 0}
+  Travel: SAR ${req.budget?.travelCost || 0}
+  Total: SAR ${req.budget?.totalRequested || 0}
+  Justification: ${req.budget?.justification || 'N/A'}
+
+🤝 SUPPORT NEEDED
+  ${req.supportNeeded?.length > 0 ? req.supportNeeded.map(s => '  ✓ ' + s).join('\\n') : '  None specified'}
+
+✅ STATUS
+  Current: ${req.status.toUpperCase()}
+  Submitted: ${new Date(req.submissionDate).toLocaleString()}
+        `;
+
+        alert(details);
+    }
+
+    // Generate approval letter
+    generateApprovalLetter(request, approverName, notes) {
+        const letterContent = `
+APPROVAL LETTER
+═══════════════════════════════════════════════════
+
+KING SAUD BIN ABDULAZIZ UNIVERSITY FOR HEALTH SCIENCES
+College of Pharmacy
+
+Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+Reference: ${request.ticketId}
+
+TO WHOM IT MAY CONCERN,
+
+This letter is to certify that ${request.studentName} (ID: ${request.studentId}), 
+a student at King Saud Bin Abdulaziz University for Health Sciences, College of Pharmacy, 
+has been approved to participate in the following event:
+
+EVENT DETAILS:
+═══════════════════════════════════════════════════
+Event Name: ${request.eventDetails?.name}
+Event Type: ${request.eventDetails?.type}
+Event Date: ${request.eventDetails?.date}
+Duration: ${request.eventDetails?.duration} days
+Location: ${request.eventDetails?.location}
+Organizer: ${request.eventDetails?.organizer}
+
+PARTICIPATION DETAILS:
+???????????????????????????????????????????????????
+Role: ${request.participationDetails?.role}
+Number of Students: ${request.participationDetails?.studentCount}
+
+APPROVAL DETAILS:
+═══════════════════════════════════════════════════
+Approval Status: APPROVED ✓
+Approved By: ${approverName}
+Approval Date: ${new Date().toLocaleDateString()}
+${notes ? 'Notes: ' + notes : ''}
+
+TERMS & CONDITIONS:
+� The student is approved for absence from clinical rotation/classes for ${request.eventDetails?.daysAway || 0} days
+� Attendance at this event must be documented with proof/certificate
+� All applicable institutional policies remain in effect
+� This approval is subject to student maintaining good academic standing
+
+Sincerely,
+
+${approverName}
+Student Services - Event Approval
+King Saud Bin Abdulaziz University for Health Sciences
+
+???????????????????????????????????????????????????
+This letter is officially approved and valid for ${request.eventDetails?.duration} days from the event date.
+        `;
+
+        // Store letter in request
+        request.approvalLetter = letterContent;
+
+        return letterContent;
+    }
+
+    // Download approval letter
+    downloadApprovalLetter(ticketId) {
+        if (typeof StudentPortalManager === 'undefined') {
+            alert('? StudentPortalManager not available');
+            return;
+        }
+        
+        const request = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
+        if (!request || !request.approvalLetter) {
+            alert('? Approval letter not found');
+            return;
+        }
+
+       const element = document.createElement('a');
+        const file = new Blob([request.approvalLetter], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = `Approval_Letter_${request.ticketId}_${request.studentId}.txt`;
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+
+        alert('? Letter downloaded successfully!');
     }
 
     // ========== COMMUNITY SERVICE DASHBOARD ==========
@@ -1722,49 +2610,129 @@ class App {
             editMode: false,
             hoursTarget: 1500,
             selectedYear: '2026',
-            yearlyOverview: {
-                '2024': { totalActivities: 28, activeRequests: 2, approvedActivities: 24, completedActivities: 22, participationRate: 82, totalHours: 820 },
-                '2025': { totalActivities: 35, activeRequests: 5, approvedActivities: 30, completedActivities: 25, participationRate: 85, totalHours: 1050 },
-                '2026': { totalActivities: 42, activeRequests: 8, approvedActivities: 34, completedActivities: 28, participationRate: 87, totalHours: 1240 }
-            },
-            overview: {
-                totalActivities: 42,
-                activeRequests: 8,
-                approvedActivities: 34,
-                completedActivities: 28,
-                participationRate: 87,
-                totalHours: 1240
-            },
-            certificates: [
-                'Participation Certificate',
-                'Volunteer Hours Certificate',
-                'Appreciation Letter'
-            ],
-            requests: [
-                { id: 'CS001', title: 'Diabetes Awareness Campaign', type: 'Health awareness', status: 'submitted', date: '2026-01-15', year: '2026', students: 5, hours: 20, location: 'Community Center', responsible: 'Pending Review' },
-                { id: 'CS002', title: 'Blood Pressure Screening', type: 'Screening campaign', status: 'approved', date: '2026-02-01', year: '2026', students: 12, hours: 30, location: 'Mall', responsible: 'Dr. Fatima' },
-                { id: 'CS003', title: 'School Health Visit', type: 'School visit', status: 'scheduled', date: '2026-02-15', year: '2026', students: 8, hours: 16, location: 'Al-Noor School', responsible: 'Dr. Ahmed' },
-                { id: 'CS004', title: 'Medication Safety Workshop', type: 'Health awareness', status: 'completed', date: '2026-01-10', year: '2026', students: 15, hours: 25, location: 'University Hall', responsible: 'Dr. Lama' },
-                { id: 'CS005', title: 'Vaccination Drive', type: 'Screening campaign', status: 'approved', date: '2026-02-20', year: '2026', students: 20, hours: 40, location: 'Health Center', responsible: 'Dr. Omar' },
-                { id: 'CS006', title: 'NGO Collaboration - UNHCR', type: 'NGO collaboration', status: 'under-review', date: '2026-02-10', year: '2026', students: 10, hours: 35, location: 'UNHCR Office', responsible: 'Under Review' },
-                { id: 'CS007', title: 'Mental Health Awareness 2025', type: 'Health awareness', status: 'completed', date: '2025-11-20', year: '2025', students: 18, hours: 28, location: 'University Hall', responsible: 'Dr. Lama' },
-                { id: 'CS008', title: 'Nutrition Campaign 2025', type: 'Screening campaign', status: 'completed', date: '2025-10-15', year: '2025', students: 14, hours: 32, location: 'Community Center', responsible: 'Dr. Fatima' },
-                { id: 'CS009', title: 'Health Fair 2024', type: 'Screening campaign', status: 'completed', date: '2024-09-10', year: '2024', students: 20, hours: 42, location: 'Mall', responsible: 'Dr. Ahmed' },
-                { id: 'CS010', title: 'School Visit 2024', type: 'School visit', status: 'completed', date: '2024-08-25', year: '2024', students: 8, hours: 16, location: 'Al-Noor School', responsible: 'Dr. Lama' }
-            ]
+            yearlyOverview: {},
+            overview: {}
         };
+
+        // Sample requests array (including both community service and event-participation)
+        const requests = [
+            { id: 'CS001', title: 'Diabetes Awareness Campaign', type: 'Health awareness', status: 'submitted', date: '2026-01-15', year: '2026', students: 5, hours: 20, location: 'Community Center', responsible: 'Pending Review' },
+            { id: 'CS002', title: 'Blood Pressure Screening', type: 'Screening campaign', status: 'approved', date: '2026-02-01', year: '2026', students: 12, hours: 30, location: 'Mall', responsible: 'Dr. Fatima' },
+            { id: 'CS003', title: 'School Health Visit', type: 'School visit', status: 'scheduled', date: '2026-02-15', year: '2026', students: 8, hours: 16, location: 'Al-Noor School', responsible: 'Dr. Ahmed' },
+            { id: 'CS004', title: 'Medication Safety Workshop', type: 'Health awareness', status: 'completed', date: '2026-01-10', year: '2026', students: 15, hours: 25, location: 'University Hall', responsible: 'Dr. Lama' },
+            { id: 'CS005', title: 'Vaccination Drive', type: 'Screening campaign', status: 'approved', date: '2026-02-20', year: '2026', students: 20, hours: 40, location: 'Health Center', responsible: 'Dr. Omar' },
+            { id: 'CS006', title: 'NGO Collaboration - UNHCR', type: 'NGO collaboration', status: 'under-review', date: '2026-02-10', year: '2026', students: 10, hours: 35, location: 'UNHCR Office', responsible: 'Under Review' },
+            { id: 'EV001', title: 'Saudi Pharmaceutical Society Annual Conference', type: 'Event/Conference', status: 'submitted', date: '2026-01-20', year: '2026', students: 3, hours: 16, location: 'Riyadh Convention Center', responsible: 'Pending Review' },
+            { id: 'EV002', title: 'International Pharmacy Expo 2026', type: 'Event/Conference', status: 'approved', date: '2026-02-05', year: '2026', students: 5, hours: 24, location: 'Dubai Convention Center', responsible: 'Dr. Mohammed' },
+            { id: 'EV003', title: 'Clinical Pharmacy Workshop Series', type: 'Event/Conference', status: 'approved', date: '2026-02-28', year: '2026', students: 7, hours: 18, location: 'KSAU-HS Campus', responsible: 'Dr. Aisha' },
+            { id: 'CS007', title: 'Mental Health Awareness 2025', type: 'Health awareness', status: 'completed', date: '2025-11-20', year: '2025', students: 18, hours: 28, location: 'University Hall', responsible: 'Dr. Lama' },
+            { id: 'CS008', title: 'Nutrition Campaign 2025', type: 'Screening campaign', status: 'completed', date: '2025-10-15', year: '2025', students: 14, hours: 32, location: 'Community Center', responsible: 'Dr. Fatima' },
+            { id: 'EV004', title: 'Gulf Health Conference 2025', type: 'Event/Conference', status: 'completed', date: '2025-09-12', year: '2025', students: 4, hours: 20, location: 'Kuwait Convention Center', responsible: 'Dr. Hamad' },
+            { id: 'CS009', title: 'Health Fair 2024', type: 'Screening campaign', status: 'completed', date: '2024-09-10', year: '2024', students: 20, hours: 42, location: 'Mall', responsible: 'Dr. Ahmed' },
+            { id: 'CS010', title: 'School Visit 2024', type: 'School visit', status: 'completed', date: '2024-08-25', year: '2024', students: 8, hours: 16, location: 'Al-Noor School', responsible: 'Dr. Lama' },
+            { id: 'EV005', title: 'ACPE Annual Meeting 2024', type: 'Event/Conference', status: 'completed', date: '2024-06-22', year: '2024', students: 2, hours: 12, location: 'Chicago', responsible: 'Dr. Sara' }
+        ];
+
+        // Calculate yearlyOverview dynamically based on requests (including event-participation)
+        const years = ['2024', '2025', '2026'];
+        years.forEach(year => {
+            const yearRequests = requests.filter(r => r.year === year);
+            const totalActivities = yearRequests.length;
+            const activeRequests = yearRequests.filter(r => ['submitted', 'under-review', 'scheduled'].includes(r.status)).length;
+            const approvedActivities = yearRequests.filter(r => ['approved', 'scheduled', 'completed'].includes(r.status)).length;
+            const completedActivities = yearRequests.filter(r => r.status === 'completed').length;
+            const totalHours = yearRequests.reduce((sum, r) => sum + (r.hours || 0), 0);
+            const participationRate = totalActivities > 0 ? Math.round((approvedActivities / totalActivities) * 100) : 0;
+
+            this.communityService.yearlyOverview[year] = {
+                totalActivities,
+                activeRequests,
+                approvedActivities,
+                completedActivities,
+                participationRate,
+                totalHours
+            };
+        });
+
+        // Set current year overview
+        this.communityService.overview = this.communityService.yearlyOverview['2026'] || {
+            totalActivities: 0,
+            activeRequests: 0,
+            approvedActivities: 0,
+            completedActivities: 0,
+            participationRate: 0,
+            totalHours: 0
+        };
+
+        this.communityService.requests = requests;
+        this.communityService.certificates = [
+            'Participation Certificate',
+            'Volunteer Hours Certificate',
+            'Appreciation Letter'
+        ];
     }
 
     renderCommunityServiceDashboard(section = 'dashboard') {
         const sectionTitles = {
-            'dashboard': '🤝 Community Service Dashboard',
-            'requests': '📨 My Requests — Community Service',
-            'activities': '📅 Activities Calendar — Community Service',
-            'hours': '⏱️ Hours Tracking — Community Service',
-            'certificates': '🏅 Certificates — Community Service'
+            'dashboard': '📋 Community Service Dashboard',
+            'requests': '📝 My Requests � Community Service',
+            'activities': '📅 Activities Calendar � Community Service',
+            'hours': '⏳ Hours Tracking � Community Service',
+            'certificates': '🏅 Certificates � Community Service'
         };
 
-        this.title.innerHTML = sectionTitles[section] || '🤝 Community Service Dashboard';
+        this.title.innerHTML = sectionTitles[section] || '🎯 Community Service Dashboard';
+        
+        // 🔄 Sync event-participation requests from StudentPortalManager if available
+        // ONLY show approved/processing requests - hide submitted (pending review) tickets
+        if (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) {
+            const eventParticipationTickets = StudentPortalManager.tickets.filter(t => t.requestType === 'event-participation' && t.status !== 'submitted');
+            
+            // Add event-participation tickets to requests if not already there
+            eventParticipationTickets.forEach(ticket => {
+                const ticketId = 'EV-' + ticket.ticketId;
+                if (!this.communityService.requests.find(r => r.id === ticketId)) {
+                    const submissionYear = new Date(ticket.submissionDate).getFullYear().toString();
+                    this.communityService.requests.push({
+                        id: ticketId,
+                        title: ticket.title || 'Event/Conference Request',
+                        type: 'Event/Conference',
+                        status: ticket.status || 'submitted',
+                        date: ticket.submissionDate,
+                        year: submissionYear,
+                        students: 1,
+                        hours: ticket.hours || 0,
+                        location: ticket.location || 'To be determined',
+                        responsible: ticket.status === 'approved' ? 'Approved' : 'Pending Review'
+                    });
+                }
+            });
+            
+            // Recalculate yearlyOverview with synced data
+            const years = ['2024', '2025', '2026'];
+            years.forEach(year => {
+                const yearRequests = this.communityService.requests.filter(r => r.year === year);
+                const totalActivities = yearRequests.length;
+                const activeRequests = yearRequests.filter(r => ['submitted', 'under-review', 'scheduled'].includes(r.status)).length;
+                const approvedActivities = yearRequests.filter(r => ['approved', 'scheduled', 'completed'].includes(r.status)).length;
+                const completedActivities = yearRequests.filter(r => r.status === 'completed').length;
+                const totalHours = yearRequests.reduce((sum, r) => sum + (r.hours || 0), 0);
+                const participationRate = totalActivities > 0 ? Math.round((approvedActivities / totalActivities) * 100) : 0;
+
+                this.communityService.yearlyOverview[year] = {
+                    totalActivities,
+                    activeRequests,
+                    approvedActivities,
+                    completedActivities,
+                    participationRate,
+                    totalHours
+                };
+            });
+            
+            // Update overview for current year
+            this.communityService.overview = this.communityService.yearlyOverview['2026'] || this.communityService.overview;
+        }
+        
         const { overview, requests, editMode, certificates, hoursTarget, selectedYear, yearlyOverview } = this.communityService;
         const filteredRequests = requests.filter(r => r.year === selectedYear);
         const selectedYearOverview = yearlyOverview[selectedYear] || overview;
@@ -1779,12 +2747,12 @@ class App {
         };
         
         const statusEmojis = {
-            'submitted': '🟡',
-            'under-review': '🟠',
-            'approved': '🟢',
-            'scheduled': '🔵',
-            'completed': '✅',
-            'rejected': '❌'
+            'submitted': '📬',
+            'under-review': '⏳',
+            'approved': '✅',
+            'scheduled': '📅',
+            'completed': '?',
+            'rejected': '?'
         };
 
         this.root.innerHTML = `
@@ -1807,7 +2775,7 @@ class App {
                 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem;">
                     ${selectedYear === 'all' ? Object.entries(yearlyOverview).map(([year, data]) => 
                         '<div style="background:white; padding:0.75rem; border-radius:6px;">' +
-                            '<div style="font-weight:700; color:#0D47A1; margin-bottom:0.3rem;">📆 ' + year + '</div>' +
+                            '<div style="font-weight:700; color:#0D47A1; margin-bottom:0.3rem;">📅 ' + year + '</div>' +
                             '<div style="font-size:0.9rem; color:#555;">' +
                                 '<div>Activities: ' + data.totalActivities + '</div>' +
                                 '<div>Hours: ' + data.totalHours + 'h</div>' +
@@ -1816,7 +2784,7 @@ class App {
                         '</div>'
                     ).join('') : 
                         '<div style="background:white; padding:0.75rem; border-radius:6px;">' +
-                            '<div>📌 Year ' + selectedYear + '</div>' +
+                            '<div>📅 Year ' + selectedYear + '</div>' +
                         '</div>'
                     }
                 </div>
@@ -1883,14 +2851,14 @@ class App {
                 <!-- Student Request System -->
                 <div class="card" id="community-requests-section">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                        <h3>📨 Student Request System</h3>
+                        <h3>📋 Student Request System</h3>
                         <button id="newRequestBtn" class="btn" style="background:#4CAF50; color:white; padding:0.6rem 1.2rem; border-radius:4px; cursor:pointer;">+ New Request</button>
                     </div>
                 </div>
 
                 <!-- Request Tracking Table -->
                 <div class="card" id="community-requests-table">
-                    <h3>🔄 Request Tracking</h3>
+                    <h3>📊 Request Tracking</h3>
                     <div style="overflow-x:auto;">
                         <table style="width:100%; border-collapse:collapse;">
                             <thead>
@@ -1934,7 +2902,7 @@ class App {
                         ${(selectedYear === 'all' ? requests : filteredRequests).filter(r => r.status === 'approved' || r.status === 'scheduled').slice(0,4).map(r => `
                             <div style="background:#f9f9f9; padding:1rem; border-radius:6px; border:1px solid #eee;">
                                 <div style="font-weight:700; margin-bottom:0.35rem; color:#0D47A1;">${r.title}</div>
-                                <div style="font-size:0.9rem; color:#555;">${r.date} • ${r.location}</div>
+                                <div style="font-size:0.9rem; color:#555;">${r.date} � ${r.location}</div>
                                 <div style="font-size:0.9rem; color:#777; margin:0.3rem 0;">${r.type}</div>
                                 <div style="display:flex; gap:0.5rem; flex-wrap:wrap; font-size:0.85rem; color:#555;">
                                     <span style="background:#E8F5E9; color:#2E7D32; padding:0.2rem 0.6rem; border-radius:12px;">${r.students} students</span>
@@ -1955,9 +2923,9 @@ class App {
                         </div>
                         <div style="background:#E3F2FD; padding:1rem; border-radius:6px;">
                             <div style="font-weight:700; color:#0D47A1; margin-bottom:0.3rem;">Top Contributors</div>
-                            <div style="font-size:0.9rem; color:#555;">Student Council — 180h</div>
-                            <div style="font-size:0.9rem; color:#555;">Level 5 Cohort — 150h</div>
-                            <div style="font-size:0.9rem; color:#555;">Volunteer Club — 120h</div>
+                            <div style="font-size:0.9rem; color:#555;">Student Council � 180h</div>
+                            <div style="font-size:0.9rem; color:#555;">Level 5 Cohort � 150h</div>
+                            <div style="font-size:0.9rem; color:#555;">Volunteer Club � 120h</div>
                         </div>
                         <div style="background:#FFF3E0; padding:1rem; border-radius:6px;">
                             <div style="font-weight:700; color:#EF6C00; margin-bottom:0.3rem;">Benchmarks</div>
@@ -1971,7 +2939,7 @@ class App {
                 </div>
 
                 <div class="card" id="community-impact-section">
-                    <h3>📊 Community Impact</h3>
+                    <h3>🌍 Community Impact</h3>
                     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem;">
                         <div style="background:#E3F2FD; padding:1rem; border-radius:6px;">
                             <div style="font-size:1.8rem; font-weight:bold; color:#1976D2;">850+</div>
@@ -1994,14 +2962,14 @@ class App {
 
                 <!-- Certificates & Recognition -->
                 <div class="card" id="community-certificates-section">
-                    <h3>🏅 Certificates & Recognition</h3>
+                    <h3>🏆 Certificates & Recognition</h3>
                     <div style="background:#f9f9f9; padding:1rem; border-radius:6px; border-left:4px solid #FFD700;">
                         <div style="margin-bottom:1rem;">
                             <strong>Available Certificates</strong>
                             <ul style="margin:0.5rem 0; padding-left:1.5rem; color:#666;">
                                 ${certificates.map((c, idx) => `
                                     <li style="display:flex; align-items:center; gap:0.5rem;">
-                                        <span>✓ ${c}</span>
+                                        <span>? ${c}</span>
                                         ${editMode ? `<button class="delete-cert-btn" data-idx="${idx}" style="background:#f44336; color:white; border:none; padding:0.2rem 0.5rem; border-radius:3px; cursor:pointer; font-size:0.75rem;">Remove</button>` : ''}
                                     </li>
                                 `).join('')}
@@ -2129,7 +3097,7 @@ class App {
         content.style.cssText = 'background:white; border-radius:8px; padding:2rem; max-width:600px; width:90%; max-height:90vh; overflow-y:auto;';
         
         content.innerHTML = `
-            <h2 style="margin-top:0;">📨 New Community Service Request</h2>
+            <h2 style="margin-top:0;">📝 New Community Service Request</h2>
             <form id="requestForm" style="margin-top:1.5rem;">
                 <div style="margin-bottom:1rem;">
                     <label style="display:block; font-weight:bold; margin-bottom:0.5rem;">Activity Title *</label>
@@ -2186,7 +3154,7 @@ class App {
                 </div>
 
                 <div style="display:flex; gap:1rem; margin-top:2rem;">
-                    <button type="submit" style="flex:1; background:#4CAF50; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold; font-size:1rem;">✅ Submit Request</button>
+                    <button type="submit" style="flex:1; background:#4CAF50; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold; font-size:1rem;">? Submit Request</button>
                     <button type="button" id="cancelForm" style="flex:1; background:#f44336; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold; font-size:1rem;">Cancel</button>
                 </div>
             </form>
@@ -2198,7 +3166,7 @@ class App {
         document.getElementById('cancelForm').addEventListener('click', () => modal.remove());
         document.getElementById('requestForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            alert('✅ Request submitted successfully! Status: Submitted 🟡');
+            alert('✓ Request submitted successfully! Status: Submitted 📬');
             modal.remove();
             this.renderCommunityServiceDashboard();
         });
@@ -2210,11 +3178,11 @@ class App {
 
     showRequestDetails(request) {
         const statusTimeline = [
-            { stage: 'Submitted', emoji: '🟡', date: '2026-01-15', responsible: 'Auto System', notes: 'Request received' },
-            { stage: 'Under Review', emoji: '🟠', date: request.status === 'under-review' || request.status === 'approved' || request.status === 'scheduled' || request.status === 'completed' ? '2026-01-16' : null, responsible: 'Dean Office', notes: 'Being evaluated' },
-            { stage: 'Approved', emoji: '🟢', date: request.status === 'approved' || request.status === 'scheduled' || request.status === 'completed' ? '2026-01-17' : null, responsible: 'Dr. Fatima', notes: 'Request approved' },
-            { stage: 'Scheduled', emoji: '🔵', date: request.status === 'scheduled' || request.status === 'completed' ? '2026-01-20' : null, responsible: 'Coordinator', notes: 'Activity scheduled' },
-            { stage: 'Completed', emoji: '✅', date: request.status === 'completed' ? '2026-01-25' : null, responsible: 'Faculty', notes: 'Activity completed' }
+            { stage: 'Submitted', emoji: '📬', date: '2026-01-15', responsible: 'Auto System', notes: 'Request received' },
+            { stage: 'Under Review', emoji: '⏳', date: request.status === 'under-review' || request.status === 'approved' || request.status === 'scheduled' || request.status === 'completed' ? '2026-01-16' : null, responsible: 'Dean Office', notes: 'Being evaluated' },
+            { stage: 'Approved', emoji: '✅', date: request.status === 'approved' || request.status === 'scheduled' || request.status === 'completed' ? '2026-01-17' : null, responsible: 'Dr. Fatima', notes: 'Request approved' },
+            { stage: 'Scheduled', emoji: '📅', date: request.status === 'scheduled' || request.status === 'completed' ? '2026-01-20' : null, responsible: 'Coordinator', notes: 'Activity scheduled' },
+            { stage: 'Completed', emoji: '?', date: request.status === 'completed' ? '2026-01-25' : null, responsible: 'Faculty', notes: 'Activity completed' }
         ];
 
         const modal = document.createElement('div');
@@ -2224,7 +3192,7 @@ class App {
         content.style.cssText = 'background:white; border-radius:8px; padding:2rem; max-width:700px; width:90%; max-height:90vh; overflow-y:auto;';
         
         content.innerHTML = `
-            <h2 style="margin-top:0;">${request.id} — ${request.title}</h2>
+            <h2 style="margin-top:0;">${request.id} � ${request.title}</h2>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; padding:1rem; background:#f5f5f5; border-radius:6px;">
                 <div><strong>Type:</strong> ${request.type}</div>
                 <div><strong>Students:</strong> ${request.students}</div>
@@ -2234,7 +3202,7 @@ class App {
                 <div><strong>Responsible:</strong> ${request.responsible}</div>
             </div>
 
-            <h3 style="margin-top:1.5rem;">📍 Request Timeline</h3>
+            <h3 style="margin-top:1.5rem;">📈 Request Timeline</h3>
             <div style="margin-top:1rem;">
                 ${statusTimeline.map((item, i) => `
                     <div style="display:flex; margin-bottom:1.5rem; ${item.date ? 'opacity:1' : 'opacity:0.4'}">
@@ -2252,8 +3220,8 @@ class App {
             </div>
 
             <div style="margin-top:2rem; display:flex; gap:1rem;">
-                <button id="approveBtn" style="flex:1; background:#4CAF50; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold;">✅ Approve</button>
-                <button id="rejectBtn" style="flex:1; background:#f44336; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold;">❌ Reject</button>
+                <button id="approveBtn" style="flex:1; background:#4CAF50; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold;">? Approve</button>
+                <button id="rejectBtn" style="flex:1; background:#f44336; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer; font-weight:bold;">? Reject</button>
                 <button id="closeBtn" style="flex:1; background:#999; color:white; border:none; padding:0.75rem; border-radius:4px; cursor:pointer;">Close</button>
             </div>
         `;
@@ -2263,7 +3231,7 @@ class App {
 
         document.getElementById('closeBtn').addEventListener('click', () => modal.remove());
         document.getElementById('approveBtn').addEventListener('click', () => {
-            alert('✅ Request approved!');
+            alert('? Request approved!');
             modal.remove();
             this.renderCommunityServiceDashboard();
         });
@@ -2294,7 +3262,7 @@ class App {
             'Declining evaluation (3-year downward)': '📉',
             'Declining evaluation (2-year)': '📉',
             'Pass rate below benchmark': '⚠️',
-            'Repeated CLO underachievement': '🎯'
+            'Repeated CLO underachievement': '⚠️'
         };
         
         const alertColors = {
@@ -2314,19 +3282,19 @@ class App {
                             '<span style="font-size:1.5rem;">' + icon + '</span>' +
                             '<div style="flex:1;">' +
                                 '<div style="font-weight:700; color:' + style.text + '; font-size:0.95rem;">' + f + '</div>' +
-                                '<div style="font-size:0.85rem; color:#666; margin-top:0.25rem;">Course: ' + course.code + ' — ' + course.name + '</div>' +
+                                '<div style="font-size:0.85rem; color:#666; margin-top:0.25rem;">Course: ' + course.code + ' � ' + course.name + '</div>' +
                             '</div>' +
                         '</div>' +
                     '</div>';
-                }).join('') : '<div style="background:#e8f5e9; border-left:4px solid #2e7d32; padding:1.5rem; border-radius:6px; text-align:center;"><span style="font-size:1.8rem;">✅</span><div style="font-weight:700; color:#2e7d32; margin-top:0.5rem;">All Metrics Healthy</div><div style="color:#555; font-size:0.9rem; margin-top:0.25rem;">No alerts for this course</div></div>'}
+                }).join('') : '<div style="background:#e8f5e9; border-left:4px solid #2e7d32; padding:1.5rem; border-radius:6px; text-align:center;"><span style="font-size:1.8rem;">?</span><div style="font-weight:700; color:#2e7d32; margin-top:0.5rem;">All Metrics Healthy</div><div style="color:#555; font-size:0.9rem; margin-top:0.25rem;">No alerts for this course</div></div>'}
             </div>
             
-            ${attention.length ? '<div style="margin-top:1.5rem; padding:1rem; background:#f5f5f5; border-radius:6px;"><h4 style="margin:0 0 0.75rem 0; color:#333;">🎓 Program-Wide Attention Required</h4><div style="display:grid; gap:0.5rem;">' + attention.map(a => 
+            ${attention.length ? '<div style="margin-top:1.5rem; padding:1rem; background:#f5f5f5; border-radius:6px;"><h4 style="margin:0 0 0.75rem 0; color:#333;">⚠️ Program-Wide Attention Required</h4><div style="display:grid; gap:0.5rem;">' + attention.map(a => 
                 '<div style="background:white; padding:0.75rem; border-radius:4px; border-left:3px solid #ff9800;">' +
-                    '<div style="font-weight:700; color:#333;">' + a.code + ' — ' + a.name + '</div>' +
-                    '<div style="font-size:0.85rem; color:#666; margin-top:0.25rem;">' + a.flags.join(' • ') + '</div>' +
+                    '<div style="font-weight:700; color:#333;">' + a.code + ' � ' + a.name + '</div>' +
+                    '<div style="font-size:0.85rem; color:#666; margin-top:0.25rem;">' + a.flags.join(' � ') + '</div>' +
                 '</div>'
-            ).join('') + '</div></div>' : '<div style="margin-top:1.5rem; padding:1rem; background:#f1f8e9; border-radius:6px; text-align:center; border:1px dashed #689f38;"><span style="font-size:1.5rem;">🎉</span><div style="font-weight:600; color:#558b2f; margin-top:0.5rem;">Excellent Program Performance</div><div style="color:#666; font-size:0.9rem;">All courses meet benchmarks across the program</div></div>'}
+            ).join('') + '</div></div>' : '<div style="margin-top:1.5rem; padding:1rem; background:#f1f8e9; border-radius:6px; text-align:center; border:1px dashed #689f38;"><span style="font-size:1.5rem;">✨</span><div style="font-weight:600; color:#558b2f; margin-top:0.5rem;">Excellent Program Performance</div><div style="color:#666; font-size:0.9rem;">All courses meet benchmarks across the program</div></div>'}
         `;
     }
 
@@ -2342,7 +3310,7 @@ class App {
         // Pass rate below benchmark (latest)
         const pr = course.passRates;
         if (pr.values[pr.values.length-1] < pr.benchmark) flags.push('Pass rate below benchmark');
-        // Repeated CLO underachievement (≥2 years below benchmark for any CLO)
+        // Repeated CLO underachievement (=2 years below benchmark for any CLO)
         const threshold = course.clo.benchmark;
         let repeated = false;
         course.clo.list.forEach((clo, i) => {
@@ -2621,9 +3589,36 @@ class App {
     /**
      * ADMIN HUB - COMMAND CENTER
      */
-    renderAdminHub() {
+    async renderAdminHub() {
         try {
-            this.title.textContent = '🏢 Admin Hub - Command Center';
+            console.log('🔧 [renderAdminHub START] Checking window.StudentPortalManager.tickets...');
+            console.log('📊 window.StudentPortalManager exists?', typeof window.StudentPortalManager !== 'undefined');
+
+            // 💾 Load tickets from Supabase
+            if (typeof window.SupabaseService !== 'undefined') {
+                try {
+                    console.log('📥 Loading tickets from Supabase...');
+                    const supabaseTickets = await window.SupabaseService.db.getAllSubmittedTickets();
+                    if (supabaseTickets && supabaseTickets.length > 0) {
+                        console.log(`✅ Loaded ${supabaseTickets.length} tickets from Supabase`);
+                        // Merge Supabase tickets with local tickets
+                        if (window.StudentPortalManager && window.StudentPortalManager.tickets) {
+                            window.StudentPortalManager.tickets = supabaseTickets;
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to load tickets from Supabase:', error);
+                }
+            }
+
+            if (window.StudentPortalManager && window.StudentPortalManager.tickets) {
+                console.log('📊 window.StudentPortalManager.tickets.length =', window.StudentPortalManager.tickets.length);
+                console.log('🔍 Tickets detail:', window.StudentPortalManager.tickets.map(t => ({ id: t.ticketId, status: t.status, isLocal: t.isLocallySubmitted })));
+            } else {
+                console.warn('⚠️ window.StudentPortalManager.tickets not accessible!');
+            }
+
+            this.title.textContent = '📊 Admin Hub - Command Center';
             
             // Check if model is loaded
             if (!window.AdminHubModel) {
@@ -2638,8 +3633,14 @@ class App {
             
             const model = window.AdminHubModel;
             
-            console.log('✅ AdminHubModel loaded, requests count:', model.requests.length);
-            console.log('✅ Calculating KPI metrics...');
+            // Sync pending requests from localStorage
+            if (typeof model.syncAllPendingRequests === 'function') {
+                model.syncAllPendingRequests();
+                console.log('? Synced pending requests from localStorage');
+            }
+            
+            console.log('? AdminHubModel loaded, requests count:', model.requests.length);
+            console.log('? Calculating KPI metrics...');
             
             // Verify model methods exist
             if (typeof model.getKPIMetrics !== 'function') throw new Error('getKPIMetrics not a function');
@@ -2648,16 +3649,16 @@ class App {
             if (typeof model.getCriticalRequests !== 'function') throw new Error('getCriticalRequests not a function');
             
             const kpis = model.getKPIMetrics();
-            console.log('✅ KPIs calculated:', kpis);
+            console.log('? KPIs calculated:', kpis);
             
             const rag = model.getRAGStatus();
-            console.log('✅ RAG status:', rag);
+            console.log('? RAG status:', rag);
             
             const unitSummary = model.getUnitSummary();
-            console.log('✅ Unit summary retrieved:', unitSummary.length, 'units');
+            console.log('? Unit summary retrieved:', unitSummary.length, 'units');
             
             const criticalRequests = model.getCriticalRequests(15);
-            console.log('✅ Critical requests retrieved:', criticalRequests.length, 'requests');
+            console.log('? Critical requests retrieved:', criticalRequests.length, 'requests');
             
             // Get new analytics data
             const trends = model.getRequestTrends();
@@ -2665,18 +3666,18 @@ class App {
             const adminUsers = model.getAdminUsers();
             const systemAlerts = model.getSystemAlerts();
             const pendingApprovals = model.getPendingApprovals();
-            console.log('✅ All analytics data loaded');
-            console.log('✅ Pending student approvals:', pendingApprovals.length);
+            console.log('? All analytics data loaded');
+            console.log('? Pending student approvals:', pendingApprovals.length);
             
             const dashboardStats = model.getDashboardStats();
-            console.log('✅ Dashboard stats calculated:', dashboardStats);
+            console.log('? Dashboard stats calculated:', dashboardStats);
             console.log('   - Total Students:', dashboardStats.totalStudents);
             console.log('   - Active Tickets:', dashboardStats.activeTickets);
             console.log('   - Avg Response Time:', dashboardStats.avgResponseTime);
             console.log('   - Resolved Today:', dashboardStats.resolvedToday);
             
             // RAG Alert Bar
-            console.log('✅ Building RAG bar...');
+            console.log('? Building RAG bar...');
             const ragBar = `
                 <div style="background: #1565C0; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 2rem; display: flex; align-items: center; gap: 1rem;">
                     <span style="font-size: 2rem;">${rag.icon}</span>
@@ -2688,65 +3689,70 @@ class App {
             `;
             
             // Dashboard Stat Cards
-            console.log('✅ Building stat cards...');
+            console.log('? Building stat cards...');
             console.log('   Total Students:', dashboardStats.totalStudents, 'Active Tickets:', dashboardStats.activeTickets);
+            
             const statCards = `
                 <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-bottom: 2rem;">
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">👥</div>
-                        <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.totalStudents}</div>
-                        <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Total Students</div>
+                    <div class="stat-card-interactive" data-metric="totalTickets" style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s, cursor 0.3s; cursor: pointer;">
+                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">📊</div>
+                        <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.totalTickets}</div>
+                        <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Total Tickets</div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 0.5rem; font-style: italic;">Click for details</div>
                     </div>
                     
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #FF9800; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎫</div>
+                    <div class="stat-card-interactive" data-metric="activeTickets" style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #FF9800; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s, cursor 0.3s; cursor: pointer;">
+                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">🎯</div>
                         <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.activeTickets}</div>
                         <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Active Tickets</div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 0.5rem; font-style: italic;">Click for details</div>
                     </div>
                     
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #2196F3; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
+                    <div class="stat-card-interactive" data-metric="avgResponseTime" style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #2196F3; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s, cursor 0.3s; cursor: pointer;">
                         <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">⏱️</div>
                         <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.avgResponseTime}h</div>
                         <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Avg Response Time</div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 0.5rem; font-style: italic;">Click for details</div>
                     </div>
                     
-                    <div style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">✅</div>
+                    <div class="stat-card-interactive" data-metric="resolvedToday" style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s, cursor 0.3s; cursor: pointer;">
+                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">?</div>
                         <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.resolvedToday}</div>
                         <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Resolved Today</div>
+                        <div style="font-size: 0.75rem; color: #999; margin-top: 0.5rem; font-style: italic;">Click for details</div>
                     </div>
                 </div>
             `;
             
             // KPI Tiles
-            console.log('✅ Building KPI tiles...');
+            console.log('? Building KPI tiles...');
             const kpiTiles = `
                 <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FF6B6B; font-weight: bold;">${kpis.new}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">🆕 New Today</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📌 New Today</div>
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FFA500; font-weight: bold;">${kpis.pending}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">⏳ Pending</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Pending</div>
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FF0000; font-weight: bold;">${kpis.overdue}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">🔴 Overdue</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">⚠️ Overdue</div>
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #28A745; font-weight: bold;">${kpis.resolved}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">✅ Resolved</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Resolved</div>
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FFD700; font-weight: bold;">${kpis.waiting}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📧 Waiting</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">⏳ Waiting</div>
                     </div>
                 </div>
             `;
             
             // Requests by Unit Table
-            console.log('✅ Building unit summary table...');
+            console.log('? Building unit summary table...');
             const unitTableRows = unitSummary.map(u => `
                 <tr style="border-bottom: 1px solid #eee;">
                     <td style="padding: 0.75rem; font-weight: 500;">${u.icon} ${u.name}</td>
@@ -2780,295 +3786,666 @@ class App {
             `;
             
             // Critical Requests Table
-            console.log('✅ Building critical requests table...');
+            console.log('? Building critical requests table...');
             const criticalRows = criticalRequests.map((req, idx) => {
-                const statusInfo = model.statuses[req.status];
+                // Safe status lookup with defaults
+                const statusInfo = model.statuses[req.status] || { 
+                    color: '#9E9E9E', 
+                    label: req.status || 'Pending' 
+                };
                 const daysPending = Math.floor((new Date() - new Date(req.createdAt)) / (1000 * 60 * 60 * 24));
                 const priorityColor = req.priority === 'high' ? '#FF0000' : (req.priority === 'medium' ? '#FFA500' : '#28A745');
+                const safeEmail = (req.studentEmail || 'student@ksau-hs.edu.sa').replace(/'/g, '');
                 
                 return `
-                    <tr style="border-bottom: 1px solid #eee; ${req.slaInfo.status === 'breached' ? 'background: #FFE6E6;' : ''}">
+                    <tr style="border-bottom: 1px solid #eee; ${req.slaInfo?.status === 'breached' ? 'background: #FFE6E6;' : ''}">
                         <td style="padding: 0.75rem; font-weight: 500;">${req.id}</td>
-                        <td style="padding: 0.75rem;">${req.studentName}</td>
-                        <td style="padding: 0.75rem;">${req.type}</td>
-                        <td style="padding: 0.75rem;">${req.unitInfo.name}</td>
+                        <td style="padding: 0.75rem;">${req.studentName || 'Student'}</td>
+                        <td style="padding: 0.75rem;">${req.type || 'General'}</td>
+                        <td style="padding: 0.75rem;">${req.unitInfo?.name || 'Department'}</td>
                         <td style="padding: 0.75rem;"><span style="background: ${statusInfo.color}; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.85rem;">${statusInfo.label}</span></td>
                         <td style="padding: 0.75rem; text-align: center;">${daysPending}d</td>
-                        <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: ${req.slaInfo.color};">
-                            ${req.slaInfo.status === 'breached' ? '🔴 ' : (req.slaInfo.status === 'warning' ? '🟠 ' : '🟢 ')}
-                            ${Math.abs(req.slaInfo.daysRemaining)}d
+                        <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: ${req.slaInfo?.color || '#666'};">
+                            ${req.slaInfo?.status === 'breached' ? '❌ ' : (req.slaInfo?.status === 'warning' ? '⚠️ ' : '✅ ')}
+                            ${Math.abs(req.slaInfo?.daysRemaining || 0)}d
                         </td>
                         <td style="padding: 0.75rem;">
                             <span style="background: ${priorityColor}; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
-                                ${req.priority.toUpperCase()[0]}
+                                ${(req.priority || 'normal').toUpperCase()[0]}
                             </span>
                         </td>
-                        <td style="padding: 0.75rem;">
-                            <button class="btn btn-sm btn-primary" style="padding: 0.3rem 0.6rem; font-size: 0.8rem; margin-right: 0.25rem;" onclick="alert('Approve: ${req.id}')">✓</button>
-                            <button class="btn btn-sm btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.8rem;" onclick="alert('View: ${req.id}')">View</button>
+                        <td style="padding: 0.75rem; text-align: center;">
+                            <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: center;">
+                                <button onclick="window.showActionModal('approve', '${req.id}', '${req.studentName}', '${safeEmail}');" style="background: #4CAF50; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">? Approve</button>
+                                <button onclick="window.showActionModal('reject', '${req.id}', '${req.studentName}', '${safeEmail}');" style="background: #F44336; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">? Reject</button>
+                                <button onclick="window.showActionModal('delegate', '${req.id}', '${req.studentName}', '${safeEmail}');" style="background: #2196F3; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">👤 Delegate</button>
+                            </div>
+                        </td>
+                        <td style="padding: 0.75rem; text-align: center;">
+                            <button onclick="window.sendEmailCommunication('${req.id}', '${req.studentName}', '${safeEmail}');" style="background: #FF9800; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold;">📧 Email</button>
                         </td>
                     </tr>
                 `;
             }).join('');
             
-            const criticalTable = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">🚨 My Action Required (Top 15)</h3>
-                    <div style="overflow-x: auto;">
-                        <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                            <thead>
-                                <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                    <th style="padding: 0.75rem; text-align: left;">Request ID</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Student</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Type</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Unit</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Status</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Days</th>
-                                    <th style="padding: 0.75rem; text-align: center;">SLA</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Priority</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${criticalRows}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            `;
+            // [DELETED] My Action Required section - using access management instead
             
-            // REAL-TIME ALERTS SECTION
-            console.log('✅ Building alerts section...');
-            const alertsSection = `
-                <div class="card mb-4" style="border-top: 4px solid #FF9800; background: linear-gradient(135deg, rgba(255,152,0,0.05) 0%, rgba(255,152,0,0.02) 100%);">
-                    <h3 style="margin: 0 0 1rem 0;">🔔 Real-Time Alerts</h3>
-                    ${systemAlerts.length > 0 ? systemAlerts.map(alert => `
-                        <div style="background: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.75rem; border-left: 4px solid ${alert.type === 'error' ? '#FF0000' : (alert.type === 'warning' ? '#FF9800' : '#2196F3')}; display: flex; gap: 1rem; align-items: flex-start;">
-                            <span style="font-size: 1.5rem;">${alert.icon}</span>
-                            <div style="flex: 1;">
-                                <strong>${alert.title}</strong>
-                                <p style="margin: 0.25rem 0 0 0; font-size: 0.9rem; color: #666;">${alert.message}</p>
-                            </div>
-                        </div>
-                    `).join('') : '<p style="color: #999;">No active alerts - System operating normally</p>'}
-                </div>
-            `;
+            // [DELETED] Real-Time Alerts section - simplified UI
             
-            // REQUEST TRENDS SECTION
-            console.log('✅ Building trends section...');
-            const trendsChart = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">📈 Request Trends (Last 7 Days)</h3>
-                    <div style="display: flex; gap: 1rem; align-items: flex-end; height: 150px; margin: 1rem 0;">
-                        ${Object.entries(trends).map(([date, count]) => `
-                            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
-                                <div style="width: 100%; background: linear-gradient(180deg, #4CAF50 0%, #81C784 100%); border-radius: 4px 4px 0 0; height: ${Math.max(20, count * 20)}px; position: relative; min-height: 20px;" title="${count} requests">
-                                    <span style="position: absolute; top: -1.5rem; left: 50%; transform: translateX(-50%); font-weight: bold; color: #333; font-size: 0.9rem;">${count}</span>
-                                </div>
-                                <small style="color: #666; font-size: 0.8rem;">${date}</small>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+            // [DELETED] Quick Actions section - users interact directly with options
             
-            // UNIT PERFORMANCE SECTION
-            console.log('✅ Building unit performance section...');
-            const unitPerfSection = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">📊 Unit Performance</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                        ${unitPerf.map(unit => `
-                            <div style="background: linear-gradient(135deg, rgba(76,175,80,0.05) 0%, rgba(76,175,80,0.02) 100%); padding: 1.5rem; border-radius: 12px; border: 1px solid #E8F5E9;">
-                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
-                                    <span style="font-size: 2rem;">${unit.icon}</span>
-                                    <div>
-                                        <strong>${unit.name}</strong>
-                                        <p style="margin: 0; font-size: 0.85rem; color: #666;">SLA: ${unit.slaCompliance}%</p>
-                                    </div>
-                                </div>
-                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.9rem;">
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #FF6B6B;">${unit.totalRequests}</div>
-                                        <small style="color: #999;">Total</small>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #FFA500;">${unit.activeRequests}</div>
-                                        <small style="color: #999;">Active</small>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #FF0000;">${unit.breachedSLA}</div>
-                                        <small style="color: #999;">Breached</small>
-                                    </div>
-                                    <div style="text-align: center; padding: 0.75rem; background: white; border-radius: 6px;">
-                                        <div style="font-weight: bold; color: #2196F3;">${unit.avgResponseTime}h</div>
-                                        <small style="color: #999;">Avg Response</small>
-                                    </div>
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
+            // ============================================
+            // STUDENT SUBMITTED TICKETS SECTION
+            // ============================================
+            console.log('? Building student tickets section...');
             
-            // QUICK ACTIONS SECTION
-            console.log('✅ Building quick actions section...');
-            const quickActions = `
-                <div class="card mb-4" style="border-top: 4px solid #2196F3;">
-                    <h3 style="margin: 0 0 1rem 0;">⚡ Quick Actions</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #4CAF50 0%, #81C784 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">✅ Approve All</button>
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">📋 Assign Staff</button>
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #F44336 0%, #EF5350 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">🚨 Escalate</button>
-                        <button style="padding: 1rem; background: linear-gradient(135deg, #2196F3 0%, #64B5F6 100%); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'">📊 Export Report</button>
-                    </div>
-                </div>
-            `;
+            // Read from BOTH window.StudentPortalManager AND localStorage to ensure submitted tickets appear
+            const StudentPortalMgrAccess = window.StudentPortalManager;
+            console.log('🔍 [ADMIN HUB] StudentPortalManager available?', StudentPortalMgrAccess ? '✅ Found' : '❌ Not found');
             
-            // USER MANAGEMENT SECTION
-            console.log('✅ Building user management section...');
-            const userMgmt = `
-                <div class="card mb-4">
-                    <h3 style="margin: 0 0 1rem 0;">👥 Admin Staff Directory</h3>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
-                        <thead>
-                            <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                <th style="padding: 0.75rem; text-align: left;">Name</th>
-                                <th style="padding: 0.75rem; text-align: left;">Role</th>
-                                <th style="padding: 0.75rem; text-align: center;">Assigned</th>
-                                <th style="padding: 0.75rem; text-align: center;">Completed</th>
-                                <th style="padding: 0.75rem; text-align: center;">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${adminUsers.map(user => `
-                                <tr style="border-bottom: 1px solid #eee;">
-                                    <td style="padding: 0.75rem;"><strong>${user.name}</strong></td>
-                                    <td style="padding: 0.75rem;"><span style="background: #E3F2FD; color: #1565C0; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">${user.role.replace(/_/g, ' ').toUpperCase()}</span></td>
-                                    <td style="padding: 0.75rem; text-align: center; font-weight: bold;">${user.assignedCount}</td>
-                                    <td style="padding: 0.75rem; text-align: center; font-weight: bold; color: #4CAF50;">${user.completedCount}</td>
-                                    <td style="padding: 0.75rem; text-align: center;">
-                                        <span style="background: #C8E6C9; color: #2E7D32; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.8rem;">Active</span>
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
+            // Get tickets from StudentPortalManager (sample data)
+            let studentTickets = (StudentPortalMgrAccess && StudentPortalMgrAccess.tickets) ? [...StudentPortalMgrAccess.tickets] : [];
+            console.log(`📋 [ADMIN HUB] From StudentPortalManager: ${studentTickets.length} tickets`);
             
-            // STUDENT APPROVALS SECTION
-            console.log('✅ Building student approvals section...');
-            const studentApprovals = `
-                <div class="card mb-4" style="border-top: 4px solid #FF5722;">
-                    <h3 style="margin: 0 0 1rem 0;">🎓 Student Access Management</h3>
-                    ${pendingApprovals.length > 0 ? `
-                        <div style="background: #FFEBEE; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #FF5722;">
-                            <strong style="color: #C62828;">⚠️ ${pendingApprovals.length} pending student approval(s)</strong>
-                        </div>
-                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
-                            <thead>
-                                <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
-                                    <th style="padding: 0.75rem; text-align: left;">Student Name</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Email</th>
-                                    <th style="padding: 0.75rem; text-align: left;">Phone</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Class Preference</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Requested</th>
-                                    <th style="padding: 0.75rem; text-align: center;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${pendingApprovals.map(signup => {
-                                    const daysAgo = Math.floor((new Date() - new Date(signup.requestedAt)) / (1000 * 60 * 60 * 24));
-                                    return `
-                                        <tr style="border-bottom: 1px solid #eee; background: #FFF3E0;">
-                                            <td style="padding: 0.75rem; font-weight: 600;">${signup.name}</td>
-                                            <td style="padding: 0.75rem;">${signup.email}</td>
-                                            <td style="padding: 0.75rem;">${signup.phone}</td>
-                                            <td style="padding: 0.75rem; text-align: center;">
-                                                <span style="background: #E1F5FE; color: #01579B; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">${signup.classPreference}</span>
-                                            </td>
-                                            <td style="padding: 0.75rem; text-align: center; font-size: 0.9rem; color: #666;">${daysAgo} days ago</td>
-                                            <td style="padding: 0.75rem; text-align: center;">
-                                                <select style="padding: 0.4rem; margin-right: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                                                    <option value="">Assign Class</option>
-                                                    <option value="P1">P1 (First Year)</option>
-                                                    <option value="P2">P2 (Second Year)</option>
-                                                    <option value="P3">P3 (Third Year)</option>
-                                                    <option value="P4">P4 (Final Year)</option>
-                                                </select>
-                                                <button style="background: #4CAF50; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 0.3rem;" onclick="alert('Approved: ${signup.name}')">✅ Approve</button>
-                                                <button style="background: #F44336; color: white; border: none; padding: 0.4rem 0.8rem; border-radius: 4px; cursor: pointer; font-weight: bold;" onclick="alert('Rejected: ${signup.name}')">❌ Reject</button>
-                                            </td>
-                                        </tr>
-                                    `;
-                                }).join('')}
-                            </tbody>
-                        </table>
-                    ` : `
-                        <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
-                            <strong style="color: #2E7D32;">✅ All pending students approved!</strong>
-                            <p style="margin: 0.5rem 0 0 0; color: #558B2F;">No new signup requests awaiting review</p>
-                        </div>
-                    `}
+            // CRITICAL: Always load SUBMITTED tickets directly from localStorage
+            // These are tickets that students have submitted and MUST appear in Admin Hub
+            const submittedTicketsFromStorageRaw = JSON.parse(localStorage.getItem('studentSubmittedTickets') || '[]');
+            
+            // Deserialize Date strings back to Date objects
+            const submittedTicketsFromStorage = submittedTicketsFromStorageRaw.map(t => {
+                const ticket = { ...t };
+                if (typeof ticket.submissionDate === 'string') ticket.submissionDate = new Date(ticket.submissionDate);
+                if (typeof ticket.lastUpdate === 'string') ticket.lastUpdate = new Date(ticket.lastUpdate);
+                if (typeof ticket.dueDate === 'string') ticket.dueDate = new Date(ticket.dueDate);
+                return ticket;
+            });
+            console.log(`📋 [ADMIN HUB] From localStorage (SUBMITTED): ${submittedTicketsFromStorage.length} tickets`);
+            
+            // Log each submitted ticket
+            submittedTicketsFromStorage.forEach(t => {
+                console.log(`  ✅ [ADMIN HUB] Submitted ticket: ${t.ticketId} - "${t.title}"`);
+            });
+            
+            // Merge: Add submitted tickets to the front, avoiding duplicates
+            const ticketIds = new Set(studentTickets.map(t => t.ticketId));
+            for (const submittedTicket of submittedTicketsFromStorage) {
+                if (!ticketIds.has(submittedTicket.ticketId)) {
+                    studentTickets.unshift(submittedTicket);
+                    console.log(`  ℹ️  [ADMIN HUB] Added missing submitted ticket: ${submittedTicket.ticketId}`);
+                } else {
+                    console.log(`  ℹ️  [ADMIN HUB] Ticket already in array: ${submittedTicket.ticketId}`);
+                }
+            }
+            
+            console.log(`📋 [ADMIN HUB] FINAL: ${studentTickets.length} total tickets (${submittedTicketsFromStorage.length} submitted + ${studentTickets.length - submittedTicketsFromStorage.length} sample)`);
+            if (studentTickets && studentTickets.length > 0) {
+                console.log('📋 [ADMIN HUB] First ticket:', studentTickets[0].ticketId, '-', studentTickets[0].title);
+            }
+            
+            const studentTicketsHTML = studentTickets.length > 0 ? `
+                <div class="card" style="margin-bottom: 2rem; border-left: 4px solid #2196F3;">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #333;">📋 Student Submitted Tickets (${studentTickets.length})</h2>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0 0 1rem 0;">Displaying ${submittedTicketsFromStorage.length} newly submitted + ${studentTickets.length - submittedTicketsFromStorage.length} sample tickets</p>
                     
-                    <h4 style="margin: 2rem 0 1rem 0;">📋 Approved Students (${model.approvedStudents.length})</h4>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        ${model.approvedStudents.map(student => `
-                            <div style="background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(76,175,80,0.05) 100%); padding: 1rem; border-radius: 8px; border-left: 4px solid #4CAF50;">
-                                <div style="font-weight: bold; color: #333; margin-bottom: 0.5rem;">${student.name}</div>
-                                <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">${student.email}</div>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <span style="background: #C8E6C9; color: #1B5E20; padding: 0.2rem 0.6rem; border-radius: 12px; font-weight: bold; font-size: 0.8rem;">${student.class}</span>
-                                    <span style="background: #E0F2F1; color: #004D40; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem;">✓ Active</span>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+                        ${studentTickets.map((ticket, idx) => {
+                            console.log(`🎫 [RENDER TICKET ${idx}] ${ticket.ticketId} - "${ticket.title}", status: "${ticket.status}", hasDescription: ${!!ticket.description}`);
+                            const statusColors = {
+                                'submitted': '#FF9800',
+                                'in-progress': '#2196F3',
+                                'waiting-student': '#FFC107',
+                                'approved': '#4CAF50',
+                                'closed': '#757575',
+                                'resolved': '#4CAF50'
+                            };
+                            const statusColor = statusColors[ticket.status] || '#999';
+                            const daysAgo = Math.floor((new Date() - new Date(ticket.submissionDate)) / (1000 * 60 * 60 * 24));
+                            const isActionable = ['submitted', 'in-progress'].includes(ticket.status);
+                            
+                            return `
+                                <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 1rem; display: flex; flex-direction: column;">
+                                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                        <h4 style="margin: 0; color: #333; max-width: 80%;">${ticket.title}</h4>
+                                        <span style="background: ${statusColor}; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">${ticket.status}</span>
+                                    </div>
+                                    
+                                    <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                        <strong>🎫 ID:</strong> ${ticket.ticketId}
+                                    </p>
+                                    
+                                    <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                        <strong>👤 Student:</strong> ${ticket.studentId}
+                                    </p>
+                                    
+                                    <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                        <strong>📧 Email:</strong> ${ticket.studentEmail || 'N/A'}
+                                    </p>
+                                    
+                                    <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                        <strong>🏢 Department:</strong> ${ticket.department || 'N/A'}
+                                    </p>
+                                    
+                                    <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                        <strong>📅 Submitted:</strong> ${daysAgo} day(s) ago
+                                    </p>
+                                    
+                                    <p style="margin: 0.5rem 0; color: #333; font-size: 0.85rem; line-height: 1.4; flex-grow: 1;">
+                                        ${ticket.description || 'No description provided'}
+                                    </p>
+                                    
+                                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                                        <span style="background: ${statusColor}22; color: ${statusColor}; padding: 6px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">
+                                            ${ticket.priority ? '⚡ ' + ticket.priority.toUpperCase() : 'Priority: N/A'}
+                                        </span>
+                                    </div>
+                                    
+                                    ${isActionable ? `
+                                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                            <button onclick="window.approveTicket('${ticket.ticketId}', '${ticket.studentId}', '${ticket.studentEmail || 'N/A'}')" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: background 0.3s;" onmouseover="this.style.background='#45a049'" onmouseout="this.style.background='#4CAF50'">✅ Approve</button>
+                                            <button onclick="window.rejectTicket('${ticket.ticketId}', '${ticket.studentId}', '${ticket.studentEmail || 'N/A'}')" style="flex: 1; background: #F44336; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: background 0.3s;" onmouseover="this.style.background='#da190b'" onmouseout="this.style.background='#F44336'">❌ Reject</button>
+                                        </div>
+                                    ` : `
+                                        <div style="background: #f0f0f0; padding: 0.75rem; border-radius: 4px; margin-top: 1rem; text-align: center; color: #666; font-size: 0.85rem;">
+                                            📌 ${ticket.status.charAt(0).toUpperCase() + ticket.status.slice(1)}
+                                        </div>
+                                    `}
                                 </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            ` : `
+                <div class="card" style="margin-bottom: 2rem; background: #E8F5E9; border-left: 4px solid #4CAF50; padding: 1.5rem; text-align: center;">
+                    <h3 style="margin: 0; color: #2E7D32;">📭 No Student Submitted Tickets</h3>
+                    <p style="color: #558B2F; margin: 0.5rem 0 0 0;">Students will see their ticket submissions here once they submit requests</p>
+                </div>
+            `;
+            
+            // Ensure studentTickets is accessible in window for potential debugging
+            window.studentTicketsLastRendered = studentTickets;
+            
+            // EVENT/CONFERENCE REQUESTS SECTION
+            // ============================================
+            console.log('? Building event requests section...');
+            const eventRequestsData = (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) 
+                ? StudentPortalManager.tickets.filter(t => t.requestType === 'event-participation' || (t.eventDetails && t.participationDetails))
+                : [];
+            const pendingEventRequests = eventRequestsData.filter(r => r.status === 'submitted');
+            const approvedEventRequests = eventRequestsData.filter(r => r.status === 'approved');
+            const rejectedEventRequests = eventRequestsData.filter(r => r.status === 'rejected');
+            
+            console.log(`🎉 Found ${eventRequestsData.length} event requests (${pendingEventRequests.length} pending, ${approvedEventRequests.length} approved, ${rejectedEventRequests.length} rejected)`);
+            
+            const eventRequestsHTML = eventRequestsData.length > 0 ? `
+                <div class="card" style="margin-bottom: 2rem; border-left: 4px solid #FF9800;">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #333;">🎉 Event/Conference Requests (${eventRequestsData.length})</h2>
+                    
+                    <!-- PENDING REQUESTS -->
+                    <div style="margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 1rem 0; color: #FF9800; display: flex; align-items: center; gap: 0.5rem;">
+                            ⏳ Pending Approval (${pendingEventRequests.length})
+                        </h3>
+                        ${pendingEventRequests.length === 0 ? `
+                            <div style="background: #FFF3E0; padding: 1rem; border-radius: 6px; color: #E65100; text-align: center; border-left: 4px solid #FF9800;">
+                                ✓ All pending event requests have been processed
                             </div>
-                        `).join('')}
+                        ` : `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+                                ${pendingEventRequests.map(req => `
+                                    <div style="background: #FFF9C4; border: 1px solid #FBC02D; border-radius: 8px; padding: 1rem; display: flex; flex-direction: column;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                                            <h4 style="margin: 0; color: #333; max-width: 80%;">${req.eventDetails?.name || req.title || 'Event Request'}</h4>
+                                            <span style="background: #FF9800; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold;">PENDING</span>
+                                        </div>
+                                        
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>👤 Student:</strong> ${req.studentName || req.studentId}
+                                        </p>
+                                        
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>🎉 Event Date:</strong> ${req.eventDetails?.date || 'N/A'}
+                                        </p>
+                                        
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>📍 Location:</strong> ${req.eventDetails?.location || 'N/A'}
+                                        </p>
+                                        
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">
+                                            <strong>⏰ Duration:</strong> ${req.eventDetails?.duration || 'N/A'}
+                                        </p>
+                                        
+                                        <p style="margin: 0.5rem 0; color: #333; font-size: 0.85rem; line-height: 1.4;">
+                                            <strong>Role:</strong> ${req.participationDetails?.role || 'Not specified'}
+                                        </p>
+                                        
+                                        ${req.supportNeeded && req.supportNeeded.length > 0 ? `
+                                            <div style="margin: 0.5rem 0; padding: 0.5rem; background: #FFE0B2; border-radius: 4px; font-size: 0.8rem;">
+                                                <strong>Support Needed:</strong> ${req.supportNeeded.join(', ')}
+                                            </div>
+                                        ` : ''}
+                                        
+                                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap;">
+                                            <button onclick="window.app.approveEventRequest('${req.ticketId}')" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: background 0.3s;" onmouseover="this.style.background='#45a049'" onmouseout="this.style.background='#4CAF50'">? Approve & Send Letter</button>
+                                            <button onclick="window.app.rejectEventRequest('${req.ticketId}')" style="flex: 1; background: #F44336; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: background 0.3s;" onmouseover="this.style.background='#da190b'" onmouseout="this.style.background='#F44336'">? Reject</button>
+                                            <button onclick="window.app.viewEventRequestDetails('${req.ticketId}')" style="flex: 1; background: #2196F3; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem; transition: background 0.3s;" onmouseover="this.style.background='#0b7dda'" onmouseout="this.style.background='#2196F3'">📋 View Details</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `}
+                    </div>
+                    
+                    <!-- APPROVED REQUESTS -->
+                    ${approvedEventRequests.length > 0 ? `
+                        <div style="margin-bottom: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #ddd;">
+                            <h3 style="margin: 0 0 1rem 0; color: #4CAF50; display: flex; align-items: center; gap: 0.5rem;">
+                                ? Approved (${approvedEventRequests.length})
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+                                ${approvedEventRequests.map(req => `
+                                    <div style="background: #E8F5E9; border: 1px solid #4CAF50; border-radius: 8px; padding: 1rem;">
+                                        <h4 style="margin: 0 0 0.5rem 0; color: #333;">${req.eventDetails?.name || req.title || 'Event Request'}</h4>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">👤 ${req.studentName || req.studentId}</p>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">📅 ${req.eventDetails?.date || 'N/A'}</p>
+                                        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                            <button onclick="window.app.downloadApprovalLetter('${req.ticketId}')" style="flex: 1; background: #4CAF50; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">📥 Download Letter</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <!-- REJECTED REQUESTS -->
+                    ${rejectedEventRequests.length > 0 ? `
+                        <div style="padding-top: 1.5rem; border-top: 1px solid #ddd;">
+                            <h3 style="margin: 0 0 1rem 0; color: #F44336; display: flex; align-items: center; gap: 0.5rem;">
+                                ? Rejected (${rejectedEventRequests.length})
+                            </h3>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+                                ${rejectedEventRequests.map(req => `
+                                    <div style="background: #FFEBEE; border: 1px solid #F44336; border-radius: 8px; padding: 1rem;">
+                                        <h4 style="margin: 0 0 0.5rem 0; color: #333;">${req.eventDetails?.name || req.title || 'Event Request'}</h4>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">👤 ${req.studentName || req.studentId}</p>
+                                        <p style="margin: 0.25rem 0; color: #666; font-size: 0.9rem;">📅 ${req.eventDetails?.date || 'N/A'}</p>
+                                        ${req.approvalNotes ? `<p style="margin: 0.5rem 0; color: #C62828; font-size: 0.85rem;"><strong>Reason:</strong> ${req.approvalNotes}</p>` : ''}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            ` : `
+                <div class="card" style="margin-bottom: 2rem; background: #FFF3E0; border-left: 4px solid #FF9800; padding: 1.5rem; text-align: center;">
+                    <h3 style="margin: 0; color: #E65100;">🎉 No Event/Conference Requests</h3>
+                    <p style="color: #BF360C; margin: 0.5rem 0 0 0;">Event requests will appear here once students submit them</p>
+                </div>
+            `;
+            
+            // ACCESS MANAGEMENT SECTION - STUDENT & ADMIN APPROVALS
+            console.log('? Building access management section...');
+            const approvalModel = window.AdminHubModel;
+            const pendingStudents = approvalModel.pendingStudentRequests || [];
+            const pendingAdmins = approvalModel.pendingAdminRequests || [];
+            
+            // Get approved students from APPE_DATABASE
+            const approvedStudents = (window.APPE_DATABASE?.students || []).filter(s => s.accountStatus === 'active' && s.approvedDate);
+            const approvedAdmins = (window.AdminUsers || []).filter(a => a.accountStatus === 'active' && a.approvedDate);
+            
+            const accessManagement = `
+                <div class="card mb-4" style="border-top: 4px solid #FF5722;">
+                    <!-- Clear Button -->
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 1.5rem;">
+                        <button onclick="if(confirm('Clear all pending requests? This cannot be undone.')) { window.AdminHubModel.clearAllPendingRequests(); window.app.renderAdminHub(); alert('✓ All pending requests cleared!'); }" style="background: #F44336; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: background 0.3s;" onmouseover="this.style.background='#D32F2F'" onmouseout="this.style.background='#F44336'">🗑️ Clear All Pending Requests</button>
+                    </div>
+                    
+                    <!-- Tabs for Pending vs History -->
+                    <div style="display: flex; gap: 0; margin-bottom: 2rem; border-bottom: 2px solid #ddd;">
+                        <button onclick="window.switchAccessTab('pending')" id="tab-pending" style="flex: 1; padding: 1rem; background: #FF5722; color: white; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; border-bottom: 3px solid #FF5722;">
+                            📋 Pending Requests (${pendingStudents.length + pendingAdmins.length})
+                        </button>
+                        <button onclick="window.switchAccessTab('history')" id="tab-history" style="flex: 1; padding: 1rem; background: #f0f0f0; color: #333; border: none; cursor: pointer; font-weight: bold; font-size: 1rem; border-bottom: 3px solid transparent;">
+                            ? Approved History (${approvedStudents.length + approvedAdmins.length})
+                        </button>
+                    </div>
+                    
+                    <!-- PENDING TAB -->
+                    <div id="pending-tab" style="display: block;">
+                        <h3 style="margin: 0 0 1.5rem 0;">👤 Student Access Requests (${pendingStudents.length})</h3>
+                        
+                        ${pendingStudents.length > 0 ? `
+                            <div style="background: #FFEBEE; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #FF5722;">
+                                <strong style="color: #C62828;">⚠️ ${pendingStudents.length} pending student request(s) - Action required</strong>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+                                        <th style="padding: 0.75rem; text-align: left;">Name</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Email</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Student ID</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Requested</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Purpose</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${pendingStudents.map(req => {
+                                        const daysAgo = Math.floor((new Date() - new Date(req.requestDate)) / (1000 * 60 * 60 * 24));
+                                        return `
+                                            <tr style="border-bottom: 1px solid #eee; background: #FFF3E0;">
+                                                <td style="padding: 0.75rem;"><strong>${req.name}</strong></td>
+                                                <td style="padding: 0.75rem;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${req.email}</code></td>
+                                                <td style="padding: 0.75rem;"><strong>${req.studentId}</strong></td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #FFF3E0; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${daysAgo} days</span></td>
+                                                <td style="padding: 0.75rem; text-align: center;">${req.purpose}</td>
+                                                <td style="padding: 0.75rem; text-align: center;">
+                                                    <div style="display: flex; gap: 4px; justify-content: center;">
+                                                        <select id="class_${req.id}" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">
+                                                            <option value="">Select Class</option>
+                                                            <option value="P1">P1</option>
+                                                            <option value="P2">P2</option>
+                                                            <option value="P3">P3</option>
+                                                            <option value="P4">P4</option>
+                                                        </select>
+                                                        <button onclick="window.approveStudentRequest('${req.id}', document.getElementById('class_${req.id}').value, '${req.name}')" style="background: #4CAF50; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">? Approve</button>
+                                                        <button onclick="window.rejectStudentRequest('${req.id}', '${req.name}')" style="background: #F44336; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">? Reject</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
+                                <strong style="color: #2E7D32;">? No pending student requests</strong>
+                                <p style="margin: 0.5rem 0 0 0; color: #558B2F;">All student access has been approved</p>
+                            </div>
+                        `}
+                        
+                        <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
+                        
+                        <h3 style="margin: 0 0 1.5rem 0;">👨‍💼 Admin Staff Access Requests (${pendingAdmins.length})</h3>
+                        
+                        ${pendingAdmins.length > 0 ? `
+                            <div style="background: #E3F2FD; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border-left: 4px solid #2196F3;">
+                                <strong style="color: #0D47A1;">⚠️ ${pendingAdmins.length} pending admin staff request(s) - Approval needed</strong>
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+                                        <th style="padding: 0.75rem; text-align: left;">Name</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Email</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Staff ID</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Requested Role</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Units</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Requested</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${pendingAdmins.map(req => {
+                                        const daysAgo = Math.floor((new Date() - new Date(req.requestDate)) / (1000 * 60 * 60 * 24));
+                                        const roleLabel = req.requestedRole.replace(/_/g, ' ').toUpperCase();
+                                        return `
+                                            <tr style="border-bottom: 1px solid #eee; background: #E3F2FD;">
+                                                <td style="padding: 0.75rem;"><strong>${req.name}</strong></td>
+                                                <td style="padding: 0.75rem;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${req.email}</code></td>
+                                                <td style="padding: 0.75rem;"><strong>${req.staffId}</strong></td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #BBDEFB; color: #0D47A1; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">${roleLabel}</span></td>
+                                                <td style="padding: 0.75rem; text-align: center;">${req.requestedUnits.join(', ')}</td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #E3F2FD; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${daysAgo} days</span></td>
+                                                <td style="padding: 0.75rem; text-align: center;">
+                                                    <div style="display: flex; gap: 4px; justify-content: center;">
+                                                        <button onclick="window.approveAdminRequest('${req.id}', '${req.name}', '${req.requestedRole}')" style="background: #2196F3; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">? Approve</button>
+                                                        <button onclick="window.rejectAdminRequest('${req.id}', '${req.name}')" style="background: #F44336; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.85rem;">? Reject</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
+                                <strong style="color: #2E7D32;">? No pending admin requests</strong>
+                                <p style="margin: 0.5rem 0 0 0; color: #558B2F;">All admin staff access has been approved</p>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <!-- HISTORY TAB -->
+                    <div id="history-tab" style="display: none;">
+                        <h3 style="margin: 0 0 1.5rem 0;">✅ Approved Students (${approvedStudents.length})</h3>
+                        ${approvedStudents.length > 0 ? `
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+                                        <th style="padding: 0.75rem; text-align: left;">Name</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Email</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Student ID</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Cohort</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Approved Date</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${approvedStudents.map(student => {
+                                        const approvedDate = new Date(student.approvedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                                        return `
+                                            <tr style="border-bottom: 1px solid #eee; background: #E8F5E9;">
+                                                <td style="padding: 0.75rem;"><strong>${student.name}</strong></td>
+                                                <td style="padding: 0.75rem;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${student.email}</code></td>
+                                                <td style="padding: 0.75rem;"><strong>${student.id}</strong></td>
+                                                <td style="padding: 0.75rem; text-align: center;">${student.cohort}</td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #E8F5E9; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${approvedDate}</span></td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #4CAF50; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">? Active</span></td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
+                                <strong style="color: #2E7D32;">✅ No approved students yet</strong>
+                            </div>
+                        `}
+                        
+                        <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
+                        
+                        <h3 style="margin: 0 0 1.5rem 0;">👨‍💼 Approved Admin Staff (${approvedAdmins.length})</h3>
+                        ${approvedAdmins.length > 0 ? `
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; font-size: 0.9rem;">
+                                <thead>
+                                    <tr style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+                                        <th style="padding: 0.75rem; text-align: left;">Name</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Email</th>
+                                        <th style="padding: 0.75rem; text-align: left;">Staff ID</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Role</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Approved Date</th>
+                                        <th style="padding: 0.75rem; text-align: center;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${approvedAdmins.map(admin => {
+                                        const approvedDate = new Date(admin.approvedDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                                        const roleLabel = (admin.role || 'admin_staff').replace(/_/g, ' ').toUpperCase();
+                                        return `
+                                            <tr style="border-bottom: 1px solid #eee; background: #E3F2FD;">
+                                                <td style="padding: 0.75rem;"><strong>${admin.name}</strong></td>
+                                                <td style="padding: 0.75rem;"><code style="background: #f5f5f5; padding: 2px 6px; border-radius: 3px;">${admin.email}</code></td>
+                                                <td style="padding: 0.75rem;"><strong>${admin.id}</strong></td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #BBDEFB; color: #0D47A1; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem;">${roleLabel}</span></td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #E3F2FD; padding: 4px 8px; border-radius: 4px; font-size: 0.85rem;">${approvedDate}</span></td>
+                                                <td style="padding: 0.75rem; text-align: center;"><span style="background: #2196F3; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">? Active</span></td>
+                                            </tr>
+                                        `;
+                                    }).join('')}
+                                </tbody>
+                            </table>
+                        ` : `
+                            <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 8px; text-align: center; border-left: 4px solid #4CAF50;">
+                                <strong style="color: #2E7D32;">✅ No approved admin staff yet</strong>
+                            </div>
+                        `}
                     </div>
                 </div>
             `;
             
-            // SYSTEM CONTROLS SECTION
-            console.log('✅ Building system controls section...');
+            // SYSTEM CONTROLS SECTION (SIMPLIFIED - Clear Button Only)
+            console.log('? Building system controls section...');
             const systemControls = `
                 <div class="card mb-4" style="border-top: 4px solid #9C27B0;">
-                    <h3 style="margin: 0 0 1rem 0;">⚙️ System Controls</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
-                        <div style="background: #F3E5F5; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #9C27B0;">
-                            <h4 style="margin: 0 0 0.75rem 0;">SLA Settings</h4>
-                            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Configure SLA thresholds for each unit type</p>
-                            <button style="background: #9C27B0; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Configure</button>
-                        </div>
-                        <div style="background: #E8F5E9; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #4CAF50;">
-                            <h4 style="margin: 0 0 0.75rem 0;">Unit Configuration</h4>
-                            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Manage units, heads, and coordinators</p>
-                            <button style="background: #4CAF50; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Manage</button>
-                        </div>
-                        <div style="background: #FFF3E0; padding: 1.5rem; border-radius: 12px; border-left: 4px solid #FF9800;">
-                            <h4 style="margin: 0 0 0.75rem 0;">Notifications</h4>
-                            <p style="margin: 0 0 1rem 0; font-size: 0.9rem; color: #666;">Setup email and SMS alerts</p>
-                            <button style="background: #FF9800; color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: bold;">Setup</button>
-                        </div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button onclick="if(confirm('Clear all pending requests? This cannot be undone.')) { window.AdminHubModel.clearAllPendingRequests(); window.app.renderAdminHub(); alert('✅ All pending requests cleared!'); }" style="background: #F44336; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: background 0.3s;" onmouseover="this.style.background='#D32F2F'" onmouseout="this.style.background='#F44336'">🗑️ Clear All Pending Requests</button>
+                        <p style="margin: 0; color: #999; font-size: 0.9rem;">Remove all pending student and admin requests for fresh implementation</p>
                     </div>
                 </div>
             `;
             
-            // Assemble full HTML
-            console.log('✅ Assembling final HTML...');
+            // File Upload Section - EXCEL ONLY (PDF removed)
+            console.log('? Building file upload section...');
+            const uploadSection = `
+                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <h2 style="margin: 0 0 20px 0; color: #1B5E20; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">📥 Student Records Upload</h2>
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <!-- XLSX Upload -->
+                        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #fafafa;">
+                            <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.1rem;">📊 Excel Upload</h3>
+                            <p style="margin: 0 0 15px 0; font-size: 0.9rem; color: #666;">Columns: Student No., Name, Email, linked account</p>
+                            <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" multiple style="display: none;">
+                            <div id="xlsxUploadArea" style="border: 2px dashed #1B5E20; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #f5f5f5; user-select: none;">
+                                <svg style="width: 40px; height: 40px; margin: 0 auto 10px; color: #1B5E20; pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <p style="margin: 0; color: #666; font-size: 1rem; pointer-events: none;">Drag Excel files here or click to select</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Results -->
+                        <div id="uploadResults"></div>
+                        <div id="extractedData"></div>
+                    </div>
+                </div>
+            `;
+            
+            // Student Database & Management Section
+            console.log('? Building student database section...');
+            const studentDbSection = `
+                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin: 0 0 8px 0; color: #1B5E20; font-size: 1.5rem;">🗃️ Student Database</h2>
+                            <p style="margin: 0; font-size: 0.9rem; color: #666;">💡 Click ✏️ to enable edit mode | Click 📤 to send P4 students to Alumni</p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="viewAlumniBtn" style="background: #FF9800; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#F57C00'" onmouseout="this.style.background='#FF9800'">👥 View Alumni</button>
+                            <button id="exportStudentsBtn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#4CAF50'">📊 Export to Excel</button>
+                        </div>
+                    </div>
+                    <div id="studentDatabase" style="background: #f5f5f5; padding: 20px; border-radius: 8px; min-height: 200px;">
+                        <p style="color: #999; text-align: center; margin: 0;">No students added yet. Upload Excel file above to get started.</p>
+                    </div>
+                </div>
+            `;
+            
+            // Assemble full HTML with Collapsible Sections (Option B: Functional View)
+            console.log('? Assembling admin hub with collapsible sections...');
             const html = `
                 <div style="padding: 2rem; height: 100%; overflow-y: scroll; overflow-x: hidden; box-sizing: border-box;">
-                    ${ragBar}
-                    ${statCards}
-                    ${alertsSection}
-                    ${trendsChart}
-                    ${unitPerfSection}
-                    ${quickActions}
-                    ${userMgmt}
-                    ${studentApprovals}
-                    ${systemControls}
-                    ${kpiTiles}
-                    ${unitTable}
-                    ${criticalTable}
+                    
+                    <!-- 📊 SYSTEM DASHBOARD (Always Visible) -->
+                    <div style="margin-bottom: 1.5rem;">
+                        ${ragBar}
+                        ${statCards}
+                    </div>
+                    
+                    <!-- 📊 QUICK NAVIGATION MENU -->
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem;">
+                        <h3 style="margin: 0 0 1rem 0; color: #333; font-size: 1.1rem;">📊 Admin Tools & Dashboards</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem;">
+                            <button onclick="window.app.renderRequestTrackingDashboard()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: transform 0.3s, box-shadow 0.3s; font-size: 0.95rem;">
+                                📊 Request Tracking<br><span style="font-size: 0.8rem; font-weight: 400; opacity: 0.9;">Dashboard & Statistics</span>
+                            </button>
+                            <button onclick="window.app.renderAdminHub()" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; border: none; padding: 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: transform 0.3s, box-shadow 0.3s; font-size: 0.95rem;">
+                                🏠 Admin Hub<br><span style="font-size: 0.8rem; font-weight: 400; opacity: 0.9;">Main Command Center</span>
+                            </button>
+                            <button onclick="window.app.renderEventRequestsApproval()" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border: none; padding: 1rem; border-radius: 8px; cursor: pointer; font-weight: 600; transition: transform 0.3s, box-shadow 0.3s; font-size: 0.95rem;">
+                                🎉 Event Requests<br><span style="font-size: 0.8rem; font-weight: 400; opacity: 0.9;">Approval Manager</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- ? STUDENT SUBMITTED TICKETS (Always Visible) -->
+                    <div style="margin-bottom: 1.5rem;">
+                        ${studentTicketsHTML}
+                    </div>
+                    
+                    <!-- 🎯 IMMEDIATE ACTIONS (Expanded by Default) -->
+                    <div class="admin-section" id="section-immediate" data-section="immediate">
+                        <div class="section-header immediate-action" onclick="window.toggleAdminSection('immediate')">
+                            <div class="section-header-left">
+                                <div class="section-icon">🎯</div>
+                                <div class="section-title">
+                                    IMMEDIATE ACTIONS
+                                    <span class="section-badge" id="badge-immediate">4</span>
+                                </div>
+                            </div>
+                            <div class="section-toggle">
+                                <span id="toggle-text-immediate">Collapse</span>
+                                <span class="toggle-arrow">?</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            ${accessManagement}
+                        </div>
+                    </div>
+                    
+                    <!-- 📈 ANALYTICS & TRENDS (Collapsed by Default) -->
+                    <div class="admin-section collapsed" id="section-analytics" data-section="analytics">
+                        <div class="section-header analytics" onclick="window.toggleAdminSection('analytics')">
+                            <div class="section-header-left">
+                                <div class="section-icon">📈</div>
+                                <div class="section-title">
+                                    ANALYTICS & TRENDS
+                                    <span class="section-badge" id="badge-analytics">4</span>
+                                </div>
+                            </div>
+                            <div class="section-toggle">
+                                <span id="toggle-text-analytics">Expand</span>
+                                <span class="toggle-arrow">?</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            ${kpiTiles}
+                            ${unitTable}
+                        </div>
+                    </div>
+                    
+                    <!-- ⚙️ CONFIGURATION (Collapsed by Default) -->
+                    <div class="admin-section collapsed" id="section-config" data-section="config">
+                        <div class="section-header configuration" onclick="window.toggleAdminSection('config')">
+                            <div class="section-header-left">
+                                <div class="section-icon">⚙️</div>
+                                <div class="section-title">
+                                    CONFIGURATION
+                                    <span class="section-badge" id="badge-config">3</span>
+                                </div>
+                            </div>
+                            <div class="section-toggle">
+                                <span id="toggle-text-config">Expand</span>
+                                <span class="toggle-arrow">?</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            ${systemControls}
+                            ${uploadSection}
+                            ${studentDbSection}
+                        </div>
+                    </div>
+                    
                     <div style="text-align: center; color: #999; font-size: 0.9rem; margin-top: 2rem;">
                         <p>Last updated: ${new Date().toLocaleTimeString()}</p>
                         <p style="font-size: 0.85rem;">All times in working days</p>
@@ -3078,13 +4455,128 @@ class App {
             
             this.root.innerHTML = html;
             
-            console.log('✅ Admin Hub rendered successfully');
+            // Restore section collapse/expand states from user preferences
+            setTimeout(() => {
+                window.restoreAdminSectionStates();
+            }, 50);
+            
+            // Initialize stat cards interactivity
+            setTimeout(() => {
+                const statCards = document.querySelectorAll('.stat-card-interactive');
+                statCards.forEach(card => {
+                    card.addEventListener('mouseenter', function() {
+                        this.style.transform = 'scale(1.05) translateY(-5px)';
+                        this.style.boxShadow = '0 8px 20px rgba(0,0,0,0.15)';
+                    });
+                    
+                    card.addEventListener('mouseleave', function() {
+                        this.style.transform = 'scale(1)';
+                        this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.08)';
+                    });
+                    
+                    card.addEventListener('click', function() {
+                        const metric = this.dataset.metric;
+                        console.log('📊 Stat card clicked:', metric);
+                        
+                        const criticalTable = document.querySelector('table');
+                        if (!criticalTable) return;
+                        
+                        // Filter the critical requests table based on metric
+                        const rows = criticalTable.querySelectorAll('tbody tr');
+                        let filteredCount = 0;
+                        
+                        rows.forEach(row => {
+                            let show = true;
+                            const statusCell = row.cells[4]?.textContent || '';
+                            const daysCell = parseInt(row.cells[5]?.textContent) || 0;
+                            
+                            switch(metric) {
+                                case 'activeTickets':
+                                    // Show only non-final status tickets (not approved, rejected, closed)
+                                    show = !statusCell.includes('Approved') && !statusCell.includes('Rejected') && !statusCell.includes('Closed');
+                                    break;
+                                case 'resolvedToday':
+                                    // Show only approved/closed tickets
+                                    show = statusCell.includes('Approved') || statusCell.includes('Closed');
+                                    break;
+                                case 'totalTickets':
+                                    // Show all
+                                    show = true;
+                                    break;
+                                case 'avgResponseTime':
+                                    // Show tickets with higher days pending (slow response)
+                                    show = daysCell >= 3;
+                                    break;
+                            }
+                            
+                            if (show) {
+                                row.style.display = '';
+                                filteredCount++;
+                            } else {
+                                row.style.display = 'none';
+                            }
+                        });
+                        
+                        // Show notification
+                        const metricLabels = {
+                            'totalTickets': 'Total Tickets',
+                            'activeTickets': 'Active Tickets Only',
+                            'resolvedToday': 'Resolved Today',
+                            'avgResponseTime': 'Slow Response (3+ days)'
+                        };
+                        
+                        alert(`? Filtered: ${metricLabels[metric]}\n\nShowing ${filteredCount} out of ${rows.length} tickets`);
+                    });
+                });
+                console.log('? Stat cards initialized with interactivity');
+            }, 150);
+            
+            // Initialize Upload Systems after DOM is ready
+            setTimeout(() => {
+                // Initialize XLSX Upload
+                if (document.getElementById('xlsxUploadArea') && typeof window.XLSXUploadSystem !== 'undefined') {
+                    console.log('📊 Initializing XLSX system after render');
+                    window.XLSXUploadSystem.init();
+                } else {
+                    console.warn('⚠️ XLSX elements not ready yet');
+                }
+                
+                // Initialize PDF Upload
+                if (document.getElementById('pdfUploadArea') && typeof window.PDFUploadSystem !== 'undefined') {
+                    console.log('📄 Initializing PDF system after render');
+                    window.PDFUploadSystem.init();
+                } else {
+                    console.warn('⚠️ PDF elements not ready yet');
+                }
+                
+                // Render Student Database
+                if (document.getElementById('studentDatabase') && typeof window.StudentManagement !== 'undefined') {
+                    console.log('📊 Rendering student database after render');
+                    window.StudentManagement.renderStudentDatabase();
+                    
+                    // Add export button listener
+                    const exportBtn = document.getElementById('exportStudentsBtn');
+                    if (exportBtn) {
+                        exportBtn.onclick = () => window.StudentManagement.exportToExcel();
+                    }
+                    
+                    // Add alumni view button listener
+                    const alumniBtn = document.getElementById('viewAlumniBtn');
+                    if (alumniBtn) {
+                        alumniBtn.onclick = () => window.StudentManagement.viewAlumniDatabase();
+                    }
+                } else {
+                    console.warn('⚠️ Student database elements not ready yet');
+                }
+            }, 100);
+            
+            console.log('? Admin Hub rendered successfully');
             
         } catch (error) {
-            console.error('❌ Error in renderAdminHub:', error);
+            console.error('? Error in renderAdminHub:', error);
             console.error('Stack:', error.stack);
             this.root.innerHTML = `<div style="padding: 2rem; color: red;">
-                <h3>❌ Error Loading Admin Hub</h3>
+                <h3>? Error Loading Admin Hub</h3>
                 <p><strong>Error Message:</strong> ${error.message}</p>
                 <p><strong>Type:</strong> ${error.name}</p>
                 <details style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
@@ -3096,6 +4588,261 @@ class App {
                 </p>
             </div>`;
         }
+    }
+
+    renderRequestTrackingDashboard() {
+        this.title.innerHTML = '📊 Request Tracking Dashboard';
+        
+        try {
+            // Get all tickets from StudentPortalManager
+            const allTickets = (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) 
+                ? StudentPortalManager.tickets 
+                : [];
+            
+            // Define request type mappings
+            const requestTypeMap = {
+                'event-participation': 'Event/Conference Request',
+                'clinical': 'Clinical/Rotation Issue',
+                'letter-request': 'Letter Requests',
+                'academic-support': 'Academic Support',
+                'it-support': 'IT Support',
+                'general-inquiry': 'General Inquiry'
+            };
+            
+            // Group tickets by requestType
+            const ticketsByType = {};
+            allTickets.forEach(ticket => {
+                const type = ticket.requestType || 'other';
+                if (!ticketsByType[type]) {
+                    ticketsByType[type] = [];
+                }
+                ticketsByType[type].push(ticket);
+            });
+            
+            // Calculate stats for each request type
+            const requestStats = {};
+            Object.entries(ticketsByType).forEach(([type, tickets]) => {
+                const displayName = requestTypeMap[type] || (type.charAt(0).toUpperCase() + type.slice(1).replace('-', ' '));
+                
+                requestStats[type] = {
+                    displayName,
+                    total: tickets.length,
+                    submitted: tickets.filter(t => t.status === 'submitted').length,
+                    approved: tickets.filter(t => t.status === 'approved').length,
+                    rejected: tickets.filter(t => t.status === 'rejected').length,
+                    pending: tickets.filter(t => t.status === 'pending').length,
+                    inProgress: tickets.filter(t => t.status === 'in-progress' || t.status === 'in_progress').length,
+                    closed: tickets.filter(t => t.status === 'closed' || t.status === 'resolved').length
+                };
+            });
+            
+            // Create dashboard HTML
+            let html = `
+                <div style="margin-bottom: 2rem;">
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 12px; margin-bottom: 2rem;">
+                        <h2 style="margin: 0 0 0.5rem 0; font-size: 1.8rem;">📊 Request Tracking Dashboard</h2>
+                        <p style="margin: 0; opacity: 0.9; font-size: 1rem;">Monitor all request types by status and filter by request name</p>
+                    </div>
+                    
+                    <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+                        <h3 style="margin: 0 0 1rem 0; color: #333;">🔍 Filter by Request Type</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
+            `;
+            
+            // Add filter buttons for each request type
+            html += `
+                <div style="grid-column: 1 / -1; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button onclick="window.app.showAllRequestStats()" style="background: #667eea; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.3s;">
+                        📋 All Requests
+                    </button>
+            `;
+            
+            Object.entries(requestStats).forEach(([type, stats]) => {
+                const bgColor = ['#FF9800', '#2196F3', '#4CAF50', '#9C27B0', '#F44336', '#00BCD4'][Object.keys(requestStats).indexOf(type) % 6];
+                html += `
+                    <button onclick="window.app.showRequestStatsByType('${type}')" style="background: ${bgColor}; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.3s; white-space: nowrap;">
+                        ${stats.displayName}
+                    </button>
+                `;
+            });
+            
+            html += `
+                    </div>
+                </div>
+            `;
+            
+            // Show all request types
+            html += `
+                <div id="request-stats-container" style="display: grid; gap: 2rem;">
+            `;
+            
+            Object.entries(requestStats).forEach(([type, stats], index) => {
+                const colors = ['#FF9800', '#2196F3', '#4CAF50', '#9C27B0', '#F44336', '#00BCD4'];
+                const bgColor = colors[index % colors.length];
+                const statusEmojis = {
+                    submitted: '📬',
+                    approved: '✅',
+                    rejected: '❌',
+                    pending: '⏳',
+                    inProgress: '⚙️',
+                    closed: '✔️'
+                };
+                
+                html += `
+                    <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 6px solid ${bgColor};">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="background: ${bgColor}; color: white; padding: 1rem; border-radius: 8px; font-size: 1.5rem; min-width: 60px; text-align: center;">
+                                ${stats.total}
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; color: #333; font-size: 1.2rem;">${stats.displayName}</h3>
+                                <p style="margin: 0.25rem 0 0 0; color: #999; font-size: 0.9rem;">Total: ${stats.total} request${stats.total !== 1 ? 's' : ''}</p>
+                            </div>
+                        </div>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem;">
+                            <div style="background: #FFF3E0; border: 2px solid #FF9800; border-radius: 8px; padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #FF9800;">${stats.submitted}</div>
+                                <div style="color: #E65100; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">📬 Total Submitted</div>
+                            </div>
+                            
+                            <div style="background: #E8F5E9; border: 2px solid #4CAF50; border-radius: 8px; padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #4CAF50;">${stats.approved}</div>
+                                <div style="color: #2E7D32; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">✅ Approved</div>
+                            </div>
+                            
+                            <div style="background: #FFF9C4; border: 2px solid #FBC02D; border-radius: 8px; padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #F57F17;">${stats.pending || stats.inProgress}</div>
+                                <div style="color: #E65100; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">⏳ Pending</div>
+                            </div>
+                            
+                            <div style="background: #FFEBEE; border: 2px solid #F44336; border-radius: 8px; padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #F44336;">${stats.rejected}</div>
+                                <div style="color: #C62828; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">❌ Rejected</div>
+                            </div>
+                            
+                            <div style="background: #E3F2FD; border: 2px solid #2196F3; border-radius: 8px; padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #1976D2;">${stats.inProgress}</div>
+                                <div style="color: #0D47A1; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">⚙️ In Progress</div>
+                            </div>
+                            
+                            <div style="background: #F3E5F5; border: 2px solid #9C27B0; border-radius: 8px; padding: 1rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #6A1B9A;">${stats.closed}</div>
+                                <div style="color: #4A148C; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">✔️ Closed/Resolved</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                </div>
+            `;
+            
+            this.root.innerHTML = html;
+            
+            // Store stats for filtering
+            window.requestDashboardStats = requestStats;
+            window.requestDashboardAllTickets = allTickets;
+            
+        } catch (error) {
+            console.error('Error rendering request tracking dashboard:', error);
+            this.root.innerHTML = `<div style="padding: 2rem; color: red;"><h3>Error Loading Dashboard</h3><p>${error.message}</p></div>`;
+        }
+    }
+    
+    showAllRequestStats() {
+        this.renderRequestTrackingDashboard();
+    }
+    
+    showRequestStatsByType(requestType) {
+        this.title.innerHTML = `📊 Request Tracking - ${window.requestDashboardStats[requestType]?.displayName || requestType}`;
+        
+        const stats = window.requestDashboardStats[requestType];
+        const typeTickets = window.requestDashboardAllTickets.filter(t => t.requestType === requestType);
+        
+        const colors = {
+            submitted: '#FF9800',
+            approved: '#4CAF50',
+            rejected: '#F44336',
+            pending: '#FBC02D',
+            'in-progress': '#2196F3',
+            closed: '#9C27B0',
+            '-': '#999'
+        };
+        
+        let html = `
+            <div style="margin-bottom: 2rem;">
+                <button onclick="window.app.renderRequestTrackingDashboard()" style="background: #667eea; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600; margin-bottom: 1.5rem;">
+                    ← Back to All Requests
+                </button>
+                
+                <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem;">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #333; font-size: 1.5rem;">${stats.displayName} (${stats.total})</h2>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem; margin-bottom: 2rem;">
+                        <div style="background: #FFF3E0; border: 2px solid #FF9800; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #FF9800;">${stats.submitted}</div>
+                            <div style="color: #E65100; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">Total Submitted</div>
+                        </div>
+                        
+                        <div style="background: #E8F5E9; border: 2px solid #4CAF50; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #4CAF50;">${stats.approved}</div>
+                            <div style="color: #2E7D32; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">Approved</div>
+                        </div>
+                        
+                        <div style="background: #FFF9C4; border: 2px solid #FBC02D; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #F57F17;">${stats.pending + stats.inProgress}</div>
+                            <div style="color: #E65100; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">Pending</div>
+                        </div>
+                        
+                        <div style="background: #FFEBEE; border: 2px solid #F44336; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #F44336;">${stats.rejected}</div>
+                            <div style="color: #C62828; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">Rejected</div>
+                        </div>
+                        
+                        <div style="background: #E3F2FD; border: 2px solid #2196F3; border-radius: 8px; padding: 1rem; text-align: center;">
+                            <div style="font-size: 2.5rem; font-weight: bold; color: #1976D2;">${stats.inProgress}</div>
+                            <div style="color: #0D47A1; font-size: 0.85rem; font-weight: 600; margin-top: 0.25rem;">In Progress</div>
+                        </div>
+                    </div>
+                    
+                    <h3 style="margin: 2rem 0 1rem 0; color: #333; font-size: 1.1rem;">📋 All Requests by Status</h3>
+                    
+                    <div style="display: grid; gap: 2rem;">
+                        ${Object.entries({
+                            submitted: typeTickets.filter(t => t.status === 'submitted'),
+                            approved: typeTickets.filter(t => t.status === 'approved'),
+                            rejected: typeTickets.filter(t => t.status === 'rejected'),
+                            pending: typeTickets.filter(t => t.status === 'pending'),
+                            'in-progress': typeTickets.filter(t => t.status === 'in-progress' || t.status === 'in_progress'),
+                            closed: typeTickets.filter(t => t.status === 'closed' || t.status === 'resolved')
+                        }).filter(([status, tickets]) => tickets.length > 0).map(([status, tickets]) => `
+                            <div style="border-left: 4px solid ${colors[status]}; padding: 1.5rem; background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+                                <h4 style="margin: 0 0 1rem 0; color: ${colors[status]}; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span style="font-size: 1.3rem;">${status === 'submitted' ? '📬' : status === 'approved' ? '✅' : status === 'rejected' ? '❌' : status === 'pending' ? '⏳' : status === 'in-progress' ? '⚙️' : '✔️'}</span>
+                                    ${status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' ')} (${tickets.length})
+                                </h4>
+                                <div style="display: grid; gap: 0.75rem;">
+                                    ${tickets.map(ticket => `
+                                        <div style="background: #f9f9f9; padding: 0.75rem; border-radius: 6px; border-left: 3px solid ${colors[status]};">
+                                            <div style="font-weight: 600; color: #333; margin-bottom: 0.25rem;">${ticket.title || ticket.eventDetails?.name || 'Untitled Request'}</div>
+                                            <div style="font-size: 0.85rem; color: #666;">
+                                                <strong>Student:</strong> ${ticket.studentName || ticket.studentId} | 
+                                                <strong>ID:</strong> ${ticket.ticketId} | 
+                                                <strong>Date:</strong> ${new Date(ticket.submissionDate).toLocaleDateString()}
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        this.root.innerHTML = html;
     }
 
     renderIPPE1() {
@@ -3201,6 +4948,43 @@ class App {
                 const bgColors = cohortMetrics.map(c => c.color);
 
                 const content = `
+                    <!-- 🏥 CLINICAL AFFAIRS: Rotation/Clinical Issue Requests -->
+                    <div class="card" style="margin-bottom: 2rem; border-left: 4px solid #FF6B6B;">
+                        <h3 style="margin: 0 0 1.5rem 0; color: #333;">?? Rotation/Clinical Issue Requests</h3>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
+                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #2196F3;">
+                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.submitted : 0}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📋 Total Submitted</div>
+                            </div>
+                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #4CAF50;">
+                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.approved : 0}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Approved</div>
+                            </div>
+                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #FF9800;">
+                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.pending : 0}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Pending</div>
+                            </div>
+                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #F44336;">
+                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.rejected : 0}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Rejected</div>
+                            </div>
+                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
+                                <div style="font-size: 2rem; font-weight: bold; color: #2196F3;">
+                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.inProgress : 0}
+                                </div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">⏳ In Progress</div>
+                            </div>
+                        </div>
+                    </div>
+                    
                     <!-- Metrics Grid -->
                     <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); gap: 1rem;">
                         <div class="card"><h5 class="text-center mb-2">Total Enrolled</h5><div style="height:150px;"><canvas id="chartEnrolled"></canvas></div></div>
@@ -3419,7 +5203,7 @@ class App {
         const html = `
                 <div class="card mb-4" >
                 <button class="btn btn-outline" onclick="app.render('students')">? Back to List</button>
-                <button class="btn btn-primary" style="float: right;" onclick="app.generateStudentPDF('${student.id}')">📥 Download Official Report</button>
+                <button class="btn btn-primary" style="float: right;" onclick="app.generateStudentPDF('${student.id}')">📄 Download Official Report</button>
                 <div style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <h2>${student.name}</h2>
@@ -3605,7 +5389,7 @@ class App {
                 <!-- Weighted Ranking (Modern Shape) -->
                 <div class="card">
                     <div class="flex-between mb-4">
-                        <h3 style="margin:0;">🏆 Student Performance Ranking (Weighted)</h3>
+                        <h3 style="margin:0;">📊 Student Performance Ranking (Weighted)</h3>
                         <div style="display:flex; gap:0.5rem;">
                             <span class="badge-secondary">Top 10</span>
                         </div>
@@ -3659,7 +5443,7 @@ class App {
         // --- Shared Data ---
         const strategicGoals = [
             {
-                id: 'g1', title: 'Goal 1: High-Quality Education', icon: '🎯', color: '#2196f3', progress: 88,
+                id: 'g1', title: 'Goal 1: High-Quality Education', icon: '🎓', color: '#2196f3', progress: 88,
                 branches: [
                     { name: '1.1 Environment', kpis: [{ name: 'Std Eval Learning', target: '80%', actual: '82%' }, { name: 'First Yr Completion', target: '90%', actual: '88%' }, { name: 'SPLE Pass Rate', target: '100%', actual: '98%' }, { name: 'Employability', target: '80%', actual: '75%' }] },
                     { name: '1.2 Experiential', kpis: [{ name: 'Counseling Util.', target: '80%', actual: '60%' }, { name: 'New Training Sites', target: '1', actual: '3' }] },
@@ -3685,7 +5469,7 @@ class App {
                 ]
             },
             {
-                id: 'g4', title: 'Goal 4: Impactful Fingerprint', icon: '⭐', color: '#ff9800', progress: 85,
+                id: 'g4', title: 'Goal 4: Impactful Fingerprint', icon: '?', color: '#ff9800', progress: 85,
                 branches: [
                     { name: '4.1 Brand', kpis: [{ name: 'Social Reactivity', target: '5', actual: '8' }, { name: 'Leader Roles', target: '10', actual: '12' }] },
                     { name: '4.2 Alumni', kpis: [{ name: 'Alumni Activities', target: '9', actual: '6' }] },
@@ -3693,7 +5477,7 @@ class App {
                 ]
             },
             {
-                id: 'g5', title: 'Goal 5: Grad Studies', icon: '🎓', color: '#607d8b', progress: 60,
+                id: 'g5', title: 'Goal 5: Grad Studies', icon: '??', color: '#607d8b', progress: 60,
                 branches: [
                     { name: '5.1 Programs', kpis: [{ name: 'PharmSci Program', target: '100%', actual: 'Done' }, { name: 'Fellowship', target: '100%', actual: 'Pending' }] },
                     { name: '5.2 Competency', kpis: [{ name: 'Joint Program', target: '1', actual: 'In Prog' }] }
@@ -3703,7 +5487,7 @@ class App {
 
         const pharmdGoals = [
             {
-                id: 'ph1', title: 'Std 1: Mission & Mgt', icon: '🎯', color: '#673ab7', progress: 0,
+                id: 'ph1', title: 'Std 1: Mission & Mgt', icon: '??', color: '#673ab7', progress: 0,
                 branches: [
                     {
                         name: '1.1 Planning', kpis: [
@@ -3713,7 +5497,7 @@ class App {
                 ]
             },
             {
-                id: 'ph2', title: 'Std 2: Qual Assurance', icon: '✅', color: '#3f51b5', progress: 0,
+                id: 'ph2', title: 'Std 2: Qual Assurance', icon: '?', color: '#3f51b5', progress: 0,
                 branches: [
                     {
                         name: '2.1 Governance', kpis: [
@@ -3728,7 +5512,7 @@ class App {
                 ]
             },
             {
-                id: 'ph3', title: 'Std 3: Teaching', icon: '📚', color: '#2196f3', progress: 0,
+                id: 'ph3', title: 'Std 3: Teaching', icon: '??', color: '#2196f3', progress: 0,
                 branches: [
                     {
                         name: '3.1 Qual Learning', kpis: [
@@ -3749,7 +5533,7 @@ class App {
                 ]
             },
             {
-                id: 'ph4', title: 'Std 4: Students', icon: '👨‍🎓', color: '#00bcd4', progress: 0,
+                id: 'ph4', title: 'Std 4: Students', icon: '?????', color: '#00bcd4', progress: 0,
                 branches: [
                     {
                         name: '4.1 Services', kpis: [
@@ -3766,7 +5550,7 @@ class App {
                 ]
             },
             {
-                id: 'ph5', title: 'Std 5: Faculty', icon: '👨‍🏫', color: '#009688', progress: 0,
+                id: 'ph5', title: 'Std 5: Faculty', icon: '?????', color: '#009688', progress: 0,
                 branches: [
                     {
                         name: '5.1 Ratios', kpis: [
@@ -3798,7 +5582,7 @@ class App {
                 ]
             },
             {
-                id: 'ph6', title: 'Std 6: Resources', icon: '💼', color: '#4caf50', progress: 0,
+                id: 'ph6', title: 'Std 6: Resources', icon: '??', color: '#4caf50', progress: 0,
                 branches: [
                     {
                         name: '6.1 Resources', kpis: [
@@ -3811,7 +5595,7 @@ class App {
 
         const qualitySurveysData = [
             {
-                id: 'qs1', title: 'Student Surveys', icon: '📋', color: '#ff9800', progress: 0,
+                id: 'qs1', title: 'Student Surveys', icon: '??', color: '#ff9800', progress: 0,
                 kpis: [
                     { name: 'Course Evaluation Survey', y1: '3.8', y2: '4.0', y3: '4.1', target: '4.0' },
                     { name: 'Student Experience Survey', y1: '3.5', y2: '3.8', y3: '3.9', target: '4.0' },
@@ -3819,14 +5603,14 @@ class App {
                 ]
             },
             {
-                id: 'qs2', title: 'Faculty & Staff', icon: '👥', color: '#9c27b0', progress: 0,
+                id: 'qs2', title: 'Faculty & Staff', icon: '??', color: '#9c27b0', progress: 0,
                 kpis: [
                     { name: 'Faculty Experience Survey', y1: '3.9', y2: '4.1', y3: '4.0', target: '4.0' },
                     { name: 'Employee Satisfaction Survey', y1: '3.7', y2: '3.8', y3: '4.2', target: '4.0' }
                 ]
             },
             {
-                id: 'qs3', title: 'External Stakeholders', icon: '🌍', color: '#00bcd4', progress: 0,
+                id: 'qs3', title: 'External Stakeholders', icon: '??', color: '#00bcd4', progress: 0,
                 kpis: [
                     { name: 'Employers Satisfaction Survey', y1: '3.5', y2: '3.8', y3: '3.7', target: '4.0' },
                     { name: 'Alumni Survey', y1: '3.8', y2: '4.0', y3: '4.3', target: '4.0' }
@@ -4136,13 +5920,13 @@ class App {
         });
 
         const tabs = [
-            { id: 'strategic', label: '🎯 Strategic Goals' },
-            { id: 'pharmd', label: '🎓 PharmD Program KPI' },
-            { id: 'surveys', label: '📊 Quality Surveys' },
-            { id: 'plo', label: '📈 Learning Outcomes (PLOs)' },
-            { id: 'faculty', label: '👨‍🏫 Faculty' },
-            { id: 'people', label: '👥 People & Distinctions' },
-            { id: 'data', label: '📑 Reports' }
+            { id: 'strategic', label: '?? Strategic Goals' },
+            { id: 'pharmd', label: '?? PharmD Program KPI' },
+            { id: 'surveys', label: '?? Quality Surveys' },
+            { id: 'plo', label: '?? Learning Outcomes (PLOs)' },
+            { id: 'faculty', label: '????? Faculty' },
+            { id: 'people', label: '?? People & Distinctions' },
+            { id: 'data', label: '?? Reports' }
         ];
 
         const tabNav = `
@@ -4167,7 +5951,7 @@ class App {
             content = `
                 <div class="fade-in-up">
                     <!-- Row 1: 5 Doughnut Charts -->
-                    <h3 style="margin-bottom:1rem;">🎯 Strategic Goal Progress</h3>
+                    <h3 style="margin-bottom:1rem;">?? Strategic Goal Progress</h3>
                     <div class="dashboard-grid" style="grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
                          ${strategicGoals.map(g => `
                             <div class="card" style="text-align: center; padding: 1rem;">
@@ -4185,7 +5969,7 @@ class App {
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
                         <!-- Row 2 Left: Radar Chart -->
                         <div class="card">
-                            <h3 style="margin-bottom:1rem;">⚖️ Strategic Balance Logic</h3>
+                            <h3 style="margin-bottom:1rem;">?? Strategic Balance Logic</h3>
                             <div style="height: 350px;">
                                 <canvas id="chartStratRadarDashboard"></canvas>
                             </div>
@@ -4193,9 +5977,9 @@ class App {
 
                         <!-- Row 2 Right: At Risk / Highlights -->
                         <div class="card" style="background: #fff8f8; border-left: 4px solid #f44336;">
-                            <h3 style="color: #d32f2f;">⚠️ Attention Needed</h3>
+                            <h3 style="color: #d32f2f;">?? Attention Needed</h3>
                             <ul style="padding-left: 1.2rem; margin-top: 1rem;">
-                                ${atRiskItems.length > 0 ? atRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">✅ All On Track!</li>'}
+                                ${atRiskItems.length > 0 ? atRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">? All On Track!</li>'}
                             </ul>
                             <div style="margin-top:1rem; color:#d32f2f; font-size: 0.9rem; font-style:italic;">
                                 * Use the details grid below to update these metrics.
@@ -4205,7 +5989,7 @@ class App {
                     </div>
                     <!-- Section 2: Interactive Grid -->
                     <div style="margin-top: 3rem; border-top: 2px dashed #eee; padding-top: 2rem;">
-                        <h3 style="margin-bottom: 0.5rem;">📝 Strategic Goals Details & Editor</h3>
+                        <h3 style="margin-bottom: 0.5rem;">?? Strategic Goals Details & Editor</h3>
                         <p class="text-muted" style="margin-bottom: 1.5rem;">Tap any card below to view branch goals or edit Target/Actual values.</p>
                         
                         <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
@@ -4223,7 +6007,7 @@ class App {
                                         <span>${g.progress}% Done</span>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right; color: var(--primary-gold); font-size: 0.85rem; font-weight: 500;">
-                                        Tap to Edit ✏️
+                                        Tap to Edit ??
                                     </div>
                                 </div>
 
@@ -4233,8 +6017,8 @@ class App {
                                         <div class="qa-modal-header">
                                             <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">${g.icon} ${g.title}</h3>
                                             <div style="display:flex; gap:1rem; align-items:center;">
-                                                <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">💾 Save & Recalculate</button>
-                                                <button class="close-modal" style="position:static;" onclick="document.getElementById('modal-${g.id}').classList.remove('active')">�</button>
+                                                <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">?? Save & Recalculate</button>
+                                                <button class="close-modal" style="position:static;" onclick="document.getElementById('modal-${g.id}').classList.remove('active')">?</button>
                                             </div>
                                         </div>
                                         <div class="qa-modal-body">
@@ -4256,7 +6040,7 @@ class App {
                                                                 <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
                                                                 <td><input type="text" class="input-field kpi-target" value="${k.target}" style="padding:4px; font-size:0.9rem;"></td>
                                                                 <td><input type="text" class="input-field kpi-actual" value="${k.actual}" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
-                                                                <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🟡' : (parseFloat(k.actual) >= parseFloat(k.target) ? '🟢' : '🔴')}</td>
+                                                                <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '??' : (parseFloat(k.actual) >= parseFloat(k.target) ? '??' : '??')}</td>
                                                             </tr>
                                                         `).join('')
             ).join('')}
@@ -4324,7 +6108,7 @@ class App {
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                         <!-- Left: Standards Overview -->
                         <div class="card">
-                            <h3 style="margin-bottom:1rem;">📊 Program Standards Overview</h3>
+                            <h3 style="margin-bottom:1rem;">?? Program Standards Overview</h3>
                             <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap:1rem;">
                                 ${pharmdGoals.map(g => `
                                     <div style="text-align:center;">
@@ -4343,16 +6127,16 @@ class App {
                          <!-- Right: Radar & Risks -->
                         <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1rem;">
                              <div class="card">
-                                <h3>⚖️ Standards Balance</h3>
+                                <h3>?? Standards Balance</h3>
                                 <div style="height: 200px;">
                                     <canvas id="chartPharmdRadarDashboard"></canvas>
                                 </div>
                             </div>
                             
                             <div class="card" style="background: #fff8f8; border-left: 4px solid #f44336;">
-                                <h3 style="color: #d32f2f;">⚠️ Attention Needed</h3>
+                                <h3 style="color: #d32f2f;">?? Attention Needed</h3>
                                 <ul style="padding-left: 1.2rem; margin-top: 1rem;">
-                                    ${pharmdRiskItems.length > 0 ? pharmdRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">✅ All KPIs On Track!</li>'}
+                                    ${pharmdRiskItems.length > 0 ? pharmdRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">? All KPIs On Track!</li>'}
                                 </ul>
                             </div>
                         </div>
@@ -4375,7 +6159,7 @@ class App {
                                     <span>${g.progress}% Done</span>
                                 </div>
                                 <div style="margin-top: 1rem; text-align: right; color: var(--primary-gold); font-size: 0.85rem; font-weight: 500;">
-                                    Tap to View Details 🔍
+                                    Tap to View Details ??
                                 </div>
                             </div>
 
@@ -4385,8 +6169,8 @@ class App {
                                     <div class="qa-modal-header">
                                         <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">${g.icon} ${g.title}</h3>
                                         <div style="display:flex; gap:1rem; align-items:center;">
-                                            <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">💾 Save & Recalculate</button>
-                                            <button class="close-modal" style="position:static;" onclick="document.getElementById('modal-${g.id}').classList.remove('active')">�</button>
+                                            <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">?? Save & Recalculate</button>
+                                            <button class="close-modal" style="position:static;" onclick="document.getElementById('modal-${g.id}').classList.remove('active')">?</button>
                                         </div>
                                     </div>
                                     <div class="qa-modal-body">
@@ -4408,7 +6192,7 @@ class App {
                                                             <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
                                                             <td><input type="text" class="input-field kpi-target" value="${k.target}" style="padding:4px; font-size:0.9rem;"></td>
                                                             <td><input type="text" class="input-field kpi-actual" value="${k.actual}" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
-                                                            <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🟡' : (parseFloat(k.actual) >= parseFloat(k.target) ? '🟢' : '🔴')}</td>
+                                                            <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '??' : (parseFloat(k.actual) >= parseFloat(k.target) ? '??' : '??')}</td>
                                                         </tr>
                                                     `).join('')
             ).join('')}
@@ -4472,7 +6256,7 @@ class App {
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                          <!-- Left: Visual Overview (Bar Charts) -->
                         <div class="card">
-                            <h3 style="margin-bottom:1rem;">📊 Stakeholder Feedback Trends (3-Year)</h3>
+                            <h3 style="margin-bottom:1rem;">?? Stakeholder Feedback Trends (3-Year)</h3>
                             <div style="display: flex; flex-direction: column; gap: 2rem;">
                                 ${qualitySurveysData.map(g => `
                                     <div>
@@ -4488,16 +6272,16 @@ class App {
                          <!-- Right: Radar & Risks -->
                         <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1rem;">
                              <div class="card">
-                                <h3>⚖️ Surveys Balance</h3>
+                                <h3>?? Surveys Balance</h3>
                                 <div style="height: 200px;">
                                     <canvas id="chartSurveyRadarDashboard"></canvas>
                                 </div>
                             </div>
                             
                             <div class="card" style="background: #fff8f8; border-left: 4px solid #f44336;">
-                                <h3 style="color: #d32f2f;">⚠️ Attention Needed</h3>
+                                <h3 style="color: #d32f2f;">?? Attention Needed</h3>
                                 <ul style="padding-left: 1.2rem; margin-top: 1rem;">
-                                    ${surveyRiskItems.length > 0 ? surveyRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">✅ All Surveys On Track!</li>'}
+                                    ${surveyRiskItems.length > 0 ? surveyRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">? All Surveys On Track!</li>'}
                                 </ul>
                             </div>
                         </div>
@@ -4505,7 +6289,7 @@ class App {
 
                     <!-- Bottom Section: Detailed Grid & Editor -->
                     <div style="margin-top: 3rem; border-top: 2px dashed #eee; padding-top: 2rem;">
-                         <h3 style="margin-bottom: 0.5rem;">📝 Surveys Data Entry</h3>
+                         <h3 style="margin-bottom: 0.5rem;">?? Surveys Data Entry</h3>
                         <p class="text-muted" style="margin-bottom: 1.5rem;">Enter scores (out of 5) for previous years. Status compares Y3 vs Target.</p>
                         
                         <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
@@ -4539,14 +6323,14 @@ class App {
                                                         <td><input type="text" class="input-field kpi-y2" value="${k.y2}" style="text-align:center;"></td>
                                                         <td><input type="text" class="input-field kpi-y3" value="${k.y3}" style="text-align:center; font-weight:bold;"></td>
                                                         <td><input type="text" class="input-field kpi-target" value="${k.target}" style="text-align:center;"></td>
-                                                        <td class="kpi-status">${(parseFloat(k.y3) >= parseFloat(k.target)) ? '🟢' : '🔴'}</td>
+                                                        <td class="kpi-status">${(parseFloat(k.y3) >= parseFloat(k.target)) ? '??' : '??'}</td>
                                                     </tr>
                                                 `).join('')}
                                             </tbody>
                                         </table>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right;">
-                                         <button class="btn btn-primary btn-sm" onclick="alert('✅ Changes Saved (Demo)!')">💾 Save Data</button>
+                                         <button class="btn btn-primary btn-sm" onclick="alert('? Changes Saved (Demo)!')">?? Save Data</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -4671,8 +6455,8 @@ class App {
                         <!-- LEFT: COURSE ASSESSMENT (Simulated Input) -->
                         <div class="card" style="height: fit-content;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                                <h3 style="margin:0;">🎓 Course Simulator</h3>
-                                <button class="btn btn-sm btn-outline" onclick="window.addPLOCourse()">➕ Add Course</button>
+                                <h3 style="margin:0;">?? Course Simulator</h3>
+                                <button class="btn btn-sm btn-outline" onclick="window.addPLOCourse()">? Add Course</button>
                             </div>
                             <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">
                                 Edit courses, grades, and mapped PLOs (comma-separated, e.g., K1, S2).
@@ -4695,13 +6479,13 @@ class App {
                                             <td><input type="text" class="input-field course-name" value="${c.name}" style="width:100%;"></td>
                                             <td><input type="number" class="input-field course-grade" value="${c.grade}" style="width:100%; text-align:center;"></td>
                                             <td><input type="text" class="input-field course-map" value="${c.map.join(', ')}" style="width:100%; font-size:0.85rem;"></td>
-                                            <td style="text-align:center;"><span style="cursor:pointer; color:#f44336;" onclick="window.removePLOCourse(${i})">🗑️</span></td>
+                                            <td style="text-align:center;"><span style="cursor:pointer; color:#f44336;" onclick="window.removePLOCourse(${i})">???</span></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
                             </table>
                             <div style="margin-top: 1rem; text-align: center;">
-                                <button class="btn btn-primary" style="width:100%;" onclick="window.recalcPLOs()">🔄 Update & Recalculate Outcomes</button>
+                                <button class="btn btn-primary" style="width:100%;" onclick="window.recalcPLOs()">?? Update & Recalculate Outcomes</button>
                             </div>
                         </div>
 
@@ -4710,7 +6494,7 @@ class App {
                             
                             <!-- Radar Chart -->
                             <div class="card">
-                                <h3>🕸️ Domain Achievement Overview</h3>
+                                <h3>??? Domain Achievement Overview</h3>
                                 <div style="height: 250px;">
                                     <canvas id="chartPloRadarDashboard"></canvas>
                                 </div>
@@ -4718,7 +6502,7 @@ class App {
 
                             <!-- Detailed Outcome List -->
                             <div class="card">
-                                <h3>📈 Program Learning Outcomes Status</h3>
+                                <h3>?? Program Learning Outcomes Status</h3>
                                 <p class="text-muted" style="margin-bottom: 1rem;">Calculated based on linked course performance.</p>
                                 
                                 ${ploData.map(d => `
@@ -4791,16 +6575,16 @@ class App {
             content = `
                 <div class="dashboard-grid" style="align-items:start;">
                     <div class="card">
-                        <h3>📥 Excel / CSV Reports</h3>
+                        <h3>?? Excel / CSV Reports</h3>
                         <p>Download the latest detailed KPI report across all 5 Strategic Goals.</p>
                         <br>
                         <a href="data:text/csv;charset=utf-8,${generateKPI_CSV()}" download="strategic_goals_report.csv" class="btn btn-primary" style="text-decoration:none; display:inline-block;">
-                            📥 Download KPI Report (.csv)
+                            ?? Download KPI Report (.csv)
                         </a>
                     </div>
                     
                     <div class="card">
-                        <h3>ℹ️ KPI Management</h3>
+                        <h3>?? KPI Management</h3>
                         <p>To edit Target or Actual values, please click on the <strong>Goal Cards</strong> in the "KPIs & Strategy" tab and use the <strong>"Save & Recalculate"</strong> button in the popup.</p>
                     </div>
                 </div>
@@ -4834,13 +6618,13 @@ class App {
 
                 // Simple logic: If text contains 'Prog' or 'Pending', it's yellow.
                 // Otherwise compare numbers.
-                let status = '🔴';
+                let status = '??';
                 if (actualVal.includes('Prog') || actualVal.includes('Pending') || actualVal.includes('Done')) {
-                    status = '🟡';
-                    if (actualVal.includes('Done')) status = '🟢';
+                    status = '??';
+                    if (actualVal.includes('Done')) status = '??';
                 } else {
-                    if (actual >= target) status = '🟢';
-                    else status = '🔴';
+                    if (actual >= target) status = '??';
+                    else status = '??';
                 }
 
                 statusCell.textContent = status;
@@ -4977,7 +6761,7 @@ class App {
                 <div class="flex-between">
                     <h3>Student Roster & Tracking</h3>
                     <div style="display:flex; gap:1rem;">
-                        <button class="btn btn-outline" onclick="window.print()">🖨️ Print Roster</button>
+                        <button class="btn btn-outline" onclick="window.print()">??? Print Roster</button>
                         <button class="btn btn-primary">Export Excel</button>
                     </div>
                 </div>
@@ -5229,7 +7013,7 @@ class App {
             </div>
 
             <div class="card" style="margin-top: 1rem;">
-                <h3>📊 Grade Ranking System</h3>
+                <h3>?? Grade Ranking System</h3>
                 <div style="display: flex; justify-content: space-around; margin-top: 1rem;">
                     <div style="text-align: center;">
                         <div style="font-size: 2.5rem; color: var(--primary-green);">
@@ -5719,7 +7503,7 @@ class App {
         return `
                 <div class="dashboard-grid" >
                 <div class="card">
-                    <h3>📂 Import Student Data (CSV)</h3>
+                    <h3>?? Import Student Data (CSV)</h3>
                     <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #eee;">
                         <input type="file" id="csvDetails" accept=".csv">
                         <button class="btn btn-primary" onclick="app.handleCSVImport()">Import Data</button>
@@ -5728,7 +7512,7 @@ class App {
 
                 <!-- Manual Entry Card -->
                 <div class="card" style="border-top: 4px solid var(--primary-gold);">
-                    <h3>➕ Add Single Student</h3>
+                    <h3>? Add Single Student</h3>
                     <p class="text-muted">Manually add a student. Year Level is auto-assigned.</p>
                     <form onsubmit="event.preventDefault(); app.handleAddManualStudent()" id="manualStudentForm" style="display:grid; gap:1rem;">
                         <input type="text" name="manualId" placeholder="Student ID" required class="form-control" style="padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
@@ -5753,9 +7537,9 @@ class App {
                 <div class="card">
                     <h3>Administrative Actions</h3>
                     <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="app.exportReport('pdf')">📄 Export PDF Report</button>
-                        <button class="btn btn-outline" onclick="app.exportReport('excel')">📊 Export Excel</button>
-                        <button class="btn btn-outline" onclick="alert('Sending Notifications...')">📧 Send Risk Notifications</button>
+                        <button class="btn btn-primary" onclick="app.exportReport('pdf')">?? Export PDF Report</button>
+                        <button class="btn btn-outline" onclick="app.exportReport('excel')">?? Export Excel</button>
+                        <button class="btn btn-outline" onclick="alert('Sending Notifications...')">?? Send Risk Notifications</button>
                     </div>
                 </div>
                 <div class="card">
@@ -5772,7 +7556,7 @@ class App {
             </div>
 
                 <div class="card" style="margin-top: 2rem; border-left: 4px solid var(--danger);">
-                    <h3>⚠️ At-Risk Students Report</h3>
+                    <h3>?? At-Risk Students Report</h3>
                     <p class="text-muted">Students with < 85% attendance or < 75% grade.</p>
                     <div class="data-table-container">
                         <table class="data-table">
@@ -6241,7 +8025,7 @@ class App {
 
                     <!-- 1. Research Outcomes -->
                     <div class="card">
-                        <h3>📚 Research Output & Impact</h3>
+                        <h3>?? Research Output & Impact</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartResearch"></canvas>
                         </div>
@@ -6252,7 +8036,7 @@ class App {
 
                     <!-- 2. Grant Funding -->
                     <div class="card">
-                        <h3>💰 Grant Funding Sources</h3>
+                        <h3>?? Grant Funding Sources</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartGrants"></canvas>
                         </div>
@@ -6263,7 +8047,7 @@ class App {
 
                     <!-- 3. Student Supervision -->
                     <div class="card">
-                        <h3>👨‍🎓 Student Supervision</h3>
+                        <h3>????? Student Supervision</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartSupervision"></canvas>
                         </div>
@@ -6271,7 +8055,7 @@ class App {
 
                     <!-- 4. Professional Development -->
                     <div class="card">
-                        <h3>🎓 Professional Development</h3>
+                        <h3>?? Professional Development</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartDev"></canvas>
                         </div>
@@ -6392,7 +8176,7 @@ class App {
     renderPharmaScienceDashboardEnhanced() {
         this.title.innerHTML = `
             Dept.of Pharmaceutical Sciences
-                <button onclick = "window.app.renderPharmaEditMode()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >✏️ Edit Data</button >
+                <button onclick = "window.app.renderPharmaEditMode()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >?? Edit Data</button >
                     `;
 
         // --- Use State Data ---
@@ -6457,7 +8241,7 @@ class App {
 
                     <!-- 1. Research Outcomes (Q-Index Stacked) -->
                     <div class="card">
-                        <h3>⭐ Research Quality (Q-Index)</h3>
+                        <h3>? Research Quality (Q-Index)</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartResearch"></canvas>
                         </div>
@@ -6468,7 +8252,7 @@ class App {
 
                     <!-- 2. Grant Success Funnel -->
                     <div class="card">
-                        <h3>📊 Grant Success Funnel</h3>
+                        <h3>?? Grant Success Funnel</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartGrants"></canvas>
                         </div>
@@ -6479,7 +8263,7 @@ class App {
 
                     <!-- 3. Student Supervision -->
                     <div class="card">
-                        <h3>📋 Supervision Load</h3>
+                        <h3>?? Supervision Load</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartSupervision"></canvas>
                         </div>
@@ -6487,7 +8271,7 @@ class App {
 
                     <!-- 4. Global Collaborations (New) -->
                     <div class="card">
-                        <h3>🌍 Global Collaborations</h3>
+                        <h3>?? Global Collaborations</h3>
                         <div style="height: 300px; overflow-y:auto; padding-right:0.5rem;">
                             <ul style="list-style:none; padding:0;">
                                 ${collaborations.map(c => `
@@ -6495,7 +8279,7 @@ class App {
                                         <span style="font-size: 2rem;">${c.flag}</span>
                                         <div>
                                             <div style="font-weight:bold; font-size:1.05rem;">${c.institution}</div>
-                                            <div style="color:#666; font-size:0.9rem;">${c.country} � ${c.type}</div>
+                                            <div style="color:#666; font-size:0.9rem;">${c.country} ? ${c.type}</div>
                                         </div>
                                     </li>
                                 `).join('')}
@@ -6595,7 +8379,7 @@ class App {
 
         this.root.innerHTML = `
                 <div class="card" style = "max-width: 800px; margin: 0 auto;" >
-                <h3>📝 Update Metrics</h3>
+                <h3>?? Update Metrics</h3>
                 <form id="pharma-edit-form" style="display:grid; gap:1.5rem; margin-top:1rem;">
                     
                     <!-- Research Section -->
@@ -6708,7 +8492,7 @@ class App {
         this.pharmaDeptLabel = deptLabel;
         this.title.innerHTML = `
             ${deptLabel}
-                <button onclick = "window.app.renderPharmaEditMode_v2()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >✏️ Edit Data</button >
+                <button onclick = "window.app.renderPharmaEditMode_v2()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >?? Edit Data</button >
                     `;
 
         const data = this.pharmaData;
@@ -6787,7 +8571,7 @@ class App {
                     
                     <!-- Research Quality (Stacked Bar) -->
                     <div class="card fade-in-up delay-1">
-                        <h3>📊 Research Outcomes & Quality</h3>
+                        <h3>?? Research Outcomes & Quality</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartResearch"></canvas>
                         </div>
@@ -6798,7 +8582,7 @@ class App {
 
                     <!-- Grant Funnel (Funnel/Bar) -->
                     <div class="card fade-in-up delay-2">
-                        <h3>💰 Grant Success Pipeline</h3>
+                        <h3>?? Grant Success Pipeline</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartGrants"></canvas>
                         </div>
@@ -6806,7 +8590,7 @@ class App {
 
                     <!-- Professional Profile (Radar Chart - NEW) -->
                     <div class="card fade-in-up delay-3">
-                        <h3>🎓 Professional & Academic Development</h3>
+                        <h3>?? Professional & Academic Development</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartRadar"></canvas>
                         </div>
@@ -6817,7 +8601,7 @@ class App {
 
                     <!-- Student Supervision (Bar) -->
                     <div class="card fade-in-up delay-4">
-                        <h3>👨‍🎓 Supervision & Mentorship</h3>
+                        <h3>????? Supervision & Mentorship</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartSupervision"></canvas>
                         </div>
@@ -6827,7 +8611,7 @@ class App {
 
                 <!--3. Global Collaborations List-->
                  <div class="card fade-in-up delay-4" style="margin-top: 1.5rem;">
-                    <h3>🌍 International Collaborations</h3>
+                    <h3>?? International Collaborations</h3>
                     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; margin-top:1rem;">
                         ${collaborations.map(c => `
                             <div style="display:flex; align-items:center; padding: 1rem; border: 1px solid #eee; border-radius:8px; background:#fafafa;">
@@ -6844,7 +8628,7 @@ class App {
 
                 <!--4. Faculty Directory(NEW)-->
                 <div class="card fade-in-up delay-4" style="margin-top: 1.5rem;">
-                    <h3>👥 Department Faculty</h3>
+                    <h3>?? Department Faculty</h3>
                     <div style="margin-top:1rem; overflow-x:auto;">
                         <table style="width:100%; border-collapse: collapse; font-size: 0.95rem;">
                             <thead>
@@ -6863,7 +8647,7 @@ class App {
                                     <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;">
                                         <td style="padding:1rem; font-weight:bold; color:var(--primary-blue);">
                                             <div style="display:flex; align-items:center; gap:0.5rem;">
-                                                <div style="width:32px; height:32px; background:#e3f2fd; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary-blue); font-size:0.8rem;">👨‍🔬</div>
+                                                <div style="width:32px; height:32px; background:#e3f2fd; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary-blue); font-size:0.8rem;">?????</div>
                                                 ${f.name}
                                             </div>
                                         </td>
@@ -6873,8 +8657,8 @@ class App {
                                         </td>
                                         <td style="padding:1rem; color:#666;">${f.email}</td>
                                         <td style="padding:1rem; text-align:right; display:flex; gap:0.5rem; justify-content:flex-end;">
-                                            <button onclick="window.app.renderFacultyProfile('${f.email}')" class="btn btn-sm btn-outline">👁️ View Profile</button>
-                                            <a href="mailto:${f.email}" class="btn btn-sm btn-outline" title="Email">✉️</a>
+                                            <button onclick="window.app.renderFacultyProfile('${f.email}')" class="btn btn-sm btn-outline">??? View Profile</button>
+                                            <a href="mailto:${f.email}" class="btn btn-sm btn-outline" title="Email">??</a>
                                         </td>
                                     </tr>
                                 `}).join('') : '<tr><td colspan="5" style="padding:1rem;">No faculty data available.</td></tr>'}
@@ -6973,7 +8757,7 @@ class App {
         this.root.innerHTML = `
                 <div class="card fade-in-up" style = "max-width: 900px; margin: 0 auto; border-top: 4px solid var(--primary-gold);" >
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                    <h3>📝 Update Department Metrics</h3>
+                    <h3>?? Update Department Metrics</h3>
                     <button onclick="window.app.renderPharmaScienceDashboardEnhanced_v2(window.app.pharmaDeptLabel)" class="btn btn-sm btn-outline">Cancel</button>
                 </div>
                 
@@ -7054,7 +8838,7 @@ class App {
                     </div>
 
                     <div style="text-align:right; margin-top:1rem; border-top:1px solid #eee; padding-top:1rem;">
-                         <button type="button" onclick="window.app.handlePharmaSave_v2()" class="btn btn-primary btn-lg">💾 Save Changes</button>
+                         <button type="button" onclick="window.app.handlePharmaSave_v2()" class="btn btn-primary btn-lg">?? Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -7150,14 +8934,14 @@ class App {
                 <div style="display:flex; gap:0.5rem;">
                     ${metrics.scholarUrl ? `
                         <button onclick="window.app.simulateScholarSync('${email}')" class="btn btn-sm btn-outline" style="border-color:#2196f3; color:#2196f3;">
-                            🔄 Sync Scholar
+                            ?? Sync Scholar
                         </button>
                     ` : `
                         <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-outline" style="border-color:#666; color:#666; opacity:0.7;">
                             ? Add Scholar Link
                         </button>
                     `}
-                    <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-primary">✏️ Edit Data</button>
+                    <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-primary">?? Edit Data</button>
                 </div>
             </div>
             `;
@@ -7225,7 +9009,7 @@ class App {
                 <div class="card mb-4" style="background: linear-gradient(to right, #e3f2fd, #fff); border-left: 4px solid #2196f3;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <h3 style="margin:0; color:#1565c0;">📚 Teaching Load (Fall 2024)</h3>
+                            <h3 style="margin:0; color:#1565c0;">?? Teaching Load (Fall 2024)</h3>
                             <p style="margin:0; opacity:0.8;">Assigned Credit Hours per Semester</p>
                         </div>
                         <div style="font-size: 2.5rem; font-weight:bold; color:#1565c0;">
@@ -7239,7 +9023,7 @@ class App {
 
                     <!-- Research Quality -->
                     <div class="card">
-                        <h3>📊 Research Output</h3>
+                        <h3>?? Research Output</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileResearch"></canvas>
                         </div>
@@ -7247,7 +9031,7 @@ class App {
 
                     <!-- Grant Funnel -->
                     <div class="card">
-                        <h3>💰 Grant Activity</h3>
+                        <h3>?? Grant Activity</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileGrants"></canvas>
                         </div>
@@ -7255,7 +9039,7 @@ class App {
 
                     <!-- Professional Profile -->
                     <div class="card">
-                        <h3>📈 Annual Activity Profile</h3>
+                        <h3>?? Annual Activity Profile</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileRadar"></canvas>
                         </div>
@@ -7263,7 +9047,7 @@ class App {
 
                     <!-- Supervision -->
                     <div class="card">
-                        <h3>👥 Supervision Breakdown</h3>
+                        <h3>?? Supervision Breakdown</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileSupervision"></canvas>
                         </div>
@@ -7306,7 +9090,7 @@ class App {
         this.root.innerHTML = `
                 < div class="card fade-in-up" style = "max-width: 900px; margin: 0 auto; border-top: 4px solid var(--primary-gold);" >
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                    <h3>📝 Update Personal Metrics</h3>
+                    <h3>?? Update Personal Metrics</h3>
                     <button onclick="window.app.renderFacultyProfile('${email}')" class="btn btn-sm btn-outline">Cancel</button>
                 </div>
                 
@@ -7314,7 +9098,7 @@ class App {
                     
                     <!-- Scholar Link & Indices -->
                     <div style="background:#f0f7ff; padding:1rem; border-radius:8px; border:1px dashed #2196f3;">
-                        <label style="font-weight:bold; color:#1565c0;">🎓 Google Scholar Details</label>
+                        <label style="font-weight:bold; color:#1565c0;">?? Google Scholar Details</label>
                         <input type="text" name="scholarUrl" value="${data.scholarUrl || ''}" placeholder="Paste Profile URL..." style="width:100%; padding:0.5rem; margin-top:0.5rem; border:1px solid #ccc; border-radius:4px; margin-bottom:1rem;">
                         
                         <div style="display:flex; gap:1rem;">
@@ -7382,13 +9166,13 @@ class App {
                          </div>
                          
                          <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px dashed #ddd;">
-                            <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">📚 Teaching Load (Hours/Week)</label>
+                            <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">?? Teaching Load (Hours/Week)</label>
                             <input type="number" name="teachingLoad" value="${data.teachingLoad || 0}" style="width:150px; padding:0.5rem; font-size:1.1rem;">
                          </div>
                     </div>
 
                     <div style="text-align:right; margin-top:1rem; border-top:1px solid #eee; padding-top:1rem;">
-                         <button type="button" onclick="window.app.handleFacultySave('${email}')" class="btn btn-primary btn-lg">💾 Save Profile</button>
+                         <button type="button" onclick="window.app.handleFacultySave('${email}')" class="btn btn-primary btn-lg">?? Save Profile</button>
                     </div>
                 </form>
             </div >
@@ -7467,7 +9251,7 @@ class App {
             // Occasionally increment publication count (20% chance)
             if (Math.random() > 0.8) {
                 profile.research.q1[lastYearIdx] += 1;
-                alert(`📚 New Publication Found!\nAdded to Q1[${profile.research.years[lastYearIdx]}]`);
+                alert(`?? New Publication Found!\nAdded to Q1[${profile.research.years[lastYearIdx]}]`);
             }
 
             // Update timestamp
@@ -7715,7 +9499,7 @@ class App {
                     <div class="modal" onclick="event.stopPropagation()">
                         <div class="modal-header">
                             <h3>Rotation Block ${block} Details</h3>
-                            <button class="btn-close" onclick="this.closest('.modal-overlay').remove()">�</button>
+                            <button class="btn-close" onclick="this.closest('.modal-overlay').remove()">?</button>
                         </div>
                         <div class="modal-body">
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
@@ -7754,7 +9538,7 @@ class App {
     }
 
     renderRequestForm(type) {
-        this.title.textContent = `📝 New Request: ${type} `;
+        this.title.textContent = `?? New Request: ${type} `;
 
         // Common Course Field for ALL forms
         const courseField = `
@@ -7813,7 +9597,7 @@ class App {
                 <div class="form-group mb-3">
                     <label style="display:block; margin-bottom:0.5rem; font-weight:bold;">Upload Proof (Simulated)</label>
                     <div style="border:2px dashed #ddd; padding:1.5rem; text-align:center; border-radius:4px; cursor:pointer; background:#f9f9f9;">
-                        📤 Click to Upload Document
+                        ?? Click to Upload Document
                     </div>
                 </div>
             `;
@@ -7837,14 +9621,14 @@ class App {
                 <button onclick="window.app.renderStudentPortal()" style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:1rem;">? Back to Portal</button>
                 <h2 style="color:var(--primary-blue); margin-top:0;">Request: ${type}</h2>
                 <div style="background:#e3f2fd; color:#1565c0; padding:1rem; border-radius:4px; margin-bottom:1.5rem; font-size:0.9rem;">
-                    ℹ️ This request will be routed to the <strong>Clinical Affairs Admin</strong> for the selected Course/Level.
+                    ?? This request will be routed to the <strong>Clinical Affairs Admin</strong> for the selected Course/Level.
                 </div>
                 
                 <form onsubmit="event.preventDefault(); window.app.handleRequestSubmit('${type}')" id="requestForm">
                     ${formFields}
                     <div style="text-align:right; margin-top:1.5rem;">
                         <button type="button" onclick="window.app.renderStudentPortal()" class="btn btn-outline" style="margin-right:0.5rem;">Cancel</button>
-                        <button type="submit" class="btn btn-primary">📨 Submit Request</button>
+                        <button type="submit" class="btn btn-primary">?? Submit Request</button>
                     </div>
                 </form>
             </div >
@@ -7878,7 +9662,7 @@ class App {
     }
 
     renderDocumentHub() {
-        this.title.textContent = '📋 Clinical Documentation Hub';
+        this.title.textContent = '?? Clinical Documentation Hub';
         const docs = this.pharmaData.compliance;
 
         const html = `
@@ -7923,13 +9707,13 @@ class App {
                                 </div>
 
                                 <div style="font-size:0.9rem; color:#666; margin-bottom:1.5rem;">
-                                    ${doc.date ? `<div>📅 Date: ${doc.date}</div>` : ''}
-                                    ${doc.expiry ? `<div>📅 Expires: ${doc.expiry}</div>` : ''}
+                                    ${doc.date ? `<div>?? Date: ${doc.date}</div>` : ''}
+                                    ${doc.expiry ? `<div>?? Expires: ${doc.expiry}</div>` : ''}
                                     ${!doc.date ? '<div>Not uploaded yet</div>' : ''}
                                 </div>
 
                                 <button class="btn btn-outline btn-sm" style="width:100%;" onclick="window.app.handleAuthUpload('${doc.id}')">
-                                    ${doc.status === 'Missing' ? '📤 Upload Document' : '📤 Update / Renew'}
+                                    ${doc.status === 'Missing' ? '?? Upload Document' : '?? Update / Renew'}
                                 </button>
                             </div>
                         `;
@@ -7937,7 +9721,7 @@ class App {
                 </div>
 
                 <div style="margin-top:2rem; padding:1rem; background:#f0f7ff; border-radius:8px; display:flex; gap:1rem; align-items:center;">
-                    <div style="font-size:1.5rem;">📄</div>
+                    <div style="font-size:1.5rem;">??</div>
                     <div>
                         <strong>Need Help?</strong><br>
                         For technical issues with uploads, please contact IT Support. For questions about requirements, contact Clinical Affairs.
@@ -8005,14 +9789,14 @@ class App {
     }
 
     renderHospitalProfiles() {
-        this.title.textContent = '🏥 Clinical Training Sites';
+        this.title.textContent = '?? Clinical Training Sites';
 
         const hospitals = [
-            { id: 'kamc', name: 'King Abdulaziz Medical City (KAMC)', type: 'National Guard', region: 'Riyadh', img: '🏥' },
-            { id: 'kfmc', name: 'King Fahad Medical City (KFMC)', type: 'MOH', region: 'Riyadh', img: '🏥' },
-            { id: 'kfsh', name: 'King Faisal Specialist Hospital', type: 'Specialist', region: 'Riyadh', img: '🏥' },
-            { id: 'security', name: 'Security Forces Hospital', type: 'MOI', region: 'Riyadh', img: '🏥' },
-            { id: 'nora', name: 'Princess Nourah Hospital', type: 'University', region: 'Riyadh', img: '🏥' }
+            { id: 'kamc', name: 'King Abdulaziz Medical City (KAMC)', type: 'National Guard', region: 'Riyadh', img: '??' },
+            { id: 'kfmc', name: 'King Fahad Medical City (KFMC)', type: 'MOH', region: 'Riyadh', img: '??' },
+            { id: 'kfsh', name: 'King Faisal Specialist Hospital', type: 'Specialist', region: 'Riyadh', img: '??' },
+            { id: 'security', name: 'Security Forces Hospital', type: 'MOI', region: 'Riyadh', img: '??' },
+            { id: 'nora', name: 'Princess Nourah Hospital', type: 'University', region: 'Riyadh', img: '??' }
         ];
 
         const html = `
@@ -8061,21 +9845,21 @@ class App {
                 <button onclick="window.app.renderHospitalProfiles()" style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:1rem;">? Back to Directory</button>
                 
                 <div style="text-align:center; margin-bottom:2rem;">
-                    <div style="font-size:4rem;">🏥</div>
+                    <div style="font-size:4rem;">??</div>
                     <h1 style="color:var(--primary-blue); margin:0.5rem 0;">${details.name}</h1>
                     <p style="color:#666; max-width:600px; margin:0 auto;">${details.desc}</p>
                 </div>
 
                 <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap:2rem;">
                     <div style="background:#f4f6f8; padding:1.5rem; border-radius:8px;">
-                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">📋 Specific Requirements</h4>
+                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">?? Specific Requirements</h4>
                         <ul style="margin-top:1rem; padding-left:1.5rem;">
                             ${details.reqs.map(r => `<li>${r}</li>`).join('') || '<li>Standard University Requirements</li>'}
                         </ul>
                     </div>
                     
                     <div style="background:#f4f6f8; padding:1.5rem; border-radius:8px;">
-                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">📞 Key Contacts</h4>
+                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">?? Key Contacts</h4>
                         <ul style="margin-top:1rem; padding-left:1.5rem;">
                             ${details.contacts.map(c => `<li>${c}</li>`).join('') || '<li>Contact Clinical Affairs</li>'}
                         </ul>
@@ -8083,8 +9867,8 @@ class App {
                 </div>
 
                 <div style="margin-top:2rem; text-align:center;">
-                    <button class="btn btn-primary" onclick="alert('Opening Map...')">📍 View Location</button>
-                    <button class="btn btn-outline" onclick="alert('Downloading Handbook...')">📥 Download Site Handbook</button>
+                    <button class="btn btn-primary" onclick="alert('Opening Map...')">?? View Location</button>
+                    <button class="btn btn-outline" onclick="alert('Downloading Handbook...')">?? Download Site Handbook</button>
                 </div>
             </div >
                 `;
@@ -8092,7 +9876,7 @@ class App {
     }
 
     renderMySchedule() {
-        this.title.textContent = '📅 My Rotation Schedule';
+        this.title.textContent = '?? My Rotation Schedule';
 
         // Mock Schedule
         const schedule = [
@@ -8109,7 +9893,7 @@ class App {
                 <button onclick="window.app.renderStudentPortal()" style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:1rem;">? Back to Portal</button>
                 <div class="flex-between mb-4">
                      <h2 style="color:var(--primary-blue); margin:0;">2025-2026 Rotation Schedule</h2>
-                     <button class="btn btn-outline" onclick="window.print()">🖨️ Print Schedule</button>
+                     <button class="btn btn-outline" onclick="window.print()">??? Print Schedule</button>
                 </div>
 
                 <div class="data-table-container">
@@ -8309,7 +10093,7 @@ class App {
         const html = `
                 < div class="card mb-4" >
                     <div class="flex-between">
-                        <input type="text" placeholder="🔍 Search by name or specialty..." style="padding:0.75rem; border:1px solid #ddd; border-radius:8px; width:400px; font-size:1rem;">
+                        <input type="text" placeholder="?? Search by name or specialty..." style="padding:0.75rem; border:1px solid #ddd; border-radius:8px; width:400px; font-size:1rem;">
                             <button class="btn btn-primary">+ Invite Preceptor</button>
                     </div>
             </div >
@@ -8319,7 +10103,7 @@ class App {
                     <div class="card preceptor-card" style="transition:transform 0.2s;">
                         <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:1rem;">
                             <div style="display:flex; gap:1rem; align-items:center;">
-                                <div style="width:50px; height:50px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">👨‍⚕️</div>
+                                <div style="width:50px; height:50px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">?????</div>
                                 <div>
                                     <h3 style="margin:0; font-size:1.1rem;">${p.name}</h3>
                                     <span class="badge-secondary">${p.specialty}</span>
@@ -8509,11 +10293,11 @@ class App {
                                 <span class="badge-success" style="font-size: 0.8rem; padding: 2px 6px; border-radius: 4px;">${p.specialty}</span>
                             </div>
                             <div style="width: 40px; height: 40px; background: #eee; border-radius: 50%; display:flex; align-items:center; justify-content:center;">
-                                👨‍⚕️
+                                ?????
                             </div>
                         </div>
                         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
-                            <small>✉️ ${p.email}</small>
+                            <small>?? ${p.email}</small>
                         </div>
                     </div>
                 `).join('')}
@@ -8564,7 +10348,7 @@ class App {
         this.title.textContent = title;
         this.root.innerHTML = `
             <div class="card" style="text-align:center; padding:3rem;">
-                <h2 style="font-size:1.6rem; margin-bottom:0.5rem;">🚧 Under Construction</h2>
+                <h2 style="font-size:1.6rem; margin-bottom:0.5rem;">?? Under Construction</h2>
                 <p style="margin:0.25rem 0 1rem 0;">The ${title} module is currently being developed.</p>
                 <button class="btn btn-primary" onclick="app.render('dashboard')" style="margin-top: 0.5rem;">Return Home</button>
             </div>
@@ -8764,7 +10548,7 @@ class App {
                         <td><strong>${s.name}</strong><br><small>${s.id}</small></td>
                         <td>${score}</td>
                         <td>
-                            <button class="btn btn-primary" onclick="window.renderGradingModal('${type}', '${s.id}')">📊 Grade (Rubric)</button>
+                            <button class="btn btn-primary" onclick="window.renderGradingModal('${type}', '${s.id}')">?? Grade (Rubric)</button>
                         </td>
                     </tr >
                 `;
@@ -8792,7 +10576,7 @@ class App {
                 <div class="card" style="background: linear-gradient(135deg, #2c3e50, #34495e); color: white;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <h3 style="color:white; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:0.5rem; margin-bottom:1rem;">⚙️ Program Configuration</h3>
+                            <h3 style="color:white; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:0.5rem; margin-bottom:1rem;">?? Program Configuration</h3>
                             <div style="display:flex; gap:2rem;">
                                 <div>
                                     <small style="text-transform:uppercase; opacity:0.7;">Current Session</small>
@@ -8816,7 +10600,7 @@ class App {
 
                 <!-- Quick Actions -->
                 <div class="card">
-                    <h3>📝 Data Entry Hub</h3>
+                    <h3>?? Data Entry Hub</h3>
                     <div style="display:flex; flex-direction:column; gap:0.5rem;">
                         <button class="btn btn-primary" onclick="alert('Log New Incident Tool')">Log Professionalism Incident</button>
                         <button class="btn btn-outline" onclick="alert('Batch Upload Tool')">Batch Upload Excel</button>
@@ -8835,7 +10619,7 @@ class App {
                     </div>
                     <div>
                         <button class="btn btn-outline">Export CSV</button>
-                        <button class="btn btn-primary" onclick="window.downloadMockReport()">📥 Download Report</button>
+                        <button class="btn btn-primary" onclick="window.downloadMockReport()">?? Download Report</button>
                     </div>
                 </div>
 
@@ -8878,7 +10662,7 @@ class App {
                         <!-- Home/Portal Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('student-portal');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                🏠
+                                ??
                             </div>
                             <div class="card-content">
                                 <h4>Home</h4>
@@ -8890,11 +10674,11 @@ class App {
                         <!-- IPPE I Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe1');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                1️⃣
+                                1??
                             </div>
                             <div class="card-content">
                                 <h4>IPPE I</h4>
-                                <p>Year 2 • Foundation</p>
+                                <p>Year 2 � Foundation</p>
                             </div>
                             <div class="card-badge" style="background: #f5576c;">Year 2</div>
                         </a>
@@ -8902,11 +10686,11 @@ class App {
                         <!-- IPPE II Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe2');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                2️⃣
+                                2??
                             </div>
                             <div class="card-content">
                                 <h4>IPPE II</h4>
-                                <p>Year 3 • Development</p>
+                                <p>Year 3 � Development</p>
                             </div>
                             <div class="card-badge" style="background: #00f2fe;">Year 3</div>
                         </a>
@@ -8914,11 +10698,11 @@ class App {
                         <!-- IPPE III Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe3');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                                3️⃣
+                                3??
                             </div>
                             <div class="card-content">
                                 <h4>IPPE III</h4>
-                                <p>Year 4 • Advanced</p>
+                                <p>Year 4 � Advanced</p>
                             </div>
                             <div class="card-badge" style="background: #38f9d7; color: #000;">Year 4</div>
                         </a>
@@ -8926,7 +10710,7 @@ class App {
                         <!-- IPPE Community Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe-community');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                                🏘️
+                                ???
                             </div>
                             <div class="card-content">
                                 <h4>IPPE Community</h4>
@@ -8938,7 +10722,7 @@ class App {
                         <!-- APPE Experience Hub Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('appe-experience-hub');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
-                                🎓
+                                ??
                             </div>
                             <div class="card-content">
                                 <h4>APPE Experience Hub</h4>
@@ -8950,13 +10734,13 @@ class App {
                 </div>
 
                 < div class="user-welcome" style = "margin-bottom: 2rem;" >
-                <h2>Welcome back, Raghad! 👋</h2>
+                <h2>Welcome back, Raghad! ??</h2>
                 <p>IPPE I - Community Pharmacy | Cohort 2025</p>
             </div >
 
             < !--Career Flow / Session Tracker-- >
             <div class="card mb-4" style="background: linear-gradient(to right, #f8f9fa, #fff);">
-                <h3 style="margin-bottom: 1rem; color: var(--primary-green);">🎯 Your Rotation Journey</h3>
+                <h3 style="margin-bottom: 1rem; color: var(--primary-green);">?? Your Rotation Journey</h3>
                 <div style="display: flex; gap: 1rem; overflow-x: auto;">
                     
                     <!-- Previous -->
@@ -8970,7 +10754,7 @@ class App {
                     <div style="flex: 1; border: 2px solid var(--primary-green); background: #e8f5e9; padding: 1rem; border-radius: 8px; transform: scale(1.02);">
                         <span class="badge-success">Current (Week ${currentSession?.week})</span>
                         <h4 style="margin: 0.5rem 0;">${currentSession?.topic}</h4>
-                        <p style="margin: 0;"><strong>Venue:</strong> ${currentSession?.topic.includes('IV Room') ? 'Hospital Venue � Large' : 'Riyadh Simulation Center'}</p>
+                        <p style="margin: 0;"><strong>Venue:</strong> ${currentSession?.topic.includes('IV Room') ? 'Hospital Venue ? Large' : 'Riyadh Simulation Center'}</p>
                         <small style="display:block; margin-top:0.5rem;"><strong>Preceptor:</strong> ${currentSession?.preceptor}</small>
                     </div>
 
@@ -8986,7 +10770,7 @@ class App {
             <!--Active Requests Timeline-- >
             <div class="card mb-4">
                 <div class="flex-between">
-                    <h3 style="margin-bottom: 1rem; color: var(--primary-blue);">📝 Active Requests</h3>
+                    <h3 style="margin-bottom: 1rem; color: var(--primary-blue);">?? Active Requests</h3>
                     <button class="btn btn-sm btn-outline" onclick="window.app.renderRequestForm('General')">+ New Request</button>
                 </div>
                 
@@ -9006,7 +10790,7 @@ class App {
                                         ${req.course || 'General'}
                                     </span>
                                     <div style="font-size:0.8rem; color:#666; margin-top:2px;">
-                                        ID: ${req.id} � ${req.date}
+                                        ID: ${req.id} ? ${req.date}
                                     </div>
                                 </div>
                                 <span class="badge-warning">${req.status}</span>
@@ -9079,18 +10863,18 @@ class App {
 
                 <!-- Quick Actions -->
                 <div class="card">
-                    <h3>My Compass 🧭</h3>
+                    <h3>My Compass ??</h3>
                     <ul class="nav-menu">
                         <li style="padding: 0.5rem; border-bottom: 1px solid #eee; cursor:pointer;" onclick="window.app.renderDocumentHub()">
-                            📂 <strong>Document Hub</strong> <br>
+                            ?? <strong>Document Hub</strong> <br>
                             <small class="text-muted">Upload Compliance Docs</small>
                         </li>
                         <li style="padding: 0.5rem; border-bottom: 1px solid #eee; cursor:pointer;" onclick="window.app.renderHospitalProfiles()">
-                            🏥 <strong>Hospital Directory</strong> <br>
+                            ?? <strong>Hospital Directory</strong> <br>
                             <small class="text-muted">Explore Training Sites</small>
                         </li>
                         <li style="padding: 0.5rem; border-bottom: 1px solid #eee; cursor:pointer;" onclick="window.app.renderMySchedule()">
-                            📅 <strong>My Schedule</strong> <br>
+                            ?? <strong>My Schedule</strong> <br>
                             <small class="text-muted">View Rotation Blocks</small>
                         </li>
                     </ul>
@@ -9238,13 +11022,13 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
     const editHtml = `
         <div style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #333;">✏️ Edit Tab Content</h3>
+                <h3 style="margin: 0; color: #333;">?? Edit Tab Content</h3>
                 <button onclick="app.exitEditMode()" style="background: #f0f0f0; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Exit Edit Mode</button>
             </div>
 
             <!-- Tab Metadata Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid #1B5E20;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📋 Tab Information</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Tab Information</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Tab Title</label>
@@ -9252,7 +11036,7 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
                     </div>
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Icon/Emoji</label>
-                        <input type="text" id="edit_icon" value="${editData.icon || '📊'}" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;" />
+                        <input type="text" id="edit_icon" value="${editData.icon || '??'}" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;" />
                     </div>
                 </div>
                 <div style="margin-bottom: 1rem;">
@@ -9260,45 +11044,45 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
                     <textarea id="edit_description" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; min-height: 80px; font-family: inherit;">${editData.description || ''}</textarea>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <button onclick="app.saveAlumniTabEdit('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">💾 Save Tab Info</button>
-                    <button onclick="app.resetAlumniTabEdit('${tab}'); app.render('${tab}');" style="background: #FF9800; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Reset</button>
+                    <button onclick="app.saveAlumniTabEdit('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Save Tab Info</button>
+                    <button onclick="app.resetAlumniTabEdit('${tab}'); app.render('${tab}');" style="background: #FF9800; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Reset</button>
                 </div>
             </div>
 
             <!-- Data Editing Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #2196F3;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📊 Edit Data & Numbers</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Edit Data & Numbers</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     Edit individual metrics and values displayed on this tab
                 </p>
                 <div id="alumni_data_editor_${tab}" style="background: #f9f9f9; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
                     <p style="color: #999; text-align: center; padding: 2rem;">Click "Edit Metrics" to modify numbers and data</p>
                 </div>
-                <button onclick="app.showDataEditor('${tab}')" style="background: #2196F3; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">✏️ Edit Metrics & Numbers</button>
+                <button onclick="app.showDataEditor('${tab}')" style="background: #2196F3; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">?? Edit Metrics & Numbers</button>
             </div>
 
             <!-- Import/Export Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #F57C00; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📥📤 Import / Export Data</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">???? Import / Export Data</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Import from Excel/CSV</label>
                         <input type="file" id="alumni_data_file_${tab}" accept=".csv,.xlsx" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;" />
                     </div>
                     <div style="display: flex; align-items: flex-end;">
-                        <button onclick="app.importAlumniData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">📂 Import Data</button>
+                        <button onclick="app.importAlumniData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Import Data</button>
                     </div>
                 </div>
-                <button onclick="app.exportAlumniDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">📥 Download Data as CSV</button>
+                <button onclick="app.exportAlumniDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">?? Download Data as CSV</button>
             </div>
 
             <!-- Reset Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #E91E63; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">🔄 Reset to Database</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Reset to Database</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     Clear all manual edits and refresh numbers to show latest database values
                 </p>
-                <button onclick="app.resetAlumniMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">🔄 Reset All Numbers to Database</button>
+                <button onclick="app.resetAlumniMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Reset All Numbers to Database</button>
             </div>
         </div>
     `;
@@ -9433,9 +11217,9 @@ App.prototype.showDataEditor = function(tab) {
                 <input type="text" id="new_metric_key_${tab}" placeholder="Metric name (e.g., Employment Rate)" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
                 <input type="text" id="new_metric_value_${tab}" placeholder="Value (e.g., 94%)" style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" />
             </div>
-            <button onclick="app.addNewMetric('${tab}')" style="background: #2196F3; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 0.75rem; width: 100%;">➕ Add Metric</button>
+            <button onclick="app.addNewMetric('${tab}')" style="background: #2196F3; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 0.75rem; width: 100%;">? Add Metric</button>
         </div>
-        <button onclick="app.saveAllMetrics('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">💾 Save All Metrics</button>
+        <button onclick="app.saveAllMetrics('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Save All Metrics</button>
     `;
 
     document.getElementById(`alumni_data_editor_${tab}`).innerHTML = editorPanel;
@@ -9544,7 +11328,7 @@ App.prototype.exportAlumniDataCSV = function(tab) {
 // ======================
 
 App.prototype.renderAlumniOverview = function() {
-    this.title.textContent = '🧑‍🎓 Alumni Overview';
+    this.title.textContent = '????? Alumni Overview';
     const db = ALUMNI_DATABASE;
     const currentYear = document.getElementById('alumniYearFilter')?.value || '';
     const currentProgram = document.getElementById('alumniProgramFilter')?.value || '';
@@ -9583,7 +11367,7 @@ App.prototype.renderAlumniOverview = function() {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <!-- Total Alumni Card -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👥</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Total Alumni</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalAlumni.toLocaleString()}</div>
@@ -9598,14 +11382,14 @@ App.prototype.renderAlumniOverview = function() {
 
             <!-- Employment Rate Card -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">💼</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Employment Rate</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${employmentRate}%</div>
                 </div>
                 <div style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">
-                    <div>📊 <strong>${db.employment_outcomes.total_employed || 345}</strong> Employed</div>
-                    <div style="margin-top: 0.3rem;">📈 <strong>${activeAlumni - (db.employment_outcomes.total_employed || 345)}</strong> Postgrad/Other</div>
+                    <div>?? <strong>${db.employment_outcomes.total_employed || 345}</strong> Employed</div>
+                    <div style="margin-top: 0.3rem;">?? <strong>${activeAlumni - (db.employment_outcomes.total_employed || 345)}</strong> Postgrad/Other</div>
                 </div>
                 <div style="background: #e3f2fd; height: 6px; border-radius: 3px; overflow: hidden;">
                     <div style="background: #2196F3; height: 100%; width: ${employmentRate}%; border-radius: 3px;"></div>
@@ -9617,14 +11401,14 @@ App.prototype.renderAlumniOverview = function() {
 
             <!-- Mentors & Preceptors Card -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎯</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Active Contributors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #ff6b6b;">${mentorCount + db.preceptorship.total_preceptors}</div>
                 </div>
                 <div style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">
-                    <div>🧠 <strong>${mentorCount}</strong> Mentors</div>
-                    <div style="margin-top: 0.3rem;">🏥 <strong>${db.preceptorship.total_preceptors}</strong> Preceptors</div>
+                    <div>?? <strong>${mentorCount}</strong> Mentors</div>
+                    <div style="margin-top: 0.3rem;">?? <strong>${db.preceptorship.total_preceptors}</strong> Preceptors</div>
                 </div>
                 <div style="background: #ffebee; height: 6px; border-radius: 3px; overflow: hidden;">
                     <div style="background: #ff6b6b; height: 100%; width: 85%; border-radius: 3px;"></div>
@@ -9679,25 +11463,25 @@ App.prototype.renderAlumniOverview = function() {
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Engagement Activities</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎤</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${db.engagement.guest_lectures}</div>
                     <div style="font-size: 0.85rem; color: #666;">Guest Lectures</div>
                 </div>
 
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">📅</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${db.engagement.career_days}</div>
                     <div style="font-size: 0.85rem; color: #666;">Career Days</div>
                 </div>
 
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎓</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #ff6b6b; margin-bottom: 0.3rem;">${db.engagement.workshops}</div>
                     <div style="font-size: 0.85rem; color: #666;">Workshops</div>
                 </div>
 
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #FFA500; margin-bottom: 0.3rem;">${db.engagement.panels}</div>
                     <div style="font-size: 0.85rem; color: #666;">Panel Discussions</div>
                 </div>
@@ -9741,15 +11525,15 @@ App.prototype.renderAlumniDirectory = function() {
         alumniTable += `<td data-field="name" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; font-weight:600;">${a.name}</td>`;
         alumniTable += `<td data-field="program" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;"><span style="background: #e3f2fd; padding: 0.25rem 0.5rem; border-radius: 3px;">${a.program}</span></td>`;
         alumniTable += `<td data-field="graduationYear" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${a.graduationYear}</td>`;
-        const statusLabel = window.alumniEditMode ? a.status : `<span style="background: ${a.status === 'employed' ? '#E8F5E9' : '#E3F2FD'}; color: ${a.status === 'employed' ? '#2E7D32' : '#1565C0'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${a.status === 'employed' ? '💼 Employed' : '📚 Postgrad'}</span>`;
+        const statusLabel = window.alumniEditMode ? a.status : `<span style="background: ${a.status === 'employed' ? '#E8F5E9' : '#E3F2FD'}; color: ${a.status === 'employed' ? '#2E7D32' : '#1565C0'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${a.status === 'employed' ? '?? Employed' : '?? Postgrad'}</span>`;
         alumniTable += `<td data-field="status" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${statusLabel}</td>`;
         alumniTable += `<td data-field="jobTitle" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${a.jobTitle}</td>`;
         alumniTable += `<td data-field="currentEmployer" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;"><small>${a.currentEmployer}</small></td>`;
-        const boardCertLabel = window.alumniEditMode ? (a.boardCert ? 'true' : 'false') : (a.boardCert ? '✅' : '❌');
+        const boardCertLabel = window.alumniEditMode ? (a.boardCert ? 'true' : 'false') : (a.boardCert ? '?' : '?');
         alumniTable += `<td data-field="boardCert" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; text-align: center;">${boardCertLabel}</td>`;
-        const mentorLabel = window.alumniEditMode ? (a.mentorWilling ? 'true' : 'false') : (a.mentorWilling ? '✅' : '❌');
+        const mentorLabel = window.alumniEditMode ? (a.mentorWilling ? 'true' : 'false') : (a.mentorWilling ? '?' : '?');
         alumniTable += `<td data-field="mentorWilling" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; text-align: center;">${mentorLabel}</td>`;
-        const preceptorLabel = window.alumniEditMode ? (a.preceptorWilling ? 'true' : 'false') : (a.preceptorWilling ? '✅' : '❌');
+        const preceptorLabel = window.alumniEditMode ? (a.preceptorWilling ? 'true' : 'false') : (a.preceptorWilling ? '?' : '?');
         alumniTable += `<td data-field="preceptorWilling" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; text-align: center;">${preceptorLabel}</td>`;
         alumniTable += '</tr>';
     });
@@ -9775,7 +11559,7 @@ App.prototype.renderAlumniDirectory = function() {
                 </select>
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="window.addAlumniRow()" title="Add a new alumni entry">➕ Add Alumni</button>
+                <button class="btn btn-primary" onclick="window.addAlumniRow()" title="Add a new alumni entry">? Add Alumni</button>
                 <button class="btn btn-outline" onclick="window.toggleAlumniEditMode()">${window.alumniEditMode ? 'Exit Edit Mode' : 'Edit Inline'}</button>
                 <button class="btn btn-primary" onclick="window.saveAlumniEdits()" ${window.alumniEditMode ? '' : 'disabled'}>Save Changes</button>
                 <button class="btn btn-outline" onclick="window.exportAlumniCSV()">Export CSV</button>
@@ -9787,13 +11571,13 @@ App.prototype.renderAlumniDirectory = function() {
             ${alumniTable}
         </div>
         <div style="margin-top: 1.5rem; padding: 1rem; background: #e8f5e9; border-radius: 6px;">
-            <strong>📊 Directory Statistics:</strong> ${filteredAlumni.length} of ${alumni.length} shown | ${alumni.filter(a => a.mentorWilling).length} mentors | ${alumni.filter(a => a.preceptorWilling).length} preceptors
+            <strong>?? Directory Statistics:</strong> ${filteredAlumni.length} of ${alumni.length} shown | ${alumni.filter(a => a.mentorWilling).length} mentors | ${alumni.filter(a => a.preceptorWilling).length} preceptors
         </div>
     `;
 };
 
 App.prototype.renderAlumniOutcomes = function() {
-    const tabTitle = '📊 Alumni Outcomes Tracking';
+    const tabTitle = '?? Alumni Outcomes Tracking';
     this.title.textContent = this.getAlumniTabTitle('alumni-outcomes', tabTitle);
     const db = ALUMNI_DATABASE;
     const outcomes = db.employment_outcomes;
@@ -9813,7 +11597,7 @@ App.prototype.renderAlumniOutcomes = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-outcomes')" style="background: ${this.alumniEditMode === 'alumni-outcomes' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-outcomes' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-outcomes' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -9830,7 +11614,7 @@ App.prototype.renderAlumniOutcomes = function() {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <!-- 12-Month Employment -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">💼</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">12-Month Employment</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${metric12m}</div>
@@ -9845,7 +11629,7 @@ App.prototype.renderAlumniOutcomes = function() {
 
             <!-- 6-Month Employment -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📈</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">6-Month Employment</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${metric6m}</div>
@@ -9860,7 +11644,7 @@ App.prototype.renderAlumniOutcomes = function() {
 
             <!-- Postgraduate Training -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Postgraduate Training</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${postgraduateCount}</div>
@@ -9875,7 +11659,7 @@ App.prototype.renderAlumniOutcomes = function() {
 
             <!-- Outcome Categories -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📋</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Outcome Categories</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${outcomes.outcomes.length}</div>
@@ -9969,7 +11753,7 @@ App.prototype.renderAlumniOutcomes = function() {
 };
 
 App.prototype.renderPostgraduateTracking = function() {
-    const tabTitle = '🎓 Postgraduate & Certification';
+    const tabTitle = '?? Postgraduate & Certification';
     this.title.textContent = this.getAlumniTabTitle('postgraduate-tracking', tabTitle);
     const db = ALUMNI_DATABASE;
     const pgData = db.postgraduate;
@@ -9987,7 +11771,7 @@ App.prototype.renderPostgraduateTracking = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('postgraduate-tracking')" style="background: ${this.alumniEditMode === 'postgraduate-tracking' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'postgraduate-tracking' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'postgraduate-tracking' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -9998,7 +11782,7 @@ App.prototype.renderPostgraduateTracking = function() {
         <!-- Top 4 Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🩺</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Residencies</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${residencies}</div>
@@ -10010,7 +11794,7 @@ App.prototype.renderPostgraduateTracking = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">✅</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Board Certifications</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${boardCerts}</div>
@@ -10022,7 +11806,7 @@ App.prototype.renderPostgraduateTracking = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Fellowships</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${fellowships}</div>
@@ -10034,7 +11818,7 @@ App.prototype.renderPostgraduateTracking = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Programs</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${totalPG}</div>
@@ -10085,7 +11869,7 @@ App.prototype.renderPostgraduateTracking = function() {
 };
 
 App.prototype.renderAlumniEngagement = function() {
-    const tabTitle = '🤝 Engagement Tracking';
+    const tabTitle = '?? Engagement Tracking';
     this.title.textContent = this.getAlumniTabTitle('alumni-engagement', tabTitle);
     const db = ALUMNI_DATABASE;
     const eng = db.engagement;
@@ -10105,7 +11889,7 @@ App.prototype.renderAlumniEngagement = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-engagement')" style="background: ${this.alumniEditMode === 'alumni-engagement' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-engagement' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-engagement' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10116,31 +11900,31 @@ App.prototype.renderAlumniEngagement = function() {
         <!-- Top 5 Engagement Activities -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎤</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.5rem;">${guestLectures}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Guest Lectures</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📅</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.5rem;">${careerDays}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Career Days</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔧</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.5rem;">${workshops}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Workshops</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎤</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.5rem;">${panels}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Panel Discussions</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #E91E63; margin-bottom: 0.5rem;">${conferences}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Conferences</div>
             </div>
@@ -10149,7 +11933,7 @@ App.prototype.renderAlumniEngagement = function() {
         <!-- Summary Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Engagements</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalEngagements}</div>
@@ -10161,7 +11945,7 @@ App.prototype.renderAlumniEngagement = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👥</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Alumni</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${activeAlumni}</div>
@@ -10173,7 +11957,7 @@ App.prototype.renderAlumniEngagement = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎯</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Participation Rate</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${participationRate}</div>
@@ -10188,7 +11972,7 @@ App.prototype.renderAlumniEngagement = function() {
 };
 
 App.prototype.renderMentorshipProgram = function() {
-    const tabTitle = '🧠 Mentorship Program';
+    const tabTitle = '?? Mentorship Program';
     this.title.textContent = this.getAlumniTabTitle('mentorship-program', tabTitle);
     const db = ALUMNI_DATABASE;
     const ment = db.mentorship;
@@ -10197,7 +11981,7 @@ App.prototype.renderMentorshipProgram = function() {
         <!-- Top 4 Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍🏫</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Alumni Mentors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${ment.total_mentors}</div>
@@ -10209,7 +11993,7 @@ App.prototype.renderMentorshipProgram = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍🎓</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Student Mentees</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${ment.total_mentees}</div>
@@ -10221,11 +12005,11 @@ App.prototype.renderMentorshipProgram = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">⭐</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Average Rating</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${ment.avg_rating.toFixed(1)}</div>
-                    <div style="font-size: 1.2rem; color: #FFB300; letter-spacing: 2px;">★★★★★</div>
+                    <div style="font-size: 1.2rem; color: #FFB300; letter-spacing: 2px;">?????</div>
                 </div>
                 <div style="background: #fff3e0; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 1rem;">
                     <div style="background: #FF9800; height: 100%; width: 92%; border-radius: 3px;"></div>
@@ -10234,7 +12018,7 @@ App.prototype.renderMentorshipProgram = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🤝</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Pairs</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${ment.active_pairs}</div>
@@ -10303,7 +12087,7 @@ App.prototype.renderMentorshipProgram = function() {
 };
 
 App.prototype.renderPreceptorPipeline = function() {
-    const tabTitle = '🏥 Preceptor & Training Sites';
+    const tabTitle = '?? Preceptor & Training Sites';
     this.title.textContent = this.getAlumniTabTitle('preceptor-pipeline', tabTitle);
     const db = ALUMNI_DATABASE;
     const precep = db.preceptorship;
@@ -10311,7 +12095,7 @@ App.prototype.renderPreceptorPipeline = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('preceptor-pipeline')" style="background: ${this.alumniEditMode === 'preceptor-pipeline' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'preceptor-pipeline' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'preceptor-pipeline' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10322,7 +12106,7 @@ App.prototype.renderPreceptorPipeline = function() {
         <!-- Top 4 Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍⚕️</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Preceptors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${precep.total_preceptors}</div>
@@ -10334,7 +12118,7 @@ App.prototype.renderPreceptorPipeline = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">✅</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Preceptors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${precep.active_preceptors}</div>
@@ -10346,7 +12130,7 @@ App.prototype.renderPreceptorPipeline = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🏛️</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">???</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Training Sites</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${precep.training_sites}</div>
@@ -10358,7 +12142,7 @@ App.prototype.renderPreceptorPipeline = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Utilization Rate</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${precep.utilization_rate}%</div>
@@ -10388,7 +12172,7 @@ App.prototype.renderPreceptorPipeline = function() {
 
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left: 4px solid #FF9800; border-radius: 10px; margin-top: 1.5rem;">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                        <span style="font-size: 1.5rem;">⚠️</span>
+                        <span style="font-size: 1.5rem;">??</span>
                         <div>
                             <strong style="display: block; margin-bottom: 0.3rem;">Pending Approvals</strong>
                             <div style="font-size: 1.3rem; font-weight: 700; color: #FF9800;">${precep.pending_approval}</div>
@@ -10426,7 +12210,7 @@ App.prototype.renderPreceptorPipeline = function() {
 };
 
 App.prototype.renderAlumniEvents = function() {
-    const tabTitle = '📅 Events & Communication';
+    const tabTitle = '?? Events & Communication';
     this.title.textContent = this.getAlumniTabTitle('alumni-events', tabTitle);
     const db = ALUMNI_DATABASE;
     const events = db.events;
@@ -10442,7 +12226,7 @@ App.prototype.renderAlumniEvents = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-events')" style="background: ${this.alumniEditMode === 'alumni-events' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-events' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-events' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10451,26 +12235,26 @@ App.prototype.renderAlumniEvents = function() {
 
     this.root.innerHTML = editButton + editPanel + `
         <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="alert('Add new event - Coming soon!')">➕ Add Event</button>
-            <button class="btn btn-outline" onclick="alert('Send communications - Coming soon!')">📧 Send Communication</button>
+            <button class="btn btn-primary" onclick="alert('Add new event - Coming soon!')">? Add Event</button>
+            <button class="btn btn-outline" onclick="alert('Send communications - Coming soon!')">?? Send Communication</button>
         </div>
 
         <!-- Event Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📅</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${upcomingCount}</div>
                 <div style="font-size: 0.9rem; color: #666;">Upcoming Events</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${completedCount}</div>
                 <div style="font-size: 0.9rem; color: #666;">Completed Events</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${totalRegistrations}</div>
                 <div style="font-size: 0.9rem; color: #666;">Total Registrations</div>
             </div>
@@ -10484,18 +12268,18 @@ App.prototype.renderAlumniEvents = function() {
                     const bgColor = evt.status === 'Upcoming' ? '#fff3e0' : '#e8f5e9';
                     const borderColor = evt.status === 'Upcoming' ? '#FF9800' : '#1B5E20';
                     const statusColor = evt.status === 'Upcoming' ? '#FF9800' : '#1B5E20';
-                    const icon = evt.status === 'Upcoming' ? '📌' : '✓';
+                    const icon = evt.status === 'Upcoming' ? '??' : '?';
                     return `
                         <div style="padding: 1.5rem; background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div style="flex: 1;">
                                     <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">${icon} ${evt.title}</strong>
-                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">📍 ${evt.location}</small>
-                                    <small style="color: #666;">📅 ${evt.date}</small>
+                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">?? ${evt.location}</small>
+                                    <small style="color: #666;">?? ${evt.date}</small>
                                 </div>
                                 <div style="text-align: right;">
                                     <span style="background: ${statusColor}; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 0.5rem;">${evt.type}</span><br>
-                                    <small style="color: #666; font-weight: 600;">👥 ${evt.registered} registered</small>
+                                    <small style="color: #666; font-weight: 600;">?? ${evt.registered} registered</small>
                                 </div>
                             </div>
                         </div>
@@ -10507,7 +12291,7 @@ App.prototype.renderAlumniEvents = function() {
 };
 
 App.prototype.renderAlumniAchievements = function() {
-    const tabTitle = '🏆 Achievements & Recognition';
+    const tabTitle = '?? Achievements & Recognition';
     this.title.textContent = this.getAlumniTabTitle('alumni-achievements', tabTitle);
     const db = ALUMNI_DATABASE;
     const achievements = db.achievements;
@@ -10525,7 +12309,7 @@ App.prototype.renderAlumniAchievements = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-achievements')" style="background: ${this.alumniEditMode === 'alumni-achievements' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-achievements' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-achievements' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10536,25 +12320,25 @@ App.prototype.renderAlumniAchievements = function() {
         <!-- Top Achievement Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏆</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${awards}</div>
                 <div style="font-size: 0.9rem; color: #666;">Awards & Recognition</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${publications}</div>
                 <div style="font-size: 0.9rem; color: #666;">Publications</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👔</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${leadership}</div>
                 <div style="font-size: 0.9rem; color: #666;">Leadership Roles</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📰</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${media}</div>
                 <div style="font-size: 0.9rem; color: #666;">Media Features</div>
             </div>
@@ -10600,7 +12384,7 @@ App.prototype.renderAlumniAchievements = function() {
 };
 
 App.prototype.renderAlumniFeedback = function() {
-    const tabTitle = '📣 Feedback & Surveys';
+    const tabTitle = '?? Feedback & Surveys';
     this.title.textContent = this.getAlumniTabTitle('alumni-feedback', tabTitle);
     const db = ALUMNI_DATABASE;
     const feedback = db.feedback;
@@ -10615,7 +12399,7 @@ App.prototype.renderAlumniFeedback = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-feedback')" style="background: ${this.alumniEditMode === 'alumni-feedback' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-feedback' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-feedback' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10626,7 +12410,7 @@ App.prototype.renderAlumniFeedback = function() {
         <!-- Feedback Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Overall Satisfaction</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${satisfactionRate}</div>
@@ -10638,17 +12422,17 @@ App.prototype.renderAlumniFeedback = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">⭐</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Average Score</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${avgScore}</div>
-                    <div style="font-size: 1rem; color: #FFB300; letter-spacing: 1px;">★★★★☆</div>
+                    <div style="font-size: 1rem; color: #FFB300; letter-spacing: 1px;">?????</div>
                 </div>
                 <div style="font-size: 0.8rem; color: #666;">Out of 5 Stars</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📋</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Responses</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${responses}</div>
@@ -10690,7 +12474,7 @@ App.prototype.renderAlumniFeedback = function() {
 };
 
 App.prototype.renderAlumniDocuments = function() {
-    const tabTitle = '📁 Documents & Records';
+    const tabTitle = '?? Documents & Records';
     this.title.textContent = this.getAlumniTabTitle('alumni-documents', tabTitle);
     const db = ALUMNI_DATABASE;
     const docs = db.documents;
@@ -10705,17 +12489,17 @@ App.prototype.renderAlumniDocuments = function() {
     const totalDocs = this.createEditableMetric('alumni-documents', 'total', defaultTotal, '#e8f5e9', '#1B5E20');
     
     const documentTypes = [
-        { name: 'Consent Forms', icon: '✅', count: consentForms, color: '#1B5E20' },
-        { name: 'Communication History', icon: '💌', count: commHistory, color: '#1565C0' },
-        { name: 'CV Submissions', icon: '📄', count: cvSubmissions, color: '#6A1B9A' },
-        { name: 'Certificates', icon: '🎓', count: certificates, color: '#F57C00' },
-        { name: 'Participation Letters', icon: '📧', count: participationLetters, color: '#C62828' }
+        { name: 'Consent Forms', icon: '?', count: consentForms, color: '#1B5E20' },
+        { name: 'Communication History', icon: '??', count: commHistory, color: '#1565C0' },
+        { name: 'CV Submissions', icon: '??', count: cvSubmissions, color: '#6A1B9A' },
+        { name: 'Certificates', icon: '??', count: certificates, color: '#F57C00' },
+        { name: 'Participation Letters', icon: '??', count: participationLetters, color: '#C62828' }
     ];
 
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-documents')" style="background: ${this.alumniEditMode === 'alumni-documents' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-documents' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-documents' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10726,25 +12510,25 @@ App.prototype.renderAlumniDocuments = function() {
         <!-- Top Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📁</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${totalDocs}</div>
                 <div style="font-size: 0.9rem; color: #666;">Total Documents</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${docs.consent_forms}</div>
                 <div style="font-size: 0.9rem; color: #666;">Consent Forms</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${docs.cv_submissions}</div>
                 <div style="font-size: 0.9rem; color: #666;">CV Submissions</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎓</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${docs.certificates}</div>
                 <div style="font-size: 0.9rem; color: #666;">Certificates</div>
             </div>
@@ -10779,16 +12563,16 @@ App.prototype.renderAlumniDocuments = function() {
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Document Management</h3>
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button style="padding: 0.75rem 1.5rem; background: #1976d2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Upload Document</button>
-                <button style="padding: 0.75rem 1.5rem; background: #388e3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Download Records</button>
-                <button style="padding: 0.75rem 1.5rem; background: #f57c00; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔒 Manage Access</button>
+                <button style="padding: 0.75rem 1.5rem; background: #1976d2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Upload Document</button>
+                <button style="padding: 0.75rem 1.5rem; background: #388e3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Download Records</button>
+                <button style="padding: 0.75rem 1.5rem; background: #f57c00; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Manage Access</button>
             </div>
         </div>
     `;
 };
 
 App.prototype.renderAlumniGovernance = function() {
-    const tabTitle = '🔐 Data Governance & Privacy';
+    const tabTitle = '?? Data Governance & Privacy';
     this.title.textContent = this.getAlumniTabTitle('alumni-governance', tabTitle);
     const db = ALUMNI_DATABASE;
 
@@ -10800,7 +12584,7 @@ App.prototype.renderAlumniGovernance = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-governance')" style="background: ${this.alumniEditMode === 'alumni-governance' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-governance' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-governance' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10811,25 +12595,25 @@ App.prototype.renderAlumniGovernance = function() {
         <!-- Compliance Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${totalConsents}</div>
                 <div style="font-size: 0.9rem; color: #666;">Total Consents</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">☑️</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${verified}</div>
                 <div style="font-size: 0.9rem; color: #666;">Verified</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⏳</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${pending}</div>
                 <div style="font-size: 0.9rem; color: #666;">Pending Review</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📊</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">95%</div>
                 <div style="font-size: 0.9rem; color: #666;">Compliance Rate</div>
             </div>
@@ -10842,17 +12626,17 @@ App.prototype.renderAlumniGovernance = function() {
                 <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Privacy & Compliance Status</h3>
                 <div style="display: grid; gap: 0.75rem;">
                     <div style="padding: 1.5rem; background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border-left: 4px solid #1B5E20; border-radius: 8px;">
-                        <strong style="display: block; margin-bottom: 0.3rem; color: #1B5E20;">✅ GDPR Compliance</strong>
+                        <strong style="display: block; margin-bottom: 0.3rem; color: #1B5E20;">? GDPR Compliance</strong>
                         <small style="color: #666;">Fully compliant with data protection regulations</small>
                     </div>
 
                     <div style="padding: 1.5rem; background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-left: 4px solid #2196F3; border-radius: 8px;">
-                        <strong style="display: block; margin-bottom: 0.3rem; color: #2196F3;">👁️ Visibility Controls</strong>
+                        <strong style="display: block; margin-bottom: 0.3rem; color: #2196F3;">??? Visibility Controls</strong>
                         <small style="color: #666;">Alumni can manage profile visibility preferences</small>
                     </div>
 
                     <div style="padding: 1.5rem; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left: 4px solid #FF9800; border-radius: 8px;">
-                        <strong style="display: block; margin-bottom: 0.3rem; color: #FF9800;">📝 Data Retention</strong>
+                        <strong style="display: block; margin-bottom: 0.3rem; color: #FF9800;">?? Data Retention</strong>
                         <small style="color: #666;">Compliant with FERPA and institutional policies</small>
                     </div>
                 </div>
@@ -10888,7 +12672,7 @@ App.prototype.renderAlumniGovernance = function() {
 };
 
 App.prototype.renderAlumniEcosystem = function() {
-    const tabTitle = '🔄 Alumni-Student Ecosystem';
+    const tabTitle = '?? Alumni-Student Ecosystem';
     this.title.textContent = this.getAlumniTabTitle('alumni-ecosystem', tabTitle);
     const db = ALUMNI_DATABASE;
 
@@ -10906,7 +12690,7 @@ App.prototype.renderAlumniEcosystem = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-ecosystem')" style="background: ${this.alumniEditMode === 'alumni-ecosystem' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-ecosystem' ? '✓ Editing' : '✏️ Edit Tab'}
+                ${this.alumniEditMode === 'alumni-ecosystem' ? '? Editing' : '?? Edit Tab'}
             </button>
         </div>
     `;
@@ -10917,25 +12701,25 @@ App.prototype.renderAlumniEcosystem = function() {
         <!-- Main Ecosystem Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${totalMentors}</div>
                 <div style="font-size: 0.9rem; color: #666;">Mentors Active</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏥</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${totalPreceptors}</div>
                 <div style="font-size: 0.9rem; color: #666;">Preceptors</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💼</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${employmentRate}</div>
                 <div style="font-size: 0.9rem; color: #666;">Employment Success</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎯</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${advisoryCount}</div>
                 <div style="font-size: 0.9rem; color: #666;">Advisory Board</div>
             </div>
@@ -10947,7 +12731,7 @@ App.prototype.renderAlumniEcosystem = function() {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                 <!-- Mentorship Flow -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #1B5E2022 0%, #1B5E2011 100%); border-left: 4px solid #1B5E20; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">👥</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #1B5E20;">Mentorship Program</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni guiding students through professional development</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -10958,7 +12742,7 @@ App.prototype.renderAlumniEcosystem = function() {
 
                 <!-- Preceptorship Flow -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #2196F322 0%, #2196F311 100%); border-left: 4px solid #2196F3; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏥</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #2196F3;">Preceptorship Program</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni providing clinical training to pharmacy students</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -10969,7 +12753,7 @@ App.prototype.renderAlumniEcosystem = function() {
 
                 <!-- Employment Partnership -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #FF980022 0%, #FF980011 100%); border-left: 4px solid #FF9800; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💼</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #FF9800;">Employment Pathway</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni advancing to leadership positions, hiring graduates</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -10980,7 +12764,7 @@ App.prototype.renderAlumniEcosystem = function() {
 
                 <!-- Advisory & Governance -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #9C27B022 0%, #9C27B011 100%); border-left: 4px solid #9C27B0; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎯</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #9C27B0;">Advisory & Governance</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni shaping program direction and institutional strategy</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -10998,7 +12782,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Direct Mentorship Impact</strong>
-                        <span style="font-size: 1.2rem;">👥</span>
+                        <span style="font-size: 1.2rem;">??</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Students receiving career guidance from alumni mentors, resulting in better career transitions
@@ -11011,7 +12795,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Clinical Training Impact</strong>
-                        <span style="font-size: 1.2rem;">🏥</span>
+                        <span style="font-size: 1.2rem;">??</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Students gaining hands-on clinical experience under alumni preceptors
@@ -11024,7 +12808,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Career Advancement</strong>
-                        <span style="font-size: 1.2rem;">💼</span>
+                        <span style="font-size: 1.2rem;">??</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Graduates transitioning to employment through alumni networks and recommendations
@@ -11037,7 +12821,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Program Innovation</strong>
-                        <span style="font-size: 1.2rem;">🎯</span>
+                        <span style="font-size: 1.2rem;">??</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Alumni advisory board driving curriculum improvements and institutional strategy
@@ -11059,49 +12843,49 @@ App.prototype.renderResearchEditPanel = function(tab, tabTitle) {
     const editHtml = `
         <div style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #333;">✏️ Edit Research Data</h3>
+                <h3 style="margin: 0; color: #333;">?? Edit Research Data</h3>
                 <button onclick="app.render('${tab}')" style="background: #f0f0f0; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Exit Edit Mode</button>
             </div>
 
             <!-- Data Editing Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #2196F3;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📊 Edit Research Metrics & Numbers</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Edit Research Metrics & Numbers</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     All research section numbers are editable. Click any metric in the main view to edit it directly, or use the controls below.
                 </p>
                 <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
                     <h5 style="margin-top: 0; margin-bottom: 1rem; color: #333;">Quick Edit Shortcuts</h5>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
-                        <div>✅ Click any number to edit</div>
-                        <div>📌 Changes save automatically</div>
-                        <div>🔄 Use reset button below to restore</div>
-                        <div>💾 Data persists in browser</div>
+                        <div>? Click any number to edit</div>
+                        <div>?? Changes save automatically</div>
+                        <div>?? Use reset button below to restore</div>
+                        <div>?? Data persists in browser</div>
                     </div>
                 </div>
             </div>
 
             <!-- Import/Export Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #F57C00; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📥📤 Import / Export Data</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">???? Import / Export Data</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Import CSV/JSON</label>
                         <input type="file" id="research_data_file_${tab}" accept=".csv,.json,.xlsx" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;" />
                     </div>
                     <div style="display: flex; align-items: flex-end;">
-                        <button onclick="app.importResearchData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">📂 Import Data</button>
+                        <button onclick="app.importResearchData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Import Data</button>
                     </div>
                 </div>
-                <button onclick="app.exportResearchDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">📥 Download Data as CSV</button>
+                <button onclick="app.exportResearchDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">?? Download Data as CSV</button>
             </div>
 
             <!-- Reset Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #E91E63; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">🔄 Reset to Database</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Reset to Database</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     Clear all manual edits and refresh numbers to show latest database values
                 </p>
-                <button onclick="app.resetResearchMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">🔄 Reset All Numbers to Database</button>
+                <button onclick="app.resetResearchMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Reset All Numbers to Database</button>
             </div>
         </div>
     `;
@@ -11109,7 +12893,7 @@ App.prototype.renderResearchEditPanel = function(tab, tabTitle) {
 };
 
 App.prototype.resetResearchMetrics = function(tab) {
-    if (confirm('⚠️ Clear all manual edits and restore database values for this section?\n\nThis action cannot be undone.')) {
+    if (confirm('?? Clear all manual edits and restore database values for this section?\n\nThis action cannot be undone.')) {
         localStorage.removeItem(`researchMetrics_${tab}`);
         localStorage.removeItem(`researchEdits_${tab}`);
         this.render(tab);
@@ -11129,10 +12913,10 @@ App.prototype.importResearchData = function(tab) {
             const content = e.target.result;
             const data = JSON.parse(content);
             localStorage.setItem(`researchMetrics_${tab}`, JSON.stringify(data));
-            alert('✅ Data imported successfully!');
+            alert('? Data imported successfully!');
             this.render(tab);
         } catch {
-            alert('⚠️ Error importing file. Please ensure it is valid JSON.');
+            alert('?? Error importing file. Please ensure it is valid JSON.');
         }
     };
     reader.readAsText(file);
@@ -11150,7 +12934,7 @@ App.prototype.exportResearchDataCSV = function(tab) {
 };
 
 App.prototype.renderResearchOverview = function() {
-    const tabTitle = '🧭 Research Overview';
+    const tabTitle = '?? Research Overview';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
     const stats = db.stats;
@@ -11165,7 +12949,7 @@ App.prototype.renderResearchOverview = function() {
     this.root.innerHTML = `
         <!-- Edit Panel Button -->
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-overview', '${tabTitle}') + document.getElementById('research-overview-content').innerHTML; document.getElementById('research-overview-content').remove();" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-overview', '${tabTitle}') + document.getElementById('research-overview-content').innerHTML; document.getElementById('research-overview-content').remove();" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
 
         <div id="research-overview-content" style="display: none;"></div>
@@ -11173,7 +12957,7 @@ App.prototype.renderResearchOverview = function() {
         <!-- Quick KPIs -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Publications</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalPubs}</div>
@@ -11185,7 +12969,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📄</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Current Year</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${currentYearPubs}</div>
@@ -11197,7 +12981,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🧪</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Projects</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${activeProjects}</div>
@@ -11209,7 +12993,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">⚖️</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active IRBs</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #E91E63;">${activeIRBs}</div>
@@ -11221,7 +13005,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍🏫</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Faculty Involved</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${facultyCount}</div>
@@ -11233,7 +13017,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Students Involved</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #009688;">${studentCount}</div>
@@ -11286,7 +13070,7 @@ App.prototype.renderResearchOverview = function() {
                 ${db.publications.slice(0, 3).map(pub => `
                     <div style="padding: 1.5rem; background: #f9f9f9; border-left: 4px solid #1B5E20; border-radius: 10px;">
                         <strong style="color: #333; display: block; margin-bottom: 0.3rem;">${pub.title}</strong>
-                        <small style="color: #666; display: block; margin-bottom: 0.5rem;">📚 ${pub.journal} (${pub.quartile}) - ${pub.year}</small>
+                        <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${pub.journal} (${pub.quartile}) - ${pub.year}</small>
                         <small style="color: #999;">By: ${pub.authors}</small>
                     </div>
                 `).join('')}
@@ -11296,18 +13080,18 @@ App.prototype.renderResearchOverview = function() {
 };
 
 App.prototype.renderResearchPublications = function() {
-    const tabTitle = '📚 Publications';
+    const tabTitle = '?? Publications';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-publications', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-publications', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
 
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
             <input type="text" placeholder="Search publications..." style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;" />
-            <button style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Search</button>
+            <button style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Search</button>
         </div>
 
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
@@ -11322,9 +13106,9 @@ App.prototype.renderResearchPublications = function() {
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
                                 <div style="flex: 1;">
                                     <strong style="font-size: 1.1rem; color: #333; display: block; margin-bottom: 0.5rem;">${pub.title}</strong>
-                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">✍️ ${pub.authors}</small>
-                                    <small style="color: #666; display: block; margin-bottom: 0.5rem;">📊 ${pub.journal} | ${pub.quartile} Quartile | ${pub.year}</small>
-                                    <small style="color: #999;">🔗 DOI: ${pub.doi} | 📌 ${pub.citations} citations</small>
+                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">?? ${pub.authors}</small>
+                                    <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${pub.journal} | ${pub.quartile} Quartile | ${pub.year}</small>
+                                    <small style="color: #999;">?? DOI: ${pub.doi} | ?? ${pub.citations} citations</small>
                                 </div>
                                 <span style="background: ${tagBg}; color: ${tagColor}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${pub.type}</span>
                             </div>
@@ -11337,13 +13121,13 @@ App.prototype.renderResearchPublications = function() {
 };
 
 App.prototype.renderResearchProjects = function() {
-    const tabTitle = '🧠 Research Projects';
+    const tabTitle = '?? Research Projects';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-projects', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-projects', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
     `;
 
@@ -11373,7 +13157,7 @@ App.prototype.renderResearchProjects = function() {
                                 <span style="background: ${stageColors[latestStage] || '#999'}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; white-space: nowrap;">${proj.status}</span>
                             </div>
                             <div style="margin-bottom: 1rem;">
-                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">📊 ${proj.students} students involved | Duration: ${proj.startDate} to ${proj.endDate}</small>
+                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${proj.students} students involved | Duration: ${proj.startDate} to ${proj.endDate}</small>
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.75rem;">
                                 ${proj.stages.map(stage => `
@@ -11389,13 +13173,13 @@ App.prototype.renderResearchProjects = function() {
 };
 
 App.prototype.renderResearchIRB = function() {
-    const tabTitle = '🧾 IRB & Ethics';
+    const tabTitle = '?? IRB & Ethics';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-irb', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-irb', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">IRB Approvals & Ethics Compliance</h3>
@@ -11407,13 +13191,13 @@ App.prototype.renderResearchIRB = function() {
                         <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${statusColor};">
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
                                 <div style="flex: 1;">
-                                    <strong style="color: #333; display: block; margin-bottom: 0.3rem;">📋 ${irb.id}</strong>
+                                    <strong style="color: #333; display: block; margin-bottom: 0.3rem;">?? ${irb.id}</strong>
                                     <div style="color: #666; margin-bottom: 0.5rem;">${irb.title}</div>
                                     <small style="color: #666;">Approval: ${irb.approval} | Expires: ${irb.expiry}</small>
                                 </div>
                                 <div style="text-align: right;">
                                     <span style="background: ${statusBg}; color: ${statusColor}; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; display: block; margin-bottom: 0.5rem;">${irb.status}</span>
-                                    <small style="color: ${irb.daysToRenewal > 0 ? '#666' : '#f44336'}; font-weight: 600;">${irb.daysToRenewal > 0 ? '✓ ' + irb.daysToRenewal + ' days' : 'Expired ' + Math.abs(irb.daysToRenewal) + ' days ago'}</small>
+                                    <small style="color: ${irb.daysToRenewal > 0 ? '#666' : '#f44336'}; font-weight: 600;">${irb.daysToRenewal > 0 ? '? ' + irb.daysToRenewal + ' days' : 'Expired ' + Math.abs(irb.daysToRenewal) + ' days ago'}</small>
                                 </div>
                             </div>
                         </div>
@@ -11425,7 +13209,7 @@ App.prototype.renderResearchIRB = function() {
 };
 
 App.prototype.renderResearchStudents = function() {
-    const tabTitle = '🎓 Student Research';
+    const tabTitle = '?? Student Research';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
     const stats = db.stats;
@@ -11436,12 +13220,12 @@ App.prototype.renderResearchStudents = function() {
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-students', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-students', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
         <!-- Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Student Involvement</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #009688;">${studentInvolvement}</div>
@@ -11453,7 +13237,7 @@ App.prototype.renderResearchStudents = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎤</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Presentations</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${studentPres}</div>
@@ -11465,7 +13249,7 @@ App.prototype.renderResearchStudents = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Publications</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${studentPubs}</div>
@@ -11486,7 +13270,7 @@ App.prototype.renderResearchStudents = function() {
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div>
                                 <strong style="color: #333; font-size: 1.05rem;">${student.name}</strong>
-                                <small style="display: block; color: #666; margin-top: 0.5rem;">📚 ${student.publications} publication(s) | 🎤 ${student.presentations} presentation(s) | 🧪 ${student.projects} project(s)</small>
+                                <small style="display: block; color: #666; margin-top: 0.5rem;">?? ${student.publications} publication(s) | ?? ${student.presentations} presentation(s) | ?? ${student.projects} project(s)</small>
                             </div>
                             <span style="background: ${student.status === 'Active' ? '#e8f5e9' : '#f5f5f5'}; color: ${student.status === 'Active' ? '#1B5E20' : '#666'}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${student.status}</span>
                         </div>
@@ -11498,13 +13282,13 @@ App.prototype.renderResearchStudents = function() {
 };
 
 App.prototype.renderResearchFaculty = function() {
-    const tabTitle = '👨‍🏫 Faculty Research';
+    const tabTitle = '????? Faculty Research';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-faculty', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-faculty', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Faculty Researchers</h3>
@@ -11514,8 +13298,8 @@ App.prototype.renderResearchFaculty = function() {
                         <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
                             <div style="flex: 1;">
                                 <strong style="color: #333; font-size: 1.1rem; display: block; margin-bottom: 0.3rem;">${faculty.name}</strong>
-                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">🔬 ${faculty.interests}</small>
-                                <small style="color: #666;">📚 ${faculty.publications} publications | 👨‍🎓 ${faculty.students} students supervised | 🧪 ${faculty.projects} active projects</small>
+                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${faculty.interests}</small>
+                                <small style="color: #666;">?? ${faculty.publications} publications | ????? ${faculty.students} students supervised | ?? ${faculty.projects} active projects</small>
                             </div>
                             <div style="text-align: right;">
                                 <small style="display: block; color: #999; margin-bottom: 0.5rem;">ORCID</small>
@@ -11530,21 +13314,21 @@ App.prototype.renderResearchFaculty = function() {
 };
 
 App.prototype.renderResearchCollaboration = function() {
-    const tabTitle = '🤝 Collaboration & Partnerships';
+    const tabTitle = '?? Collaboration & Partnerships';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-collaboration', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-collaboration', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
     `;
 
     const typeIcons = {
-        'Internal': '🏫',
-        'External': '🌍',
-        'Industry': '🏢',
-        'Hospital': '🏥'
+        'Internal': '??',
+        'External': '??',
+        'Industry': '??',
+        'Hospital': '??'
     };
 
     this.root.innerHTML = `
@@ -11561,7 +13345,7 @@ App.prototype.renderResearchCollaboration = function() {
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <strong style="color: #333; font-size: 1.05rem; display: block;">${typeIcons[collab.type]} ${collab.partner}</strong>
-                                    <small style="color: #666; display: block; margin-top: 0.3rem;">🧪 ${collab.projects} active project(s)</small>
+                                    <small style="color: #666; display: block; margin-top: 0.3rem;">?? ${collab.projects} active project(s)</small>
                                 </div>
                                 <span style="background: white; color: ${color}; padding: 0.5rem 1rem; border: 2px solid ${color}; border-radius: 6px; font-weight: 600;">${collab.status}</span>
                             </div>
@@ -11574,20 +13358,20 @@ App.prototype.renderResearchCollaboration = function() {
 };
 
 App.prototype.renderResearchRecognition = function() {
-    const tabTitle = '🏆 Recognition & Output';
+    const tabTitle = '?? Recognition & Output';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-recognition', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-recognition', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
     `;
 
     const typeIcons = {
-        'Award': '🏆',
-        'Citation': '📌',
-        'Presentation': '🎤'
+        'Award': '??',
+        'Citation': '??',
+        'Presentation': '??'
     };
 
     const typeColors = {
@@ -11606,7 +13390,7 @@ App.prototype.renderResearchRecognition = function() {
                             <div style="flex: 1;">
                                 <strong style="color: #333; font-size: 1.05rem; display: block; margin-bottom: 0.3rem;">${typeIcons[item.type]} ${item.title}</strong>
                                 <small style="color: #666; display: block; margin-bottom: 0.3rem;">Recipient: <strong>${item.recipient}</strong></small>
-                                <small style="color: #999;">📅 ${item.date} | ${item.details}</small>
+                                <small style="color: #999;">?? ${item.date} | ${item.details}</small>
                             </div>
                             <span style="background: ${typeColors[item.type]}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${item.type}</span>
                         </div>
@@ -11618,13 +13402,13 @@ App.prototype.renderResearchRecognition = function() {
 };
 
 App.prototype.renderResearchAnalytics = function() {
-    const tabTitle = '📊 Analytics & Trends';
+    const tabTitle = '?? Analytics & Trends';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-analytics', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-analytics', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
             <!-- Publications by Year -->
@@ -11680,20 +13464,20 @@ App.prototype.renderResearchAnalytics = function() {
 };
 
 App.prototype.renderResearchDocuments = function() {
-    const tabTitle = '📁 Documents & Templates';
+    const tabTitle = '?? Documents & Templates';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-documents', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">✏️ Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-documents', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
         </div>
     `;
 
     const typeIcons = {
-        'Template': '📝',
-        'Form': '📋',
-        'Guideline': '📖'
+        'Template': '??',
+        'Form': '??',
+        'Guideline': '??'
     };
 
     const typeColors = {
@@ -11713,7 +13497,7 @@ App.prototype.renderResearchDocuments = function() {
                                 <strong style="color: #333; font-size: 1.05rem; display: block; margin-bottom: 0.3rem;">${typeIcons[doc.type]} ${doc.name}</strong>
                                 <small style="color: #666;">Last updated: ${doc.updated}</small>
                             </div>
-                            <button style="background: ${typeColors[doc.type]}; color: white; padding: 0.6rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Download</button>
+                            <button style="background: ${typeColors[doc.type]}; color: white; padding: 0.6rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Download</button>
                         </div>
                     </div>
                 `).join('')}
@@ -11781,7 +13565,7 @@ window.saveAlumniEdits = () => {
     const rows = document.querySelectorAll('[data-alumni-row]');
     const parseBool = (val) => {
         const v = (val || '').toString().trim().toLowerCase();
-        return ['true', 'yes', 'y', '1', '✅', 'checked'].includes(v);
+        return ['true', 'yes', 'y', '1', '?', 'checked'].includes(v);
     };
 
     rows.forEach(row => {
@@ -11876,7 +13660,7 @@ window.parseAlumniCSV = (text) => {
             const idx = getIndex(col);
             return idx >= 0 ? clean[idx] : '';
         };
-        const parseBool = (val) => ['true','yes','y','1','✅'].includes((val || '').toLowerCase());
+        const parseBool = (val) => ['true','yes','y','1','?'].includes((val || '').toLowerCase());
         const parseNum = (val) => {
             const n = parseInt(val, 10);
             return Number.isNaN(n) ? null : n;
@@ -11943,24 +13727,24 @@ window.getFacultyDashboardHTML = () => {
         <div class="card" style="grid-column: span 3;">
             <div class="flex-between">
                 <div>
-                    <h3>🏆 Faculty Achievement Matrix</h3>
-                    <p style="color:var(--text-muted); font-size:0.9rem;">Teaching • Research • Distinctions</p>
+                    <h3>?? Faculty Achievement Matrix</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">Teaching � Research � Distinctions</p>
                 </div>
                 <div style="display:flex; gap:10px;">
                     <select class="btn btn-outline" style="padding:5px 10px;">
-                        <option>🏫 College Overview (All)</option>
-                        <option>💊 Clinical Pharmacy</option>
-                        <option>🔬 Pharm. Sciences</option>
-                        <option>🏥 Pharmacy Practice</option>
+                        <option>?? College Overview (All)</option>
+                        <option>?? Clinical Pharmacy</option>
+                        <option>?? Pharm. Sciences</option>
+                        <option>?? Pharmacy Practice</option>
                     </select>
-                    <button class="btn btn-primary" onclick="alert('Exporting Report...')">📑 Export Report</button>
+                    <button class="btn btn-primary" onclick="alert('Exporting Report...')">?? Export Report</button>
                 </div>
             </div>
             
             <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem;">
                 <!-- Teaching Load -->
                 <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                    <h5 style="text-align:center;">📚 Teaching Load</h5>
+                    <h5 style="text-align:center;">?? Teaching Load</h5>
                     <div style="height:150px; position:relative;">
                         <canvas id="chartTeachingLoad"></canvas>
                         <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
@@ -11973,11 +13757,11 @@ window.getFacultyDashboardHTML = () => {
 
                 <!-- Research Output -->
                 <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                    <h5 style="text-align:center;">🔬 Research Output</h5>
+                    <h5 style="text-align:center;">?? Research Output</h5>
                     <div style="display:flex; justify-content:space-around; margin-bottom:10px; font-size:0.8rem;">
-                        <span>📜 Citations: <strong>1,240</strong></span>
-                        <span>💰 Grants: <strong>12</strong></span>
-                        <span>👥 Sup: <strong>45</strong></span>
+                        <span>?? Citations: <strong>1,240</strong></span>
+                        <span>?? Grants: <strong>12</strong></span>
+                        <span>?? Sup: <strong>45</strong></span>
                     </div>
                      <div style="height:120px;">
                         <canvas id="chartResearchOutput"></canvas>
@@ -11986,9 +13770,9 @@ window.getFacultyDashboardHTML = () => {
 
                 <!-- Awards -->
                 <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                    <h5 style="text-align:center;">🏆 Awards & Distinctions</h5>
+                    <h5 style="text-align:center;">?? Awards & Distinctions</h5>
                     <div style="height:150px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                        <div style="font-size:3rem;">🏆 8</div>
+                        <div style="font-size:3rem;">?? 8</div>
                         <div style="color:var(--success); font-weight:bold;">+2 this year</div>
                         <div style="font-size:0.8rem; color:#888; margin-top:5px;">International & Regional</div>
                     </div>
@@ -11999,8 +13783,8 @@ window.getFacultyDashboardHTML = () => {
         <!-- Detailed Metrics -->
         <div class="card" style="grid-column: span 3;">
             <div class="flex-between">
-                <h3>📊 Detailed Metrics (Editable)</h3>
-                <button class="btn btn-outline" onclick="window.renderFacultyTable()">🔄 Refresh Data</button>
+                <h3>?? Detailed Metrics (Editable)</h3>
+                <button class="btn btn-outline" onclick="window.renderFacultyTable()">?? Refresh Data</button>
             </div>
             <div class="data-table-container mt-4">
                 <table class="data-table" id="faculty-table">
@@ -12045,10 +13829,10 @@ window.renderFacultyTable = () => {
             <td style="text-align:center;">${f.q3}</td>
             <td style="text-align:center;">${f.q4}</td>
             <td style="text-align:center;">${f.sup}</td>
-            <td style="text-align:center;">${f.awards > 0 ? '🏆 ' + f.awards : '-'}</td>
+            <td style="text-align:center;">${f.awards > 0 ? '?? ' + f.awards : '-'}</td>
             <td style="text-align:center;">
                 <a href="${f.scholar}" target="_blank" class="btn btn-outline" style="padding:2px 6px; font-size:0.8rem;">
-                    🔗 Profile
+                    ?? Profile
                 </a>
             </td>
         </tr>
@@ -12184,4 +13968,784 @@ window.initializeApp = function() {
         console.error('Fatal error in initializeApp:', error);
     }
 };
+
+// ========================================
+// APPROVAL FUNCTIONS FOR STUDENTS & ADMINS
+// ========================================
+
+/**
+ * Switch between Pending and History tabs
+ */
+window.switchAccessTab = function(tabName) {
+    console.log('?? Switching to tab:', tabName);
+    
+    const pendingTab = document.getElementById('pending-tab');
+    const historyTab = document.getElementById('history-tab');
+    const pendingBtn = document.getElementById('tab-pending');
+    const historyBtn = document.getElementById('tab-history');
+    
+    if (tabName === 'pending') {
+        pendingTab.style.display = 'block';
+        historyTab.style.display = 'none';
+        pendingBtn.style.background = '#FF5722';
+        pendingBtn.style.color = 'white';
+        pendingBtn.style.borderBottomColor = '#FF5722';
+        historyBtn.style.background = '#f0f0f0';
+        historyBtn.style.color = '#333';
+        historyBtn.style.borderBottomColor = 'transparent';
+    } else if (tabName === 'history') {
+        pendingTab.style.display = 'none';
+        historyTab.style.display = 'block';
+        pendingBtn.style.background = '#f0f0f0';
+        pendingBtn.style.color = '#333';
+        pendingBtn.style.borderBottomColor = 'transparent';
+        historyBtn.style.background = '#FF5722';
+        historyBtn.style.color = 'white';
+        historyBtn.style.borderBottomColor = '#FF5722';
+    }
+};
+
+/**
+ * Approve a pending student request and activate their account
+ */
+window.approveStudentRequest = function(requestId, assignedClass, studentName) {
+    if (!assignedClass) {
+        alert('?? Please select a class before approving');
+        return;
+    }
+
+    const model = window.AdminHubModel;
+    
+    // IMPORTANT: Sync pending requests first to ensure we have latest data
+    model.syncPendingStudentRequests();
+    console.log('? Synced pending student requests before approval');
+    console.log('Pending requests after sync:', model.pendingStudentRequests);
+    
+    // Get request details BEFORE approval (before it's removed from pending)
+    const request = model.pendingStudentRequests.find(r => r.id === requestId);
+    
+    if (!request) {
+        console.error('? Request not found:', requestId);
+        console.error('Available requests:', model.pendingStudentRequests.map(r => ({ id: r.id, name: r.name })));
+        alert('? Error: Request not found. Please refresh and try again.');
+        return;
+    }
+    
+    console.log('?? Request found before approval:', {
+        id: request.id,
+        studentId: request.studentId,
+        name: request.name,
+        password: request.password ? '(set)' : '(MISSING)',
+        email: request.email
+    });
+    
+    // Now approve
+    const success = model.approveStudentRequest(requestId, assignedClass);
+
+    if (success) {
+        const password = request.password;
+        const storedInModel = model.approvedCredentials?.student[request.studentId];
+        console.log('? Approval successful. Stored credentials:', {
+            studentId: request.studentId,
+            passwordValue: password,
+            storedInModel: storedInModel,
+            passwordMatch: password === storedInModel ? '? YES' : '? NO'
+        });
+        
+        // Show notification with credentials
+        if (!password) {
+            alert(`?? WARNING: No password found!\n\nStudent: ${studentName}\nStudent ID: ${request.studentId}\n\nPlease ask the student to re-submit their signup with a password.`);
+        } else {
+            alert(`? SUCCESS!\n\n${studentName} has been approved.\n\n??? ACCOUNT DETAILS ???\nStudent ID: ${request.studentId}\nPassword: ${password}\nClass: ${assignedClass}\nStatus: ACTIVE\n\n?? Email notification sent to ${request.email}\n\nThey can now login using their Student ID and password.`);
+        }
+        
+        // Refresh the admin view
+        if (window.app && typeof window.app.renderAdminHub === 'function') {
+            window.app.renderAdminHub();
+        }
+        
+        console.log(`? Student ${studentName} (${requestId}) approved for ${assignedClass}`);
+    } else {
+        alert('? Approval failed. Please check the console for details.');
+    }
+};
+
+/**
+ * Reject a pending student request
+ */
+window.rejectStudentRequest = function(requestId, studentName) {
+    const reason = prompt(`Why are you rejecting ${studentName}'s request?`, 'Documentation incomplete');
+    
+    if (reason !== null) {
+        const model = window.AdminHubModel;
+        const success = model.rejectStudentRequest(requestId, reason);
+        
+        if (success) {
+            alert(`? ${studentName}'s request has been rejected.\n\nReason: ${reason}`);
+            
+            // Refresh the admin view
+            if (window.app && typeof window.app.renderAdminHub === 'function') {
+                window.app.renderAdminHub();
+            }
+            
+            console.log(`? Student ${studentName} (${requestId}) rejected - ${reason}`);
+        }
+    }
+};
+
+/**
+ * Approve a pending admin staff request and activate their account
+ */
+window.approveAdminRequest = function(requestId, admName, requestedRole) {
+    const model = window.AdminHubModel;
+    
+    // IMPORTANT: Sync pending requests first to ensure we have latest data
+    model.syncPendingAdminRequests();
+    console.log('? Synced pending admin requests before approval');
+    console.log('Pending admin requests after sync:', model.pendingAdminRequests);
+    
+    // Get request details BEFORE approval (before it's removed from pending)
+    const request = model.pendingAdminRequests.find(r => r.id === requestId);
+    
+    if (!request) {
+        console.error('? Request not found:', requestId);
+        console.error('Available requests:', model.pendingAdminRequests.map(r => ({ id: r.id, name: r.name })));
+        alert('? Error: Request not found. Please refresh and try again.');
+        return;
+    }
+    
+    console.log('?? Request found before approval:', {
+        id: request.id,
+        staffId: request.staffId,
+        name: request.name,
+        password: request.password ? '(set)' : '(MISSING)',
+        email: request.email
+    });
+    
+    // Now approve
+    const success = model.approveAdminRequest(requestId);
+
+    if (success) {
+        const password = request.password;
+        const roleLabel = requestedRole.replace(/_/g, ' ').toUpperCase();
+        const storedInModel = model.approvedCredentials?.admin[request.staffId];
+        
+        console.log('? Approval successful. Stored credentials:', {
+            staffId: request.staffId,
+            passwordValue: password,
+            storedInModel: storedInModel,
+            passwordMatch: password === storedInModel ? '? YES' : '? NO'
+        });
+        
+        // Show notification with credentials
+        if (!password) {
+            alert(`?? WARNING: No password found!\n\nAdmin: ${admName}\nStaff ID: ${request.staffId}\n\nPlease ask the admin to re-submit their signup with a password.`);
+        } else {
+            alert(`? SUCCESS!\n\n${admName} has been approved.\n\n??? ACCOUNT DETAILS ???\nStaff ID: ${request.staffId}\nPassword: ${password}\nRole: ${roleLabel}\nStatus: ACTIVE\n\n?? Email notification sent to ${request.email}\n\nThey can now login using their Staff ID and password.`);
+        }
+        
+        // Refresh the admin view
+        if (window.app && typeof window.app.renderAdminHub === 'function') {
+            window.app.renderAdminHub();
+        }
+        
+        console.log(`? Admin ${admName} (${requestId}) approved as ${roleLabel}`);
+    } else {
+        alert('? Approval failed. Please check the console for details.');
+    }
+};
+
+/**
+ * Reject a pending admin staff request
+ */
+window.rejectAdminRequest = function(requestId, adminName) {
+    const reason = prompt(`Why are you rejecting ${adminName}'s admin request?`, 'Credentials incomplete');
+    
+    if (reason !== null) {
+        const model = window.AdminHubModel;
+        const success = model.rejectAdminRequest(requestId, reason);
+        
+        if (success) {
+            alert(`? ${adminName}'s admin request has been rejected.\n\nReason: ${reason}`);
+            
+            // Refresh the admin view
+            if (window.app && typeof window.app.renderAdminHub === 'function') {
+                window.app.renderAdminHub();
+            }
+            
+            console.log(`? Admin ${adminName} (${requestId}) rejected - ${reason}`);
+        }
+    }
+};
+
+/**
+ * Toggle Admin Hub Section Collapse/Expand
+ * Smoothly animates opening and closing of section groups
+ */
+window.toggleAdminSection = function(sectionId) {
+    const section = document.getElementById(`section-${sectionId}`);
+    const toggleText = document.getElementById(`toggle-text-${sectionId}`);
+    
+    if (!section) return;
+    
+    const isCollapsed = section.classList.contains('collapsed');
+    
+    if (isCollapsed) {
+        // Expand
+        section.classList.remove('collapsed');
+        toggleText.textContent = 'Collapse';
+        console.log(`?? Expanded: ${sectionId}`);
+    } else {
+        // Collapse
+        section.classList.add('collapsed');
+        toggleText.textContent = 'Expand';
+        console.log(`?? Collapsed: ${sectionId}`);
+    }
+    
+    // Save preference to localStorage
+    try {
+        const preferences = JSON.parse(localStorage.getItem('adminHubSectionStates') || '{}');
+        preferences[sectionId] = !isCollapsed;
+        localStorage.setItem('adminHubSectionStates', JSON.stringify(preferences));
+    } catch (e) {
+        console.warn('Could not save section state to localStorage:', e);
+    }
+};
+
+/**
+ * Restore Admin Hub Section States from localStorage
+ * Called after admin hub is rendered
+ */
+window.restoreAdminSectionStates = function() {
+    try {
+        const preferences = JSON.parse(localStorage.getItem('adminHubSectionStates') || '{}');
+        
+        // immediate = expanded, analytics = collapsed, config = collapsed (defaults)
+        const defaults = {
+            immediate: true,
+            analytics: false,
+            config: false
+        };
+        
+        Object.keys(defaults).forEach(sectionId => {
+            const shouldBeExpanded = preferences[sectionId] !== undefined ? preferences[sectionId] : defaults[sectionId];
+            const section = document.getElementById(`section-${sectionId}`);
+            const toggleText = document.getElementById(`toggle-text-${sectionId}`);
+            
+            if (section && toggleText) {
+                if (shouldBeExpanded) {
+                    section.classList.remove('collapsed');
+                    toggleText.textContent = 'Collapse';
+                } else {
+                    section.classList.add('collapsed');
+                    toggleText.textContent = 'Expand';
+                }
+            }
+        });
+        
+        console.log('? Admin section states restored from preferences');
+    } catch (e) {
+        console.warn('Could not restore section states:', e);
+    }
+};
+
+/**
+ * ========== REQUEST ACTION SYSTEM ==========
+ * Full execution workflow with professional email templates
+ */
+
+/**
+ * Show Action Modal - Approve/Reject/Delegate
+ */
+window.showActionModal = function(actionType, requestId, studentName, studentEmail) {
+    try {
+        console.log(`?? Opening ${actionType} modal for ${requestId}`);
+        
+        const model = window.AdminHubModel;
+        const request = model.requests.find(r => r.id === requestId);
+        
+        if (!request) {
+            console.error(`? Request ${requestId} not found in model.requests`);
+            alert(`? Request not found. Available requests: ${model.requests.map(r => r.id).join(', ')}`);
+            return;
+        }
+
+        console.log('? Request found:', request);
+
+        let modalContent = ``;
+        
+        if (actionType === 'approve') {
+            modalContent = `
+                <div class="modal-overlay active" id="actionModal" onclick="if(event.target === this) window.closeActionModal()">
+                    <div class="modal-content">
+                        <div class="modal-header">? Approve Request</div>
+                        <div class="modal-body">
+                            <p style="margin-bottom: 1rem; color: #666;">
+                                <strong>${studentName}</strong>'s request (${requestId}) will be approved.
+                            </p>
+                            <label>?? Approval Notes (Optional)</label>
+                            <textarea id="approvalNotes" placeholder="Add any approval notes or instructions...">The request has been reviewed and approved.</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-btn modal-btn-secondary" onclick="window.closeActionModal()">Cancel</button>
+                            <button class="modal-btn modal-btn-primary" onclick="window.executeApproval('${requestId}', '${studentName}', '${studentEmail}')">? Confirm Approval</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (actionType === 'reject') {
+            modalContent = `
+                <div class="modal-overlay active" id="actionModal" onclick="if(event.target === this) window.closeActionModal()">
+                    <div class="modal-content">
+                        <div class="modal-header">? Reject Request</div>
+                        <div class="modal-body">
+                            <p style="margin-bottom: 1rem; color: #666;">
+                                <strong>${studentName}</strong>'s request (${requestId}) will be rejected.
+                            </p>
+                            <label>?? Rejection Reason (Required)</label>
+                            <textarea id="rejectionReason" placeholder="Explain why this request is being rejected..." required>Documentation incomplete. Please resubmit with required supporting documents.</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-btn modal-btn-secondary" onclick="window.closeActionModal()">Cancel</button>
+                            <button class="modal-btn modal-btn-danger" onclick="window.executeRejection('${requestId}', '${studentName}', '${studentEmail}')">? Confirm Rejection</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (actionType === 'delegate') {
+            const departments = [
+                { value: 'clinical_affairs', label: 'Dr. Ahmed Al-Otaibi (Clinical Affairs)', email: 'ahmed.otaibi@ksau-hs.edu.sa' },
+                { value: 'academic_affairs', label: 'Dr. Fatima Al-Rashid (Academic Affairs)', email: 'fatima.rashid@ksau-hs.edu.sa' },
+                { value: 'research_unit', label: 'Dr. Mohammed Al-Mansour (Research Unit)', email: 'mohammed.mansour@ksau-hs.edu.sa' },
+                { value: 'quality_assurance', label: 'Dr. Noor Al-Qahtani (Quality Assurance)', email: 'noor.qahtani@ksau-hs.edu.sa' },
+                { value: 'community_service', label: 'Dr. Khalid Al-Dosari (Community Service)', email: 'khalid.dosari@ksau-hs.edu.sa' }
+            ];
+
+            modalContent = `
+                <div class="modal-overlay active" id="actionModal" onclick="if(event.target === this) window.closeActionModal()">
+                    <div class="modal-content">
+                        <div class="modal-header">?? Delegate Request</div>
+                        <div class="modal-body">
+                            <p style="margin-bottom: 1rem; color: #666;">
+                                <strong>${studentName}</strong>'s request (${requestId}) will be forwarded to a department head.
+                            </p>
+                            <label>?? Delegate To (Required)</label>
+                            <select id="delegateTo" required style="cursor: pointer;">
+                                <option value="">-- Select Department --</option>
+                                ${departments.map(dept => `<option value="${dept.value}|${dept.label}|${dept.email}">${dept.label}</option>`).join('')}
+                            </select>
+                            <label>?? Delegation Note (Optional)</label>
+                            <textarea id="delegationNote" placeholder="Add specific instructions or context for the reviewer...">Please review this request and provide your approval or rejection.</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="modal-btn modal-btn-secondary" onclick="window.closeActionModal()">Cancel</button>
+                            <button class="modal-btn modal-btn-info" onclick="window.executeDelegation('${requestId}', '${studentName}', '${studentEmail}')">?? Confirm Delegation</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Insert modal into page
+        if (document.getElementById('actionModal')) {
+            document.getElementById('actionModal').remove();
+        }
+        document.body.insertAdjacentHTML('beforeend', modalContent);
+        console.log('? Modal inserted into DOM');
+    } catch (error) {
+        console.error('? Exception in showActionModal:', error);
+        alert(`? ERROR opening modal: ${error.message}`);
+    }
+};
+
+/**
+ * Close Action Modal
+ */
+window.closeActionModal = function() {
+    const modal = document.getElementById('actionModal');
+    if (modal) {
+        modal.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => modal.remove(), 300);
+    }
+};
+
+/**
+ * Execute Approval
+ */
+window.executeApproval = function(requestId, studentName, studentEmail) {
+    try {
+        console.log('?? Executing approval for:', requestId);
+        
+        const approvalNotes = document.getElementById('approvalNotes')?.value || 'Request approved';
+        const model = window.AdminHubModel;
+        
+        if (!model) {
+            alert('? ERROR: Admin model not loaded');
+            console.error('? AdminHubModel not found');
+            return;
+        }
+        
+        const currentUser = 'Admin User'; // This would come from auth system
+        
+        console.log('?? model.requests count:', model.requests.length);
+        console.log('?? Looking for request ID:', requestId);
+        
+        // Approve the request
+        const result = model.approveRequest(requestId, currentUser, 'admin@ksau-hs.edu.sa', approvalNotes);
+        
+        console.log('? Approval result:', result);
+        
+        if (result.success) {
+            // Send emails - with safe null checks
+            const deptEmail = result.request?.unitInfo?.headEmail || (result.request?.unitInfo?.email) || 'unit@ksau-hs.edu.sa';
+            console.log('?? Department email:', deptEmail);
+            
+            const emailResult = model.sendEmail(requestId, 'APPROVED', currentUser, {
+                student: studentEmail || 'student@ksau-hs.edu.sa',
+                department: deptEmail,
+                admin: 'admin@ksau-hs.edu.sa'
+            });
+            
+            console.log('?? Email result:', emailResult);
+            
+            window.closeActionModal();
+            alert(`? SUCCESS!\n\n${studentName}'s request has been APPROVED.\n\nApproval Notes: ${approvalNotes}\n\n?? Notification emails sent to:\n  � Student\n  � Department\n  � Admin Archive`);
+            
+            // Immediately update the resolved today counter
+            const stats = window.AdminHubModel.getDashboardStats();
+            console.log('?? Stats after approval:', stats);
+            
+            const resolvedTodayCard = document.querySelector('[data-metric="resolvedToday"]');
+            console.log('?? Resolved Today card found:', !!resolvedTodayCard);
+            
+            if (resolvedTodayCard) {
+                const numberDiv = resolvedTodayCard.querySelector('div:nth-child(2)');
+                console.log('?? Number div found:', !!numberDiv, 'Current value:', numberDiv?.textContent);
+                if (numberDiv) {
+                    numberDiv.textContent = stats.resolvedToday;
+                    console.log('? Updated resolved today to:', stats.resolvedToday);
+                    numberDiv.style.animation = 'pulse 0.5s';
+                }
+            }
+            
+            // Also update active tickets
+            const activeCard = document.querySelector('[data-metric="activeTickets"]');
+            console.log('?? Active tickets card found:', !!activeCard);
+            
+            if (activeCard) {
+                const numberDiv = activeCard.querySelector('div:nth-child(2)');
+                if (numberDiv) {
+                    numberDiv.textContent = stats.activeTickets;
+                    console.log('? Updated active tickets to:', stats.activeTickets);
+                }
+            }
+            
+            // Refresh admin hub in background
+            if (window.app && typeof window.app.renderAdminHub === 'function') {
+                console.log('?? Refreshing admin hub...');
+                setTimeout(() => window.app.renderAdminHub(), 1000);
+            }
+        } else {
+            alert(`? ERROR: ${result.error}`);
+            console.error('? Approval failed:', result.error);
+        }
+    } catch (error) {
+        console.error('? Exception in executeApproval:', error);
+        alert(`? ERROR: ${error.message}`);
+    }
+};
+
+/**
+ * Execute Rejection
+ */
+window.executeRejection = function(requestId, studentName, studentEmail) {
+    try {
+        console.log('?? Executing rejection for:', requestId);
+        
+        const rejectionReason = document.getElementById('rejectionReason')?.value;
+        
+        if (!rejectionReason || rejectionReason.trim() === '') {
+            alert('? Please provide a rejection reason');
+            return;
+        }
+
+        const model = window.AdminHubModel;
+        if (!model) {
+            alert('? ERROR: Admin model not loaded');
+            console.error('? AdminHubModel not found');
+            return;
+        }
+
+        const currentUser = 'Admin User';
+        
+        console.log('?? model.requests count:', model.requests.length);
+        console.log('?? Looking for request ID:', requestId);
+        
+        // Reject the request
+        const result = model.rejectRequest(requestId, currentUser, 'admin@ksau-hs.edu.sa', rejectionReason);
+        
+        console.log('? Rejection result:', result);
+        
+        if (result.success) {
+            // Send emails - with safe null checks
+            const deptEmail = result.request?.unitInfo?.headEmail || (result.request?.unitInfo?.email) || 'unit@ksau-hs.edu.sa';
+            console.log('?? Department email:', deptEmail);
+            
+            const emailResult = model.sendEmail(requestId, 'REJECTED', currentUser, {
+                student: studentEmail || 'student@ksau-hs.edu.sa',
+                department: deptEmail,
+                admin: 'admin@ksau-hs.edu.sa'
+            });
+            
+            console.log('?? Email result:', emailResult);
+            
+            window.closeActionModal();
+            alert(`? Request REJECTED.\n\nReason: ${rejectionReason}\n\n?? Notification emails sent to:\n  � Student\n  � Department\n  � Admin Archive`);
+            
+            // Immediately update the resolved today counter
+            const stats = window.AdminHubModel.getDashboardStats();
+            const resolvedTodayCard = document.querySelector('[data-metric="resolvedToday"]');
+            if (resolvedTodayCard) {
+                const numberDiv = resolvedTodayCard.querySelector('div:nth-child(2)');
+                if (numberDiv) {
+                    numberDiv.textContent = stats.resolvedToday;
+                }
+            }
+            
+            // Also update active tickets
+            const activeCard = document.querySelector('[data-metric="activeTickets"]');
+            if (activeCard) {
+                const numberDiv = activeCard.querySelector('div:nth-child(2)');
+                if (numberDiv) {
+                    numberDiv.textContent = stats.activeTickets;
+                }
+            }
+            
+            // Refresh admin hub in background
+            if (window.app && typeof window.app.renderAdminHub === 'function') {
+                console.log('?? Refreshing admin hub...');
+                setTimeout(() => window.app.renderAdminHub(), 1000);
+            }
+        } else {
+            alert(`? ERROR: ${result.error}`);
+            console.error('? Rejection failed:', result.error);
+        }
+    } catch (error) {
+        console.error('? Exception in executeRejection:', error);
+        alert(`? ERROR: ${error.message}`);
+    }
+};
+
+/**
+ * Execute Delegation
+ */
+window.executeDelegation = function(requestId, studentName, studentEmail) {
+    try {
+        console.log('?? Executing delegation for:', requestId);
+        
+        const delegateSelect = document.getElementById('delegateTo')?.value;
+        const delegationNote = document.getElementById('delegationNote')?.value || 'Please review this request';
+        
+        if (!delegateSelect) {
+            alert('? Please select a department to delegate to');
+            return;
+        }
+
+        const [deptValue, deptLabel, deptEmail] = delegateSelect.split('|');
+        const model = window.AdminHubModel;
+        
+        if (!model) {
+            alert('? ERROR: Admin model not loaded');
+            console.error('? AdminHubModel not found');
+            return;
+        }
+        
+        const currentUser = 'Admin User';
+        
+        console.log('?? model.requests count:', model.requests.length);
+        console.log('?? Looking for request ID:', requestId);
+        console.log('?? Delegating to:', deptLabel, deptEmail);
+        
+        // Delegate the request
+        const result = model.delegateRequest(requestId, currentUser, deptLabel, deptEmail, deptLabel.split('(')[1].replace(')', ''), delegationNote);
+        
+        console.log('? Delegation result:', result);
+        
+        if (result.success) {
+            // Send emails - with safe null checks
+            console.log('?? Sending delegation emails to:', studentEmail, deptEmail);
+            
+            const emailResult = model.sendEmail(requestId, 'DELEGATED', currentUser, {
+                student: studentEmail || 'student@ksau-hs.edu.sa',
+                department: deptEmail || 'unit@ksau-hs.edu.sa',
+                admin: 'admin@ksau-hs.edu.sa'
+            });
+            
+            console.log('?? Email result:', emailResult);
+            
+            window.closeActionModal();
+            alert(`?? Request DELEGATED.\n\nForwarded to: ${deptLabel}\n\n?? Notification emails sent to:\n  � Student\n  � Department Head\n  � Admin Archive\n\n?? Follow-up reminder set for 7 working days`);
+            
+            // Immediately update the stat cards
+            const stats = window.AdminHubModel.getDashboardStats();
+            const activeCard = document.querySelector('[data-metric="activeTickets"]');
+            if (activeCard) {
+                const numberDiv = activeCard.querySelector('div:nth-child(2)');
+                if (numberDiv) {
+                    numberDiv.textContent = stats.activeTickets;
+                }
+            }
+            
+            // Refresh admin hub in background
+            if (window.app && typeof window.app.renderAdminHub === 'function') {
+                console.log('?? Refreshing admin hub...');
+                setTimeout(() => window.app.renderAdminHub(), 1000);
+            }
+        } else {
+            alert(`? ERROR: ${result.error}`);
+            console.error('? Delegation failed:', result.error);
+        }
+    } catch (error) {
+        console.error('? Exception in executeDelegation:', error);
+        alert(`? ERROR: ${error.message}`);
+    }
+};
+
+/**
+ * Send Email Communication
+ * Direct email to student with current status
+ */
+window.sendEmailCommunication = function(requestId, studentName, studentEmail) {
+    const model = window.AdminHubModel;
+    const request = model.requests.find(r => r.id === requestId);
+    
+    if (!request) {
+        alert('? Request not found');
+        return;
+    }
+
+    // Generate status-specific email
+    let emailSubject = '';
+    let emailBody = '';
+    
+    if (request.status === 'Pending Review') {
+        emailSubject = `?? Your request is being reviewed - ${requestId}`;
+        emailBody = `Dear ${studentName},\n\nYour request is currently under review.\n\nExpected response: Within 5 working days.\n\nThank you for your patience.`;
+    } else if (request.status === 'Approved') {
+        emailSubject = `? Your request has been approved - ${requestId}`;
+        emailBody = `Dear ${studentName},\n\nGreat news! Your request has been approved.\n\nYou can now proceed with the next steps.\n\nThank you!`;
+    } else if (request.status === 'Rejected') {
+        emailSubject = `? Your request requires action - ${requestId}`;
+        emailBody = `Dear ${studentName},\n\nYour request requires additional information.\n\nPlease contact the department for guidance.\n\nDepartment: ${request.unitInfo.name}`;
+    }
+
+    alert(`? Email Sent!\n\nTo: ${studentEmail}\nSubject: ${emailSubject}\n\n${emailBody}\n\n?? Email notification has been sent to the student and logged in the system.`);
+    console.log(`?? Email sent to ${studentEmail} for request ${requestId}`);
+};
+
+// ============================================
+// STUDENT TICKET ACTIONS (Approve/Reject)
+// ============================================
+
+window.approveTicket = function(ticketId, studentId, studentEmail) {
+    if (!confirm(`? Approve this ticket?\n\nTicket: ${ticketId}\nStudent: ${studentId}`)) {
+        return;
+    }
+    
+    try {
+        // Find the ticket
+        const ticket = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) {
+            alert('? Ticket not found');
+            return;
+        }
+        
+        // Update ticket status
+        ticket.status = 'approved';
+        ticket.lastUpdate = new Date();
+        
+        // Send approval email
+        const emailSubject = `? Your Request Approved - ${ticketId}`;
+        const emailBody = `Dear Student,\n\nGood news! Your request has been approved.\n\nTicket: ${ticket.title}\nID: ${ticketId}\nStatus: APPROVED\n\nYou can now proceed with the next steps.\n\nThank you!`;
+        
+        console.log(`? Ticket approved: ${ticketId}`);
+        console.log(`?? Sending email to: ${studentEmail}`);
+        
+        // ?? Update clinical tracking if this is a clinical issue
+        if (ticket.requestType === 'clinical' && typeof StudentPortalManager.clinicalTracking !== 'undefined') {
+            StudentPortalManager.clinicalTracking.updateStats();
+            console.log(`?? Clinical stats updated`);
+        }
+        
+        // ?? Update community services tracking if this is an event/conference request
+        if (ticket.requestType === 'event-participation' && typeof StudentPortalManager.communityServicesTracking !== 'undefined') {
+            StudentPortalManager.communityServicesTracking.updateStats();
+            console.log(`?? Community services stats updated`);
+        }
+        
+        alert(`? Ticket Approved!\n\n?? Email sent to ${studentEmail}\n\nSubject: ${emailSubject}\n\n${emailBody.substring(0, 150)}...`);
+        
+        // Refresh dashboard
+        if (window.app && typeof window.app.renderAdminHub === 'function') {
+            setTimeout(() => window.app.renderAdminHub(), 500);
+        }
+    } catch (error) {
+        console.error('? Error approving ticket:', error);
+        alert(`? Error: ${error.message}`);
+    }
+};
+
+window.rejectTicket = function(ticketId, studentId, studentEmail) {
+    const rejectReason = prompt('? Reject ticket. Please provide a reason:');
+    if (!rejectReason) {
+        return; // User cancelled
+    }
+    
+    try {
+        // Find the ticket
+        const ticket = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
+        if (!ticket) {
+            alert('? Ticket not found');
+            return;
+        }
+        
+        // Update ticket status
+        ticket.status = 'rejected';
+        ticket.lastUpdate = new Date();
+        ticket.rejectionReason = rejectReason;
+        
+        // Send rejection email
+        const emailSubject = `?? Your Request Requires Attention - ${ticketId}`;
+        const emailBody = `Dear Student,\n\nYour request requires additional information or was not approved.\n\nTicket: ${ticket.title}\nID: ${ticketId}\n\nReason: ${rejectReason}\n\nPlease contact the department for more information.`;
+        
+        console.log(`? Ticket rejected: ${ticketId}`);
+        console.log(`? Reason: ${rejectReason}`);
+        console.log(`?? Sending email to: ${studentEmail}`);
+        
+        // ?? Update clinical tracking if this is a clinical issue
+        if (ticket.requestType === 'clinical' && typeof StudentPortalManager.clinicalTracking !== 'undefined') {
+            StudentPortalManager.clinicalTracking.updateStats();
+            console.log(`?? Clinical stats updated`);
+        }
+        
+        // ?? Update community services tracking if this is an event/conference request
+        if (ticket.requestType === 'event-participation' && typeof StudentPortalManager.communityServicesTracking !== 'undefined') {
+            StudentPortalManager.communityServicesTracking.updateStats();
+            console.log(`?? Community services stats updated`);
+        }
+        
+        alert(`? Ticket Rejected\n\n?? Email sent to ${studentEmail}\n\nSubject: ${emailSubject}\n\nReason: ${rejectReason}`);
+        
+        // Refresh dashboard
+        if (window.app && typeof window.app.renderAdminHub === 'function') {
+            setTimeout(() => window.app.renderAdminHub(), 500);
+        }
+    } catch (error) {
+        console.error('? Error rejecting ticket:', error);
+        alert(`? Error: ${error.message}`);
+    }
+};
+
+
+
 

@@ -22,8 +22,29 @@ if (typeof StudentPortalAPI === 'undefined') {
     };
 }
 
+// Helper function to safely serialize ticket data for localStorage (handles Date objects)
+function serializeTicket(ticket) {
+    const serialized = { ...ticket };
+    // Convert all Date objects to ISO strings
+    if (serialized.submissionDate instanceof Date) serialized.submissionDate = serialized.submissionDate.toISOString();
+    if (serialized.lastUpdate instanceof Date) serialized.lastUpdate = serialized.lastUpdate.toISOString();
+    if (serialized.dueDate instanceof Date) serialized.dueDate = serialized.dueDate.toISOString();
+    return serialized;
+}
+
+// Helper function to deserialize ticket data from localStorage
+function deserializeTicket(ticket) {
+    const deserialized = { ...ticket };
+    if (typeof deserialized.submissionDate === 'string') deserialized.submissionDate = new Date(deserialized.submissionDate);
+    if (typeof deserialized.lastUpdate === 'string') deserialized.lastUpdate = new Date(deserialized.lastUpdate);
+    if (typeof deserialized.dueDate === 'string') deserialized.dueDate = new Date(deserialized.dueDate);
+    return deserialized;
+}
+
 // Student Portal Data & State Management
 const StudentPortalManager = {
+    // Load locally submitted tickets on startup
+    locallySubmittedTickets: JSON.parse(localStorage.getItem('studentSubmittedTickets') || '[]'),
     currentStudent: {
         studentId: '441210049',
         firstName: 'Bishier',
@@ -103,6 +124,8 @@ const StudentPortalManager = {
         {
             ticketId: 'COP-TICKET-2026-000001',
             studentId: '441210049',
+            studentEmail: 'alfadhl10049@ksau-hs.edu.sa',
+            isSample: true,
             title: 'Request Training Letter for Internship',
             requestType: 'letter',
             status: 'in-progress',
@@ -155,6 +178,8 @@ const StudentPortalManager = {
         {
             ticketId: 'COP-TICKET-2026-000002',
             studentId: '441210049',
+            studentEmail: 'alfadhl10049@ksau-hs.edu.sa',
+            isSample: true,
             title: 'Rotation Site Change Request',
             requestType: 'clinical',
             status: 'submitted',
@@ -189,6 +214,8 @@ const StudentPortalManager = {
         {
             ticketId: 'COP-TICKET-2026-000003',
             studentId: '441210049',
+            studentEmail: 'alfadhl10049@ksau-hs.edu.sa',
+            isSample: true,
             title: 'Transcript Request for Postgraduate Studies',
             requestType: 'letter',
             status: 'in-progress',
@@ -223,6 +250,8 @@ const StudentPortalManager = {
         {
             ticketId: 'COP-TICKET-2026-000004',
             studentId: '441210049',
+            studentEmail: 'alfadhl10049@ksau-hs.edu.sa',
+            isSample: true,
             title: 'LMS Portal Access Issue',
             requestType: 'it-support',
             status: 'closed',
@@ -293,8 +322,57 @@ const StudentPortalManager = {
         const year = timestamp.getFullYear();
         const random = Math.floor(Math.random() * 10000).toString().padStart(6, '0');
         return `COP-TICKET-${year}-${random}`;
+    },
+
+    // 🏥 CLINICAL AFFAIRS TRACKING
+    clinicalTracking: {
+        submitted: 0,      // Total clinical/rotation issues submitted
+        approved: 0,       // Admin approved
+        rejected: 0,       // Admin rejected
+        pending: 0,        // Awaiting admin decision
+        inProgress: 0,     // Being processed
+        
+        // Update stats based on tickets
+        updateStats: function() {
+            const clinicalTickets = StudentPortalManager.tickets.filter(t => t.requestType === 'clinical');
+            
+            this.submitted = clinicalTickets.length;
+            this.approved = clinicalTickets.filter(t => t.status === 'approved').length;
+            this.rejected = clinicalTickets.filter(t => t.status === 'rejected').length;
+            this.inProgress = clinicalTickets.filter(t => ['in-progress'].includes(t.status)).length;
+            this.pending = clinicalTickets.filter(t => ['submitted'].includes(t.status)).length;
+            
+            console.log(`📊 Clinical Stats Updated:`, this);
+            return this;
+        }
+    },
+
+    // 🎉 COMMUNITY SERVICES TRACKING (Events/Conferences)
+    communityServicesTracking: {
+        submitted: 0,      // Total event/conference requests submitted
+        approved: 0,       // Admin approved
+        rejected: 0,       // Admin rejected
+        pending: 0,        // Awaiting admin decision
+        inProgress: 0,     // Being processed
+        
+        // Update stats based on tickets
+        updateStats: function() {
+            const communityTickets = StudentPortalManager.tickets.filter(t => t.requestType === 'event-participation');
+            
+            this.submitted = communityTickets.length;
+            this.approved = communityTickets.filter(t => t.status === 'approved').length;
+            this.rejected = communityTickets.filter(t => t.status === 'rejected').length;
+            this.inProgress = communityTickets.filter(t => ['in-progress'].includes(t.status)).length;
+            this.pending = communityTickets.filter(t => ['submitted'].includes(t.status)).length;
+            
+            console.log(`🎉 Community Services Stats Updated:`, this);
+            return this;
+        }
     }
 };
+
+// Initialize stats
+StudentPortalManager.clinicalTracking.updateStats();
 
 // ============================================================
 // RENDER HOME PAGE - TICKET OVERVIEW
@@ -303,6 +381,16 @@ const StudentPortalManager = {
 function renderStudentPortalHome() {
     const root = document.getElementById('app-root');
     const { formatDate, formatTime } = StudentPortalManager;
+    
+    // 🔄 Sync currentStudent from AuthSystem to ensure consistency
+    if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser && AuthSystem.currentUserRole === 'student') {
+        StudentPortalManager.currentStudent.studentId = AuthSystem.currentUser;
+        if (AuthSystem.currentUserName) {
+            const nameParts = AuthSystem.currentUserName.split(' ');
+            StudentPortalManager.currentStudent.firstName = nameParts[0];
+            StudentPortalManager.currentStudent.lastName = nameParts.slice(1).join(' ');
+        }
+    }
     
     // Get student data from AuthSystem if available, otherwise use currentStudent
     let student;
@@ -320,11 +408,12 @@ function renderStudentPortalHome() {
         student = StudentPortalManager.currentStudent;
     }
 
-    // Count tickets by status
-    const totalTickets = StudentPortalManager.tickets.length;
-    const activeTickets = StudentPortalManager.tickets.filter(t => ['submitted', 'in-progress'].includes(t.status)).length;
-    const pendingResponse = StudentPortalManager.tickets.filter(t => t.status === 'waiting-student').length;
-    const resolvedTickets = StudentPortalManager.tickets.filter(t => ['approved', 'closed', 'resolved'].includes(t.status)).length;
+    // Count tickets by status - ONLY current student's tickets (exclude samples and submitted tickets)
+    const currentStudentTickets = StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample && t.status !== 'submitted');
+    const totalTickets = currentStudentTickets.length;
+    const activeTickets = currentStudentTickets.filter(t => ['in-progress'].includes(t.status)).length;
+    const pendingResponse = currentStudentTickets.filter(t => t.status === 'waiting-student').length;
+    const resolvedTickets = currentStudentTickets.filter(t => ['approved', 'closed', 'resolved'].includes(t.status)).length;
 
     let html = `
     <div class="student-portal-home">
@@ -391,8 +480,11 @@ function renderStudentPortalHome() {
             </div>
     `;
 
-    // Show recent active tickets
-    const activeTickets_list = StudentPortalManager.tickets.filter(t => ['submitted', 'in-progress'].includes(t.status)).slice(0, 3);
+    // Show recent active tickets - ONLY for current student (hide submitted tickets)
+    const activeTickets_list = StudentPortalManager.tickets
+        .filter(t => t.studentId === student.studentId && t.status !== 'submitted')
+        .filter(t => ['in-progress'].includes(t.status))
+        .slice(0, 3);
     
     if (activeTickets_list.length > 0) {
         activeTickets_list.forEach(ticket => {
@@ -441,9 +533,10 @@ function renderStudentPortalHome() {
             </div>
     `;
 
-    // Get recent messages from latest ticket
-    if (StudentPortalManager.tickets.length > 0) {
-        const latestTicket = StudentPortalManager.tickets[0];
+    // Get recent messages from latest ticket - ONLY current student's tickets (hide submitted)
+    const studentTickets = StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample && t.status !== 'submitted');
+    if (studentTickets.length > 0) {
+        const latestTicket = studentTickets[0];
         const recentMessages = latestTicket.messages.slice(-2);
         
         recentMessages.forEach(msg => {
@@ -521,6 +614,234 @@ function renderRequestForm(requestTypeId) {
     const dept = StudentPortalManager.getDepartmentById(requestType.department);
     const student = StudentPortalManager.currentStudent;
 
+    // 🎉 SPECIAL FORM FOR EVENT/CONFERENCE REQUESTS
+    if (requestTypeId === 'event-participation') {
+        let html = `
+        <div class="student-portal-home">
+            <div class="section-header" style="margin-bottom: 30px;">
+                <h3>🎉 Event/Conference Request</h3>
+                <button class="btn btn-outline" onclick="StudentPortal.showSubmitForm()">← Back</button>
+            </div>
+
+            <section class="home-section">
+                <div style="background: ${dept.color}15; border-left: 4px solid ${dept.color}; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                    <strong>${dept.icon} Will be routed to: ${dept.name}</strong>
+                    <p style="margin: 8px 0 0 0; font-size: 0.9rem; color: #666;">Expected approval timeline: 2-3 working days</p>
+                </div>
+
+                <form id="ticketForm" onsubmit="StudentPortal.submitEventRequest(event)">
+                    <!-- Event Basic Information -->
+                    <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #1B5E20; padding: 0 10px;">📋 Event Information</legend>
+                        
+                        <div class="form-group">
+                            <label>Event Name *</label>
+                            <input type="text" name="eventName" required placeholder="e.g., Saudi Pharmaceutical Society Annual Conference" maxlength="200">
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Event Type *</label>
+                                <select name="eventType" required>
+                                    <option value="">Select event type...</option>
+                                    <option value="conference">Conference/Symposium</option>
+                                    <option value="workshop">Workshop/Seminar</option>
+                                    <option value="competition">Competition</option>
+                                    <option value="community-event">Community Service Event</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Event Level *</label>
+                                <select name="eventLevel" required>
+                                    <option value="">Select level...</option>
+                                    <option value="local">Local (City/Region)</option>
+                                    <option value="national">National (Saudi Arabia)</option>
+                                    <option value="regional">Regional (GCC)</option>
+                                    <option value="international">International</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Event Date *</label>
+                                <input type="date" name="eventDate" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Duration (Days) *</label>
+                                <input type="number" name="eventDuration" required min="1" placeholder="e.g., 3">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Event Location / Venue *</label>
+                            <input type="text" name="eventLocation" required placeholder="City, Country (if international)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Organizer/Host Institution *</label>
+                            <input type="text" name="eventOrganizer" required placeholder="e.g., Saudi Pharmaceutical Society, WHO, etc.">
+                        </div>
+                    </fieldset>
+
+                    <!-- Student Role & Participation -->
+                    <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #1B5E20; padding: 0 10px;">👤 Your Role & Participation</legend>
+                        
+                        <div class="form-group">
+                            <label>Your Role in Event *</label>
+                            <select name="studentRole" required>
+                                <option value="">Select your role...</option>
+                                <option value="attendee">Attendee</option>
+                                <option value="presenter">Presenter (Poster)</option>
+                                <option value="presenter-oral">Presenter (Oral)</option>
+                                <option value="volunteer">Volunteer</option>
+                                <option value="competitor">Competitor</option>
+                                <option value="organizer">Organizer/Committee Member</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Professional Benefits & Learning Outcomes *</label>
+                            <textarea name="learningOutcomes" required rows="4" placeholder="Explain what you hope to gain from this event and how it aligns with your professional development..." maxlength="1000"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Number of Students Participating (if team) *</label>
+                            <input type="number" name="studentCount" required min="1" placeholder="1">
+                        </div>
+                    </fieldset>
+
+                    <!-- Support Required -->
+                    <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #1B5E20; padding: 0 10px;">💼 Support Required (Select All That Apply)</legend>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="support" value="approval-letter"> Approval Letter from Dean
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="support" value="registration-fee"> Registration Fee Support
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="support" value="travel"> Travel Support
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="support" value="accommodation"> Accommodation Support
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="support" value="excused-absence"> Excused Absence from Rotation
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" name="support" value="funding"> Funding Request
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <!-- Budget (if applicable) -->
+                    <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #1B5E20; padding: 0 10px;">💰 Budget (if applicable)</legend>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Registration Fee (SAR)</label>
+                                <input type="number" name="feeCost" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Travel & Accommodation (SAR)</label>
+                                <input type="number" name="travelCost" step="0.01" placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Total Budget Requested (SAR)</label>
+                            <input type="number" name="totalBudget" step="0.01" placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Budget Justification</label>
+                            <textarea name="budgetJustification" rows="3" placeholder="Explain why this event is important for your development..." maxlength="500"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <!-- Schedule Conflict -->
+                    <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #1B5E20; padding: 0 10px;">⏰ Schedule Impact</legend>
+                        
+                        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <input type="radio" name="scheduleConflict" value="no" checked> No conflict with rotation/classes
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
+                            <input type="radio" name="scheduleConflict" value="yes"> Requires time away from rotation/classes
+                        </label>
+
+                        <div class="form-group">
+                            <label>Days Needed Away from Regular Duties *</label>
+                            <input type="number" name="daysAway" required min="0" placeholder="0">
+                        </div>
+                    </fieldset>
+
+                    <!-- Attachments -->
+                    <fieldset style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <legend style="font-weight: 700; color: #1B5E20; padding: 0 10px;">📎 Attachments</legend>
+                        
+                        <div class="form-group">
+                            <label>Upload Supporting Documents (Optional)</label>
+                            <small style="display: block; margin-bottom: 10px; color: #666;">Event invitation, acceptance letter, abstract, etc.</small>
+                            <div class="file-upload">
+                                <input type="file" id="attachmentInput" name="attachments" multiple accept=".pdf,.doc,.docx,.jpg,.png" />
+                                <label for="attachmentInput" class="file-upload-label">
+                                    📎 Click to upload files or drag & drop
+                                </label>
+                                <small style="display: block; margin-top: 8px; color: var(--text-muted);">Max 5 files, 5MB each</small>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <!-- Agreement -->
+                    <div style="background: #FFF3CD; padding: 15px; border-radius: 6px; border-left: 4px solid #FF9800; margin-bottom: 20px;">
+                        <label style="display: flex; align-items: flex-start; gap: 10px;">
+                            <input type="checkbox" name="agreement" required style="margin-top: 4px;">
+                            <div>
+                                <strong>Declaration</strong>
+                                <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: #666;">
+                                    I confirm that all information provided is accurate and complete. I understand that attendance is conditional on academic standing and that I may be required to submit photos/certificates after the event.
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div style="background: var(--light-green); padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                        <strong>📋 Approval Process</strong>
+                        <ul style="margin: 10px 0 0 20px; padding: 0; color: var(--text-muted); font-size: 0.9rem;">
+                            <li>✓ Your request will be reviewed by Student Services</li>
+                            <li>✓ You'll receive email confirmation and approval status</li>
+                            <li>✓ Approval letter will be sent if approved</li>
+                            <li>✓ Timeline: 2-3 working days</li>
+                        </ul>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">
+                            📨 Submit Request
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="StudentPortal.showSubmitForm()" style="flex: 1;">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </div>
+        `;
+
+        root.innerHTML = html;
+        return;
+    }
+
+    // 🔄 STANDARD FORM FOR OTHER REQUEST TYPES
     let html = `
     <div class="student-portal-home">
         <div class="section-header" style="margin-bottom: 30px;">
@@ -621,7 +942,7 @@ function renderAllTickets() {
         <!-- FILTERS -->
         <section class="home-section" style="margin-bottom: 20px;">
             <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="filter-btn active" onclick="StudentPortal.filterTickets('all')">All (${StudentPortalManager.tickets.length})</button>
+                <button class="filter-btn active" onclick="StudentPortal.filterTickets('all')">All (${StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample && t.status !== 'submitted').length})</button>
                 <button class="filter-btn" onclick="StudentPortal.filterTickets('active')">Active</button>
                 <button class="filter-btn" onclick="StudentPortal.filterTickets('resolved')">Resolved</button>
                 <button class="filter-btn" onclick="StudentPortal.filterTickets('closed')">Closed</button>
@@ -632,7 +953,9 @@ function renderAllTickets() {
         <section class="home-section tickets-container">
     `;
 
-    StudentPortalManager.tickets.forEach(ticket => {
+    StudentPortalManager.tickets
+        .filter(ticket => ticket.studentId === student.studentId && !ticket.isSample && ticket.status !== 'submitted')
+        .forEach(ticket => {
         const requestType = StudentPortalManager.getRequestTypeById(ticket.requestType);
         const dept = StudentPortalManager.getDepartmentById(ticket.department);
         const messageCount = ticket.messages.length;
@@ -878,7 +1201,11 @@ function renderDashboard() {
 
         console.log('renderDashboard called - tickets count:', StudentPortalManager.tickets.length);
         
-        const tickets = StudentPortalManager.tickets;
+        // Get current logged-in student ID
+        const currentStudentId = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : StudentPortalManager.currentStudent.studentId;
+        
+        // ONLY show current student's tickets
+        const tickets = this.tickets.filter(t => t.studentId === currentStudentId);
         const depts = StudentPortalManager.departments;
 
         // Calculate KPI metrics
@@ -1061,16 +1388,183 @@ function renderDashboard() {
 }
 
 // ============================================================
+// SUBMIT EVENT/CONFERENCE REQUEST - DETAILED FORM
+// ============================================================
+
+async function submitEventRequest(event) {
+    event.preventDefault();
+    const form = event.target;
+    const student = StudentPortalManager.currentStudent;
+    
+    try {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.textContent = '📤 Submitting...';
+        
+        // Gather form data
+        const formData = new FormData(form);
+        const supportCheckedBoxes = form.querySelectorAll('input[name="support"]:checked');
+        const supportNeeded = Array.from(supportCheckedBoxes).map(cb => cb.value);
+        
+        // Create comprehensive event request ticket
+        const ticketId = 'EV-TICKET-' + new Date().getTime();
+        const requestType = StudentPortalManager.getRequestTypeById('event-participation');
+        const dept = StudentPortalManager.getDepartmentById(requestType.department);
+        
+        const eventRequestData = {
+            // Basic ticket info
+            ticketId: ticketId,
+            studentId: student.studentId,
+            studentEmail: student.email,
+            studentName: student.firstName + ' ' + student.lastName,
+            title: formData.get('eventName'),
+            requestType: 'event-participation',
+            status: 'submitted',
+            priority: 'high',
+            department: requestType.department,
+            submissionDate: new Date(),
+            lastUpdate: new Date(),
+            assignedTo: { name: 'Unassigned', email: dept.email },
+            dueDate: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days SLA
+            sla: '3 working days',
+            
+            // Event-specific details
+            eventDetails: {
+                name: formData.get('eventName'),
+                type: formData.get('eventType'),
+                level: formData.get('eventLevel'),
+                date: formData.get('eventDate'),
+                duration: parseInt(formData.get('eventDuration')),
+                location: formData.get('eventLocation'),
+                organizer: formData.get('eventOrganizer'),
+                daysAway: parseInt(formData.get('daysAway')),
+                scheduleConflict: formData.get('scheduleConflict') === 'yes'
+            },
+            
+            // Participation details
+            participationDetails: {
+                role: formData.get('studentRole'),
+                learningOutcomes: formData.get('learningOutcomes'),
+                studentCount: parseInt(formData.get('studentCount'))
+            },
+            
+            // Budget
+            budget: {
+                registrationFee: parseFloat(formData.get('feeCost')) || 0,
+                travelCost: parseFloat(formData.get('travelCost')) || 0,
+                totalRequested: parseFloat(formData.get('totalBudget')) || 0,
+                justification: formData.get('budgetJustification')
+            },
+            
+            //Support needed
+            supportNeeded: supportNeeded,
+            
+            // Messages/History
+            messages: [{
+                id: 1,
+                sender: 'student',
+                senderName: student.firstName + ' ' + student.lastName,
+                senderRole: 'Student',
+                timestamp: new Date(),
+                message: formData.get('eventName') + ' - Event participation request',
+                attachments: []
+            }],
+            
+            // Admin fields (initially empty)
+            approvalStatus: null,
+            approvalNotes: '',
+            approvalDate: null,
+            approver: null,
+            approvalLetter: null
+        };
+        
+        // Add to tickets list and mark as locally submitted (so it survives backend sync)
+        eventRequestData.isLocallySubmitted = true;
+        StudentPortalManager.tickets.unshift(eventRequestData);
+        
+        // IMPORTANT: Also store in localStorage so it survives page refreshes and API syncs
+        // CRITICAL: Must serialize Date objects to strings for localStorage!
+        const storedSubmissions = JSON.parse(localStorage.getItem('studentSubmittedTickets') || '[]');
+        const serialized = serializeTicket(eventRequestData);
+        storedSubmissions.unshift(serialized);
+        try {
+            localStorage.setItem('studentSubmittedTickets', JSON.stringify(storedSubmissions));
+            console.log('✅ [SUBMISSION] Ticket STORED in localStorage');
+            console.log('💾 [SUBMISSION] Serialized data:', serialized);
+        } catch (e) {
+            console.error('❌ [SUBMISSION] Failed to save to localStorage:', e.message);
+        }
+        
+        console.log('✅ [SUBMISSION] Ticket added to StudentPortalManager.tickets');
+        console.log('📊 [SUBMISSION] StudentPortalManager.tickets.length:', StudentPortalManager.tickets.length);
+        console.log('📊 [SUBMISSION] window.StudentPortalManager.tickets.length:', window.StudentPortalManager.tickets.length);
+        console.log('📋 [SUBMISSION] New ticket ID:', eventRequestData.ticketId);
+        
+        // Update community services tracking
+        if (typeof StudentPortalManager.communityServicesTracking !== 'undefined') {
+            StudentPortalManager.communityServicesTracking.updateStats();
+        }
+        
+        // Show success message
+        alert(`✅ Event Request Submitted Successfully!\n\n` +
+              `Ticket ID: ${ticketId}\n` +
+              `Event: ${formData.get('eventName')}\n` +
+              `Status: Submitted for Review\n\n` +
+              `You will receive an email confirmation shortly.\n` +
+              `Expected approval timeline: 2-3 working days`);
+        
+        // Ticket is now in StudentPortalManager.tickets - Admin Hub will show it when opened/refreshed
+        console.log('✅ Ticket submitted and stored in StudentPortalManager');
+        console.log('📊 Total tickets:', StudentPortalManager.tickets.length);
+        
+        // Return to home
+        StudentPortal.renderHome();
+        
+    } catch (error) {
+        console.error('Event request submission error:', error);
+        alert(`❌ Error submitting request: ${error.message}`);
+    } finally {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = '📨 Submit Request';
+        }
+    }
+}
+
+// ============================================================
 // EXPORT FOR USE IN MAIN APP
 // ============================================================
 
 window.StudentPortal = {
     renderHome: async () => {
-        // Fetch real tickets from backend
+        console.log('🏠 renderHome() called');
+        console.log('📊 Current tickets in StudentPortalManager BEFORE sync:', StudentPortalManager.tickets.length);
+        console.log('🔍 Locally submitted tickets:', StudentPortalManager.tickets.filter(t => t.isLocallySubmitted).length);
+        
+        // Update currentStudent from AuthSystem if available
+        if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser && AuthSystem.currentUserRole === 'student') {
+            StudentPortalManager.currentStudent.studentId = AuthSystem.currentUser;
+            StudentPortalManager.currentStudent.firstName = (AuthSystem.currentUserName || AuthSystem.currentUser).split(' ')[0];
+            StudentPortalManager.currentStudent.name = AuthSystem.currentUserName || AuthSystem.currentUser;
+            console.log('✅ Updated currentStudent from AuthSystem:', StudentPortalManager.currentStudent.studentId);
+        }
+        
+        // Fetch real tickets from backend but preserve locally submitted ones
         try {
             const studentId = StudentPortalManager.currentStudent.studentId;
             const tickets = await StudentPortalAPI.getStudentTickets(studentId);
-            // Only update if we got real data
+            
+            // ALWAYS load locally submitted tickets from localStorage
+            const storedSubmissionsRaw = JSON.parse(localStorage.getItem('studentSubmittedTickets') || '[]');
+            // CRITICAL: Deserialize Date strings back to Date objects!
+            const storedSubmissions = storedSubmissionsRaw.map(t => deserializeTicket(t));
+            console.log('💾 [renderHome] Loaded from localStorage:', storedSubmissions.length, 'submitted tickets');
+            if (storedSubmissions.length > 0) {
+                console.log('✅ [renderHome] Submitted tickets from storage:', storedSubmissions.map(t => t.ticketId));
+            }
+            
+            // If backend has real data, use it but preserve all locally submitted ones
             if (tickets && tickets.length > 0) {
                 StudentPortalManager.tickets = tickets.map(ticket => ({
                     ...ticket,
@@ -1081,11 +1575,19 @@ window.StudentPortal = {
                     submissionDate: ticket.submissionDate ? new Date(ticket.submissionDate) : null,
                     lastUpdate: ticket.lastUpdate ? new Date(ticket.lastUpdate) : null
                 }));
+                console.log('✅ [renderHome] Updated from backend');
             }
-            // Otherwise keep the static sample data
+            // REGARDLESS of backend data, add all localStorage submissions to the front
+            if (storedSubmissions.length > 0) {
+                StudentPortalManager.tickets.unshift(...storedSubmissions);
+                console.log('✅ [renderHome] Added localStorage submissions to front, total now:', StudentPortalManager.tickets.length);
+            }
         } catch (error) {
-            console.log('Backend not available, using sample data');
+            console.log('⚠️ Backend not available, using sample data + local submissions:', error.message);
         }
+        
+        console.log('📊 Final tickets in StudentPortalManager AFTER sync:', StudentPortalManager.tickets.length);
+        console.log('📊 window.StudentPortalManager.tickets:', window.StudentPortalManager.tickets.length);
         renderStudentPortalHome();
     },
     showSubmitForm: () => {
@@ -1109,6 +1611,16 @@ window.StudentPortal = {
             submitBtn.disabled = true;
             submitBtn.textContent = '📤 Submitting...';
             
+            // 🔄 Sync currentStudent from AuthSystem (logged-in user)
+            if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) {
+                StudentPortalManager.currentStudent.studentId = AuthSystem.currentUser;
+                if (AuthSystem.currentUserName) {
+                    const nameParts = AuthSystem.currentUserName.split(' ');
+                    StudentPortalManager.currentStudent.firstName = nameParts[0];
+                    StudentPortalManager.currentStudent.lastName = nameParts.slice(1).join(' ');
+                }
+            }
+            
             // Call backend API to create ticket
             const result = await StudentPortalAPI.createTicket({
                 studentId: StudentPortalManager.currentStudent.studentId,
@@ -1127,6 +1639,7 @@ window.StudentPortal = {
             const newTicket = {
                 ticketId: ticketId,
                 studentId: StudentPortalManager.currentStudent.studentId,
+                studentEmail: StudentPortalManager.currentStudent.email,
                 title: title,
                 description: description,
                 requestType: typeId,
@@ -1149,10 +1662,48 @@ window.StudentPortal = {
                 }]
             };
             
-            // Add new ticket to the beginning of the list
+            // Add new ticket to the beginning of the list and mark as locally submitted (so it survives backend sync)
+            newTicket.isLocallySubmitted = true;
             StudentPortalManager.tickets.unshift(newTicket);
+            console.log('✅ General ticket added to StudentPortalManager.tickets');
+            console.log('📊 Total tickets in StudentPortalManager:', StudentPortalManager.tickets.length);
+            console.log('📋 New ticket data:', newTicket);
+            console.log('🔍 StudentPortalManager accessible from window?', typeof window.StudentPortalManager !== 'undefined');
+
+            // 💾 Save to Supabase database
+            if (typeof window.SupabaseService !== 'undefined') {
+                try {
+                    const saved = await window.SupabaseService.db.saveSubmittedTicket(
+                        StudentPortalManager.currentStudent.studentId,
+                        newTicket
+                    );
+                    if (saved) {
+                        console.log('✅ Ticket saved to Supabase database');
+                    } else {
+                        console.warn('⚠️ Ticket saved locally but not to database');
+                    }
+                } catch (error) {
+                    console.error('❌ Failed to save ticket to Supabase:', error);
+                }
+            }
+            
+            // 🏥 Update clinical tracking if this is a clinical/rotation issue
+            if (typeId === 'clinical' && typeof StudentPortalManager.clinicalTracking !== 'undefined') {
+                StudentPortalManager.clinicalTracking.updateStats();
+                console.log(`🏥 Clinical issue submitted - Stats updated:`, StudentPortalManager.clinicalTracking);
+            }
+            
+            // 🎉 Update community services tracking if this is an event/conference request
+            if (typeId === 'event-participation' && typeof StudentPortalManager.communityServicesTracking !== 'undefined') {
+                StudentPortalManager.communityServicesTracking.updateStats();
+                console.log(`🎉 Community services request submitted - Stats updated:`, StudentPortalManager.communityServicesTracking);
+            }
             
             alert(`✅ Request submitted successfully!\n\nTicket ID: ${ticketId}`);
+            
+            // Ticket is now in StudentPortalManager.tickets - Admin Hub will show it when opened/refreshed
+            console.log('✅ Ticket submitted and stored in StudentPortalManager');
+            console.log('📊 Total tickets:', StudentPortalManager.tickets.length);
             
             // Try to refresh tickets from backend if available
             try {
@@ -1184,11 +1735,14 @@ window.StudentPortal = {
             }
         }
     },
+    submitEventRequest: async (event) => {
+        await submitEventRequest(event);
+    },
     showAllTickets: async () => {
         document.getElementById('page-title').textContent = 'My Tickets';
         // Fetch real tickets from backend
         try {
-            const studentId = StudentPortalManager.currentStudent.studentId;
+            const studentId = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : StudentPortalManager.currentStudent.studentId;
             const tickets = await StudentPortalAPI.getStudentTickets(studentId);
             // Only update if we got real data
             if (tickets && tickets.length > 0) {
@@ -1277,3 +1831,28 @@ window.StudentPortal = {
         StudentPortal.renderHome();
     }
 };
+
+// ============================================================
+// INITIALIZE: Load submitted tickets from localStorage on startup
+// ============================================================
+const initializeSubmittedTickets = () => {
+    const submittedRaw = JSON.parse(localStorage.getItem('studentSubmittedTickets') || '[]');
+    if (submittedRaw.length > 0) {
+        console.log(`📥 [INIT] Loading ${submittedRaw.length} submitted tickets from localStorage`);
+        const submitted = submittedRaw.map(t => deserializeTicket(t));
+        // Add submitted tickets to the front of the tickets array
+        StudentPortalManager.tickets.unshift(...submitted);
+        console.log(`✅ [INIT] Merged submitted tickets. Total tickets now: ${StudentPortalManager.tickets.length}`);
+    }
+};
+
+// Call initialization on page load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeSubmittedTickets);
+} else {
+    // Page already loaded
+    initializeSubmittedTickets();
+}
+
+// Expose StudentPortalManager to global window object so admin hub can access it
+window.StudentPortalManager = StudentPortalManager;
