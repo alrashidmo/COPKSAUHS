@@ -480,10 +480,10 @@ function renderStudentPortalHome() {
             </div>
     `;
 
-    // Show recent active tickets - ONLY for current student (hide submitted tickets)
+    // Show recent active tickets - ONLY for current student, ONLY SUBMITTED tickets
     const activeTickets_list = StudentPortalManager.tickets
-        .filter(t => t.studentId === student.studentId && t.status !== 'submitted')
-        .filter(t => ['in-progress'].includes(t.status))
+        .filter(t => t.studentId === student.studentId) // Only this user's tickets
+        .filter(t => t.status === 'submitted') // Only tickets waiting for action
         .slice(0, 3);
     
     if (activeTickets_list.length > 0) {
