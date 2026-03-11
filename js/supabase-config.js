@@ -35,3 +35,31 @@ function validateSupabaseConfig() {
 // Export
 window.SupabaseConfig = SUPABASE_CONFIG;
 window.validateSupabaseConfig = validateSupabaseConfig;
+
+// Initialize Supabase when the page loads
+(async function initSupabase() {
+    // Wait for SupabaseService to be available
+    let attempts = 0;
+    const maxAttempts = 50;
+
+    const waitForService = setInterval(async () => {
+        attempts++;
+
+        if (typeof window.SupabaseService !== 'undefined') {
+            clearInterval(waitForService);
+            console.log('🔄 Initializing Supabase...');
+
+            const success = await window.SupabaseService.init(SUPABASE_CONFIG);
+
+            if (success) {
+                console.log('✅ Supabase initialized successfully!');
+                console.log('📡 Connected to:', SUPABASE_CONFIG.url);
+            } else {
+                console.error('❌ Supabase initialization failed');
+            }
+        } else if (attempts >= maxAttempts) {
+            clearInterval(waitForService);
+            console.error('❌ SupabaseService not loaded after', maxAttempts, 'attempts');
+        }
+    }, 100); // Check every 100ms
+})();
