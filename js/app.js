@@ -14680,36 +14680,35 @@ window.sendEmailCommunication = function(requestId, studentName, studentEmail) {
 // STUDENT TICKET ACTIONS (Approve/Reject)
 // ============================================
 
-window.approveTicket = function(ticketId, studentId, studentEmail) {
-    if (!confirm(`? Approve this ticket?\n\nTicket: ${ticketId}\nStudent: ${studentId}`)) {
+window.approveTicket = async function(ticketId, studentId, studentEmail) {
+    if (!confirm(`✅ Approve this ticket?\n\nTicket: ${ticketId}\nStudent: ${studentId}`)) {
         return;
     }
-    
+
     try {
         // Find the ticket
         const ticket = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
         if (!ticket) {
-            alert('? Ticket not found');
+            alert('❌ Ticket not found');
             return;
         }
-        
+
         // Update ticket status
         ticket.status = 'approved';
         ticket.lastUpdate = new Date();
 
-        // 💾 Save status update to Supabase
+        // 💾 Save status update to Supabase - WAIT for it to complete!
         if (typeof window.SupabaseService !== 'undefined') {
-            window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved')
-                .then(success => {
-                    if (success) {
-                        console.log('✅ Ticket status updated in Supabase');
-                    } else {
-                        console.warn('⚠️ Failed to update ticket in Supabase');
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error updating ticket in Supabase:', error);
-                });
+            try {
+                const success = await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved');
+                if (success) {
+                    console.log('✅ Ticket status updated in Supabase');
+                } else {
+                    console.warn('⚠️ Failed to update ticket in Supabase');
+                }
+            } catch (error) {
+                console.error('❌ Error updating ticket in Supabase:', error);
+            }
         }
 
         // Send approval email
@@ -14743,38 +14742,37 @@ window.approveTicket = function(ticketId, studentId, studentEmail) {
     }
 };
 
-window.rejectTicket = function(ticketId, studentId, studentEmail) {
-    const rejectReason = prompt('? Reject ticket. Please provide a reason:');
+window.rejectTicket = async function(ticketId, studentId, studentEmail) {
+    const rejectReason = prompt('❌ Reject ticket. Please provide a reason:');
     if (!rejectReason) {
         return; // User cancelled
     }
-    
+
     try {
         // Find the ticket
         const ticket = StudentPortalManager.tickets.find(t => t.ticketId === ticketId);
         if (!ticket) {
-            alert('? Ticket not found');
+            alert('❌ Ticket not found');
             return;
         }
-        
+
         // Update ticket status
         ticket.status = 'rejected';
         ticket.lastUpdate = new Date();
         ticket.rejectionReason = rejectReason;
 
-        // 💾 Save status update to Supabase
+        // 💾 Save status update to Supabase - WAIT for it to complete!
         if (typeof window.SupabaseService !== 'undefined') {
-            window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected')
-                .then(success => {
-                    if (success) {
-                        console.log('✅ Ticket status updated in Supabase');
-                    } else {
-                        console.warn('⚠️ Failed to update ticket in Supabase');
-                    }
-                })
-                .catch(error => {
-                    console.error('❌ Error updating ticket in Supabase:', error);
-                });
+            try {
+                const success = await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected');
+                if (success) {
+                    console.log('✅ Ticket status updated in Supabase');
+                } else {
+                    console.warn('⚠️ Failed to update ticket in Supabase');
+                }
+            } catch (error) {
+                console.error('❌ Error updating ticket in Supabase:', error);
+            }
         }
 
         // Send rejection email
