@@ -3669,9 +3669,36 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             console.log('? All analytics data loaded');
             console.log('? Pending student approvals:', pendingApprovals.length);
             
-            const dashboardStats = model.getDashboardStats();
-            console.log('? Dashboard stats calculated:', dashboardStats);
-            console.log('   - Total Students:', dashboardStats.totalStudents);
+            // 📊 Calculate Real KPIs from Supabase Tickets
+            const allTickets = window.StudentPortalManager?.tickets || [];
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            const dashboardStats = {
+                totalTickets: allTickets.length,
+                activeTickets: allTickets.filter(t => t.status === 'submitted').length,
+                avgResponseTime: (() => {
+                    const resolvedTickets = allTickets.filter(t => t.status === 'approved' || t.status === 'rejected');
+                    if (resolvedTickets.length === 0) return '0h';
+                    const totalHours = resolvedTickets.reduce((sum, ticket) => {
+                        const submitTime = new Date(ticket.submittedAt || ticket.submissionDate);
+                        const resolveTime = new Date(ticket.lastUpdate);
+                        const hours = (resolveTime - submitTime) / (1000 * 60 * 60);
+                        return sum + hours;
+                    }, 0);
+                    const avgHours = totalHours / resolvedTickets.length;
+                    return avgHours < 1 ? `${Math.round(avgHours * 60)}m` : `${avgHours.toFixed(1)}h`;
+                })(),
+                resolvedToday: allTickets.filter(t => {
+                    if (t.status !== 'approved' && t.status !== 'rejected') return false;
+                    const updateTime = new Date(t.lastUpdate);
+                    return updateTime >= todayStart;
+                }).length,
+                totalStudents: new Set(allTickets.map(t => t.studentId)).size
+            };
+
+            console.log('📊 Dashboard stats calculated from Supabase:', dashboardStats);
+            console.log('   - Total Tickets:', dashboardStats.totalTickets);
             console.log('   - Active Tickets:', dashboardStats.activeTickets);
             console.log('   - Avg Response Time:', dashboardStats.avgResponseTime);
             console.log('   - Resolved Today:', dashboardStats.resolvedToday);
@@ -3878,17 +3905,23 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             }
             
             console.log(`📋 [ADMIN HUB] FINAL: ${studentTickets.length} total tickets (${submittedTicketsFromStorage.length} submitted + ${studentTickets.length - submittedTicketsFromStorage.length} sample)`);
-            if (studentTickets && studentTickets.length > 0) {
-                console.log('📋 [ADMIN HUB] First ticket:', studentTickets[0].ticketId, '-', studentTickets[0].title);
+
+            // ✅ FILTER: Only show ACTIVE tickets (status='submitted') in this section
+            // Approved/Rejected tickets will be in history/Request Tracking Dashboard
+            const activeStudentTickets = studentTickets.filter(t => t.status === 'submitted');
+            console.log(`📋 [ADMIN HUB] Filtered to ${activeStudentTickets.length} ACTIVE tickets (status='submitted')`);
+
+            if (activeStudentTickets && activeStudentTickets.length > 0) {
+                console.log('📋 [ADMIN HUB] First active ticket:', activeStudentTickets[0].ticketId, '-', activeStudentTickets[0].title);
             }
-            
-            const studentTicketsHTML = studentTickets.length > 0 ? `
+
+            const studentTicketsHTML = activeStudentTickets.length > 0 ? `
                 <div class="card" style="margin-bottom: 2rem; border-left: 4px solid #2196F3;">
-                    <h2 style="margin: 0 0 1.5rem 0; color: #333;">📋 Student Submitted Tickets (${studentTickets.length})</h2>
-                    <p style="color: #666; font-size: 0.9rem; margin: 0 0 1rem 0;">Displaying ${submittedTicketsFromStorage.length} newly submitted + ${studentTickets.length - submittedTicketsFromStorage.length} sample tickets</p>
-                    
+                    <h2 style="margin: 0 0 1.5rem 0; color: #333;">📋 Student Submitted Tickets (${activeStudentTickets.length})</h2>
+                    <p style="color: #666; font-size: 0.9rem; margin: 0 0 1rem 0;">Showing active tickets pending action • Approved/Rejected tickets moved to Request Tracking Dashboard</p>
+
                     <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
-                        ${studentTickets.map((ticket, idx) => {
+                        ${activeStudentTickets.map((ticket, idx) => {
                             console.log(`🎫 [RENDER TICKET ${idx}] ${ticket.ticketId} - "${ticket.title}", status: "${ticket.status}", hasDescription: ${!!ticket.description}`);
                             const statusColors = {
                                 'submitted': '#FF9800',
