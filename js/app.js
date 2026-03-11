@@ -14663,7 +14663,22 @@ window.approveTicket = function(ticketId, studentId, studentEmail) {
         // Update ticket status
         ticket.status = 'approved';
         ticket.lastUpdate = new Date();
-        
+
+        // 💾 Save status update to Supabase
+        if (typeof window.SupabaseService !== 'undefined') {
+            window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved')
+                .then(success => {
+                    if (success) {
+                        console.log('✅ Ticket status updated in Supabase');
+                    } else {
+                        console.warn('⚠️ Failed to update ticket in Supabase');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error updating ticket in Supabase:', error);
+                });
+        }
+
         // Send approval email
         const emailSubject = `? Your Request Approved - ${ticketId}`;
         const emailBody = `Dear Student,\n\nGood news! Your request has been approved.\n\nTicket: ${ticket.title}\nID: ${ticketId}\nStatus: APPROVED\n\nYou can now proceed with the next steps.\n\nThank you!`;
@@ -14713,7 +14728,22 @@ window.rejectTicket = function(ticketId, studentId, studentEmail) {
         ticket.status = 'rejected';
         ticket.lastUpdate = new Date();
         ticket.rejectionReason = rejectReason;
-        
+
+        // 💾 Save status update to Supabase
+        if (typeof window.SupabaseService !== 'undefined') {
+            window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected')
+                .then(success => {
+                    if (success) {
+                        console.log('✅ Ticket status updated in Supabase');
+                    } else {
+                        console.warn('⚠️ Failed to update ticket in Supabase');
+                    }
+                })
+                .catch(error => {
+                    console.error('❌ Error updating ticket in Supabase:', error);
+                });
+        }
+
         // Send rejection email
         const emailSubject = `?? Your Request Requires Attention - ${ticketId}`;
         const emailBody = `Dear Student,\n\nYour request requires additional information or was not approved.\n\nTicket: ${ticket.title}\nID: ${ticketId}\n\nReason: ${rejectReason}\n\nPlease contact the department for more information.`;
