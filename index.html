@@ -1139,8 +1139,9 @@
     </div>
 
     <!-- Supabase Integration (must load before app.js) -->
-    <script src="js/supabase-config.js?v=1" onerror="console.error('Failed to load: supabase-config.js')"></script>
-    <script src="js/supabase-service.js?v=1" onerror="console.error('Failed to load: supabase-service.js')"></script>
+    <!-- IMPORTANT: Load service first, then config! -->
+    <script src="js/supabase-service.js?v=20260311001" onerror="console.error('Failed to load: supabase-service.js')"></script>
+    <script src="js/supabase-config.js?v=20260311001" onerror="console.error('Failed to load: supabase-config.js')"></script>
 
     <!-- Application Scripts -->
     <script src="js/alumni-data.js?v=20260120019" onerror="console.error('Failed to load: alumni-data.js')"></script>
