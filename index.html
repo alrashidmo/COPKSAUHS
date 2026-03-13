@@ -557,8 +557,8 @@
 
                         <!-- Student ID / Email -->
                         <div class="login-form-group">
-                            <label id="idLabel">Student ID</label>
-                            <input type="text" id="userId" placeholder="Enter your student ID" required>
+                            <label id="idLabel">Email Address</label>
+                            <input type="email" id="userId" placeholder="Enter your email address" required>
                         </div>
 
                         <!-- Password -->
@@ -1139,9 +1139,11 @@
     </div>
 
     <!-- Supabase Integration (must load before app.js) -->
-    <!-- IMPORTANT: Load service first, then config! -->
-    <script src="js/supabase-service.js?v=20260311001" onerror="console.error('Failed to load: supabase-service.js')"></script>
-    <script src="js/supabase-config.js?v=20260311001" onerror="console.error('Failed to load: supabase-config.js')"></script>
+    <!-- IMPORTANT: Load service first, then config, then auth! -->
+    <script src="js/supabase-service.js?v=20260313001" onerror="console.error('Failed to load: supabase-service.js')"></script>
+    <script src="js/supabase-config.js?v=20260313001" onerror="console.error('Failed to load: supabase-config.js')"></script>
+    <script src="js/supabase-auth.js?v=20260313001" onerror="console.error('Failed to load: supabase-auth.js')"></script>
+    <script src="js/admin-signup-manager.js?v=20260313001" onerror="console.error('Failed to load: admin-signup-manager.js')"></script>
 
     <!-- Application Scripts -->
     <script src="js/alumni-data.js?v=20260120019" onerror="console.error('Failed to load: alumni-data.js')"></script>
@@ -1194,70 +1196,138 @@
             // Select account type (Student or Admin)
             selectAccountType(type) {
                 this.selectedAccountType = type;
-                
+
                 // Update UI
                 document.querySelectorAll('.account-type-btn').forEach(btn => {
                     btn.classList.remove('active');
                 });
                 document.querySelector(`[data-type="${type}"]`).classList.add('active');
-                
-                // Update label
+
+                // Update label based on whether Supabase Auth is available
                 const idLabel = document.getElementById('idLabel');
                 const userIdInput = document.getElementById('userId');
-                if (type === 'admin') {
-                    idLabel.textContent = 'Admin ID';
-                    userIdInput.placeholder = 'Enter admin ID';
+
+                if (typeof window.SupabaseAuth !== 'undefined' && window.SupabaseAuth.supabase) {
+                    // Using Supabase Auth - always use email
+                    idLabel.textContent = 'Email Address';
+                    userIdInput.placeholder = type === 'admin' ? 'Enter your admin email' : 'Enter your student email';
+                    userIdInput.type = 'email';
                 } else {
-                    idLabel.textContent = 'Student ID';
-                    userIdInput.placeholder = 'Enter your student ID';
+                    // Demo mode - use IDs
+                    if (type === 'admin') {
+                        idLabel.textContent = 'Admin ID';
+                        userIdInput.placeholder = 'Enter admin ID';
+                    } else {
+                        idLabel.textContent = 'Student ID';
+                        userIdInput.placeholder = 'Enter your student ID';
+                    }
+                    userIdInput.type = 'text';
                 }
             },
 
             // Handle login
-            handleLogin(event) {
+            async handleLogin(event) {
                 event.preventDefault();
-                
+
                 const userId = document.getElementById('userId').value.trim();
                 const password = document.getElementById('userPassword').value.trim();
                 const accountType = this.selectedAccountType;
 
-                // Validate credentials
-                if (this.validateCredentials(userId, password, accountType)) {
-                    this.currentUser = userId;
-                    this.currentUserRole = accountType;
-                    
-                    // Get user name from default mapping
-                    let namesMap = accountType === 'admin' ? this.adminNames : this.studentNames;
-                    this.currentUserName = namesMap[userId] || userId;
-                    
-                    // If not in default mapping, check approved students/admins
-                    if (this.currentUserName === userId) {
-                        if (accountType === 'student' && window.APPE_DATABASE?.students) {
-                            // Check APPE_DATABASE.students for approved students
-                            const approvedStudent = window.APPE_DATABASE.students.find(s => s.id === userId);
-                            if (approvedStudent) {
-                                this.currentUserName = approvedStudent.name;
-                            }
-                        } else if (accountType === 'admin' && window.AdminUsers) {
-                            // Check AdminUsers for approved admins
-                            const approvedAdmin = window.AdminUsers.find(a => a.id === userId);
-                            if (approvedAdmin) {
-                                this.currentUserName = approvedAdmin.name;
+                // Check if using Supabase Auth
+                if (typeof window.SupabaseAuth !== 'undefined' && window.SupabaseAuth.supabase) {
+                    console.log('🔐 Using Supabase Auth for login');
+
+                    // For Supabase, userId should be email
+                    // If they entered student/staff ID, we need to look up the email
+                    let email = userId;
+
+                    // If userId doesn't contain @, assume it's a student/staff ID
+                    if (!userId.includes('@')) {
+                        // Try to find email from user_profiles by student_id or staff_id
+                        // For now, ask user to enter email instead
+                        alert('⚠️ Please use your email address to login');
+                        return;
+                    }
+
+                    const result = await window.SupabaseAuth.signIn(email, password);
+
+                    if (result.success) {
+                        const profile = result.profile;
+
+                        // Check if user is approved
+                        if (!profile || !profile.is_approved) {
+                            alert('⚠️ Your account is pending approval.\n\nPlease wait for an admin to approve your account.');
+                            await window.SupabaseAuth.signOut();
+                            return;
+                        }
+
+                        // Check if account type matches selected type
+                        if (profile.account_type !== accountType) {
+                            alert(`⚠️ This is a ${profile.account_type} account.\n\nPlease select the correct account type and try again.`);
+                            await window.SupabaseAuth.signOut();
+                            return;
+                        }
+
+                        // Set user info
+                        this.currentUser = profile.student_id || profile.staff_id || result.user.id;
+                        this.currentUserRole = profile.account_type;
+                        this.currentUserName = profile.full_name;
+
+                        console.log('✅ Login successful (Supabase):', {
+                            id: this.currentUser,
+                            role: this.currentUserRole,
+                            name: this.currentUserName,
+                            email: profile.email
+                        });
+
+                        this.showPortal();
+                        this.applyRoleBasedAccess();
+                    } else {
+                        alert(`❌ Login Failed\n\n${result.message}\n\nPlease check your credentials or signup for an account.`);
+                        document.getElementById('userPassword').value = '';
+                    }
+                } else {
+                    // Fallback to demo authentication for development
+                    console.log('⚠️ Using demo authentication (Supabase not available)');
+
+                    // Validate credentials
+                    if (this.validateCredentials(userId, password, accountType)) {
+                        this.currentUser = userId;
+                        this.currentUserRole = accountType;
+
+                        // Get user name from default mapping
+                        let namesMap = accountType === 'admin' ? this.adminNames : this.studentNames;
+                        this.currentUserName = namesMap[userId] || userId;
+
+                        // If not in default mapping, check approved students/admins
+                        if (this.currentUserName === userId) {
+                            if (accountType === 'student' && window.APPE_DATABASE?.students) {
+                                // Check APPE_DATABASE.students for approved students
+                                const approvedStudent = window.APPE_DATABASE.students.find(s => s.id === userId);
+                                if (approvedStudent) {
+                                    this.currentUserName = approvedStudent.name;
+                                }
+                            } else if (accountType === 'admin' && window.AdminUsers) {
+                                // Check AdminUsers for approved admins
+                                const approvedAdmin = window.AdminUsers.find(a => a.id === userId);
+                                if (approvedAdmin) {
+                                    this.currentUserName = approvedAdmin.name;
+                                }
                             }
                         }
+
+                        console.log('✅ Login successful (demo):', {
+                            id: this.currentUser,
+                            role: this.currentUserRole,
+                            name: this.currentUserName
+                        });
+
+                        this.showPortal();
+                        this.applyRoleBasedAccess();
+                    } else {
+                        alert('❌ Invalid credentials. Please check your ID and password.\n\nDemo credentials:\nStudent: 441210049 / 123456\nAdmin: admin001 / admin123');
+                        document.getElementById('userPassword').value = '';
                     }
-                    
-                    console.log('✅ Login successful:', { 
-                        id: this.currentUser, 
-                        role: this.currentUserRole, 
-                        name: this.currentUserName 
-                    });
-                    
-                    this.showPortal();
-                    this.applyRoleBasedAccess();
-                } else {
-                    alert('❌ Invalid credentials. Please check your ID and password.\n\nDemo credentials:\nStudent: 441210049 / 123456\nAdmin: admin001 / admin123');
-                    document.getElementById('userPassword').value = '';
                 }
             },
 
@@ -1551,120 +1621,107 @@
             }
         }
         
-        function submitSignup() {
+        async function submitSignup() {
             const accountType = document.getElementById('signupAccountType').value;
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
             const phone = document.getElementById('signupPhone').value.trim();
-            
+
             // Validate common fields
             if (!name || !email || !phone) {
                 alert('⚠️ Please fill in all required fields');
                 return;
             }
-            
+
             // Validate email format
             const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailPattern.test(email)) {
                 alert('⚠️ Please enter a valid email address');
                 return;
             }
-            
+
             // Validate password
             const password = document.getElementById('signupPassword').value.trim();
             const confirmPassword = document.getElementById('signupConfirmPassword').value.trim();
-            
+
             if (!password || password.length < 6) {
                 alert('⚠️ Password must be at least 6 characters');
                 return;
             }
-            
+
             if (password !== confirmPassword) {
                 alert('⚠️ Passwords do not match');
                 return;
             }
-            
-            let signupRequest;
-            
+
+            let signupData;
+
             if (accountType === 'student') {
                 const studentId = document.getElementById('signupStudentId').value;
                 const classYear = document.getElementById('signupClass').value;
-                
+
                 if (!studentId || !classYear) {
                     alert('⚠️ Please fill in all required fields');
                     return;
                 }
-                
-                signupRequest = {
-                    id: 'signup' + Date.now(),
+
+                signupData = {
                     accountType: 'student',
                     studentId: studentId,
                     name: name,
                     email: email,
                     phone: phone,
                     password: password,
-                    requestedAt: new Date(),
-                    status: 'pending',
                     classPreference: classYear
                 };
             } else {
                 const staffId = document.getElementById('signupStaffId').value;
                 const department = document.getElementById('signupDepartment').value;
                 const role = document.getElementById('signupRole').value;
-                
+
                 if (!staffId || !department || !role) {
                     alert('⚠️ Please fill in all required fields');
                     return;
                 }
-                
-                signupRequest = {
-                    id: 'signup' + Date.now(),
+
+                signupData = {
                     accountType: 'admin',
                     staffId: staffId,
                     name: name,
                     email: email,
                     phone: phone,
                     password: password,
-                    requestedAt: new Date(),
-                    status: 'pending',
                     department: department,
                     role: role
                 };
             }
-            
-            // In a real app, this would send to server. For now, store in localStorage
-            let signups = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
-            
-            console.log('\n📝 ===== SIGNUP SUBMISSION =====');
-            console.log('Account Type:', accountType);
-            console.log('Signup Request Object:', signupRequest);
-            console.log('Password VALUE in request:', signupRequest.password);
-            console.log('Password EXISTS:', !!signupRequest.password);
-            console.log('Current localStorage signups BEFORE:', signups.length);
-            
-            signups.push(signupRequest);
-            localStorage.setItem('pendingSignups', JSON.stringify(signups));
-            
-            // Verify it was saved
-            const verifySaved = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
-            const lastSaved = verifySaved[verifySaved.length - 1];
-            console.log('Current localStorage signups AFTER:', verifySaved.length);
-            console.log('Last signup in storage:', lastSaved);
-            console.log('Password VALUE in stored signup:', lastSaved?.password);
-            console.log('Password MATCH (original vs stored):', password === lastSaved?.password ? '✅ YES' : '❌ NO');
-            console.log('===== SIGNUP SUBMISSION END =====\n');
-            
-            // Clear form and show success message
-            document.getElementById('signupForm').reset();
-            const typeLabel = accountType === 'student' ? '🎓 Student' : '👨‍💼 Admin';
-            const idField = accountType === 'student' ? `Student ID: ${signupRequest.studentId}` : `Staff ID: ${signupRequest.staffId}`;
-            
-            alert(`✅ Success!\n\nYour ${typeLabel} access request has been submitted.\n\nName: ${name}\n${idField}\n\nYour access will be approved by a system admin.\nYou'll receive an email at ${email} once approved.`);
-            
-            // Switch back to login
-            toggleSignup();
-            
-            console.log('✅ Signup submitted:', signupRequest);
+
+            // Submit to Supabase via SupabaseAuth
+            console.log('📝 Submitting signup to Supabase:', email);
+
+            if (typeof window.SupabaseAuth === 'undefined') {
+                alert('❌ Authentication service not ready. Please refresh the page and try again.');
+                return;
+            }
+
+            const result = await window.SupabaseAuth.signUp(signupData);
+
+            if (result.success) {
+                // Clear form and show success message
+                document.getElementById('signupForm').reset();
+                const typeLabel = accountType === 'student' ? '🎓 Student' : '👨‍💼 Admin';
+                const idField = accountType === 'student' ? `Student ID: ${signupData.studentId}` : `Staff ID: ${signupData.staffId}`;
+
+                alert(`✅ Success!\n\nYour ${typeLabel} access request has been submitted.\n\nName: ${name}\n${idField}\n\nYour access will be approved by a system admin.\nYou'll receive an email at ${email} once approved.`);
+
+                // Switch back to login
+                toggleSignup();
+
+                console.log('✅ Signup submitted successfully');
+            } else {
+                alert(`❌ Signup Failed\n\n${result.message}\n\nPlease try again or contact support.`);
+                console.error('❌ Signup failed:', result.message);
+            }
         }
     </script>
 </body>

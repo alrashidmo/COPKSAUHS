@@ -54,6 +54,12 @@ window.validateSupabaseConfig = validateSupabaseConfig;
             if (success) {
                 console.log('✅ Supabase initialized successfully!');
                 console.log('📡 Connected to:', SUPABASE_CONFIG.url);
+
+                // Initialize SupabaseAuth with the Supabase client
+                if (typeof window.SupabaseAuth !== 'undefined') {
+                    await window.SupabaseAuth.init(window.SupabaseService.supabase);
+                    console.log('✅ Supabase Auth initialized!');
+                }
             } else {
                 console.error('❌ Supabase initialization failed');
             }
