@@ -3,8 +3,8 @@
  * Handles approval/rejection of pending user signups
  */
 
-// Use window assignment to avoid duplicate declaration errors
-window.AdminSignupManager = window.AdminSignupManager || {
+// Direct window assignment (no const to avoid duplicate declarations)
+window.AdminSignupManager = {
     pendingSignups: [],
 
     /**

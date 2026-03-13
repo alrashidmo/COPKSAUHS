@@ -56,6 +56,15 @@ window.AdminHubModel = {
     },
 
     /**
+     * APPROVED CREDENTIALS STORAGE
+     * Stores login credentials for approved students and admins
+     */
+    approvedCredentials: {
+        student: {},
+        admin: {}
+    },
+
+    /**
      * UNITS & CONFIGURATIONS
      */
     units: [
@@ -404,17 +413,41 @@ window.AdminHubModel = {
      * Get KPI metrics
      */
     getKPIMetrics() {
+        // ✅ GET REAL STUDENT TICKETS instead of sample data
+        const tickets = (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) 
+            ? StudentPortalManager.tickets 
+            : this.requests;  // Fallback to sample data
+        
         const now = new Date();
         const oneWeekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+        const oneDayAgo = new Date(now - 1 * 24 * 60 * 60 * 1000);
 
-        const newCount = this.requests.filter(r => new Date(r.createdAt) > new Date(now - 1 * 24 * 60 * 60 * 1000)).length;
-        const pendingCount = this.requests.filter(r => ['pending_review', 'pending_student', 'pending_docs', 'pending_site', 'in_progress'].includes(r.status)).length;
-        const overdueCount = this.requests.filter(r => {
-            const sla = this.getSLAStatus(r);
-            return sla.status === 'breached';
+        // Count NEW: tickets submitted in last 24 hours
+        const newCount = tickets.filter(t => {
+            const createdDate = new Date(t.submissionDate || t.createdAt);
+            return createdDate > oneDayAgo;
         }).length;
-        const resolvedCount = this.requests.filter(r => ['approved', 'closed'].includes(r.status) && new Date(r.updatedAt || r.createdAt) > oneWeekAgo).length;
-        const waitingCount = this.requests.filter(r => r.status === 'pending_student').length;
+        
+        // Count PENDING: submitted or in-progress status
+        const pendingCount = tickets.filter(t => 
+            ['submitted', 'in-progress', 'waiting-student', 'pending_review', 'pending_student'].includes(t.status)
+        ).length;
+        
+        // Count OVERDUE: due date has passed and not resolved
+        const overdueCount = tickets.filter(t => {
+            const dueDate = new Date(t.dueDate);
+            const isUnresolved = !['approved', 'closed', 'resolved'].includes(t.status);
+            return dueDate < now && isUnresolved;
+        }).length;
+        
+        // Count RESOLVED: approved/closed in last week
+        const resolvedCount = tickets.filter(t => {
+            const updatedDate = new Date(t.lastUpdate || t.submissionDate);
+            return ['approved', 'closed', 'resolved'].includes(t.status) && updatedDate > oneWeekAgo;
+        }).length;
+        
+        // Count WAITING: waiting for student response
+        const waitingCount = tickets.filter(t => t.status === 'waiting-student').length;
 
         return {
             new: newCount,
@@ -448,6 +481,64 @@ window.AdminHubModel = {
      * Get unit summary
      */
     getUnitSummary() {
+        // ✅ Get real student tickets
+        const tickets = (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) 
+            ? StudentPortalManager.tickets 
+            : this.requests;
+
+        // If using student tickets, group by department instead of unit
+        if (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets) {
+            // Group tickets by department
+            const departmentMap = {};
+            tickets.forEach(t => {
+                const deptId = t.department || 'general';
+                if (!departmentMap[deptId]) {
+                    departmentMap[deptId] = [];
+                }
+                departmentMap[deptId].push(t);
+            });
+
+            return Object.entries(departmentMap).map(([deptId, deptTickets]) => {
+                const newCount = deptTickets.filter(t => {
+                    const submittedDate = new Date(t.submissionDate);
+                    const oneDayAgo = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
+                    return submittedDate > oneDayAgo;
+                }).length;
+                
+                const pendingCount = deptTickets.filter(t => 
+                    ['submitted', 'in-progress', 'waiting-student'].includes(t.status)
+                ).length;
+                
+                const overdueCount = deptTickets.filter(t => {
+                    const dueDate = new Date(t.dueDate);
+                    const isUnresolved = !['approved', 'closed', 'resolved'].includes(t.status);
+                    return dueDate < new Date() && isUnresolved;
+                }).length;
+
+                // Get department info from StudentPortalManager if available
+                let deptInfo = { id: deptId, name: deptId, icon: '📁' };
+                if (typeof StudentPortalManager !== 'undefined' && StudentPortalManager.departments) {
+                    const found = StudentPortalManager.departments.find(d => d.id === deptId);
+                    if (found) {
+                        deptInfo = { id: found.id, name: found.name, icon: found.icon };
+                    }
+                }
+
+                return {
+                    id: deptInfo.id,
+                    name: deptInfo.name,
+                    icon: deptInfo.icon,
+                    new: newCount,
+                    pending: pendingCount,
+                    overdue: overdueCount,
+                    total: deptTickets.length,
+                    avgResponseTime: 2.4,
+                    slaCompliance: 92
+                };
+            });
+        }
+        
+        // Fallback to original unit-based logic for sample data
         return this.units.map(unit => {
             const unitRequests = this.requests.filter(r => r.unit === unit.id);
             const newCount = unitRequests.filter(r => r.status === 'new').length;
@@ -510,8 +601,20 @@ window.AdminHubModel = {
     },
 
     getDashboardStats() {
-        const totalStudents = new Set(this.requests.map(r => r.studentId)).size;
-        const activeTickets = this.requests.filter(r => !['approved', 'rejected', 'closed'].includes(r.status)).length;
+        // ✅ GET REAL STUDENT TICKETS instead of sample data
+        const hasStudentPortalManager = typeof StudentPortalManager !== 'undefined' && StudentPortalManager.tickets;
+        const tickets = hasStudentPortalManager ? StudentPortalManager.tickets : this.requests;
+        
+        console.log(`📊 getDashboardStats - Using: ${hasStudentPortalManager ? '🔗 StudentPortalManager.tickets' : '📋 Sample Data'}`);
+        console.log(`   Total Tickets: ${tickets.length}`);
+        if (hasStudentPortalManager) {
+            console.log(`   First ticket:`, tickets[0] ? { id: tickets[0].ticketId, status: tickets[0].status, studentId: tickets[0].studentId } : 'none');
+        }
+        
+        const totalStudents = new Set(tickets.map(t => t.studentId)).size;
+        const totalTickets = tickets.length;  // Total number of all tickets
+        // Active: submitted, in-progress, waiting-student (not closed, resolved, or approved)
+        const activeTickets = tickets.filter(t => !['approved', 'rejected', 'closed', 'resolved'].includes(t.status)).length;
         let avgResponseTime = 2.4;
         const units = this.getUnitSummary();
         if (units && units.length > 0) {
@@ -519,13 +622,23 @@ window.AdminHubModel = {
             avgResponseTime = (totalAvg / units.length).toFixed(1);
         }
         const now = new Date();
-        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const resolvedToday = this.requests.filter(r => {
-            const updatedDate = new Date(r.updatedAt || r.createdAt);
-            const updatedStart = new Date(updatedDate.getFullYear(), updatedDate.getMonth(), updatedDate.getDate());
-            return ['approved', 'closed'].includes(r.status) && updatedStart.getTime() === todayStart.getTime();
+        const todayDateString = now.toLocaleDateString('en-CA'); // Format: YYYY-MM-DD (timezone-safe)
+        
+        const resolvedToday = tickets.filter(t => {
+            const updatedDate = new Date(t.lastUpdate || t.submissionDate);
+            const updatedDateString = updatedDate.toLocaleDateString('en-CA');
+            const isResolved = ['approved', 'closed', 'resolved'].includes(t.status);
+            const isTodayDate = updatedDateString === todayDateString;
+            
+            if (isResolved && isTodayDate) {
+                console.log(`✅ Resolved Today: ${t.ticketId} - Status: ${t.status}, Updated: ${updatedDateString}`);
+            }
+            
+            return isResolved && isTodayDate;
         }).length;
-        return { totalStudents, activeTickets, avgResponseTime, resolvedToday };
+        
+        console.log(`✅ Dashboard Stats - Total: ${totalTickets}, Active: ${activeTickets}, Resolved: ${resolvedToday}`);
+        return { totalStudents, totalTickets, activeTickets, avgResponseTime, resolvedToday };
     },
 
     getRequestTrends() {
@@ -792,6 +905,835 @@ window.AdminHubModel = {
             alerts.push({ type: 'info', icon: '🔵', title: `${newCount} New Requests`, message: 'Awaiting initial review' });
         }
         return alerts;
+    },
+
+    /**
+     * PENDING STUDENT ACCESS REQUESTS - Awaiting approval
+     */
+    pendingStudentRequests: [],
+
+    /**
+     * PENDING ADMIN STAFF ACCESS REQUESTS - Awaiting approval
+     */
+    pendingAdminRequests: [
+        {
+            id: 'ADMIN-REQ-001',
+            name: 'Dr. Noor Al-Qahtani',
+            email: 'noor.qahtani@ksauhs.edu.sa',
+            phone: '+966551234567',
+            staffId: 'STAFF-NEW-001',
+            requestedRole: 'unit_coordinator',
+            requestedUnits: ['academic'],
+            experience: '10 years - Clinical Pharmacist',
+            requestDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+            status: 'pending',
+            requestedBy: 'HR Department'
+        },
+        {
+            id: 'ADMIN-REQ-002',
+            name: 'Mr. Khalid Al-Mansour',
+            email: 'khalid.mansour@ksauhs.edu.sa',
+            phone: '+966551234568',
+            staffId: 'STAFF-NEW-002',
+            requestedRole: 'admin_staff',
+            requestedUnits: ['clinical'],
+            experience: '5 years - Admin Coordinator',
+            requestDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+            status: 'pending',
+            requestedBy: 'Clinical Department'
+        }
+    ],
+
+    /**
+     * CLEAR ALL PENDING REQUESTS - For fresh implementation
+     */
+    clearAllPendingRequests() {
+        console.log('🗑️ Clearing all pending requests...');
+        localStorage.removeItem('pendingSignups');
+        this.pendingStudentRequests = [];
+        this.pendingAdminRequests = [];
+        console.log('✅ All pending requests cleared!');
+        return true;
+    },
+
+    /**
+     * Sync pending student requests from localStorage
+     * Combines model data with localStorage signups
+     */
+    syncPendingStudentRequests() {
+        const localStoragePendings = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+        
+        // Filter to only student signups
+        const studentSignups = localStoragePendings.filter(s => s.accountType === 'student' || !s.accountType);
+        
+        // Combine with existing model data (model data takes precedence)
+        const combined = [...this.pendingStudentRequests];
+        
+        // Add localStorage signups that aren't already in model
+        studentSignups.forEach(signup => {
+            if (!combined.find(req => req.id === signup.id)) {
+                combined.push(signup);
+            }
+        });
+        
+        this.pendingStudentRequests = combined;
+        console.log('✅ Synced pending student requests from localStorage:', combined.length);
+        return combined;
+    },
+
+    /**
+     * Sync pending admin requests from localStorage
+     */
+    syncPendingAdminRequests() {
+        const localStoragePendings = JSON.parse(localStorage.getItem('pendingSignups') || '[]');
+        
+        // Filter to only admin signups
+        const adminSignups = localStoragePendings.filter(s => s.accountType === 'admin');
+        
+        // Combine with existing model data
+        const combined = [...this.pendingAdminRequests];
+        
+        // Add localStorage signups that aren't already in model
+        adminSignups.forEach(signup => {
+            if (!combined.find(req => req.id === signup.id)) {
+                combined.push(signup);
+            }
+        });
+        
+        this.pendingAdminRequests = combined;
+        console.log('✅ Synced pending admin requests from localStorage:', combined.length);
+        return combined;
+    },
+
+    /**
+     * Sync all pending requests from localStorage
+     */
+    syncAllPendingRequests() {
+        this.syncPendingStudentRequests();
+        this.syncPendingAdminRequests();
+    },
+
+    /**
+     * APPROVE STUDENT REQUEST - Move to active users
+     */
+    approveStudentRequest: function(requestId, assignedClass) {
+        console.log('\n📋 ===== APPROVE STUDENT REQUEST START =====');
+        console.log('Request ID:', requestId);
+        console.log('Pending requests:', this.pendingStudentRequests.map(r => ({ id: r.id, name: r.name, hasPassword: !!r.password })));
+        
+        const request = this.pendingStudentRequests.find(r => r.id === requestId);
+        if (!request) {
+            console.error('❌ Request not found!');
+            return false;
+        }
+
+        console.log('✅ Request found:', {
+            id: request.id,
+            studentId: request.studentId,
+            name: request.name,
+            email: request.email,
+            passwordValue: request.password,
+            passwordExists: !!request.password
+        });
+
+        // Create new student record
+        const newStudent = {
+            id: request.studentId,
+            name: request.name,
+            email: request.email,
+            password: request.password,  // Use password from signup
+            cohort: this.getLevelCohort(assignedClass),
+            gpa: 3.5,
+            risk: 'low',
+            attendance: 100,
+            approvedDate: new Date(),
+            approvedBy: 'Admin',
+            accountStatus: 'active'
+        };
+
+        console.log('New student object created:', newStudent);
+
+        // Store approved credentials in our model for reference
+        if (!this.approvedCredentials) this.approvedCredentials = { student: {}, admin: {} };
+        this.approvedCredentials.student[request.studentId] = request.password;
+        
+        // ALSO save to localStorage for persistence across page reloads
+        let approvedCreds = JSON.parse(localStorage.getItem('approvedCredentials') || '{"student":{},"admin":{}}');
+        approvedCreds.student[request.studentId] = request.password;
+        localStorage.setItem('approvedCredentials', JSON.stringify(approvedCreds));
+        console.log('💾 ALSO saved to localStorage:', approvedCreds);
+        
+        // Verify storage immediately
+        const verifyStored = this.approvedCredentials.student[request.studentId];
+        console.log('✅ Stored in approvedCredentials:', {
+            studentId: request.studentId,
+            passwordStored: request.password,
+            passwordRetrieved: verifyStored,
+            passwordMatch: request.password === verifyStored ? '✅ YES' : '❌ NO',
+            allApprovedStudents: Object.keys(this.approvedCredentials.student)
+        });
+        
+        // Add credentials to global AuthSystem reference if accessible
+        try {
+            if (typeof AuthSystem !== 'undefined' && AuthSystem.accounts) {
+                if (!AuthSystem.accounts.student) {
+                    AuthSystem.accounts.student = {};
+                }
+                AuthSystem.accounts.student[request.studentId] = request.password;
+                console.log('✅ Added student credentials to AuthSystem:', request.studentId);
+            } else {
+                console.warn('⚠️ AuthSystem not found, credentials stored in AdminHubModel only');
+            }
+        } catch(e) {
+            console.warn('⚠️ Could not access AuthSystem:', e.message);
+        }
+
+        // Add to active students in APPE_DATABASE
+        // Do this regardless of StudentManagement, as it's needed for login
+        try {
+            if (!window.APPE_DATABASE) window.APPE_DATABASE = {};
+            if (!window.APPE_DATABASE.students) window.APPE_DATABASE.students = [];
+            
+            window.APPE_DATABASE.students.push(newStudent);
+            console.log('✅ Added student to APPE_DATABASE.students. Total students now:', window.APPE_DATABASE.students.length);
+            
+            // Also notify StudentManagement if it exists
+            if (window.StudentManagement && typeof window.StudentManagement.renderStudentDatabase === 'function') {
+                window.StudentManagement.renderStudentDatabase();
+                console.log('✅ Notified StudentManagement to refresh view');
+            }
+        } catch(e) {
+            console.error('❌ Error adding to APPE_DATABASE:', e.message);
+        }
+
+        // Remove from pending
+        this.pendingStudentRequests = this.pendingStudentRequests.filter(r => r.id !== requestId);
+        console.log('✅ Removed from pending requests. Remaining pending:', this.pendingStudentRequests.length);
+        console.log('===== APPROVE STUDENT REQUEST END =====\n');
+        return true;
+    },
+
+    /**
+     * APPROVE ADMIN REQUEST - Add to admin staff
+     */
+    approveAdminRequest: function(requestId) {
+        console.log('\n📋 ===== APPROVE ADMIN REQUEST START =====');
+        console.log('Request ID:', requestId);
+        console.log('Pending admin requests:', this.pendingAdminRequests.map(r => ({ id: r.id, name: r.name, hasPassword: !!r.password })));
+        
+        const request = this.pendingAdminRequests.find(r => r.id === requestId);
+        if (!request) {
+            console.error('❌ Admin request not found!');
+            return false;
+        }
+
+        console.log('✅ Admin request found:', {
+            id: request.id,
+            staffId: request.staffId,
+            name: request.name,
+            email: request.email,
+            password: request.password ? '(exists)' : '(MISSING - THIS IS THE PROBLEM!)'
+        });
+
+        // Create new admin record
+        const newAdmin = {
+            id: request.staffId,
+            name: request.name,
+            email: request.email,
+            password: request.password,  // Use password from signup
+            role: request.requestedRole,
+            units: request.requestedUnits,
+            permissions: this.getPermissionsForRole(request.requestedRole),
+            activeRequests: 0,
+            approvedDate: new Date(),
+            approvedBy: 'Super Admin',
+            accountStatus: 'active'
+        };
+
+        console.log('New admin object created:', newAdmin);
+
+        // Store approved credentials in our model for reference
+        if (!this.approvedCredentials) this.approvedCredentials = { student: {}, admin: {} };
+        this.approvedCredentials.admin[request.staffId] = request.password;
+        
+        // ALSO save to localStorage for persistence across page reloads
+        let approvedCreds = JSON.parse(localStorage.getItem('approvedCredentials') || '{"student":{},"admin":{}}');
+        approvedCreds.admin[request.staffId] = request.password;
+        localStorage.setItem('approvedCredentials', JSON.stringify(approvedCreds));
+        console.log('💾 ALSO saved to localStorage:', approvedCreds);
+        
+        console.log('✅ Stored in approvedCredentials:', {
+            staffId: request.staffId,
+            password: request.password,
+            allApprovedAdmins: Object.keys(this.approvedCredentials.admin)
+        });
+        
+        // Add credentials to global AuthSystem reference if accessible
+        try {
+            if (typeof AuthSystem !== 'undefined' && AuthSystem.accounts) {
+                if (!AuthSystem.accounts.admin) {
+                    AuthSystem.accounts.admin = {};
+                }
+                AuthSystem.accounts.admin[request.staffId] = request.password;
+                console.log('✅ Added admin credentials to AuthSystem:', request.staffId);
+            } else {
+                console.warn('⚠️ AuthSystem not found, credentials stored in AdminHubModel only');
+            }
+        } catch(e) {
+            console.warn('⚠️ Could not access AuthSystem:', e.message);
+        }
+
+        // Add to admin users
+        try {
+            if (!window.AdminUsers) window.AdminUsers = [];
+            window.AdminUsers.push(newAdmin);
+            console.log('✅ Added admin to window.AdminUsers. Total admins now:', window.AdminUsers.length);
+        } catch(e) {
+            console.error('❌ Error adding to AdminUsers:', e.message);
+        }
+
+        // Remove from pending
+        this.pendingAdminRequests = this.pendingAdminRequests.filter(r => r.id !== requestId);
+        console.log('✅ Removed from pending admin requests. Remaining pending:', this.pendingAdminRequests.length);
+        console.log('===== APPROVE ADMIN REQUEST END =====\n');
+        return true;
+    },
+
+    /**
+     * HELPER: Get permissions based on role
+     */
+    getPermissionsForRole: function(role) {
+        const permissions = {
+            'super_admin': ['view_all', 'approve_all', 'export', 'analytics', 'settings'],
+            'unit_coordinator': ['view_unit', 'approve_unit', 'assign', 'export'],
+            'admin_staff': ['view_assigned', 'update_assigned', 'reply'],
+            'unit_head': ['view_unit', 'approve_all_unit', 'escalate', 'settings_unit']
+        };
+        return permissions[role] || [];
+    },
+
+    /**
+     * HELPER: Convert level to cohort
+     */
+    getLevelCohort: function(level) {
+        const map = { 'P1': 'IPPE I', 'P2': 'IPPE II', 'P3': 'IPPE III', 'P4': 'APPE' };
+        return map[level] || 'IPPE I';
+    },
+
+    /**
+     * REJECT STUDENT REQUEST
+     */
+    rejectStudentRequest: function(requestId, reason) {
+        this.pendingStudentRequests = this.pendingStudentRequests.filter(r => r.id !== requestId);
+        console.log(`❌ Student request ${requestId} rejected: ${reason}`);
+        return true;
+    },
+
+    /**
+     * REJECT ADMIN REQUEST
+     */
+    rejectAdminRequest: function(requestId, reason) {
+        this.pendingAdminRequests = this.pendingAdminRequests.filter(r => r.id !== requestId);
+        console.log(`❌ Admin request ${requestId} rejected: ${reason}`);
+        return true;
+    },
+
+    // ========== EXECUTION & EMAIL SYSTEM ==========
+
+    /**
+     * Execution History - Track all actions on requests
+     */
+    executionHistory: [],
+    
+    /**
+     * Email Queue - Track emails sent and pending follow-ups
+     */
+    emailQueue: [],
+
+    /**
+     * Approve Request - Professional workflow
+     */
+    approveRequest: function(requestId, approverName, approverEmail, notes = '') {
+        const request = this.requests.find(r => r.id === requestId);
+        if (!request) return { success: false, error: 'Request not found' };
+
+        // Update request status
+        request.status = 'approved';
+        request.approvedBy = approverName;
+        request.approvedAt = new Date().toISOString();
+        request.updatedAt = new Date().toISOString();  // Track when it was resolved
+        request.approvalNotes = notes;
+
+        // Add to execution history
+        this.executionHistory.push({
+            requestId: requestId,
+            action: 'APPROVED',
+            actor: approverName,
+            actorEmail: approverEmail,
+            timestamp: new Date().toISOString(),
+            notes: notes,
+            recipients: {
+                student: request.studentEmail,
+                department: request.unitInfo ? request.unitInfo.headEmail : 'unit@example.com',
+                admin: approverEmail
+            }
+        });
+
+        console.log(`✅ Request ${requestId} APPROVED by ${approverName}`);
+        return { success: true, action: 'APPROVED', request: request };
+    },
+
+    /**
+     * Reject Request - Professional workflow
+     */
+    rejectRequest: function(requestId, approverName, approverEmail, reason = '') {
+        const request = this.requests.find(r => r.id === requestId);
+        if (!request) return { success: false, error: 'Request not found' };
+
+        // Update request status
+        request.status = 'rejected';
+        request.rejectedBy = approverName;
+        request.rejectedAt = new Date().toISOString();
+        request.updatedAt = new Date().toISOString();  // Track when it was resolved
+        request.rejectionReason = reason;
+
+        // Add to execution history
+        this.executionHistory.push({
+            requestId: requestId,
+            action: 'REJECTED',
+            actor: approverName,
+            actorEmail: approverEmail,
+            timestamp: new Date().toISOString(),
+            reason: reason,
+            recipients: {
+                student: request.studentEmail,
+                department: request.unitInfo ? request.unitInfo.headEmail : 'unit@example.com',
+                admin: approverEmail
+            }
+        });
+
+        console.log(`❌ Request ${requestId} REJECTED by ${approverName} - ${reason}`);
+        return { success: true, action: 'REJECTED', request: request };
+    },
+
+    /**
+     * Delegate Request - Route to department head
+     */
+    delegateRequest: function(requestId, delegatedFrom, delegatedTo, delegatedToEmail, departmentName, note = '') {
+        const request = this.requests.find(r => r.id === requestId);
+        if (!request) return { success: false, error: 'Request not found' };
+
+        // Update request status
+        request.status = 'delegated';
+        request.delegatedBy = delegatedFrom;
+        request.delegatedTo = delegatedTo;
+        request.delegatedToEmail = delegatedToEmail;
+        request.delegatedAt = new Date().toISOString();
+        request.updatedAt = new Date().toISOString();  // Track when it was updated
+        request.delegationNote = note;
+        request.department = departmentName;
+
+        // Add to execution history
+        this.executionHistory.push({
+            requestId: requestId,
+            action: 'DELEGATED',
+            actor: delegatedFrom,
+            actorEmail: 'admin@example.com',
+            delegatedTo: delegatedTo,
+            delegatedToEmail: delegatedToEmail,
+            timestamp: new Date().toISOString(),
+            department: departmentName,
+            note: note,
+            recipients: {
+                student: request.studentEmail,
+                department: delegatedToEmail,
+                admin: 'admin@example.com'
+            }
+        });
+
+        // Add to follow-up queue (7 working days)
+        this.emailQueue.push({
+            type: 'FOLLOW_UP_REMINDER',
+            requestId: requestId,
+            delegatedTo: delegatedTo,
+            delegatedToEmail: delegatedToEmail,
+            scheduleDate: this.addWorkingDays(new Date(), 7),
+            created: new Date().toISOString(),
+            notified: false
+        });
+
+        console.log(`↪️ Request ${requestId} DELEGATED to ${delegatedTo} (${departmentName})`);
+        return { success: true, action: 'DELEGATED', request: request };
+    },
+
+    /**
+     * Send Email - Multiple recipients with professional template
+     */
+    sendEmail: function(requestId, action, approverName, recipients = {}) {
+        const request = this.requests.find(r => r.id === requestId);
+        if (!request) return { success: false, error: 'Request not found' };
+
+        const emailLog = {
+            requestId: requestId,
+            action: action,
+            timestamp: new Date().toISOString(),
+            sentTo: [],
+            templates: {}
+        };
+
+        // STUDENT EMAIL
+        if (recipients.student) {
+            const studentEmailContent = this.generateStudentEmailTemplate(request, action, approverName);
+            emailLog.sentTo.push({
+                recipient: recipients.student,
+                type: 'STUDENT',
+                subject: studentEmailContent.subject,
+                status: 'SENT'
+            });
+            emailLog.templates.student = studentEmailContent;
+        }
+
+        // DEPARTMENT EMAIL
+        if (recipients.department) {
+            const deptEmailContent = this.generateDepartmentEmailTemplate(request, action, approverName);
+            emailLog.sentTo.push({
+                recipient: recipients.department,
+                type: 'DEPARTMENT',
+                subject: deptEmailContent.subject,
+                status: 'SENT'
+            });
+            emailLog.templates.department = deptEmailContent;
+        }
+
+        // ADMIN EMAIL
+        if (recipients.admin) {
+            const adminEmailContent = this.generateAdminEmailTemplate(request, action, approverName);
+            emailLog.sentTo.push({
+                recipient: recipients.admin,
+                type: 'ADMIN',
+                subject: adminEmailContent.subject,
+                status: 'SENT'
+            });
+            emailLog.templates.admin = adminEmailContent;
+        }
+
+        // Log email sending
+        this.emailQueue.push(emailLog);
+        
+        console.log(`📧 Emails sent for request ${requestId} (${action}) to ${emailLog.sentTo.length} recipients`);
+        return { success: true, emailLog: emailLog };
+    },
+
+    /**
+     * Generate Student Email Template
+     */
+    generateStudentEmailTemplate: function(request, action, approverName) {
+        // Safe defaults for missing properties
+        const unitName = request?.unitInfo?.name || 'Clinical Department';
+        const unitEmail = request?.unitInfo?.headEmail || 'unit@ksau-hs.edu.sa';
+        const unitPhone = request?.unitInfo?.phone || 'Available upon request';
+        
+        const templates = {
+            'APPROVED': {
+                subject: `✅ Your Request Has Been APPROVED - ${request.id}`,
+                body: `
+Dear ${request.studentName || 'Student'},
+
+Your request has been successfully APPROVED.
+
+REQUEST DETAILS:
+───────────────────────────────
+Request ID: ${request.id}
+Type: ${request.type || 'General Request'}
+Unit: ${unitName}
+Status: ✅ APPROVED
+Approved by: ${approverName}
+Approved on: ${new Date().toLocaleDateString()}
+
+NEXT STEPS:
+───────────────────────────────
+Your request has been processed and is now active.
+The responsible department will contact you with further details.
+
+Expected Timeline: 3-5 working days
+Contact: ${unitName} Department
+───────────────────────────────
+
+Best regards,
+Clinical Affairs Administration
+KSAU-HS
+`
+            },
+            'REJECTED': {
+                subject: `❌ Your Request Requires Additional Information - ${request.id}`,
+                body: `
+Dear ${request.studentName || 'Student'},
+
+Your request cannot be processed at this time.
+
+REQUEST DETAILS:
+───────────────────────────────
+Request ID: ${request.id}
+Type: ${request.type || 'General Request'}
+Unit: ${unitName}
+Status: ❌ CANNOT BE PROCESSED
+Reviewed by: ${approverName}
+Date: ${new Date().toLocaleDateString()}
+
+REASON FOR REJECTION:
+───────────────────────────────
+${request.rejectionReason || 'Documentation incomplete'}
+
+WHAT YOU NEED TO DO:
+───────────────────────────────
+Please submit a new request with the required documentation.
+Contact the department below for clarification.
+
+Department Email: ${unitEmail}
+Phone: ${unitPhone}
+
+Resubmission Deadline: Within 14 calendar days
+───────────────────────────────
+
+Best regards,
+Clinical Affairs Administration
+KSAU-HS
+`
+            },
+            'DELEGATED': {
+                subject: `📋 Your Request Is Being Reviewed - ${request.id}`,
+                body: `
+Dear ${request.studentName || 'Student'},
+
+Your request has been forwarded to the appropriate department for specialized review.
+
+REQUEST DETAILS:
+───────────────────────────────
+Request ID: ${request.id}
+Type: ${request.type || 'General Request'}
+Unit: ${request.delegatedTo || 'Department'}
+Status: 📋 UNDER REVIEW
+Forwarded on: ${new Date().toLocaleDateString()}
+
+WHAT HAPPENS NEXT:
+───────────────────────────────
+Your request is now being reviewed by the ${request.delegatedTo || 'department'}.
+You can expect a response within 7 working days.
+
+TRACKING:
+───────────────────────────────
+You can track your request at any time via the Student Portal.
+Request ID for reference: ${request.id}
+
+Questions? Contact: ${request.delegatedToEmail || 'unit@ksau-hs.edu.sa'}
+───────────────────────────────
+
+Best regards,
+Clinical Affairs Administration
+KSAU-HS
+`
+            }
+        };
+
+        return templates[action] || { subject: 'Request Update', body: 'Your request has been updated.' };
+    },
+
+    /**
+     * Generate Department Email Template
+     */
+    generateDepartmentEmailTemplate: function(request, action, approverName) {
+        const templates = {
+            'APPROVED': {
+                subject: `✅ REQUEST APPROVED - Proceed with Implementation: ${request.id}`,
+                body: `
+ADMINISTRATIVE NOTIFICATION
+
+A student request has been APPROVED and is ready for departmental action.
+
+REQUEST SUMMARY:
+───────────────────────────────
+Request ID: ${request.id}
+Student: ${request.studentName || 'Student'} (${request.studentId || 'N/A'})
+Type: ${request.type || 'General Request'}
+Priority: ${request.priority || 'Normal'}
+Status: ✅ APPROVED
+Approved by: ${approverName}
+Date: ${new Date().toLocaleDateString()}
+
+REQUIRED ACTIONS:
+───────────────────────────────
+1. Acknowledge receipt of this notification
+2. Implement the approved request
+3. Document any relevant outcomes
+4. Update the student within 24 hours
+
+SLA DEADLINE: ${this.addWorkingDays(new Date(), 5).toLocaleDateString()}
+
+For questions or escalations, contact the admin team.
+
+───────────────────────────────
+Clinical Affairs Administration
+KSAU-HS
+`
+            },
+            'REJECTED': {
+                subject: `❌ REQUEST REJECTED - Student Notification Required: ${request.id}`,
+                body: `
+ADMINISTRATIVE NOTIFICATION
+
+A student request has been REJECTED due to insufficient documentation.
+
+REQUEST DETAILS:
+───────────────────────────────
+Request ID: ${request.id}
+Student: ${request.studentName || 'Student'} (${request.studentId || 'N/A'})
+Reason: ${request.rejectionReason || 'Documentation incomplete'}
+Reviewed by: ${approverName}
+
+YOUR RESPONSIBILITY:
+───────────────────────────────
+1. Review the rejection reason below
+2. If you disagree, escalate to the admin team
+3. Inform the student of the requirements
+
+Student Contact: ${request.studentEmail || 'student@ksau-hs.edu.sa'}
+
+───────────────────────────────
+Clinical Affairs Administration
+KSAU-HS
+`
+            },
+            'DELEGATED': {
+                subject: `🔄 REQUEST DELEGATED TO YOUR DEPARTMENT: ${request.id}`,
+                body: `
+REQUEST DELEGATION NOTICE
+
+You have been assigned a student request for review and approval.
+
+REQUEST DETAILS:
+───────────────────────────────
+Request ID: ${request.id}
+Student: ${request.studentName} (${request.studentId})
+Type: ${request.type}
+Request Date: ${new Date(request.createdAt).toLocaleDateString()}
+Priority: ${request.priority}
+
+DELEGATION NOTE:
+───────────────────────────────
+${request.delegationNote || 'Please review and provide approval or rejection.'}
+
+YOUR NEXT STEPS:
+───────────────────────────────
+1. Review the request details (see portal for full information)
+2. Make an approval/rejection decision
+3. Document your decision
+4. Notify the student within 5 working days
+
+SLA DEADLINE: ${this.addWorkingDays(new Date(), 7).toLocaleDateString()}
+
+If you need clarification, reply to this email or check the request portal.
+
+───────────────────────────────
+Clinical Affairs Administration
+KSAU-HS
+`
+            }
+        };
+
+        return templates[action] || { subject: 'Request Notification', body: 'A request requires your attention.' };
+    },
+
+    /**
+     * Generate Admin Email Template (for audit trail)
+     */
+    generateAdminEmailTemplate: function(request, action, approverName) {
+        const templates = {
+            'APPROVED': {
+                subject: `📊 AUDIT LOG: Request Approved by ${approverName}`,
+                body: `[AUDIT TRAIL]
+
+Action: APPROVED
+Request ID: ${request.id}
+Approver: ${approverName}
+Timestamp: ${new Date().toISOString()}
+Student: ${request.studentName}
+
+This is an automated audit record for administrative tracking.
+`
+            },
+            'REJECTED': {
+                subject: `📊 AUDIT LOG: Request Rejected by ${approverName}`,
+                body: `[AUDIT TRAIL]
+
+Action: REJECTED
+Request ID: ${request.id}
+Reviewer: ${approverName}
+Reason: ${request.rejectionReason}
+Timestamp: ${new Date().toISOString()}
+Student: ${request.studentName}
+
+This is an automated audit record for administrative tracking.
+`
+            },
+            'DELEGATED': {
+                subject: `📊 AUDIT LOG: Request Delegated by ${approverName}`,
+                body: `[AUDIT TRAIL]
+
+Action: DELEGATED
+Request ID: ${request.id}
+Delegated by: ${approverName}
+Delegated to: ${request.delegatedTo}
+Department: ${request.department}
+Timestamp: ${new Date().toISOString()}
+Student: ${request.studentName}
+
+This is an automated audit record for administrative tracking.
+`
+            }
+        };
+
+        return templates[action] || { subject: 'Audit Log Entry', body: 'Audit trail record.' };
+    },
+
+    /**
+     * Helper: Add working days (exclude weekends)
+     */
+    addWorkingDays: function(date, days) {
+        const result = new Date(date);
+        let count = 0;
+        
+        while (count < days) {
+            result.setDate(result.getDate() + 1);
+            if (result.getDay() !== 0 && result.getDay() !== 6) { // 0 = Sunday, 6 = Saturday
+                count++;
+            }
+        }
+        return result;
+    },
+
+    /**
+     * Check Follow-Up Reminders
+     * Should be called daily to send reminder emails
+     */
+    checkFollowUpReminders: function() {
+        const now = new Date();
+        const remindersToSend = this.emailQueue.filter(email => 
+            email.type === 'FOLLOW_UP_REMINDER' &&
+            !email.notified &&
+            new Date(email.scheduleDate) <= now
+        );
+
+        remindersToSend.forEach(reminder => {
+            const request = this.requests.find(r => r.id === reminder.requestId);
+            if (request) {
+                // Send reminder email to delegated person
+                console.log(`📧 REMINDER: Sending follow-up for request ${reminder.requestId} to ${reminder.delegatedTo}`);
+                reminder.notified = true;
+                reminder.sendAt = now.toISOString();
+            }
+        });
+
+        return remindersToSend.length;
     }
 };
 

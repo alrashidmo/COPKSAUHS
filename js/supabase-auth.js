@@ -3,8 +3,8 @@
  * Handles user signup, login, and session management
  */
 
-// Use window assignment to avoid duplicate declaration errors
-window.SupabaseAuth = window.SupabaseAuth || {
+// Direct window assignment (no const to avoid duplicate declarations)
+window.SupabaseAuth = {
     supabase: null,
     currentUser: null,
 
