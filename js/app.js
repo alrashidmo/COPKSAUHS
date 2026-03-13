@@ -14730,12 +14730,13 @@ window.approveTicket = async function(ticketId, studentId, studentEmail) {
             console.log(`?? Community services stats updated`);
         }
         
-        alert(`? Ticket Approved!\n\n?? Email sent to ${studentEmail}\n\nSubject: ${emailSubject}\n\n${emailBody.substring(0, 150)}...`);
-        
-        // Refresh dashboard
+        // ✅ Immediately refresh dashboard to remove approved ticket from view
         if (window.app && typeof window.app.renderAdminHub === 'function') {
-            setTimeout(() => window.app.renderAdminHub(), 500);
+            await window.app.renderAdminHub();
         }
+
+        // Show success message AFTER refresh (so ticket already disappeared)
+        alert(`✅ Ticket Approved!\n\n📧 Email notification sent to ${studentEmail}\n\nThe ticket has been moved to Request Tracking Dashboard.`);
     } catch (error) {
         console.error('? Error approving ticket:', error);
         alert(`? Error: ${error.message}`);
@@ -14795,12 +14796,13 @@ window.rejectTicket = async function(ticketId, studentId, studentEmail) {
             console.log(`?? Community services stats updated`);
         }
         
-        alert(`? Ticket Rejected\n\n?? Email sent to ${studentEmail}\n\nSubject: ${emailSubject}\n\nReason: ${rejectReason}`);
-        
-        // Refresh dashboard
+        // ✅ Immediately refresh dashboard to remove rejected ticket from view
         if (window.app && typeof window.app.renderAdminHub === 'function') {
-            setTimeout(() => window.app.renderAdminHub(), 500);
+            await window.app.renderAdminHub();
         }
+
+        // Show success message AFTER refresh (so ticket already disappeared)
+        alert(`❌ Ticket Rejected\n\n📧 Email notification sent to ${studentEmail}\n\nReason: ${rejectReason}\n\nThe ticket has been moved to Request Tracking Dashboard.`);
     } catch (error) {
         console.error('? Error rejecting ticket:', error);
         alert(`? Error: ${error.message}`);
