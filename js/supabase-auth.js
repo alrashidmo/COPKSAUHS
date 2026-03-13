@@ -3,7 +3,8 @@
  * Handles user signup, login, and session management
  */
 
-const SupabaseAuth = {
+// Use window assignment to avoid duplicate declaration errors
+window.SupabaseAuth = window.SupabaseAuth || {
     supabase: null,
     currentUser: null,
 
@@ -306,8 +307,5 @@ const SupabaseAuth = {
         }
     }
 };
-
-// Export to window
-window.SupabaseAuth = SupabaseAuth;
 
 console.log('✅ Supabase Auth service loaded');

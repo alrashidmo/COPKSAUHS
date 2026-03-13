@@ -3,7 +3,8 @@
  * Handles approval/rejection of pending user signups
  */
 
-const AdminSignupManager = {
+// Use window assignment to avoid duplicate declaration errors
+window.AdminSignupManager = window.AdminSignupManager || {
     pendingSignups: [],
 
     /**
@@ -322,8 +323,5 @@ const AdminSignupManager = {
         }
     }
 };
-
-// Export to window
-window.AdminSignupManager = AdminSignupManager;
 
 console.log('✅ Admin Signup Manager loaded');
