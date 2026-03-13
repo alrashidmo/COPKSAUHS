@@ -262,5 +262,6 @@ window.SupabaseService = {
     init: initializeSupabase,
     db: SupabaseDB,
     auth: SupabaseAuth,
-    client: () => supabaseClient
+    client: () => supabaseClient,
+    get supabase() { return supabaseClient; } // Getter for direct access
 };
