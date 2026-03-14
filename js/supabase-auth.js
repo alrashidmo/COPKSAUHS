@@ -213,67 +213,30 @@ window.SupabaseAuth = {
 
     /**
      * Admin: Approve a signup request
-     * Creates actual user account in Supabase Auth
+     * Creates actual user account in Supabase Auth using database function
      */
     async approveSignup(signupId) {
         try {
-            // Get the pending signup
-            const { data: signup, error: fetchError } = await this.supabase
-                .from('pending_signups')
-                .select('*')
-                .eq('id', signupId)
-                .single();
+            console.log('🔐 Approving signup via database function:', signupId);
 
-            if (fetchError) throw fetchError;
-
-            // Create the user in Supabase Auth
-            const { data: authData, error: authError } = await this.supabase.auth.admin.createUser({
-                email: signup.email,
-                password: signup.password_hash,
-                email_confirm: true,
-                user_metadata: {
-                    full_name: signup.full_name,
-                    account_type: signup.account_type
-                }
+            // Call the database function that creates the user with elevated privileges
+            const { data, error } = await this.supabase.rpc('approve_signup_request', {
+                signup_request_id: signupId,
+                approving_admin_id: this.currentUser?.id || null
             });
 
-            if (authError) throw authError;
+            if (error) {
+                console.error('❌ Database function error:', error);
+                throw error;
+            }
 
-            // Create user profile
-            const { error: profileError } = await this.supabase
-                .from('user_profiles')
-                .insert([{
-                    user_id: authData.user.id,
-                    email: signup.email,
-                    full_name: signup.full_name,
-                    phone: signup.phone,
-                    account_type: signup.account_type,
-                    student_id: signup.student_id,
-                    staff_id: signup.staff_id,
-                    class_year: signup.class_year,
-                    department: signup.department,
-                    role: signup.role,
-                    is_approved: true,
-                    approved_at: new Date().toISOString(),
-                    approved_by: this.currentUser?.id
-                }]);
+            // The function returns a JSON object
+            if (!data.success) {
+                throw new Error(data.message);
+            }
 
-            if (profileError) throw profileError;
-
-            // Update signup request status
-            const { error: updateError } = await this.supabase
-                .from('pending_signups')
-                .update({
-                    status: 'approved',
-                    approved_at: new Date().toISOString(),
-                    approved_by: this.currentUser?.id
-                })
-                .eq('id', signupId);
-
-            if (updateError) throw updateError;
-
-            console.log('✅ Signup approved:', signup.email);
-            return { success: true, message: 'User approved successfully!' };
+            console.log('✅ Signup approved:', data.message);
+            return { success: true, message: data.message };
 
         } catch (error) {
             console.error('❌ Error approving signup:', error);
