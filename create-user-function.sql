@@ -27,45 +27,65 @@ BEGIN
         );
     END IF;
 
-    -- Generate a random UUID for the new user
-    v_user_id := gen_random_uuid();
+    -- Check if user already exists in auth.users
+    SELECT id INTO v_user_id
+    FROM auth.users
+    WHERE email = v_signup.email;
 
-    -- Encrypt the password using pgcrypto
-    v_encrypted_password := crypt(v_signup.password_hash, gen_salt('bf'));
+    -- If user doesn't exist, create them
+    IF v_user_id IS NULL THEN
+        -- Generate a random UUID for the new user
+        v_user_id := gen_random_uuid();
 
-    -- Insert into auth.users table (this is the Supabase auth table)
-    INSERT INTO auth.users (
-        instance_id,
-        id,
-        aud,
-        role,
-        email,
-        encrypted_password,
-        email_confirmed_at,
-        raw_user_meta_data,
-        created_at,
-        updated_at,
-        confirmation_token,
-        recovery_token
-    ) VALUES (
-        '00000000-0000-0000-0000-000000000000', -- default instance
-        v_user_id,
-        'authenticated',
-        'authenticated',
-        v_signup.email,
-        v_encrypted_password,
-        NOW(), -- Mark email as confirmed
-        json_build_object(
-            'full_name', v_signup.full_name,
-            'account_type', v_signup.account_type
-        )::jsonb,
-        NOW(),
-        NOW(),
-        '',
-        ''
-    );
+        -- Encrypt the password using pgcrypto
+        v_encrypted_password := crypt(v_signup.password_hash, gen_salt('bf'));
 
-    -- Create user profile
+        -- Insert into auth.users table (this is the Supabase auth table)
+        INSERT INTO auth.users (
+            instance_id,
+            id,
+            aud,
+            role,
+            email,
+            encrypted_password,
+            email_confirmed_at,
+            raw_user_meta_data,
+            created_at,
+            updated_at,
+            confirmation_token,
+            recovery_token
+        ) VALUES (
+            '00000000-0000-0000-0000-000000000000', -- default instance
+            v_user_id,
+            'authenticated',
+            'authenticated',
+            v_signup.email,
+            v_encrypted_password,
+            NOW(), -- Mark email as confirmed
+            json_build_object(
+                'full_name', v_signup.full_name,
+                'account_type', v_signup.account_type
+            )::jsonb,
+            NOW(),
+            NOW(),
+            '',
+            ''
+        );
+    ELSE
+        -- User already exists, just update their password
+        v_encrypted_password := crypt(v_signup.password_hash, gen_salt('bf'));
+
+        UPDATE auth.users
+        SET encrypted_password = v_encrypted_password,
+            raw_user_meta_data = json_build_object(
+                'full_name', v_signup.full_name,
+                'account_type', v_signup.account_type
+            )::jsonb,
+            updated_at = NOW()
+        WHERE id = v_user_id;
+    END IF;
+
+    -- Create or update user profile
     INSERT INTO user_profiles (
         user_id,
         email,
@@ -94,7 +114,19 @@ BEGIN
         true,
         NOW(),
         approving_admin_id
-    );
+    )
+    ON CONFLICT (user_id) DO UPDATE SET
+        full_name = EXCLUDED.full_name,
+        phone = EXCLUDED.phone,
+        account_type = EXCLUDED.account_type,
+        student_id = EXCLUDED.student_id,
+        staff_id = EXCLUDED.staff_id,
+        class_year = EXCLUDED.class_year,
+        department = EXCLUDED.department,
+        role = EXCLUDED.role,
+        is_approved = true,
+        approved_at = NOW(),
+        approved_by = approving_admin_id;
 
     -- Update signup request status
     UPDATE pending_signups
