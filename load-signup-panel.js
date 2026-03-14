@@ -1,49 +1,70 @@
 /**
  * Auto-load Pending Signups panel when Admin Hub loads
- * Add this to the end of app.js or as a separate script
+ * This hooks into the app rendering system
  */
 
-// Wait for page to load
-window.addEventListener('DOMContentLoaded', async () => {
-    console.log('🔄 Checking for IMMEDIATE ACTIONS panel...');
+// Override the app.renderAdminHub to inject our panel
+(function() {
+    console.log('🔄 Setting up Pending Signups panel injector...');
 
-    // Wait a bit for the admin hub to render
-    setTimeout(async () => {
-        // Find the IMMEDIATE ACTIONS section content
-        const immediateSection = document.getElementById('section-immediate');
+    // Wait for app to be available
+    const checkInterval = setInterval(() => {
+        if (window.app && typeof window.app.renderAdminHub === 'function') {
+            clearInterval(checkInterval);
 
-        if (immediateSection) {
-            console.log('✅ Found IMMEDIATE ACTIONS section');
+            // Store the original function
+            const originalRenderAdminHub = window.app.renderAdminHub;
 
-            // Find the section-content div
-            const contentDiv = immediateSection.querySelector('.section-content');
+            // Override with our version
+            window.app.renderAdminHub = async function() {
+                // Call the original function first
+                await originalRenderAdminHub.call(this);
 
-            if (contentDiv && typeof window.AdminSignupManager !== 'undefined') {
-                console.log('📋 Loading Pending Signups panel...');
+                // Then replace the IMMEDIATE ACTIONS content
+                setTimeout(async () => {
+                    console.log('📋 Injecting Pending Signups panel...');
 
-                try {
-                    // Render the new panel
-                    const panelHTML = await window.AdminSignupManager.renderSignupApprovalPanel();
+                    const immediateSection = document.getElementById('section-immediate');
+                    if (immediateSection && typeof window.AdminSignupManager !== 'undefined') {
+                        const contentDiv = immediateSection.querySelector('.section-content');
 
-                    // Replace the old content
-                    contentDiv.innerHTML = panelHTML;
+                        if (contentDiv) {
+                            try {
+                                // Load pending signups first
+                                await window.AdminSignupManager.loadPendingSignups();
 
-                    // Update the section title
-                    const titleDiv = immediateSection.querySelector('.section-title');
-                    if (titleDiv) {
-                        titleDiv.innerHTML = `
-                            PENDING SIGNUPS
-                            <span class="section-badge" id="badge-immediate">${window.AdminSignupManager.pendingSignups.length}</span>
-                        `;
+                                // Render the new panel
+                                const panelHTML = await window.AdminSignupManager.renderSignupApprovalPanel();
+
+                                // Replace the old content
+                                contentDiv.innerHTML = panelHTML;
+
+                                // Update the section title
+                                const sectionTitle = immediateSection.querySelector('.section-title');
+                                if (sectionTitle) {
+                                    const badge = sectionTitle.querySelector('.section-badge');
+                                    if (badge) {
+                                        badge.textContent = window.AdminSignupManager.pendingSignups.length;
+                                    }
+                                    // Change title text
+                                    const titleText = Array.from(sectionTitle.childNodes).find(n => n.nodeType === 3);
+                                    if (titleText) {
+                                        titleText.textContent = 'PENDING SIGNUPS ';
+                                    }
+                                }
+
+                                console.log('✅ Pending Signups panel injected successfully!');
+                            } catch (error) {
+                                console.error('❌ Failed to inject Pending Signups panel:', error);
+                            }
+                        }
                     }
+                }, 500); // Wait 500ms for DOM to settle
+            };
 
-                    console.log('✅ Pending Signups panel loaded successfully!');
-                } catch (error) {
-                    console.error('❌ Failed to load Pending Signups panel:', error);
-                }
-            }
+            console.log('✅ Pending Signups panel injector ready');
         }
-    }, 1000); // Wait 1 second for admin hub to render
-});
+    }, 100);
+})();
 
-console.log('✅ Signup panel auto-loader ready');
+console.log('✅ Signup panel loader initialized');
