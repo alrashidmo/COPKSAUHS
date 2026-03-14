@@ -13,6 +13,7 @@ DECLARE
     v_signup RECORD;
     v_user_id UUID;
     v_encrypted_password TEXT;
+    v_cohort TEXT;
 BEGIN
     -- Get the pending signup
     SELECT * INTO v_signup
@@ -101,6 +102,43 @@ BEGIN
         approved_at = NOW(),
         approved_by = approving_admin_id
     WHERE id = signup_request_id;
+
+    -- If this is a student, add to students table
+    IF v_signup.account_type = 'student' THEN
+        -- Map class year to cohort
+        v_cohort := CASE v_signup.class_year
+            WHEN 'P1' THEN 'IPPE I'
+            WHEN 'P2' THEN 'IPPE II'
+            WHEN 'P3' THEN 'IPPE III'
+            WHEN 'P4' THEN 'APPE'
+            ELSE COALESCE(v_signup.class_year, 'Unknown')
+        END;
+
+        -- Insert into students table
+        INSERT INTO students (id, name, email, cohort, gpa, risk, attendance, account_status, approved_date)
+        VALUES (
+            v_signup.student_id,
+            v_signup.full_name,
+            v_signup.email,
+            v_cohort,
+            0.0,  -- Default GPA
+            'low',  -- Default risk
+            0,  -- Default attendance
+            'active',
+            NOW()
+        )
+        ON CONFLICT (id) DO UPDATE SET
+            name = EXCLUDED.name,
+            email = EXCLUDED.email,
+            cohort = EXCLUDED.cohort,
+            account_status = EXCLUDED.account_status,
+            approved_date = EXCLUDED.approved_date,
+            updated_at = NOW();
+    END IF;
+
+    -- TODO: Send email notification to user
+    -- You can configure this in Supabase Dashboard > Authentication > Email Templates
+    -- Or use a webhook/edge function to send custom emails
 
     -- Return success
     RETURN json_build_object(
