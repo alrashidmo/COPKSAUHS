@@ -278,15 +278,74 @@ window.AdminSignupManager = {
 
         console.log('✅ Approving signup:', signupId);
 
+        // Get the signup data before approving
+        const signup = this.pendingSignups.find(s => s.id === signupId);
+
         const result = await window.SupabaseAuth.approveSignup(signupId);
 
         if (result.success) {
-            alert('✅ Signup approved successfully!\n\nThe user can now log in with their credentials.');
+            // If this is a student signup, automatically add to Student Database
+            if (signup && signup.account_type === 'student') {
+                this.addToStudentDatabase(signup);
+            }
+
+            alert('✅ Signup approved successfully!\n\nThe user can now log in with their credentials.' +
+                  (signup.account_type === 'student' ? '\n\nStudent added to 🗃️ Student Database automatically!' : ''));
 
             // Refresh the panel
             await this.refreshPanel();
         } else {
             alert(`❌ Failed to approve signup:\n\n${result.message}`);
+        }
+    },
+
+    /**
+     * Add approved student to the Student Database
+     */
+    addToStudentDatabase(signup) {
+        console.log('📊 Adding student to database:', signup.student_id);
+
+        // Map class year (P1, P2, P3, P4) to cohort names
+        const cohortMap = {
+            'P1': 'IPPE I',
+            'P2': 'IPPE II',
+            'P3': 'IPPE III',
+            'P4': 'APPE'
+        };
+
+        const cohort = cohortMap[signup.class_year] || signup.class_year || 'Unknown';
+
+        // Create student record
+        const studentRecord = {
+            id: signup.student_id,
+            name: signup.full_name,
+            email: signup.email,
+            cohort: cohort,
+            gpa: 0.0, // Default, can be updated later
+            risk: 'low', // Default
+            attendance: 0 // Default
+        };
+
+        // Add to APPE_DATABASE.students if it exists
+        if (typeof window.APPE_DATABASE !== 'undefined' && Array.isArray(window.APPE_DATABASE.students)) {
+            // Check if student already exists
+            const existingIndex = window.APPE_DATABASE.students.findIndex(s => s.id === signup.student_id);
+
+            if (existingIndex >= 0) {
+                // Update existing student
+                window.APPE_DATABASE.students[existingIndex] = studentRecord;
+                console.log('✅ Updated existing student in database');
+            } else {
+                // Add new student
+                window.APPE_DATABASE.students.push(studentRecord);
+                console.log('✅ Added new student to database');
+            }
+
+            // Also make it accessible globally
+            window.APPE_DATABASE = window.APPE_DATABASE;
+
+        } else {
+            console.warn('⚠️ APPE_DATABASE not available');
         }
     },
 
