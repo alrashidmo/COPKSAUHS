@@ -571,18 +571,6 @@
                             <span>🔓 Sign In</span>
                         </button>
 
-                        <!-- Demo Accounts Info -->
-                        <div class="demo-accounts">
-                            <strong>📌 Demo Accounts</strong>
-                            <div class="demo-account">
-                                <span class="demo-account-type">🎓 Student</span>
-                                <div class="demo-account-cred">ID: 441210049 | Pass: 123456</div>
-                            </div>
-                            <div class="demo-account">
-                                <span class="demo-account-type">👨‍💼 Admin</span>
-                                <div class="demo-account-cred">ID: admin001 | Pass: admin123</div>
-                            </div>
-                        </div>
                         
                         <!-- Signup Link -->
                         <div style="text-align: center; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #E0E0E0;">
@@ -1332,7 +1320,7 @@
                         this.showPortal();
                         this.applyRoleBasedAccess();
                     } else {
-                        alert('❌ Invalid credentials. Please check your ID and password.\n\nDemo credentials:\nStudent: 441210049 / 123456\nAdmin: admin001 / admin123');
+                        alert('❌ Invalid credentials. Please check your ID and password.');
                         document.getElementById('userPassword').value = '';
                     }
                 }
