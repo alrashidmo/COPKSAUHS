@@ -33,6 +33,19 @@ window.StudentLoader = {
 
             console.log(`✅ Loaded ${data.length} students from database`);
 
+            // Ensure APPE_DATABASE exists on window
+            if (typeof window.APPE_DATABASE === 'undefined') {
+                // Try to get it from global scope (defined in app.js as const)
+                if (typeof APPE_DATABASE !== 'undefined') {
+                    window.APPE_DATABASE = APPE_DATABASE;
+                    console.log('📌 Assigned APPE_DATABASE to window');
+                } else {
+                    // Create new if it doesn't exist anywhere
+                    window.APPE_DATABASE = { students: [] };
+                    console.log('🆕 Created new APPE_DATABASE');
+                }
+            }
+
             // Merge with existing APPE_DATABASE.students
             if (window.APPE_DATABASE && Array.isArray(window.APPE_DATABASE.students)) {
                 // Create a map of existing students by ID
