@@ -4327,6 +4327,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             
             
             
+            // Student Database & Management Section
+            const studentDbSection = `
+                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h2 style="margin: 0 0 8px 0; color: #1B5E20; font-size: 1.5rem;">🗃️ Student Database</h2>
+                            <p style="margin: 0; font-size: 0.9rem; color: #666;">💡 Click ✏️ to enable edit mode | Click 📤 to send P4 students to Alumni</p>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button id="viewAlumniBtn" style="background: #FF9800; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#F57C00'" onmouseout="this.style.background='#FF9800'">👥 View Alumni</button>
+                            <button id="exportStudentsBtn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#4CAF50'">📊 Export to Excel</button>
+                        </div>
+                    </div>
+                    <div id="studentDatabase" style="background: #f5f5f5; padding: 20px; border-radius: 8px; min-height: 200px;">
+                        <p style="color: #999; text-align: center; margin: 0;">No students added yet. Upload Excel file above to get started.</p>
+                    </div>
+                </div>
+            `;
+
             // Assemble full HTML with Collapsible Sections (Option B: Functional View)
             console.log('? Assembling admin hub with collapsible sections...');
             const html = `
@@ -4400,7 +4419,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         </div>
                     </div>
                     
-                    
+                    <!-- ⚙️ CONFIGURATION (Collapsed by Default) -->
+                    <div class="admin-section collapsed" id="section-config" data-section="config">
+                        <div class="section-header configuration" onclick="window.toggleAdminSection('config')">
+                            <div class="section-header-left">
+                                <div class="section-icon">⚙️</div>
+                                <div class="section-title">
+                                    CONFIGURATION
+                                </div>
+                            </div>
+                            <div class="section-toggle">
+                                <span id="toggle-text-config">Expand</span>
+                                <span class="toggle-arrow">?</span>
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            ${studentDbSection}
+                        </div>
+                    </div>
+
                     <div style="text-align: center; color: #999; font-size: 0.9rem; margin-top: 2rem;">
                         <p>Last updated: ${new Date().toLocaleTimeString()}</p>
                         <p style="font-size: 0.85rem;">All times in working days</p>
