@@ -4325,16 +4325,6 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 </div>
             `;
             
-            // SYSTEM CONTROLS SECTION (SIMPLIFIED - Clear Button Only)
-            console.log('? Building system controls section...');
-            const systemControls = `
-                <div class="card mb-4" style="border-top: 4px solid #9C27B0;">
-                    <div style="display: flex; gap: 1rem; align-items: center;">
-                        <button onclick="if(confirm('Clear all pending requests? This cannot be undone.')) { window.AdminHubModel.clearAllPendingRequests(); window.app.renderAdminHub(); alert('✅ All pending requests cleared!'); }" style="background: #F44336; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: background 0.3s;" onmouseover="this.style.background='#D32F2F'" onmouseout="this.style.background='#F44336'">🗑️ Clear All Pending Requests</button>
-                        <p style="margin: 0; color: #999; font-size: 0.9rem;">Remove all pending student and admin requests for fresh implementation</p>
-                    </div>
-                </div>
-            `;
             
             // File Upload Section - EXCEL ONLY (PDF removed)
             console.log('? Building file upload section...');
@@ -4473,7 +4463,6 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                             </div>
                         </div>
                         <div class="section-content">
-                            ${systemControls}
                             ${uploadSection}
                             ${studentDbSection}
                         </div>
