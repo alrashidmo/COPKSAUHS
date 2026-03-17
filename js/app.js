@@ -4326,53 +4326,6 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             `;
             
             
-            // File Upload Section - EXCEL ONLY (PDF removed)
-            console.log('? Building file upload section...');
-            const uploadSection = `
-                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <h2 style="margin: 0 0 20px 0; color: #1B5E20; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">📥 Student Records Upload</h2>
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <!-- XLSX Upload -->
-                        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 20px; background: #fafafa;">
-                            <h3 style="margin: 0 0 15px 0; color: #333; font-size: 1.1rem;">📊 Excel Upload</h3>
-                            <p style="margin: 0 0 15px 0; font-size: 0.9rem; color: #666;">Columns: Student No., Name, Email, linked account</p>
-                            <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" multiple style="display: none;">
-                            <div id="xlsxUploadArea" style="border: 2px dashed #1B5E20; border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s ease; background: #f5f5f5; user-select: none;">
-                                <svg style="width: 40px; height: 40px; margin: 0 auto 10px; color: #1B5E20; pointer-events: none;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="17 8 12 3 7 8"></polyline>
-                                    <line x1="12" y1="3" x2="12" y2="15"></line>
-                                </svg>
-                                <p style="margin: 0; color: #666; font-size: 1rem; pointer-events: none;">Drag Excel files here or click to select</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Results -->
-                        <div id="uploadResults"></div>
-                        <div id="extractedData"></div>
-                    </div>
-                </div>
-            `;
-            
-            // Student Database & Management Section
-            console.log('? Building student database section...');
-            const studentDbSection = `
-                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <div>
-                            <h2 style="margin: 0 0 8px 0; color: #1B5E20; font-size: 1.5rem;">🗃️ Student Database</h2>
-                            <p style="margin: 0; font-size: 0.9rem; color: #666;">💡 Click ✏️ to enable edit mode | Click 📤 to send P4 students to Alumni</p>
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button id="viewAlumniBtn" style="background: #FF9800; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#F57C00'" onmouseout="this.style.background='#FF9800'">👥 View Alumni</button>
-                            <button id="exportStudentsBtn" style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background 0.3s;" onmouseover="this.style.background='#388E3C'" onmouseout="this.style.background='#4CAF50'">📊 Export to Excel</button>
-                        </div>
-                    </div>
-                    <div id="studentDatabase" style="background: #f5f5f5; padding: 20px; border-radius: 8px; min-height: 200px;">
-                        <p style="color: #999; text-align: center; margin: 0;">No students added yet. Upload Excel file above to get started.</p>
-                    </div>
-                </div>
-            `;
             
             // Assemble full HTML with Collapsible Sections (Option B: Functional View)
             console.log('? Assembling admin hub with collapsible sections...');
@@ -4447,26 +4400,6 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         </div>
                     </div>
                     
-                    <!-- ⚙️ CONFIGURATION (Collapsed by Default) -->
-                    <div class="admin-section collapsed" id="section-config" data-section="config">
-                        <div class="section-header configuration" onclick="window.toggleAdminSection('config')">
-                            <div class="section-header-left">
-                                <div class="section-icon">⚙️</div>
-                                <div class="section-title">
-                                    CONFIGURATION
-                                    <span class="section-badge" id="badge-config">3</span>
-                                </div>
-                            </div>
-                            <div class="section-toggle">
-                                <span id="toggle-text-config">Expand</span>
-                                <span class="toggle-arrow">?</span>
-                            </div>
-                        </div>
-                        <div class="section-content">
-                            ${uploadSection}
-                            ${studentDbSection}
-                        </div>
-                    </div>
                     
                     <div style="text-align: center; color: #999; font-size: 0.9rem; margin-top: 2rem;">
                         <p>Last updated: ${new Date().toLocaleTimeString()}</p>
