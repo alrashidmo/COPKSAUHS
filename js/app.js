@@ -3667,7 +3667,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             const systemAlerts = model.getSystemAlerts();
             const pendingApprovals = model.getPendingApprovals();
             console.log('? All analytics data loaded');
-            console.log('? Pending student approvals:', pendingApprovals.length);
+            console.log('📋 Pending student approvals:', pendingApprovals.length);
             
             // 📊 Calculate Real KPIs from Supabase Tickets
             const allTickets = window.StudentPortalManager?.tickets || [];
@@ -3743,7 +3743,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                     
                     <div class="stat-card-interactive" data-metric="resolvedToday" style="background: white; border-radius: 12px; padding: 1.5rem; text-align: center; border-left: 4px solid #4CAF50; box-shadow: 0 2px 4px rgba(0,0,0,0.08); transition: transform 0.3s, box-shadow 0.3s, cursor 0.3s; cursor: pointer;">
-                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">?</div>
+                        <div style="font-size: 2.8rem; margin-bottom: 0.5rem;">✅</div>
                         <div style="font-size: 2rem; font-weight: bold; color: #333; margin-bottom: 0.5rem;">${dashboardStats.resolvedToday}</div>
                         <div style="font-size: 0.95rem; color: #666; font-weight: 500;">Resolved Today</div>
                         <div style="font-size: 0.75rem; color: #999; margin-top: 0.5rem; font-style: italic;">Click for details</div>
@@ -3761,7 +3761,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FFA500; font-weight: bold;">${kpis.pending}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Pending</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📋 Pending</div>
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FF0000; font-weight: bold;">${kpis.overdue}</div>
@@ -3769,7 +3769,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #28A745; font-weight: bold;">${kpis.resolved}</div>
-                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Resolved</div>
+                        <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">✅ Resolved</div>
                     </div>
                     <div class="card" style="text-align: center; cursor: pointer; transition: all 0.3s;">
                         <div style="font-size: 2.5rem; color: #FFD700; font-weight: bold;">${kpis.waiting}</div>
@@ -5001,7 +5001,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                 <div style="font-size: 2rem; font-weight: bold; color: #FF9800;">
                                     ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.pending : 0}
                                 </div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Pending</div>
+                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📋 Pending</div>
                             </div>
                             <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
                                 <div style="font-size: 2rem; font-weight: bold; color: #F44336;">
