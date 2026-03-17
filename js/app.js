@@ -1310,7 +1310,7 @@ window.StudentManagement = {
         const level = this.getCohortLevel(student.cohort);
 
         if (level !== 'P4') {
-            alert('? Only P4 (APPE) students can be transferred to Alumni');
+            alert('📤 Only P4 (APPE) students can be transferred to Alumni');
             return;
         }
 
