@@ -10273,7 +10273,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                             ${[1,2,3,4,5,6,7,8,9,10].map(b => {
                                 const slots = availMap[s.id] && availMap[s.id][b] != null ? availMap[s.id][b] : null;
                                 const on = slots !== null;
-                                return `<div id="block-chip-${s.id}-${b}"
+                                return `<div id="block-chip-${s.id}-${b}" data-enabled="${on}"
                                     onclick="window.rotAdmin.toggleBlock(${s.id},${b})"
                                     style="cursor:pointer;border-radius:10px;padding:10px 14px;font-size:0.82rem;font-weight:700;min-width:80px;text-align:center;border:2px solid ${on?'#2e7d32':'#ddd'};background:${on?'#e8f5e9':'#f5f5f5'};color:${on?'#1B5E20':'#aaa'};transition:all 0.2s;">
                                     <div style="font-size:0.78rem;color:${on?'#2e7d32':'#bbb'};">Block</div>
@@ -15127,15 +15127,17 @@ window.rotAdmin = {
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
         const chip = document.getElementById('block-chip-' + siteId + '-' + blockNum);
-        const on = chip && chip.style.background.includes('e8f5e9');
+        const on = chip && chip.dataset.enabled === 'true';
         if (on) {
             const { error } = await sb.from('rotation_site_availability').delete().eq('site_id', siteId).eq('block_number', blockNum);
             if (error) { alert('Error: ' + error.message); return; }
+            chip.dataset.enabled = 'false';
             chip.style.background = '#f5f5f5'; chip.style.border = '2px solid #ddd'; chip.style.color = '#aaa';
             chip.innerHTML = `<div style="font-size:0.78rem;color:#bbb;">Block</div><div style="font-size:1rem;">${blockNum}</div><div style="font-size:0.72rem;color:#ccc;margin-top:4px;">off</div>`;
         } else {
             const { error } = await sb.from('rotation_site_availability').upsert({ site_id: siteId, block_number: blockNum, max_students: 1 }, { onConflict: 'site_id,block_number' });
             if (error) { alert('Error: ' + error.message); return; }
+            chip.dataset.enabled = 'true';
             chip.style.background = '#e8f5e9'; chip.style.border = '2px solid #2e7d32'; chip.style.color = '#1B5E20';
             chip.innerHTML = `<div style="font-size:0.78rem;color:#2e7d32;">Block</div><div style="font-size:1rem;">${blockNum}</div><div style="margin-top:4px;" onclick="event.stopPropagation()"><input type="number" min="1" max="10" value="1" onchange="window.rotAdmin.saveBlockCapacity(${siteId},${blockNum},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`;
         }
