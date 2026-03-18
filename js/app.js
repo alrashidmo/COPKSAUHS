@@ -1824,8 +1824,8 @@ class App {
         
         editorContent.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h2>${course.code} � ${course.name}</h2>
-                <button id="closeEditor" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">?</button>
+                <h2>${course.code} — ${course.name}</h2>
+                <button id="closeEditor" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#666;">✕</button>
             </div>
             
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
@@ -1891,52 +1891,44 @@ class App {
         });
         
         // Save button
-        document.getElementById('saveCourse').addEventListener('click', () => {
-            const updatedCourse = {
-                ...course,
-                name: document.getElementById('editName').value,
-                eval: {
-                    ...course.eval,
-                    overall: [
-                        parseFloat(document.getElementById('evalScore0').value),
-                        parseFloat(document.getElementById('evalScore1').value),
-                        parseFloat(document.getElementById('evalScore2').value)
-                    ],
-                    benchmark: parseFloat(document.getElementById('editBenchmark').value),
-                    teaching: course.eval.teaching,
-                    assessment: course.eval.assessment,
-                    resources: course.eval.resources,
-                    outcomes: course.eval.outcomes,
-                    years: course.eval.years
-                },
-                passRates: {
-                    ...course.passRates,
-                    values: [
-                        parseInt(document.getElementById('passRate0').value),
-                        parseInt(document.getElementById('passRate1').value),
-                        parseInt(document.getElementById('passRate2').value)
-                    ],
-                    benchmark: course.passRates.benchmark
-                },
-                comments: {
-                    strengths: document.getElementById('editStrengths').value.split('\\n').filter(s => s.trim()),
-                    improvement: document.getElementById('editImprovement').value.split('\\n').filter(s => s.trim())
-                }
-            };
-            
-            // Update the course in data
+        document.getElementById('saveCourse').addEventListener('click', async () => {
+            const btn = document.getElementById('saveCourse');
+            btn.disabled = true; btn.textContent = '💾 Saving...';
+
+            const years = course.eval.years || ['2023','2024','2025'];
+            const strengths = document.getElementById('editStrengths').value.split('\n').filter(s=>s.trim());
+            const improvements = document.getElementById('editImprovement').value.split('\n').filter(s=>s.trim());
+
+            const sb = window.SupabaseAuth?.supabase;
+            if (sb) {
+                try {
+                    const rows = years.map((y, i) => ({
+                        course_code: course.code,
+                        academic_year: y,
+                        rating_overall: parseFloat(document.getElementById('evalScore'+i)?.value) || null,
+                        pass_rate: parseFloat(document.getElementById('passRate'+i)?.value) || null,
+                        strengths: i === years.length-1 ? strengths : undefined,
+                        improvements: i === years.length-1 ? improvements : undefined
+                    }));
+                    for (const row of rows) {
+                        await sb.from('course_year_data').upsert(row, { onConflict: 'course_code,academic_year' });
+                    }
+                    const benchmark = parseFloat(document.getElementById('editBenchmark').value);
+                    if (!isNaN(benchmark)) {
+                        await sb.from('academic_courses').update({ benchmark_eval: benchmark }).eq('code', course.code);
+                    }
+                } catch(e) { alert('Save error: ' + e.message); btn.disabled=false; btn.textContent='💾 Save Changes'; return; }
+            }
+
+            // Also update local mock object as fallback
             const programCourses = this.academicPrograms.coursesByProgram[programId];
             const idx = programCourses.findIndex(c => c.code === course.code);
             if (idx >= 0) {
-                programCourses[idx] = updatedCourse;
+                programCourses[idx] = { ...course, comments: { strengths, improvement: improvements } };
             }
-            
-            // Save to localStorage
-            this.save();
-            
-            // Close modal and refresh
+
             editorModal.remove();
-            alert('? Course updated successfully!');
+            alert('✅ Course updated successfully!');
             this.renderAcademicOverview();
         });
         
@@ -1947,7 +1939,7 @@ class App {
     }
 
     // --- Academic Overview Render ---
-    renderAcademicOverview() {
+    async renderAcademicOverview() {
         const program = this._getSelectedProgram();
         const courses = this.academicPrograms.coursesByProgram[program.id] || [];
         if (!courses.length) {
@@ -1955,143 +1947,243 @@ class App {
             this.root.innerHTML = '<div class="card"><p>No courses available.</p></div>';
             return;
         }
-        const courseMetaOrObj = this._getSelectedCourse();
-        const course = courseMetaOrObj && courseMetaOrObj.eval ? courseMetaOrObj : this._buildCourseFromMeta(courseMetaOrObj);
 
-        this.title.innerHTML = `Program Overview � ${program.name}`;
+        this.title.textContent = `Program Overview — ${program.name}`;
+        this.root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2.5rem;">⏳</div><p>Loading program data...</p></div>';
 
-        // Compute alerts across program
+        const sb = window.SupabaseAuth?.supabase;
+        let allYearData = [], selectedCourseClos = [], selectedCloAchievement = [];
+        const selectedCode = this.academicState.courseCode || courses[0]?.code;
+
+        if (sb) {
+            try {
+                const [yearRes, closRes, achievRes] = await Promise.all([
+                    sb.from('course_year_data').select('*').in('course_code', courses.map(c => c.code)),
+                    sb.from('course_clos').select('*').eq('course_code', selectedCode),
+                    sb.from('clo_achievement').select('*').eq('course_code', selectedCode)
+                ]);
+                if (!yearRes.error && yearRes.data) allYearData = yearRes.data;
+                if (!closRes.error && closRes.data) selectedCourseClos = closRes.data;
+                if (!achievRes.error && achievRes.data) selectedCloAchievement = achievRes.data;
+            } catch(e) { console.warn('Academic data load error:', e); }
+        }
+
+        const selectedMeta = courses.find(c => c.code === selectedCode);
+        const course = this._buildCourseFromDb(selectedCode, selectedMeta, allYearData, selectedCourseClos, selectedCloAchievement);
         const attention = this._computeProgramAlerts(program.id);
 
+        // KPIs
+        const latestYear = '2025';
+        const latestData = allYearData.filter(d => d.academic_year === latestYear);
+        const ratings = courses.map(c => {
+            const db = latestData.find(d => d.course_code === c.code);
+            const mock = courses.find(m => m.code === c.code);
+            return db?.rating_overall ?? mock?.eval?.overall?.[2] ?? null;
+        }).filter(r => r !== null);
+        const avgRating = ratings.length ? (ratings.reduce((a,b) => a+b,0)/ratings.length).toFixed(1) : '—';
+        const belowBenchmark = courses.filter(c => {
+            const db = latestData.find(d => d.course_code === c.code);
+            const mock = courses.find(m => m.code === c.code);
+            const r = db?.rating_overall ?? mock?.eval?.overall?.[2];
+            return r && r < (mock?.eval?.benchmark || 4.0);
+        }).length;
+
+        // Group by year level
+        const groups = {'Year 1':[],'Year 2':[],'Year 3':[],'Year 4+':[]};
+        courses.forEach(c => {
+            const n = parseInt(c.code.replace(/\D/g,''));
+            if (n < 200) groups['Year 1'].push(c);
+            else if (n < 300) groups['Year 2'].push(c);
+            else if (n < 400) groups['Year 3'].push(c);
+            else groups['Year 4+'].push(c);
+        });
+
+        const groupedOptions = Object.entries(groups).filter(([,cs])=>cs.length).map(([label,cs]) =>
+            `<optgroup label="${label}">${cs.map(c=>`<option value="${c.code}" ${c.code===selectedCode?'selected':''}>${c.code} — ${c.name}</option>`).join('')}</optgroup>`
+        ).join('');
+
+        const healthChips = Object.entries(groups).filter(([,cs])=>cs.length).map(([label,cs]) => {
+            const chips = cs.map(c => {
+                const db = latestData.find(d => d.course_code === c.code);
+                const r = db?.rating_overall ?? c.eval?.overall?.[2];
+                const bench = c.eval?.benchmark || 4.0;
+                const [col,bg] = !r ? ['#aaa','#f5f5f5'] : r>=bench ? ['#2e7d32','#e8f5e9'] : r>=bench-0.3 ? ['#e65100','#fff3e0'] : ['#c62828','#ffebee'];
+                const isSel = c.code === selectedCode;
+                return `<span onclick="window.app.selectAcademicCourse('${c.code}')" title="${c.name}" style="cursor:pointer;display:inline-block;padding:5px 11px;border-radius:8px;font-size:0.78rem;font-weight:700;background:${bg};color:${col};border:2px solid ${isSel?'#1B5E20':col};margin:3px;white-space:nowrap;">${c.code} ${r?Number(r).toFixed(1):'—'}</span>`;
+            }).join('');
+            return `<div style="margin-bottom:8px;"><span style="font-size:0.7rem;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:0.05em;margin-right:8px;">${label}</span>${chips}</div>`;
+        }).join('');
+
         this.root.innerHTML = `
-            <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1rem;">
-                <div class="card" style="display:flex; gap: 1rem; align-items:center; flex-wrap: wrap; justify-content: space-between;">
-                    <div style="display:flex; gap: 1rem; flex-wrap: wrap;">
-                        <div>
-                            <label style="font-size:0.9rem; color:#666;">Program</label><br>
-                            <select id="programSelect" class="btn btn-outline" style="min-width:260px;">
-                                ${this.academicPrograms.programs.filter(p => p.id === 'pharmd').map(p => `<option value="${p.id}" ${p.id===program.id?'selected':''}>${p.name}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div>
-                            <label style="font-size:0.9rem; color:#666;">Course</label><br>
-                            <select id="courseSelect" class="btn btn-outline" style="min-width:280px;">
-                                ${courses.map(c => `<option value="${c.code}" ${c.code===course.code?'selected':''}>${c.code} � ${c.name}</option>`).join('')}
-                            </select>
-                        </div>
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+
+            <!-- Header bar -->
+            <div class="card" style="display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap;justify-content:space-between;padding:1rem 1.25rem;">
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;align-items:flex-end;">
+                    <div>
+                        <label style="font-size:0.75rem;color:#999;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Program</label>
+                        <select id="programSelect" class="btn btn-outline" style="min-width:220px;">
+                            ${this.academicPrograms.programs.filter(p=>p.id==='pharmd').map(p=>`<option value="${p.id}" ${p.id===program.id?'selected':''}>${p.name}</option>`).join('')}
+                        </select>
                     </div>
                     <div>
-                        <button id="editCenterBtn" class="btn" style="background:#4CAF50; color:white; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;">✏️ Edit Center</button>
+                        <label style="font-size:0.75rem;color:#999;font-weight:700;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Course</label>
+                        <select id="courseSelect" class="btn btn-outline" style="min-width:320px;">${groupedOptions}</select>
                     </div>
                 </div>
+                <button id="editCenterBtn" style="background:#1B5E20;color:white;border:none;padding:9px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.88rem;">✏️ Edit Center</button>
+            </div>
 
-                <!-- Section 3: Course Evaluation -->
-                <div class="card">
-                    <div class="flex-between"><h3>📊 3. Course Evaluation</h3><span style="color:#888; font-size:0.9rem;">Quantitative + Qualitative</span></div>
-                    <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 1rem;">
-                        <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4 style="text-align:center;">Overall Rating � 3-year Trend vs Benchmark</h4>
-                            <div style="height:260px;">
-                                <canvas id="evalTrendChart"></canvas>
-                            </div>
+            <!-- KPI Strip -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+                ${[
+                    {v:courses.length, label:'Total Courses', col:'#1B5E20'},
+                    {v:avgRating, label:`Avg Rating (${latestYear})`, col:'#1565C0'},
+                    {v:belowBenchmark, label:'Below Benchmark', col:belowBenchmark>0?'#c62828':'#2e7d32'},
+                    {v:attention.length, label:'Program Alerts', col:attention.length>0?'#e65100':'#2e7d32'}
+                ].map(k=>`<div class="card" style="text-align:center;padding:1.25rem 0.5rem;">
+                    <div style="font-size:2rem;font-weight:800;color:${k.col};">${k.v}</div>
+                    <div style="font-size:0.75rem;color:#999;margin-top:3px;">${k.label}</div>
+                </div>`).join('')}
+            </div>
+
+            <!-- Program Health Overview -->
+            <div class="card" style="padding:1.2rem;">
+                <h3 style="margin:0 0 0.75rem 0;font-size:0.88rem;font-weight:700;color:#555;">Program Health
+                    <span style="font-weight:400;font-size:0.75rem;color:#bbb;margin-left:8px;">Click any course to view details &nbsp;|&nbsp; Green = at/above benchmark · Orange = within 0.3 · Red = below · Gray = no data</span>
+                </h3>
+                ${healthChips}
+            </div>
+
+            <!-- Selected Course Detail -->
+            <div style="border-top:3px solid #e8f5e9;padding-top:1.25rem;">
+                <div style="font-size:0.72rem;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Selected Course</div>
+                <h3 style="margin:0 0 1.25rem 0;color:#1B5E20;font-weight:800;font-size:1.1rem;">${selectedCode} — ${selectedMeta?.name||''}</h3>
+
+                <!-- 1. Evaluation -->
+                <div class="card" style="margin-bottom:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                        <h3 style="margin:0;">📊 1. Course Evaluation</h3>
+                        <span style="color:#999;font-size:0.85rem;">Quantitative + Qualitative</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
+                        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+                            <h4 style="text-align:center;margin:0 0 0.5rem 0;">Overall Rating — 3-year Trend vs Benchmark</h4>
+                            <div style="height:220px;"><canvas id="evalTrendChart"></canvas></div>
                         </div>
-                        <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4 style="text-align:center;">Latest Year Metrics</h4>
-                            <div style="height:220px;">
-                                <canvas id="evalBarsChart"></canvas>
-                            </div>
+                        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+                            <h4 style="text-align:center;margin:0 0 0.5rem 0;">Latest Year Metrics</h4>
+                            <div style="height:200px;"><canvas id="evalBarsChart"></canvas></div>
                         </div>
                     </div>
-                    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top:1rem;">
-                        <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4>Qualitative Themes � Strengths</h4>
-                            <ul style="margin-top:0.5rem; color:#2e7d32;">
-                                ${course.comments.strengths.map(t => `<li>� ${t}</li>`).join('')}
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+                            <h4 style="margin:0 0 0.5rem 0;">Qualitative Themes — Strengths</h4>
+                            <ul style="margin:0;padding-left:1.2rem;color:#2e7d32;">
+                                ${course.comments.strengths.length ? course.comments.strengths.map(t=>`<li>${t}</li>`).join('') : '<li style="color:#bbb;list-style:none;padding-left:0;">No data entered yet</li>'}
                             </ul>
                         </div>
-                        <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                            <h4>Qualitative Themes � Areas for Improvement</h4>
-                            <ul style="margin-top:0.5rem; color:#c62828;">
-                                ${course.comments.improvement.map(t => `<li>� ${t}</li>`).join('')}
+                        <div class="card" style="box-shadow:none;border:1px solid #eee;">
+                            <h4 style="margin:0 0 0.5rem 0;">Qualitative Themes — Areas for Improvement</h4>
+                            <ul style="margin:0;padding-left:1.2rem;color:#c62828;">
+                                ${course.comments.improvement.length ? course.comments.improvement.map(t=>`<li>${t}</li>`).join('') : '<li style="color:#bbb;list-style:none;padding-left:0;">No data entered yet</li>'}
                             </ul>
-                            <div style="font-size:0.8rem; color:#888; margin-top:0.5rem;">ℹ️ No raw comments � only categorized themes.</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section 5: Learning Outcomes (CLO Mapping) -->
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                        <h3>🎯 5. Learning Outcomes (CLO Mapping)</h3>
-                        <button id="cloEditToggle" class="btn btn-outline" style="border:1px solid #2196F3; color:#0D47A1;">
-                            ${this.academicPrograms.cloEditMode ? '💾 Save & Exit Edit Mode' : '✏️ Edit CLO Mapping'}
-                        </button>
+                <!-- 2. CLO -->
+                <div class="card" style="margin-bottom:1rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                        <h3 style="margin:0;">🎯 2. Learning Outcomes (CLO Mapping)</h3>
+                        <button id="cloEditToggle" class="btn btn-outline" style="border:1px solid #2196F3;color:#0D47A1;">${this.academicPrograms.cloEditMode?'💾 Save & Exit Edit Mode':'✏️ Edit CLO Mapping'}</button>
                     </div>
-                    <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap:1rem;">
-                        <div>
-                            <div style="overflow:auto;">
-                                ${this._renderCLOHeatmap(course)}
-                            </div>
-                        </div>
-                        <div>
-                            ${this._renderCLOInsights(course)}
-                        </div>
+                    <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
+                        <div style="overflow:auto;">${this._renderCLOHeatmap(course)}</div>
+                        <div>${this._renderCLOInsights(course)}</div>
                     </div>
                 </div>
 
-                <!-- Section 8: Trends & Alerts -->
+                <!-- 3. Alerts -->
                 <div class="card">
-                    <h3 style="margin-bottom:1rem;">📈 8. Trends & Alerts</h3>
+                    <h3 style="margin:0 0 1rem 0;">📈 3. Trends & Alerts</h3>
                     ${this._renderAlertsAttractive(program.id, course, attention)}
                 </div>
             </div>
-        `;
+        </div>`;
 
-        // Wire up selects
-        document.getElementById('programSelect').addEventListener('change', (e) => {
+        document.getElementById('programSelect').addEventListener('change', e => {
             const pid = e.target.value;
-            const firstCourse = this.academicPrograms.coursesByProgram[pid]?.[0];
             this.academicState.programId = pid;
-            this.academicState.courseCode = firstCourse ? firstCourse.code : '';
+            this.academicState.courseCode = this.academicPrograms.coursesByProgram[pid]?.[0]?.code || '';
             this.renderAcademicOverview();
         });
-        document.getElementById('courseSelect').addEventListener('change', (e) => {
+        document.getElementById('courseSelect').addEventListener('change', e => {
             this.academicState.courseCode = e.target.value;
             this.renderAcademicOverview();
         });
-        
-        // Edit Center button
-        document.getElementById('editCenterBtn').addEventListener('click', () => {
-            this.showEditCenter(program.id);
-        });
-
-        // CLO Edit Toggle button
+        document.getElementById('editCenterBtn').addEventListener('click', () => this.showCourseEditor(course, program.id, null));
         document.getElementById('cloEditToggle').addEventListener('click', () => {
             this.academicPrograms.cloEditMode = !this.academicPrograms.cloEditMode;
             this.renderAcademicOverview();
         });
-
-        // CLO mapping inputs (if in edit mode)
         if (this.academicPrograms.cloEditMode) {
             document.querySelectorAll('.clo-plo-input').forEach(inp => {
-                inp.addEventListener('change', (e) => {
-                    const clo = e.target.dataset.clo;
-                    const values = e.target.value.split(',').map(v => v.trim()).filter(v => v);
-                    course.clo.ploMap[clo] = values;
-                });
+                inp.addEventListener('change', e => { course.clo.ploMap[e.target.dataset.clo] = e.target.value.split(',').map(v=>v.trim()).filter(v=>v); });
             });
-            
             document.querySelectorAll('.clo-nqf-input').forEach(inp => {
-                inp.addEventListener('change', (e) => {
-                    const clo = e.target.dataset.clo;
-                    const values = e.target.value.split(',').map(v => v.trim()).filter(v => v);
-                    course.clo.nqfMap[clo] = values;
-                });
+                inp.addEventListener('change', e => { course.clo.nqfMap[e.target.dataset.clo] = e.target.value.split(',').map(v=>v.trim()).filter(v=>v); });
             });
         }
-
-        // Charts
         this._renderEvalCharts(course);
+    }
+
+    selectAcademicCourse(code) {
+        this.academicState.courseCode = code;
+        this.renderAcademicOverview();
+    }
+
+    _buildCourseFromDb(code, meta, allYearData, clos, achievement) {
+        const years = ['2023','2024','2025'];
+        const fallback = meta?.eval ? meta : this._buildCourseFromMeta(meta || {code, name: code});
+        const dbRows = years.map(y => allYearData.find(d => d.course_code === code && d.academic_year === y));
+        const hasReal = dbRows.some(r => r?.rating_overall != null);
+        if (!hasReal) return fallback;
+
+        const pick = (key, fb) => dbRows.map((r,i) => r?.[key] ?? fb?.[i]).filter(v => v != null);
+        const overall    = pick('rating_overall',    fallback.eval.overall);
+        const teaching   = pick('rating_teaching',   fallback.eval.teaching);
+        const assessment = pick('rating_assessment', fallback.eval.assessment);
+        const resources  = pick('rating_resources',  fallback.eval.resources);
+        const outcomes   = pick('rating_outcomes',   fallback.eval.outcomes);
+        const passVals   = pick('pass_rate',         fallback.passRates.values);
+
+        const latestWithComments = [...dbRows].reverse().find(r => r?.strengths?.length);
+        const strengths    = latestWithComments?.strengths    ?? fallback.comments.strengths;
+        const improvement  = latestWithComments?.improvements ?? fallback.comments.improvement;
+
+        const cloList = clos.length ? [...new Set(clos.map(c=>c.clo_label))].sort() : fallback.clo.list;
+        const cloAch = {};
+        years.forEach((y, yi) => {
+            const fbAch = fallback.clo.achievement[y] || [];
+            cloAch[y] = cloList.map((lbl,i) => {
+                const a = achievement.find(a => a.clo_label===lbl && a.academic_year===y);
+                return a?.achievement_pct ?? fbAch[i] ?? 75;
+            });
+        });
+        const ploMap = {};
+        if (clos.length) clos.forEach(c => { ploMap[c.clo_label] = c.plo_mappings || []; });
+        else Object.assign(ploMap, fallback.clo.ploMap);
+
+        const n = overall.length;
+        return {
+            ...fallback,
+            code, name: meta?.name || fallback.name,
+            eval: { years: years.slice(0,n), overall, teaching, assessment, resources, outcomes, benchmark: meta?.eval?.benchmark || 4.0 },
+            passRates: { years: years.slice(0,passVals.length), values: passVals, benchmark: meta?.passRates?.benchmark || 85 },
+            clo: { list: cloList, achievement: cloAch, ploMap, nqfMap: fallback.clo.nqfMap || {}, benchmark: fallback.clo.benchmark || 75 },
+            comments: { strengths, improvement }
+        };
     }
 
     // Build deterministic course metrics from metadata
