@@ -1789,10 +1789,10 @@ async function renderRotationPreferences() {
             const siteName = (s.site_name || '').replace(/'/g, "\\'");
             const specialty = (s.specialty || '').replace(/'/g, "\\'");
             return `
-            <div data-site-card="${s.id}" style="background:white;border:2px solid ${isSel ? '#a5d6a7' : '#e0e0e0'};border-radius:10px;padding:1.2rem;transition:border-color 0.2s;">
+            <div data-site-card="${s.id}" onclick="window.rotStudent.previewRotation(${s.id},'${specialty}','${siteName}')" style="background:white;border:2px solid ${isSel ? '#a5d6a7' : '#e0e0e0'};border-radius:10px;padding:1.2rem;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="if(!this.style.outline)this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
                 <div style="font-weight:700;color:#1a1a1a;margin-bottom:0.4rem;font-size:0.92rem;line-height:1.35;">${s.site_name}</div>
                 <div style="font-size:0.8rem;color:#1B5E20;background:#e8f5e9;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:0.9rem;">${s.specialty || '—'}</div>
-                <div><button data-site-btn="${s.id}" onclick="window.rotStudent.addToPref(${s.id},'${siteName}','${specialty}')" ${isSel ? 'disabled' : ''} style="width:100%;padding:6px;border:none;border-radius:6px;cursor:${isSel ? 'default' : 'pointer'};font-weight:600;font-size:0.83rem;background:${isSel ? '#e8f5e9' : '#1B5E20'};color:${isSel ? '#2e7d32' : 'white'};transition:all 0.15s;">${isSel ? '✓ Added' : '+ Add to Preferences'}</button></div>
+                <div><button data-site-btn="${s.id}" onclick="event.stopPropagation();window.rotStudent.addToPref(${s.id},'${siteName}','${specialty}')" ${isSel ? 'disabled' : ''} style="width:100%;padding:6px;border:none;border-radius:6px;cursor:${isSel ? 'default' : 'pointer'};font-weight:600;font-size:0.83rem;background:${isSel ? '#e8f5e9' : '#1B5E20'};color:${isSel ? '#2e7d32' : 'white'};transition:all 0.15s;">${isSel ? '✓ Added' : '+ Add to Preferences'}</button></div>
             </div>`;
         }).join('');
 
@@ -1835,8 +1835,19 @@ async function renderRotationPreferences() {
                     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.85rem;">${siteCards}</div>
                 </div>
 
-                <!-- Preferences Panel -->
-                <div style="position:sticky;top:1rem;">
+                <!-- Right Column: Eval Preview + Preferences -->
+                <div style="position:sticky;top:1rem;display:flex;flex-direction:column;gap:1rem;">
+
+                    <!-- Evaluation Preview -->
+                    <div id="rot-eval-container" style="background:#f8f9fa;border-radius:12px;padding:1.25rem;border:2px solid #e0e0e0;">
+                        <div style="text-align:center;padding:1.5rem 0.5rem;color:#ccc;">
+                            <div style="font-size:2rem;margin-bottom:0.4rem;">⭐</div>
+                            <div style="font-size:0.72rem;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem;">Evaluation Preview</div>
+                            <p style="margin:0;font-size:0.8rem;">Click any rotation card to see<br>3 years of student evaluations.</p>
+                        </div>
+                    </div>
+
+                    <!-- Preferences Panel -->
                     <div style="background:#f8f9fa;border-radius:12px;padding:1.25rem;border:2px solid ${_rotPrefList.length > 0 ? '#a5d6a7' : '#e0e0e0'};">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
                             <h3 style="margin:0;color:#333;font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">My Preferences</h3>
@@ -1856,6 +1867,126 @@ async function renderRotationPreferences() {
                 </div>
             </div>
         </div>`;
+}
+
+function _ratingBar(label, value, color) {
+    if (!value) return '';
+    color = color || '#1B5E20';
+    const pct = Math.min(100, (value / 5) * 100);
+    return `<div style="margin-bottom:0.55rem;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+            <span style="font-size:0.78rem;color:#555;">${label}</span>
+            <span style="font-size:0.78rem;font-weight:700;color:#333;">${Number(value).toFixed(1)}</span>
+        </div>
+        <div style="background:#e0e0e0;border-radius:4px;height:5px;overflow:hidden;">
+            <div style="width:${pct}%;background:${color};height:100%;border-radius:4px;"></div>
+        </div>
+    </div>`;
+}
+
+async function renderRotEvalPanel(specialty, displayName) {
+    const container = document.getElementById('rot-eval-container');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#aaa;font-size:0.85rem;">Loading evaluations...</div>';
+    try {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { container.innerHTML = '<div style="padding:1rem;color:#aaa;font-size:0.85rem;text-align:center;">Not connected.</div>'; return; }
+        const [histRes, indivRes] = await Promise.all([
+            sb.from('rotation_eval_history').select('*').eq('specialty', specialty).order('academic_year', { ascending: false }),
+            sb.from('rotation_evaluations').select('rating_overall,rating_learning,rating_preceptor,rating_career,workload_level,would_recommend,highlight').eq('specialty', specialty)
+        ]);
+        const history = (!histRes.error && histRes.data) ? histRes.data : [];
+        const indiv = (!indivRes.error && indivRes.data) ? indivRes.data : [];
+
+        if (history.length === 0 && indiv.length === 0) {
+            container.innerHTML = `<div style="text-align:center;padding:1.5rem 1rem;">
+                <div style="font-size:1.8rem;margin-bottom:0.4rem;">📊</div>
+                <div style="font-weight:700;color:#333;font-size:0.9rem;margin-bottom:0.25rem;">${displayName}</div>
+                <p style="color:#bbb;font-size:0.8rem;margin:0;">No evaluation data yet.</p>
+            </div>`;
+            return;
+        }
+
+        const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+        const vals = k => indiv.map(r => r[k]).filter(v => v !== null && v !== undefined);
+        const aggOverall = avg(vals('rating_overall'));
+        const aggLearning = avg(vals('rating_learning'));
+        const aggPreceptor = avg(vals('rating_preceptor'));
+        const aggCareer = avg(vals('rating_career'));
+        const recs = indiv.map(r => r.would_recommend).filter(v => v !== null && v !== undefined);
+        const aggRecommend = recs.length ? Math.round(recs.filter(Boolean).length / recs.length * 100) : null;
+
+        const latest = history[0];
+        const overallRating = aggOverall || latest?.avg_overall;
+        const learningRating = aggLearning || latest?.avg_learning;
+        const preceptorRating = aggPreceptor || latest?.avg_preceptor;
+        const careerRating = aggCareer || latest?.avg_career;
+        const recommendPct = aggRecommend !== null ? aggRecommend : latest?.recommend_pct;
+        const totalStudents = indiv.length + history.reduce((a, b) => a + (b.total_students || 0), 0);
+
+        const allWorkloads = [...history.map(h => h.workload_level), ...indiv.map(r => r.workload_level)].filter(Boolean);
+        const workloadMode = allWorkloads.length ? allWorkloads.sort((a, b) => allWorkloads.filter(v => v === b).length - allWorkloads.filter(v => v === a).length)[0] : null;
+        const workloadColor = { 'Light': '#4caf50', 'Moderate': '#ff9800', 'Heavy': '#f44336', 'Very Heavy': '#b71c1c' };
+
+        const highlights = [];
+        history.forEach(h => { if (h.highlight_1) highlights.push(h.highlight_1); if (h.highlight_2) highlights.push(h.highlight_2); if (h.highlight_3) highlights.push(h.highlight_3); });
+        indiv.forEach(r => { if (r.highlight) highlights.push(r.highlight); });
+        const uniqueHighlights = [...new Set(highlights)].slice(0, 3);
+
+        const yearRows = history.map(h => `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0;border-bottom:1px solid #f0f0f0;">
+            <span style="font-size:0.75rem;color:#666;font-weight:600;">${h.academic_year}</span>
+            <div style="display:flex;gap:0.35rem;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+                <span style="color:#f59e0b;font-size:0.78rem;">${h.avg_overall ? '★ ' + Number(h.avg_overall).toFixed(1) : '—'}</span>
+                <span style="font-size:0.7rem;color:#aaa;">${h.total_students || 0} students</span>
+                ${h.recommend_pct ? `<span style="font-size:0.68rem;background:#e8f5e9;color:#2e7d32;padding:1px 5px;border-radius:8px;">${h.recommend_pct}% rec.</span>` : ''}
+            </div>
+        </div>`).join('');
+
+        container.innerHTML = `<div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.65rem;">
+                <div>
+                    <div style="font-size:0.68rem;color:#aaa;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Evaluation Preview</div>
+                    <div style="font-weight:700;color:#1a1a1a;font-size:0.9rem;margin-top:1px;">${displayName}</div>
+                </div>
+                ${overallRating ? `<div style="text-align:center;background:linear-gradient(135deg,#1B5E20,#2e7d32);color:white;border-radius:8px;padding:0.35rem 0.65rem;min-width:44px;">
+                    <div style="font-size:1.2rem;font-weight:700;line-height:1;">${Number(overallRating).toFixed(1)}</div>
+                    <div style="font-size:0.6rem;opacity:0.8;">/ 5.0</div>
+                </div>` : ''}
+            </div>
+
+            ${totalStudents > 0 ? `<div style="font-size:0.72rem;color:#aaa;margin-bottom:0.65rem;">${totalStudents} students evaluated · ${history.length} year${history.length !== 1 ? 's' : ''} of data</div>` : ''}
+
+            ${overallRating || learningRating || preceptorRating || careerRating ? `<div style="margin-bottom:0.75rem;">
+                ${_ratingBar('Overall', overallRating)}
+                ${_ratingBar('Learning Quality', learningRating, '#1565C0')}
+                ${_ratingBar('Preceptor Quality', preceptorRating, '#6a1b9a')}
+                ${_ratingBar('Career Relevance', careerRating, '#e65100')}
+            </div>` : ''}
+
+            <div style="display:flex;gap:0.4rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+                ${recommendPct !== null ? `<div style="flex:1;min-width:72px;background:#e8f5e9;border-radius:8px;padding:0.5rem;text-align:center;">
+                    <div style="font-size:1.05rem;font-weight:700;color:#1B5E20;">${recommendPct}%</div>
+                    <div style="font-size:0.65rem;color:#666;">Would Recommend</div>
+                </div>` : ''}
+                ${workloadMode ? `<div style="flex:1;min-width:72px;background:#f5f5f5;border-radius:8px;padding:0.5rem;text-align:center;">
+                    <div style="font-size:0.8rem;font-weight:700;color:${workloadColor[workloadMode] || '#666'};">⚡ ${workloadMode}</div>
+                    <div style="font-size:0.65rem;color:#888;">Workload</div>
+                </div>` : ''}
+            </div>
+
+            ${uniqueHighlights.length > 0 ? `<div style="margin-bottom:0.75rem;">
+                <div style="font-size:0.68rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.35rem;">Student Highlights</div>
+                ${uniqueHighlights.map(h => `<div style="display:inline-flex;align-items:center;gap:3px;background:#fff8e1;border:1px solid #ffe082;color:#e65100;font-size:0.72rem;padding:2px 8px;border-radius:10px;margin:2px 2px 2px 0;">✨ ${h}</div>`).join('')}
+            </div>` : ''}
+
+            ${yearRows ? `<div>
+                <div style="font-size:0.68rem;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:0.35rem;">Year-by-Year</div>
+                ${yearRows}
+            </div>` : ''}
+        </div>`;
+    } catch (e) {
+        container.innerHTML = '<div style="padding:1rem;color:#aaa;font-size:0.82rem;text-align:center;">Could not load evaluations.</div>';
+    }
 }
 
 function _renderRotPrefPanel() {
@@ -1911,6 +2042,20 @@ function _updateRotSiteButtons() {
 }
 
 window.rotStudent = {
+    previewRotation(siteId, specialty, displayName) {
+        // Highlight selected card
+        document.querySelectorAll('[data-site-card]').forEach(c => {
+            c.style.outline = '';
+            c.style.boxShadow = '';
+        });
+        const card = document.querySelector('[data-site-card="' + siteId + '"]');
+        if (card) { card.style.outline = '2px solid #1B5E20'; card.style.boxShadow = '0 4px 14px rgba(27,94,32,0.18)'; }
+        // Update eval container border
+        const container = document.getElementById('rot-eval-container');
+        if (container) container.style.border = '2px solid #a5d6a7';
+        renderRotEvalPanel(specialty, displayName);
+    },
+
     addToPref(siteId, siteName, specialty) {
         if (_rotPrefList.length >= 20) { alert('Maximum 20 preferences allowed.'); return; }
         if (_rotPrefList.find(p => p.site_id === siteId)) return;

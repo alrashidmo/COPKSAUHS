@@ -10319,6 +10319,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <button id="tab-btn-sites" onclick="window.rotAdmin.switchTab('sites')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid #1B5E20;margin-bottom:-2px;cursor:pointer;font-weight:700;color:#1B5E20;font-size:0.9rem;">🏥 Sites (${sites.length})</button>
                 <button id="tab-btn-scores" onclick="window.rotAdmin.switchTab('scores')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">📊 Scores (${studentList.length})</button>
                 <button id="tab-btn-assignments" onclick="window.rotAdmin.switchTab('assignments')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">📋 Assignments (${assignedCount}/${studentList.length})</button>
+                <button id="tab-btn-evaluations" onclick="window.rotAdmin.switchTab('evaluations')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">⭐ Evaluations</button>
             </div>
 
             <!-- SITES TAB -->
@@ -10394,6 +10395,11 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         </table>
                     </div>
                 </div>
+            </div>
+
+            <!-- EVALUATIONS TAB -->
+            <div id="rot-tab-evaluations" style="display:none;">
+                <div id="rot-evals-content"><div style="text-align:center;padding:3rem;color:#aaa;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">⭐</div><p>Loading evaluation data...</p></div></div>
             </div>
 
             <!-- ASSIGNMENTS TAB -->
@@ -15060,7 +15066,7 @@ window.deleteResource = async (id) => {
 // ============================================================
 window.rotAdmin = {
     switchTab(tab) {
-        ['sites', 'scores', 'assignments'].forEach(t => {
+        ['sites', 'scores', 'assignments', 'evaluations'].forEach(t => {
             const panel = document.getElementById('rot-tab-' + t);
             const btn = document.getElementById('tab-btn-' + t);
             if (panel) panel.style.display = t === tab ? 'block' : 'none';
@@ -15070,6 +15076,7 @@ window.rotAdmin = {
                 btn.style.fontWeight = t === tab ? '700' : 'normal';
             }
         });
+        if (tab === 'evaluations') window.rotAdmin.loadEvalsTab();
     },
 
     async toggleSubmissions(currentlyOpen) {
@@ -15326,6 +15333,145 @@ window.rotAdmin = {
             a.href = url; a.download = 'rotation-assignments-' + new Date().toISOString().slice(0, 10) + '.csv';
             a.click(); URL.revokeObjectURL(url);
         } catch (e) { alert('Export error: ' + e.message); }
+    },
+
+    async loadEvalsTab() {
+        const container = document.getElementById('rot-evals-content');
+        if (!container) return;
+        container.innerHTML = '<div style="text-align:center;padding:2rem;color:#aaa;">Loading...</div>';
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) { container.innerHTML = '<div style="padding:2rem;color:#aaa;">Not connected.</div>'; return; }
+            const [sitesRes, histRes] = await Promise.all([
+                sb.from('rotation_sites').select('specialty').eq('is_active', true),
+                sb.from('rotation_eval_history').select('*').order('academic_year', { ascending: false })
+            ]);
+            const specialties = [...new Set((sitesRes.data || []).map(s => s.specialty).filter(Boolean))].sort();
+            const history = histRes.data || [];
+            const lookup = {};
+            history.forEach(h => {
+                if (!lookup[h.specialty]) lookup[h.specialty] = {};
+                lookup[h.specialty][h.academic_year] = h;
+            });
+            const years = ['2022-2023', '2023-2024', '2024-2025', '2025-2026'];
+            if (specialties.length === 0) {
+                container.innerHTML = '<div style="padding:2rem;text-align:center;color:#aaa;">No rotation sites found. Add sites first.</div>';
+                return;
+            }
+            const rows = specialties.map(sp => {
+                const sp_esc = sp.replace(/'/g, "\\'");
+                return `<tr style="border-bottom:1px solid #f0f0f0;">
+                    <td style="padding:10px 12px;font-weight:600;color:#1a1a1a;font-size:0.88rem;white-space:nowrap;">${sp}</td>
+                    ${years.map(yr => {
+                        const rec = lookup[sp]?.[yr];
+                        if (rec) {
+                            return `<td style="padding:10px 12px;text-align:center;">
+                                <div style="font-size:0.88rem;font-weight:700;color:#1B5E20;">${rec.avg_overall ? '★ ' + Number(rec.avg_overall).toFixed(1) : '—'}</div>
+                                <div style="font-size:0.72rem;color:#aaa;">${rec.total_students || 0} students</div>
+                                <div style="font-size:0.72rem;color:#888;">${rec.recommend_pct ? rec.recommend_pct + '% rec.' : ''}</div>
+                                <button onclick="window.rotAdmin.showEvalEntry('${sp_esc}','${yr}')" style="margin-top:4px;background:#f5f5f5;border:1px solid #ddd;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.72rem;color:#555;">Edit</button>
+                            </td>`;
+                        } else {
+                            return `<td style="padding:10px 12px;text-align:center;">
+                                <div style="font-size:0.75rem;color:#ccc;margin-bottom:4px;">—</div>
+                                <button onclick="window.rotAdmin.showEvalEntry('${sp_esc}','${yr}')" style="background:#e8f5e9;border:1px solid #a5d6a7;padding:2px 8px;border-radius:4px;cursor:pointer;font-size:0.72rem;color:#1B5E20;font-weight:700;">+ Add</button>
+                            </td>`;
+                        }
+                    }).join('')}
+                </tr>`;
+            }).join('');
+            container.innerHTML = `
+                <div class="card" style="margin-bottom:1.25rem;background:linear-gradient(135deg,#f8fffe,#f0f9f0);border:1px solid #c8e6c9;">
+                    <h3 style="margin:0 0 0.3rem 0;color:#1B5E20;font-size:0.95rem;font-weight:700;">⭐ Cumulative Rotation Evaluations — Admin Data Entry</h3>
+                    <p style="margin:0;color:#666;font-size:0.82rem;">Enter historical aggregate data per specialty per year. Students will also submit individual ratings which appear alongside admin-entered data.</p>
+                </div>
+                <div class="card">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Specialty</th>
+                                ${years.map(y => `<th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">${y}</th>`).join('')}
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="rot-eval-entry-form" style="display:none;margin-top:1.5rem;"></div>`;
+        } catch (e) { container.innerHTML = `<div style="padding:2rem;color:#c62828;">Error: ${e.message}</div>`; }
+    },
+
+    showEvalEntry(specialty, year) {
+        const formContainer = document.getElementById('rot-eval-entry-form');
+        if (!formContainer) return;
+        formContainer.style.display = 'block';
+        formContainer.innerHTML = '<div style="padding:1rem;text-align:center;color:#aaa;">Loading...</div>';
+        formContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        (async () => {
+            try {
+                const sb = window.SupabaseAuth?.supabase;
+                const { data: rec } = await sb.from('rotation_eval_history').select('*').eq('specialty', specialty).eq('academic_year', year).maybeSingle();
+                const v = rec || {};
+                const sp_esc = specialty.replace(/'/g, "\\'");
+                formContainer.innerHTML = `
+                    <div class="card" style="border:2px solid #a5d6a7;">
+                        <h3 style="margin:0 0 1rem 0;color:#1B5E20;font-size:0.95rem;font-weight:700;">📝 Evaluation Data — ${specialty} · ${year}</h3>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem;">
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Total Students</label><input type="number" id="ev-students" min="0" value="${v.total_students || ''}" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Overall Rating (1–5)</label><input type="number" id="ev-overall" min="1" max="5" step="0.01" value="${v.avg_overall || ''}" placeholder="e.g. 4.3" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Learning Quality (1–5)</label><input type="number" id="ev-learning" min="1" max="5" step="0.01" value="${v.avg_learning || ''}" placeholder="e.g. 4.1" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Preceptor Quality (1–5)</label><input type="number" id="ev-preceptor" min="1" max="5" step="0.01" value="${v.avg_preceptor || ''}" placeholder="e.g. 4.5" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Career Relevance (1–5)</label><input type="number" id="ev-career" min="1" max="5" step="0.01" value="${v.avg_career || ''}" placeholder="e.g. 4.0" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Would Recommend %</label><input type="number" id="ev-recommend" min="0" max="100" value="${v.recommend_pct || ''}" placeholder="e.g. 90" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Workload Level</label><select id="ev-workload" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;">
+                                <option value="">— Select —</option>
+                                <option value="Light" ${v.workload_level === 'Light' ? 'selected' : ''}>Light</option>
+                                <option value="Moderate" ${v.workload_level === 'Moderate' ? 'selected' : ''}>Moderate</option>
+                                <option value="Heavy" ${v.workload_level === 'Heavy' ? 'selected' : ''}>Heavy</option>
+                                <option value="Very Heavy" ${v.workload_level === 'Very Heavy' ? 'selected' : ''}>Very Heavy</option>
+                            </select></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1rem;">
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Highlight 1</label><input type="text" id="ev-h1" value="${v.highlight_1 || ''}" placeholder="e.g. Excellent teaching" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Highlight 2</label><input type="text" id="ev-h2" value="${v.highlight_2 || ''}" placeholder="e.g. Great patient exposure" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                            <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Highlight 3</label><input type="text" id="ev-h3" value="${v.highlight_3 || ''}" placeholder="Optional" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                        </div>
+                        <div style="display:flex;gap:0.75rem;align-items:center;">
+                            <button onclick="window.rotAdmin.saveEvalHistory('${sp_esc}','${year}')" style="background:#1B5E20;color:white;border:none;padding:9px 22px;border-radius:7px;cursor:pointer;font-weight:700;font-size:0.9rem;">💾 Save</button>
+                            <button onclick="document.getElementById('rot-eval-entry-form').style.display='none'" style="background:#f5f5f5;border:1px solid #ddd;color:#555;padding:9px 16px;border-radius:7px;cursor:pointer;font-size:0.9rem;">Cancel</button>
+                        </div>
+                    </div>`;
+            } catch (e) { formContainer.innerHTML = `<div style="padding:1rem;color:#c62828;">Error: ${e.message}</div>`; }
+        })();
+    },
+
+    async saveEvalHistory(specialty, year) {
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const g = id => document.getElementById(id)?.value?.trim();
+            const num = id => { const v = parseFloat(g(id)); return isNaN(v) ? null : v; };
+            const int = id => { const v = parseInt(g(id)); return isNaN(v) ? null : v; };
+            const row = {
+                specialty, academic_year: year,
+                total_students: int('ev-students'),
+                avg_overall: num('ev-overall'),
+                avg_learning: num('ev-learning'),
+                avg_preceptor: num('ev-preceptor'),
+                avg_career: num('ev-career'),
+                recommend_pct: int('ev-recommend'),
+                workload_level: g('ev-workload') || null,
+                highlight_1: g('ev-h1') || null,
+                highlight_2: g('ev-h2') || null,
+                highlight_3: g('ev-h3') || null,
+                updated_at: new Date().toISOString()
+            };
+            const { error } = await sb.from('rotation_eval_history').upsert(row, { onConflict: 'specialty,academic_year' });
+            if (error) throw error;
+            const form = document.getElementById('rot-eval-entry-form');
+            if (form) { form.style.background = '#e8f5e9'; setTimeout(() => { form.style.background = ''; form.style.display = 'none'; }, 800); }
+            alert('✅ Evaluation data saved!');
+            window.rotAdmin.loadEvalsTab();
+        } catch (e) { alert('Save error: ' + e.message); }
     }
 };
 
