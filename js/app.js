@@ -2130,7 +2130,7 @@ class App {
                 <!-- 3. Alerts -->
                 <div class="card">
                     <h3 style="margin:0 0 1rem 0;">📈 3. Trends & Alerts</h3>
-                    ${this._renderAlertsAttractive(program.id, course, attention)}
+                    ${this._renderAlertsAttractive(program.id, course, attention, courses, allYearData)}
                 </div>
             </div>
         </div>`;
@@ -2159,6 +2159,7 @@ class App {
             });
         }
         this._renderEvalCharts(course);
+        this._initPassRateTrendChart(courses, allYearData, selectedCode);
     }
 
     selectAcademicCourse(code) {
@@ -3370,47 +3371,193 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         `;
     }
 
-    _renderAlertsAttractive(programId, course, attention) {
-        const flags = this._computeCourseFlags(course);
-        
+    _renderAlertsAttractive(programId, course, attention, courses = [], allYearData = []) {
+        const flags = course.eval ? this._computeCourseFlags(course) : [];
+        const years = ['2023', '2024', '2025'];
+
         const alertIcons = {
             'Declining evaluation (3-year downward)': '📉',
             'Declining evaluation (2-year)': '📉',
             'Pass rate below benchmark': '⚠️',
             'Repeated CLO underachievement': '⚠️'
         };
-        
         const alertColors = {
             'Declining evaluation (3-year downward)': { bg: '#ffebee', border: '#c62828', text: '#c62828' },
             'Declining evaluation (2-year)': { bg: '#fff3e0', border: '#ef6c00', text: '#ef6c00' },
             'Pass rate below benchmark': { bg: '#fff9c4', border: '#f57f17', text: '#f57f17' },
             'Repeated CLO underachievement': { bg: '#fce4ec', border: '#c2185b', text: '#c2185b' }
         };
-        
+
+        const cellColor = (val, benchmark = 3.5) => {
+            if (val == null) return { bg: '#f5f5f5', text: '#bbb', label: '—' };
+            const v = parseFloat(val);
+            if (v >= benchmark)        return { bg: '#e8f5e9', text: '#2e7d32', label: v.toFixed(1) };
+            if (v >= benchmark - 0.3)  return { bg: '#f9fbe7', text: '#558b2f', label: v.toFixed(1) };
+            if (v >= benchmark - 0.5)  return { bg: '#fff3e0', text: '#ef6c00', label: v.toFixed(1) };
+            return                            { bg: '#ffebee', text: '#c62828', label: v.toFixed(1) };
+        };
+
+        const groups = {'Year 1':[],'Year 2':[],'Year 3':[],'Year 4 (APPE)':[]};
+        courses.forEach(c => {
+            const n = parseInt(c.code.replace(/\D/g,''));
+            if      (n < 400) groups['Year 1'].push(c);
+            else if (n < 500) groups['Year 2'].push(c);
+            else if (n < 600) groups['Year 3'].push(c);
+            else              groups['Year 4 (APPE)'].push(c);
+        });
+
+        const heatmapRows = Object.entries(groups).map(([grp, gCourses]) => {
+            const header = `<tr style="background:#e8f5e9;"><td colspan="4" style="padding:0.4rem 0.75rem;font-weight:700;font-size:0.78rem;color:#1B5E20;text-transform:uppercase;letter-spacing:0.04em;">${grp}</td></tr>`;
+            const rows = gCourses.map(c => {
+                const isSel = c.code === course.code;
+                const cells = years.map(y => {
+                    const db = allYearData.find(d => d.course_code === c.code && d.academic_year === y);
+                    const col = cellColor(db?.rating_overall ?? null);
+                    return `<td style="text-align:center;padding:0.3rem 0.6rem;background:${col.bg};color:${col.text};font-weight:600;font-size:0.82rem;border:1px solid #fff;">${col.label}</td>`;
+                }).join('');
+                return `<tr style="${isSel ? 'outline:2px solid #1B5E20;outline-offset:-1px;' : ''}">
+                    <td style="padding:0.3rem 0.75rem;font-size:0.8rem;border-bottom:1px solid #f5f5f5;${isSel ? 'font-weight:700;color:#1B5E20;' : 'color:#444;'}">
+                        <span style="font-family:monospace;font-size:0.74rem;color:#aaa;margin-right:4px;">${c.code}</span>${c.name}
+                    </td>${cells}</tr>`;
+            }).join('');
+            return header + rows;
+        }).join('');
+
         return `
-            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1rem;">
+            <!-- Course-level alerts -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0.75rem;margin-bottom:1.5rem;">
                 ${flags.length ? flags.map(f => {
-                    const style = alertColors[f] || { bg: '#fff3e0', border: '#e65100', text: '#e65100' };
-                    const icon = alertIcons[f] || '⚠️';
-                    return '<div style="background:' + style.bg + '; border-left:4px solid ' + style.border + '; padding:1rem; border-radius:6px; box-shadow:0 2px 4px rgba(0,0,0,0.05);">' +
-                        '<div style="display:flex; align-items:center; gap:0.5rem;">' +
-                            '<span style="font-size:1.5rem;">' + icon + '</span>' +
-                            '<div style="flex:1;">' +
-                                '<div style="font-weight:700; color:' + style.text + '; font-size:0.95rem;">' + f + '</div>' +
-                                '<div style="font-size:0.85rem; color:#666; margin-top:0.25rem;">Course: ' + course.code + ' � ' + course.name + '</div>' +
-                            '</div>' +
-                        '</div>' +
-                    '</div>';
-                }).join('') : '<div style="background:#e8f5e9; border-left:4px solid #2e7d32; padding:1.5rem; border-radius:6px; text-align:center;"><span style="font-size:1.8rem;">?</span><div style="font-weight:700; color:#2e7d32; margin-top:0.5rem;">All Metrics Healthy</div><div style="color:#555; font-size:0.9rem; margin-top:0.25rem;">No alerts for this course</div></div>'}
+                    const s = alertColors[f] || { bg:'#fff3e0', border:'#e65100', text:'#e65100' };
+                    return `<div style="background:${s.bg};border-left:4px solid ${s.border};padding:0.85rem;border-radius:6px;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-size:1.3rem;">${alertIcons[f]||'⚠️'}</span>
+                            <div>
+                                <div style="font-weight:700;color:${s.text};font-size:0.88rem;">${f}</div>
+                                <div style="font-size:0.78rem;color:#666;margin-top:2px;">${course.code} — ${course.name}</div>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('') : `<div style="background:#e8f5e9;border-left:4px solid #2e7d32;padding:0.85rem;border-radius:6px;display:flex;align-items:center;gap:0.75rem;">
+                    <span style="font-size:1.3rem;">✅</span>
+                    <div><div style="font-weight:700;color:#2e7d32;font-size:0.88rem;">All Metrics Healthy</div><div style="font-size:0.78rem;color:#555;margin-top:2px;">No alerts for ${course.code}</div></div>
+                </div>`}
             </div>
-            
-            ${attention.length ? '<div style="margin-top:1.5rem; padding:1rem; background:#f5f5f5; border-radius:6px;"><h4 style="margin:0 0 0.75rem 0; color:#333;">⚠️ Program-Wide Attention Required</h4><div style="display:grid; gap:0.5rem;">' + attention.map(a => 
-                '<div style="background:white; padding:0.75rem; border-radius:4px; border-left:3px solid #ff9800;">' +
-                    '<div style="font-weight:700; color:#333;">' + a.code + ' � ' + a.name + '</div>' +
-                    '<div style="font-size:0.85rem; color:#666; margin-top:0.25rem;">' + a.flags.join(' � ') + '</div>' +
-                '</div>'
-            ).join('') + '</div></div>' : '<div style="margin-top:1.5rem; padding:1rem; background:#f1f8e9; border-radius:6px; text-align:center; border:1px dashed #689f38;"><span style="font-size:1.5rem;">✨</span><div style="font-weight:600; color:#558b2f; margin-top:0.5rem;">Excellent Program Performance</div><div style="color:#666; font-size:0.9rem;">All courses meet benchmarks across the program</div></div>'}
+
+            <!-- Pass Rate Trend Chart -->
+            <div class="card" style="box-shadow:none;border:1px solid #eee;padding:1rem;margin-bottom:1.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;flex-wrap:wrap;gap:0.5rem;">
+                    <h4 style="margin:0;font-size:0.88rem;font-weight:700;">Pass Rate Trends — All Courses (2023–2025)</h4>
+                    <div style="font-size:0.73rem;color:#888;display:flex;gap:1rem;align-items:center;">
+                        <span><span style="display:inline-block;width:18px;height:2px;background:#ccc;vertical-align:middle;margin-right:3px;"></span>Other</span>
+                        <span><span style="display:inline-block;width:18px;height:3px;background:#2e7d32;vertical-align:middle;margin-right:3px;border-radius:2px;"></span>Selected</span>
+                        <span><span style="display:inline-block;width:18px;border-top:2px dashed #e53935;vertical-align:middle;margin-right:3px;"></span>Benchmark 70%</span>
+                    </div>
+                </div>
+                <div style="height:200px;"><canvas id="passRateTrendChart"></canvas></div>
+                ${allYearData.length === 0 ? '<div style="text-align:center;color:#bbb;font-size:0.78rem;margin-top:6px;">Enter pass rate data via Edit Center to populate this chart</div>' : ''}
+            </div>
+
+            <!-- Program-Wide Heatmap -->
+            <div class="card" style="box-shadow:none;border:1px solid #eee;padding:1rem;margin-bottom:1.5rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;flex-wrap:wrap;gap:0.5rem;">
+                    <h4 style="margin:0;font-size:0.88rem;font-weight:700;">Program-Wide Rating Heatmap — Overall Eval Score</h4>
+                    <div style="display:flex;gap:0.4rem;font-size:0.73rem;flex-wrap:wrap;">
+                        <span style="background:#e8f5e9;color:#2e7d32;padding:2px 7px;border-radius:3px;font-weight:600;">≥ 3.5 ✓</span>
+                        <span style="background:#f9fbe7;color:#558b2f;padding:2px 7px;border-radius:3px;font-weight:600;">3.2–3.5</span>
+                        <span style="background:#fff3e0;color:#ef6c00;padding:2px 7px;border-radius:3px;font-weight:600;">3.0–3.2</span>
+                        <span style="background:#ffebee;color:#c62828;padding:2px 7px;border-radius:3px;font-weight:600;">< 3.0</span>
+                        <span style="background:#f5f5f5;color:#bbb;padding:2px 7px;border-radius:3px;font-weight:600;">No data</span>
+                    </div>
+                </div>
+                <div style="overflow:auto;max-height:480px;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                        <thead style="position:sticky;top:0;background:white;z-index:1;">
+                            <tr>
+                                <th style="text-align:left;padding:0.45rem 0.75rem;border-bottom:2px solid #e0e0e0;font-weight:700;color:#333;min-width:200px;">Course</th>
+                                ${years.map(y => `<th style="text-align:center;padding:0.45rem 1rem;border-bottom:2px solid #e0e0e0;font-weight:700;color:#333;">${y}</th>`).join('')}
+                            </tr>
+                        </thead>
+                        <tbody>${heatmapRows}</tbody>
+                    </table>
+                </div>
+                ${allYearData.length === 0 ? '<div style="text-align:center;color:#bbb;font-size:0.78rem;margin-top:8px;">Heatmap populates as you enter data via Edit Center</div>' : ''}
+            </div>
+
+            <!-- Program-wide attention -->
+            ${attention.length ?
+                `<div style="padding:1rem;background:#f5f5f5;border-radius:6px;">
+                    <h4 style="margin:0 0 0.75rem 0;color:#333;font-size:0.88rem;">⚠️ Program-Wide Attention Required</h4>
+                    <div style="display:grid;gap:0.5rem;">
+                        ${attention.map(a => `<div style="background:white;padding:0.65rem 0.75rem;border-radius:4px;border-left:3px solid #ff9800;">
+                            <div style="font-weight:700;color:#333;font-size:0.82rem;">${a.code} — ${a.name}</div>
+                            <div style="font-size:0.78rem;color:#666;margin-top:2px;">${a.flags.join(' · ')}</div>
+                        </div>`).join('')}
+                    </div>
+                </div>` :
+                `<div style="padding:1rem;background:#f1f8e9;border-radius:6px;text-align:center;border:1px dashed #689f38;">
+                    <span style="font-size:1.3rem;">✨</span>
+                    <div style="font-weight:600;color:#558b2f;margin-top:0.5rem;font-size:0.88rem;">Excellent Program Performance</div>
+                    <div style="color:#666;font-size:0.8rem;">All courses meet benchmarks across the program</div>
+                </div>`
+            }
         `;
+    }
+
+    _initPassRateTrendChart(courses, allYearData, selectedCode) {
+        const canvas = document.getElementById('passRateTrendChart');
+        if (!canvas) return;
+        const years = ['2023', '2024', '2025'];
+        const datasets = [];
+
+        courses.forEach(c => {
+            const vals = years.map(y => {
+                const db = allYearData.find(d => d.course_code === c.code && d.academic_year === y);
+                return db?.pass_rate ?? null;
+            });
+            if (vals.every(v => v === null)) return;
+            const isSel = c.code === selectedCode;
+            datasets.push({
+                label: c.code,
+                data: vals,
+                borderColor: isSel ? '#2e7d32' : 'rgba(0,0,0,0.12)',
+                backgroundColor: 'transparent',
+                borderWidth: isSel ? 3 : 1,
+                pointRadius: isSel ? 5 : 2,
+                pointBackgroundColor: isSel ? '#2e7d32' : 'rgba(0,0,0,0.2)',
+                tension: 0.3,
+                spanGaps: true,
+                order: isSel ? 0 : 1,
+            });
+        });
+
+        datasets.push({
+            label: 'Benchmark (70%)',
+            data: [70, 70, 70],
+            borderColor: '#e53935',
+            borderWidth: 2,
+            borderDash: [6, 4],
+            pointRadius: 0,
+            backgroundColor: 'transparent',
+            order: -1,
+        });
+
+        if (window._passRateTrendChartInst instanceof Chart) window._passRateTrendChartInst.destroy();
+        window._passRateTrendChartInst = new Chart(canvas, {
+            type: 'line',
+            data: { labels: years, datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.parsed.y != null ? ctx.parsed.y.toFixed(1) + '%' : '—'}` } }
+                },
+                scales: {
+                    y: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f5f5f5' } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
     }
 
     _computeCourseFlags(course) {
