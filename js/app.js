@@ -10279,7 +10279,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                     <div style="font-size:0.78rem;color:${on?'#2e7d32':'#bbb'};">Block</div>
                                     <div style="font-size:1rem;">${b}</div>
                                     ${on
-                                        ? `<div style="margin-top:4px;" onclick="event.stopPropagation()"><input type="number" min="1" max="10" value="${slots}" onchange="window.rotAdmin.saveBlockCapacity(${s.id},${b},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`
+                                        ? `<div style="margin-top:4px;"><input type="number" min="1" max="10" value="${slots}" onclick="event.stopPropagation()" onchange="event.stopPropagation();window.rotAdmin.saveBlockCapacity(${s.id},${b},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`
                                         : `<div style="font-size:0.72rem;color:#ccc;margin-top:4px;">off</div>`
                                     }
                                 </div>`;
@@ -15139,7 +15139,7 @@ window.rotAdmin = {
             if (error) { alert('Error: ' + error.message); return; }
             chip.dataset.enabled = 'true';
             chip.style.background = '#e8f5e9'; chip.style.border = '2px solid #2e7d32'; chip.style.color = '#1B5E20';
-            chip.innerHTML = `<div style="font-size:0.78rem;color:#2e7d32;">Block</div><div style="font-size:1rem;">${blockNum}</div><div style="margin-top:4px;" onclick="event.stopPropagation()"><input type="number" min="1" max="10" value="1" onchange="window.rotAdmin.saveBlockCapacity(${siteId},${blockNum},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`;
+            chip.innerHTML = `<div style="font-size:0.78rem;color:#2e7d32;">Block</div><div style="font-size:1rem;">${blockNum}</div><div style="margin-top:4px;"><input type="number" min="1" max="10" value="1" onclick="event.stopPropagation()" onchange="event.stopPropagation();window.rotAdmin.saveBlockCapacity(${siteId},${blockNum},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`;
         }
     },
 
