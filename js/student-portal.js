@@ -1658,6 +1658,11 @@ window.StudentPortal = {
         if (pageTitle) pageTitle.textContent = 'Resources';
         renderResources();
     },
+    showRotation: () => {
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = 'My APPE Rotation';
+        renderRotationPreferences();
+    },
     switchUserRole: (role) => {
         currentUserRole = role;
         alert(`Switched to ${role === 'admin' ? 'Admin' : 'Student'} mode`);
@@ -1715,6 +1720,236 @@ async function renderResources() {
             </div>
         </div>`;
 }
+
+// ============================================================
+// RENDER ROTATION PREFERENCES PAGE (Student)
+// ============================================================
+let _rotPrefList = [];
+let _rotCurrentUserId = null;
+let _rotSubmissionsOpen = true;
+
+async function renderRotationPreferences() {
+    const root = document.getElementById('app-root');
+    if (!root) return;
+
+    root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">⏳</div><p>Loading rotation data...</p></div>';
+
+    let sites = [], settings = { submissions_open: true }, assignment = null, savedPrefs = [];
+
+    try {
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb) {
+            const { data: { user } } = await sb.auth.getUser();
+            _rotCurrentUserId = user?.id;
+
+            const [sitesRes, settingsRes, assignRes, prefsRes] = await Promise.all([
+                sb.from('rotation_sites').select('id, site_name, specialty').eq('is_active', true).order('site_name'),
+                sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
+                sb.from('rotation_assignments').select('*, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).maybeSingle(),
+                sb.from('rotation_preferences').select('site_id, preference_rank, submitted_at, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).order('preference_rank')
+            ]);
+
+            if (!sitesRes.error && sitesRes.data) sites = sitesRes.data;
+            if (!settingsRes.error && settingsRes.data) settings = settingsRes.data;
+            if (!assignRes.error) assignment = assignRes.data;
+            if (!prefsRes.error && prefsRes.data) savedPrefs = prefsRes.data;
+        }
+    } catch (e) { console.warn('Rotation prefs load error:', e); }
+
+    _rotSubmissionsOpen = settings.submissions_open !== false;
+
+    _rotPrefList = savedPrefs.map(p => ({
+        site_id: p.site_id,
+        site_name: p.rotation_sites?.site_name || 'Unknown Site',
+        specialty: p.rotation_sites?.specialty || ''
+    }));
+
+    const selectedIds = new Set(_rotPrefList.map(p => p.site_id));
+
+    const assignmentBanner = assignment?.site_id ? `
+        <div style="background:linear-gradient(135deg,#1B5E20,#2e7d32);color:white;border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;">
+            <div style="font-size:3rem;">🎉</div>
+            <div>
+                <div style="font-size:0.8rem;opacity:0.8;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Your APPE Assignment</div>
+                <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.2rem;">${assignment.rotation_sites?.site_name || 'Assigned'}</div>
+                <div style="opacity:0.9;font-size:0.95rem;">${assignment.rotation_sites?.specialty || ''}</div>
+                ${assignment.preference_rank_received ? '<div style="margin-top:0.5rem;font-size:0.82rem;opacity:0.8;background:rgba(255,255,255,0.15);display:inline-block;padding:2px 12px;border-radius:12px;">Your #' + assignment.preference_rank_received + ' choice ✓</div>' : ''}
+            </div>
+        </div>` : '';
+
+    const closedBanner = !_rotSubmissionsOpen ? `
+        <div style="background:#fff3e0;border:1px solid #ffe082;border-radius:8px;padding:0.75rem 1rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:0.5rem;font-size:0.88rem;color:#e65100;">
+            🔒 <strong>Submissions are currently closed.</strong> You can view your saved preferences but cannot make changes.
+        </div>` : '';
+
+    const siteCards = sites.length === 0
+        ? '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:#bbb;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">🏥</div><p>No rotation sites available yet.</p></div>'
+        : sites.map(s => {
+            const isSel = selectedIds.has(s.id);
+            const siteName = (s.site_name || '').replace(/'/g, "\\'");
+            const specialty = (s.specialty || '').replace(/'/g, "\\'");
+            return `
+            <div data-site-card="${s.id}" style="background:white;border:2px solid ${isSel ? '#a5d6a7' : '#e0e0e0'};border-radius:10px;padding:1.2rem;transition:border-color 0.2s;">
+                <div style="font-weight:700;color:#1a1a1a;margin-bottom:0.4rem;font-size:0.92rem;line-height:1.35;">${s.site_name}</div>
+                <div style="font-size:0.8rem;color:#1B5E20;background:#e8f5e9;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:0.9rem;">${s.specialty || '—'}</div>
+                <div><button data-site-btn="${s.id}" onclick="window.rotStudent.addToPref(${s.id},'${siteName}','${specialty}')" ${isSel ? 'disabled' : ''} style="width:100%;padding:6px;border:none;border-radius:6px;cursor:${isSel ? 'default' : 'pointer'};font-weight:600;font-size:0.83rem;background:${isSel ? '#e8f5e9' : '#1B5E20'};color:${isSel ? '#2e7d32' : 'white'};transition:all 0.15s;">${isSel ? '✓ Added' : '+ Add to Preferences'}</button></div>
+            </div>`;
+        }).join('');
+
+    const prefPanelContent = _rotPrefList.length === 0
+        ? '<div style="text-align:center;padding:2.5rem 1rem;color:#ccc;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">📋</div><p style="margin:0;font-size:0.88rem;">Click sites on the left to add them here.</p></div>'
+        : _rotPrefList.map((p, i) => `
+            <div style="background:white;border:1px solid #e0e0e0;border-radius:8px;padding:0.7rem 0.9rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.6rem;">
+                <span style="background:#1B5E20;color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">${i + 1}</span>
+                <div style="flex:1;min-width:0;">
+                    <div style="font-weight:600;color:#1a1a1a;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.site_name}</div>
+                    <div style="font-size:0.75rem;color:#aaa;">${p.specialty}</div>
+                </div>
+                <div style="display:flex;gap:3px;flex-shrink:0;">
+                    <button onclick="window.rotStudent.moveUp(${i})" ${i === 0 ? 'disabled' : ''} style="background:#f5f5f5;border:1px solid #ddd;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;opacity:${i === 0 ? '0.3' : '1'};">↑</button>
+                    <button onclick="window.rotStudent.moveDown(${i})" ${i === _rotPrefList.length - 1 ? 'disabled' : ''} style="background:#f5f5f5;border:1px solid #ddd;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;opacity:${i === _rotPrefList.length - 1 ? '0.3' : '1'};">↓</button>
+                    <button onclick="window.rotStudent.removeFromPref(${i})" style="background:#ffebee;border:none;color:#c62828;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;">✕</button>
+                </div>
+            </div>`).join('');
+
+    const lastSubmit = savedPrefs.length > 0 && savedPrefs[0]?.submitted_at
+        ? new Date(savedPrefs[0].submitted_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : null;
+
+    root.innerHTML = `
+        <div style="padding:2rem;max-width:1200px;">
+            <div style="margin-bottom:1.5rem;">
+                <h1 style="margin:0 0 0.4rem 0;font-size:1.7rem;color:#1a1a1a;font-weight:700;">🏥 APPE Rotation Preferences</h1>
+                <p style="margin:0;color:#888;font-size:0.9rem;">Select and rank up to 20 rotation sites. Students with higher MS Survey scores receive their top choices first during assignment.</p>
+            </div>
+
+            ${assignmentBanner}
+            ${closedBanner}
+
+            <div style="display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start;">
+                <!-- Available Sites -->
+                <div>
+                    <div style="margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+                        <h3 style="margin:0;color:#444;font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">Available Sites (${sites.length})</h3>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:0.85rem;">${siteCards}</div>
+                </div>
+
+                <!-- Preferences Panel -->
+                <div style="position:sticky;top:1rem;">
+                    <div style="background:#f8f9fa;border-radius:12px;padding:1.25rem;border:2px solid ${_rotPrefList.length > 0 ? '#a5d6a7' : '#e0e0e0'};">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                            <h3 style="margin:0;color:#333;font-size:0.82rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;">My Preferences</h3>
+                            <span id="rot-pref-count" style="background:${_rotPrefList.length > 0 ? '#1B5E20' : '#ccc'};color:white;padding:2px 10px;border-radius:12px;font-size:0.82rem;font-weight:700;">${_rotPrefList.length}/20</span>
+                        </div>
+                        <div id="rot-pref-panel" style="max-height:420px;overflow-y:auto;margin-bottom:1rem;">${prefPanelContent}</div>
+                        ${_rotSubmissionsOpen ? `
+                        <button id="rot-submit-btn" onclick="window.rotStudent.submitPreferences()" style="width:100%;padding:12px;background:${_rotPrefList.length > 0 ? '#1B5E20' : '#ccc'};color:white;border:none;border-radius:8px;cursor:${_rotPrefList.length > 0 ? 'pointer' : 'not-allowed'};font-weight:700;font-size:0.95rem;transition:background 0.2s;">
+                            ${savedPrefs.length > 0 ? '🔄 Update Preferences' : '✅ Submit Preferences'}
+                        </button>
+                        ${lastSubmit ? '<p style="text-align:center;font-size:0.78rem;color:#aaa;margin:0.5rem 0 0 0;">Last submitted: ' + lastSubmit + '</p>' : ''}
+                        ` : `
+                        <div style="text-align:center;padding:0.75rem;background:#f5f5f5;border-radius:8px;color:#bbb;font-size:0.85rem;">🔒 Submissions are closed</div>
+                        ${savedPrefs.length > 0 ? '<p style="text-align:center;font-size:0.78rem;color:#aaa;margin:0.5rem 0 0 0;">' + _rotPrefList.length + ' preferences saved</p>' : ''}
+                        `}
+                    </div>
+                </div>
+            </div>
+        </div>`;
+}
+
+function _renderRotPrefPanel() {
+    const panel = document.getElementById('rot-pref-panel');
+    if (!panel) return;
+
+    const countBadge = document.getElementById('rot-pref-count');
+    if (countBadge) {
+        countBadge.textContent = _rotPrefList.length + '/20';
+        countBadge.style.background = _rotPrefList.length > 0 ? '#1B5E20' : '#ccc';
+    }
+    const submitBtn = document.getElementById('rot-submit-btn');
+    if (submitBtn) {
+        submitBtn.style.background = _rotPrefList.length > 0 ? '#1B5E20' : '#ccc';
+        submitBtn.style.cursor = _rotPrefList.length > 0 ? 'pointer' : 'not-allowed';
+    }
+    const rightPanel = panel.closest('[style*="border-radius:12px"]');
+    if (rightPanel) rightPanel.style.borderColor = _rotPrefList.length > 0 ? '#a5d6a7' : '#e0e0e0';
+
+    if (_rotPrefList.length === 0) {
+        panel.innerHTML = '<div style="text-align:center;padding:2.5rem 1rem;color:#ccc;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">📋</div><p style="margin:0;font-size:0.88rem;">Click sites on the left to add them here.</p></div>';
+        return;
+    }
+
+    panel.innerHTML = _rotPrefList.map((p, i) => `
+        <div style="background:white;border:1px solid #e0e0e0;border-radius:8px;padding:0.7rem 0.9rem;margin-bottom:0.5rem;display:flex;align-items:center;gap:0.6rem;">
+            <span style="background:#1B5E20;color:white;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.8rem;flex-shrink:0;">${i + 1}</span>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:600;color:#1a1a1a;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.site_name}</div>
+                <div style="font-size:0.75rem;color:#aaa;">${p.specialty}</div>
+            </div>
+            <div style="display:flex;gap:3px;flex-shrink:0;">
+                <button onclick="window.rotStudent.moveUp(${i})" ${i === 0 ? 'disabled' : ''} style="background:#f5f5f5;border:1px solid #ddd;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;opacity:${i === 0 ? '0.3' : '1'};">↑</button>
+                <button onclick="window.rotStudent.moveDown(${i})" ${i === _rotPrefList.length - 1 ? 'disabled' : ''} style="background:#f5f5f5;border:1px solid #ddd;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;opacity:${i === _rotPrefList.length - 1 ? '0.3' : '1'};">↓</button>
+                <button onclick="window.rotStudent.removeFromPref(${i})" style="background:#ffebee;border:none;color:#c62828;padding:3px 8px;border-radius:4px;cursor:pointer;font-size:0.75rem;">✕</button>
+            </div>
+        </div>`).join('');
+}
+
+function _updateRotSiteButtons() {
+    const selIds = new Set(_rotPrefList.map(p => p.site_id));
+    document.querySelectorAll('[data-site-btn]').forEach(btn => {
+        const id = parseInt(btn.getAttribute('data-site-btn'));
+        const isSel = selIds.has(id);
+        btn.textContent = isSel ? '✓ Added' : '+ Add to Preferences';
+        btn.style.background = isSel ? '#e8f5e9' : '#1B5E20';
+        btn.style.color = isSel ? '#2e7d32' : 'white';
+        btn.disabled = isSel;
+        btn.style.cursor = isSel ? 'default' : 'pointer';
+        const card = document.querySelector('[data-site-card="' + id + '"]');
+        if (card) card.style.borderColor = isSel ? '#a5d6a7' : '#e0e0e0';
+    });
+}
+
+window.rotStudent = {
+    addToPref(siteId, siteName, specialty) {
+        if (_rotPrefList.length >= 20) { alert('Maximum 20 preferences allowed.'); return; }
+        if (_rotPrefList.find(p => p.site_id === siteId)) return;
+        _rotPrefList.push({ site_id: siteId, site_name: siteName, specialty });
+        _renderRotPrefPanel();
+        _updateRotSiteButtons();
+    },
+    removeFromPref(index) {
+        _rotPrefList.splice(index, 1);
+        _renderRotPrefPanel();
+        _updateRotSiteButtons();
+    },
+    moveUp(index) {
+        if (index <= 0) return;
+        [_rotPrefList[index - 1], _rotPrefList[index]] = [_rotPrefList[index], _rotPrefList[index - 1]];
+        _renderRotPrefPanel();
+    },
+    moveDown(index) {
+        if (index >= _rotPrefList.length - 1) return;
+        [_rotPrefList[index], _rotPrefList[index + 1]] = [_rotPrefList[index + 1], _rotPrefList[index]];
+        _renderRotPrefPanel();
+    },
+    async submitPreferences() {
+        if (_rotPrefList.length === 0) { alert('Please add at least one preference before submitting.'); return; }
+        if (!confirm('Submit your ' + _rotPrefList.length + ' rotation preference(s)? You can update them later while submissions are open.')) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb || !_rotCurrentUserId) { alert('Not authenticated. Please log in again.'); return; }
+            const { error: delErr } = await sb.from('rotation_preferences').delete().eq('student_id', _rotCurrentUserId);
+            if (delErr) throw delErr;
+            const now = new Date().toISOString();
+            const prefs = _rotPrefList.map((p, i) => ({ student_id: _rotCurrentUserId, site_id: p.site_id, preference_rank: i + 1, submitted_at: now, updated_at: now }));
+            const { error: insErr } = await sb.from('rotation_preferences').insert(prefs);
+            if (insErr) throw insErr;
+            alert('✅ Your ' + _rotPrefList.length + ' rotation preferences have been submitted!');
+            renderRotationPreferences();
+        } catch (e) { alert('Error submitting preferences: ' + e.message); }
+    }
+};
 
 // ============================================================
 // INITIALIZE: Load submitted tickets from localStorage on startup

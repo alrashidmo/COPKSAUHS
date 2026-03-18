@@ -10183,61 +10183,231 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.root.innerHTML = html;
     }
 
-    renderRotationSchedule() {
-        this.title.textContent = 'Rotation Schedule (Blocks 1-10)';
-        const students = this.store.getStudents();
-        const allRotations = this.store.getRotations();
-        const preceptors = this.store.getPreceptors();
+    async renderRotationSchedule() {
+        this.title.textContent = 'APPE Rotation Management';
+        this.root.innerHTML = '<div style="padding:2rem;text-align:center;color:#666;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">⏳</div><p>Loading rotation data...</p></div>';
 
-        const getRotation = (studentId, block) => {
-            return allRotations.find(r => r.studentId === studentId && r.block === block);
-        };
+        let sites = [], settings = { submissions_open: true, academic_year: '2025-2026' };
+        let assignments = [], prefStudents = [];
 
-        const rows = students.map(s => {
-            let cells = '';
-            for (let i = 1; i <= 10; i++) {
-                const rotation = getRotation(s.id, i);
-                const cellContent = rotation
-                    ? `< span class="rotation-chip" title = "${rotation.preceptor}" > ${rotation.site}</span > `
-                    : '<span class="empty-slot">-</span>';
-                cells += `< td > ${cellContent}</td > `;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (sb) {
+                const [sRes, stRes, aRes, pRes] = await Promise.all([
+                    sb.from('rotation_sites').select('*').order('site_name'),
+                    sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
+                    sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
+                    sb.from('rotation_preferences').select('student_id, preference_rank').order('student_id')
+                ]);
+                if (!sRes.error && sRes.data) sites = sRes.data;
+                if (!stRes.error && stRes.data) settings = stRes.data;
+                if (!aRes.error && aRes.data) assignments = aRes.data;
+                if (!pRes.error && pRes.data) {
+                    const prefMap = {};
+                    pRes.data.forEach(p => { prefMap[p.student_id] = (prefMap[p.student_id] || 0) + 1; });
+                    prefStudents = Object.entries(prefMap).map(([id, count]) => ({ student_id: id, pref_count: count }));
+                }
             }
-            return `
-                < tr >
-                <td><strong>${s.name}</strong></td>
-                    ${cells}
-                </tr >
-                `;
-        }).join('');
+        } catch (e) { console.warn('Rotation load error:', e); }
+
+        const siteMap = {};
+        sites.forEach(s => { siteMap[s.id] = s; });
+
+        const assignMap = {};
+        assignments.forEach(a => { assignMap[a.student_id] = { ...a, pref_count: 0 }; });
+        prefStudents.forEach(ps => {
+            if (assignMap[ps.student_id]) {
+                assignMap[ps.student_id].pref_count = ps.pref_count;
+            } else {
+                assignMap[ps.student_id] = { student_id: ps.student_id, student_name: '', student_score: null, site_id: null, pref_count: ps.pref_count };
+            }
+        });
+        const studentList = Object.values(assignMap).sort((a, b) => (b.student_score || 0) - (a.student_score || 0));
+        const assignedCount = assignments.filter(a => a.site_id).length;
+
+        // ---- SITES TAB ----
+        const sitesRows = sites.length === 0
+            ? '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#bbb;font-size:0.95rem;">No rotation sites yet. Add your first site above.</td></tr>'
+            : sites.map(s => `
+                <tr style="border-bottom:1px solid #f0f0f0;">
+                    <td style="padding:10px 12px;"><strong>${s.site_name}</strong></td>
+                    <td style="padding:10px 12px;"><span style="background:#e8f5e9;color:#1B5E20;padding:3px 10px;border-radius:12px;font-size:0.82rem;">${s.specialty || '—'}</span></td>
+                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;">${s.preceptor_name || '—'}</td>
+                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;">${s.location || '—'}</td>
+                    <td style="padding:10px 12px;text-align:center;"><span style="background:#e3f2fd;color:#1565C0;padding:3px 12px;border-radius:12px;font-weight:700;">${s.available_slots}</span></td>
+                    <td style="padding:10px 12px;text-align:center;">${s.is_active ? '<span style="color:#2e7d32;font-size:0.85rem;">● Active</span>' : '<span style="color:#bbb;font-size:0.85rem;">○ Inactive</span>'}</td>
+                    <td style="padding:10px 12px;"><button onclick="window.rotAdmin.deleteSite(${s.id})" style="background:#ffebee;color:#c62828;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">Delete</button></td>
+                </tr>`).join('');
+
+        // ---- SCORES TAB ----
+        const scoresRows = studentList.length === 0
+            ? '<tr><td colspan="5" style="text-align:center;padding:2.5rem;color:#bbb;">No students yet. Add students manually or they appear after submitting preferences.</td></tr>'
+            : studentList.map(s => {
+                const sid = s.student_id.replace(/[^a-zA-Z0-9]/g, '_');
+                const nameVal = (s.student_name || '').replace(/"/g, '&quot;');
+                const scoreVal = s.student_score != null ? s.student_score : '';
+                const prefBg = s.pref_count ? '#e8f5e9' : '#f5f5f5';
+                const prefColor = s.pref_count ? '#2e7d32' : '#bbb';
+                const prefText = s.pref_count ? ('✓ ' + s.pref_count + ' prefs') : 'Not submitted';
+                return `
+                <tr id="score-row-${sid}" style="border-bottom:1px solid #f0f0f0;transition:background 0.4s;">
+                    <td style="padding:10px 12px;font-family:monospace;color:#555;font-size:0.85rem;">${s.student_id}</td>
+                    <td style="padding:10px 12px;"><input type="text" value="${nameVal}" id="name-${sid}" style="border:1px solid #ddd;padding:5px 9px;border-radius:5px;width:180px;font-size:0.88rem;"></td>
+                    <td style="padding:10px 12px;text-align:center;"><span style="background:${prefBg};color:${prefColor};padding:3px 12px;border-radius:12px;font-size:0.82rem;">${prefText}</span></td>
+                    <td style="padding:10px 12px;text-align:center;"><input type="number" min="0" max="100" step="0.01" value="${scoreVal}" id="score-${sid}" style="border:1px solid #ddd;padding:5px 8px;border-radius:5px;width:90px;text-align:center;font-size:0.88rem;" placeholder="0–100"></td>
+                    <td style="padding:10px 12px;">
+                        <button onclick="window.rotAdmin.saveScore('${s.student_id}')" style="background:#e8f5e9;color:#1B5E20;border:1px solid #a5d6a7;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;margin-right:4px;">Save</button>
+                        <button onclick="window.rotAdmin.removeStudent('${s.student_id}')" style="background:#ffebee;color:#c62828;border:none;padding:5px 9px;border-radius:6px;cursor:pointer;font-size:0.82rem;">✕</button>
+                    </td>
+                </tr>`;
+            }).join('');
+
+        // ---- ASSIGNMENTS TAB ----
+        const siteOptions = sites.map(s => `<option value="${s.id}">${s.site_name}</option>`).join('');
+        const assignedStudents = assignments.filter(a => a.site_id).sort((a, b) => (b.student_score || 0) - (a.student_score || 0));
+        const assignRows = assignedStudents.length === 0
+            ? '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#bbb;">No assignments yet. Add student scores in the Scores tab, then click Run Auto-Assign.</td></tr>'
+            : assignedStudents.map((a, i) => {
+                const site = siteMap[a.site_id] || {};
+                const cn = a.preference_rank_received;
+                const rowBg = cn === 1 ? '#e8f5e9' : (cn && cn <= 3) ? '#fff8e1' : cn ? '#fce4ec' : '#f3e5f5';
+                const choiceLabel = cn ? ('#' + cn + ' choice') : (a.assignment_method === 'manual' ? 'Manual' : 'Fallback');
+                const scoreDisplay = a.student_score != null ? a.student_score : '—';
+                return `
+                <tr style="border-bottom:1px solid rgba(0,0,0,0.06);background:${rowBg};">
+                    <td style="padding:10px 12px;text-align:center;font-weight:700;color:#666;">${i + 1}</td>
+                    <td style="padding:10px 12px;"><strong style="color:#1a1a1a;">${a.student_name || a.student_id}</strong><br><span style="font-size:0.75rem;color:#aaa;">${a.student_id}</span></td>
+                    <td style="padding:10px 12px;text-align:center;font-weight:700;color:#1565C0;font-size:1rem;">${scoreDisplay}</td>
+                    <td style="padding:10px 12px;">${site.site_name || '—'}<br><span style="font-size:0.75rem;color:#888;">${site.specialty || ''}</span></td>
+                    <td style="padding:10px 12px;text-align:center;"><span style="background:rgba(0,0,0,0.07);padding:3px 10px;border-radius:12px;font-size:0.82rem;">${choiceLabel}</span></td>
+                    <td style="padding:10px 12px;color:#777;font-size:0.85rem;">${a.assignment_method || '—'}</td>
+                    <td style="padding:10px 12px;">
+                        <select onchange="window.rotAdmin.overrideAssign('${a.student_id}', this.value)" style="border:1px solid #ddd;padding:4px 6px;border-radius:5px;font-size:0.82rem;max-width:170px;">
+                            <option value="">Override site...</option>
+                            ${siteOptions}
+                        </select>
+                    </td>
+                </tr>`;
+            }).join('');
+
+        const submOpen = settings.submissions_open !== false;
 
         const html = `
-                < div class="card mb-4" >
-                    <div class="flex-between">
-                        <div style="display:flex; gap:1rem; align-items:center;">
-                            <div style="display:flex; gap:0.5rem;">
-                                <span class="badge-success" style="width:12px; height:12px; display:inline-block; border-radius:50%;"></span> Completed
-                                <span class="badge-warning" style="width:12px; height:12px; display:inline-block; border-radius:50%;"></span> In Progress
-                            </div>
-                        </div>
-                        <button id="btn-assign-rotation" class="btn btn-primary">+ Assign Rotation</button>
-                    </div>
-            </div >
-
-                <div class="data-table-container" style="overflow-x: auto;">
-                    <table class="data-table" style="min-width: 1200px;">
-                        <thead>
-                            <tr>
-                                <th style="position:sticky; left:0; background:white; z-index:10;">Student</th>
-                                <th>Block 1</th><th>Block 2</th><th>Block 3</th><th>Block 4</th><th>Block 5</th>
-                                <th>Block 6</th><th>Block 7</th><th>Block 8</th><th>Block 9</th><th>Block 10</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${rows}
-                        </tbody>
-                    </table>
+        <div style="padding:1.5rem;max-width:1400px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h2 style="margin:0 0 0.3rem 0;color:#1a1a1a;font-size:1.55rem;font-weight:700;">APPE Rotation Preference System</h2>
+                    <p style="margin:0;color:#888;font-size:0.88rem;">Academic Year: ${settings.academic_year || '2025-2026'} &nbsp;·&nbsp; ${sites.length} sites &nbsp;·&nbsp; ${studentList.length} students</p>
                 </div>
-            `;
+                <div style="display:flex;align-items:center;gap:0.75rem;background:${submOpen ? '#e8f5e9' : '#ffebee'};padding:0.6rem 1.2rem;border-radius:10px;border:1px solid ${submOpen ? '#a5d6a7' : '#ef9a9a'};">
+                    <span style="font-size:0.88rem;font-weight:700;color:${submOpen ? '#2e7d32' : '#c62828'};">${submOpen ? '🟢 Submissions Open' : '🔴 Submissions Closed'}</span>
+                    <button onclick="window.rotAdmin.toggleSubmissions(${submOpen})" style="background:${submOpen ? '#c62828' : '#2e7d32'};color:white;border:none;padding:4px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:700;">${submOpen ? 'Close' : 'Open'}</button>
+                </div>
+            </div>
+
+            <div style="display:flex;border-bottom:2px solid #e0e0e0;margin-bottom:1.5rem;">
+                <button id="tab-btn-sites" onclick="window.rotAdmin.switchTab('sites')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid #1B5E20;margin-bottom:-2px;cursor:pointer;font-weight:700;color:#1B5E20;font-size:0.9rem;">🏥 Sites (${sites.length})</button>
+                <button id="tab-btn-scores" onclick="window.rotAdmin.switchTab('scores')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">📊 Scores (${studentList.length})</button>
+                <button id="tab-btn-assignments" onclick="window.rotAdmin.switchTab('assignments')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">📋 Assignments (${assignedCount}/${studentList.length})</button>
+            </div>
+
+            <!-- SITES TAB -->
+            <div id="rot-tab-sites">
+                <div class="card" style="margin-bottom:1.25rem;">
+                    <h3 style="margin:0 0 1rem 0;color:#333;font-size:0.95rem;font-weight:700;">➕ Add New Rotation Site</h3>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:0.75rem;margin-bottom:0.75rem;">
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Site Name *</label><input type="text" id="new-site-name" placeholder="e.g., KAMC Riyadh" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Specialty *</label><input type="text" id="new-site-specialty" placeholder="e.g., Internal Medicine" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Location</label><input type="text" id="new-site-location" placeholder="e.g., Riyadh" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Preceptor Name</label><input type="text" id="new-site-preceptor" placeholder="Dr. Name" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Preceptor Email</label><input type="email" id="new-site-email" placeholder="dr@hospital.com" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Available Slots</label><input type="number" id="new-site-slots" min="1" value="1" style="width:100%;padding:7px 10px;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;box-sizing:border-box;"></div>
+                    </div>
+                    <button onclick="window.rotAdmin.addSite()" style="background:#1B5E20;color:white;border:none;padding:9px 22px;border-radius:7px;cursor:pointer;font-weight:700;font-size:0.9rem;">+ Add Site</button>
+                </div>
+                <div class="card">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Site Name</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Specialty</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Preceptor</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Location</th>
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Slots</th>
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Status</th>
+                                <th style="padding:10px 12px;"></th>
+                            </tr></thead>
+                            <tbody>${sitesRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCORES TAB -->
+            <div id="rot-tab-scores" style="display:none;">
+                <div class="card" style="margin-bottom:1.25rem;">
+                    <h3 style="margin:0 0 0.3rem 0;color:#333;font-size:0.95rem;font-weight:700;">➕ Add P4 Student</h3>
+                    <p style="margin:0 0 1rem 0;color:#aaa;font-size:0.82rem;">Students also appear automatically once they submit preferences.</p>
+                    <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Student ID</label><input type="text" id="new-student-id" placeholder="441210049" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;width:140px;font-size:0.88rem;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Full Name</label><input type="text" id="new-student-name" placeholder="Full name" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;width:200px;font-size:0.88rem;"></div>
+                        <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">MS Survey Score (0–100)</label><input type="number" id="new-student-score" min="0" max="100" step="0.01" placeholder="85.5" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;width:120px;font-size:0.88rem;"></div>
+                        <button onclick="window.rotAdmin.addStudent()" style="background:#1B5E20;color:white;border:none;padding:8px 20px;border-radius:7px;cursor:pointer;font-weight:700;font-size:0.9rem;">Add</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;">
+                        <h3 style="margin:0;color:#333;font-size:0.95rem;font-weight:700;">P4 Students — MS Survey Scores</h3>
+                        <span style="font-size:0.82rem;color:#aaa;">${studentList.length} students &nbsp;·&nbsp; Highest score = first pick during auto-assign</span>
+                    </div>
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Student ID</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Name</th>
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Preferences</th>
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">MS Score</th>
+                                <th style="padding:10px 12px;"></th>
+                            </tr></thead>
+                            <tbody id="scores-tbody">${scoresRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ASSIGNMENTS TAB -->
+            <div id="rot-tab-assignments" style="display:none;">
+                <div style="display:flex;gap:0.75rem;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;">
+                    <button onclick="window.rotAdmin.runAutoAssign()" style="background:#1B5E20;color:white;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">⚡ Run Auto-Assign</button>
+                    <button onclick="window.rotAdmin.exportAssignments()" style="background:#1565C0;color:white;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">📥 Export CSV</button>
+                    <button onclick="window.rotAdmin.clearAssign()" style="background:#ffebee;color:#c62828;border:1px solid #ef9a9a;padding:10px 18px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">🗑 Clear All</button>
+                    <span style="margin-left:auto;font-size:0.85rem;color:#999;">${assignedCount} assigned &nbsp;·&nbsp; ${studentList.length - assignedCount} pending</span>
+                </div>
+                <div style="display:flex;gap:1rem;margin-bottom:1rem;font-size:0.82rem;flex-wrap:wrap;align-items:center;">
+                    <strong style="color:#666;">Legend:</strong>
+                    <span style="display:flex;align-items:center;gap:4px;"><i style="width:14px;height:14px;background:#e8f5e9;border-radius:3px;display:inline-block;border:1px solid #a5d6a7;"></i> 1st choice</span>
+                    <span style="display:flex;align-items:center;gap:4px;"><i style="width:14px;height:14px;background:#fff8e1;border-radius:3px;display:inline-block;border:1px solid #ffe082;"></i> 2nd–3rd choice</span>
+                    <span style="display:flex;align-items:center;gap:4px;"><i style="width:14px;height:14px;background:#fce4ec;border-radius:3px;display:inline-block;border:1px solid #f48fb1;"></i> 4th+ choice</span>
+                    <span style="display:flex;align-items:center;gap:4px;"><i style="width:14px;height:14px;background:#f3e5f5;border-radius:3px;display:inline-block;border:1px solid #ce93d8;"></i> Manual/Fallback</span>
+                </div>
+                <div class="card">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;width:45px;">#</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Student</th>
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Score</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Assigned Site</th>
+                                <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Choice</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Method</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Override</th>
+                            </tr></thead>
+                            <tbody>${assignRows}</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>`;
 
         this.root.innerHTML = html;
     }
@@ -14861,6 +15031,219 @@ window.deleteResource = async (id) => {
         window.app.renderAdminHub();
     } catch (e) {
         alert(`❌ Error: ${e.message}`);
+    }
+};
+
+// ============================================================
+// ROTATION ADMIN FUNCTIONS
+// ============================================================
+window.rotAdmin = {
+    switchTab(tab) {
+        ['sites', 'scores', 'assignments'].forEach(t => {
+            const panel = document.getElementById('rot-tab-' + t);
+            const btn = document.getElementById('tab-btn-' + t);
+            if (panel) panel.style.display = t === tab ? 'block' : 'none';
+            if (btn) {
+                btn.style.borderBottom = t === tab ? '3px solid #1B5E20' : '3px solid transparent';
+                btn.style.color = t === tab ? '#1B5E20' : '#888';
+                btn.style.fontWeight = t === tab ? '700' : 'normal';
+            }
+        });
+    },
+
+    async toggleSubmissions(currentlyOpen) {
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_settings').upsert({ id: 1, submissions_open: !currentlyOpen, updated_at: new Date().toISOString() });
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+        } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    async addSite() {
+        const name = document.getElementById('new-site-name')?.value?.trim();
+        const specialty = document.getElementById('new-site-specialty')?.value?.trim();
+        const location = document.getElementById('new-site-location')?.value?.trim();
+        const preceptor = document.getElementById('new-site-preceptor')?.value?.trim();
+        const email = document.getElementById('new-site-email')?.value?.trim();
+        const slots = parseInt(document.getElementById('new-site-slots')?.value) || 1;
+        if (!name) { alert('Site name is required.'); return; }
+        if (!specialty) { alert('Specialty is required.'); return; }
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) { alert('Not connected.'); return; }
+            const { error } = await sb.from('rotation_sites').insert({ site_name: name, specialty, location, preceptor_name: preceptor, preceptor_email: email, available_slots: slots, is_active: true });
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+        } catch (e) { alert('Error adding site: ' + e.message); }
+    },
+
+    async deleteSite(id) {
+        if (!confirm('Delete this rotation site? This cannot be undone.')) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_sites').delete().eq('id', id);
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+        } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    async addStudent() {
+        const studentId = document.getElementById('new-student-id')?.value?.trim();
+        const studentName = document.getElementById('new-student-name')?.value?.trim();
+        const score = parseFloat(document.getElementById('new-student-score')?.value);
+        if (!studentId) { alert('Student ID is required.'); return; }
+        if (!studentName) { alert('Student name is required.'); return; }
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_assignments').upsert({ student_id: studentId, student_name: studentName, student_score: isNaN(score) ? null : score }, { onConflict: 'student_id' });
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+            setTimeout(() => window.rotAdmin.switchTab('scores'), 300);
+        } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    async saveScore(studentId) {
+        const sid = studentId.replace(/[^a-zA-Z0-9]/g, '_');
+        const name = document.getElementById('name-' + sid)?.value?.trim();
+        const score = parseFloat(document.getElementById('score-' + sid)?.value);
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_assignments').upsert({ student_id: studentId, student_name: name || studentId, student_score: isNaN(score) ? null : score }, { onConflict: 'student_id' });
+            if (error) throw error;
+            const row = document.getElementById('score-row-' + sid);
+            if (row) { row.style.background = '#e8f5e9'; setTimeout(() => { row.style.background = ''; }, 1500); }
+        } catch (e) { alert('Error saving score: ' + e.message); }
+    },
+
+    async removeStudent(studentId) {
+        if (!confirm('Remove ' + studentId + ' from the rotation list? Their assignment will also be deleted.')) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_assignments').delete().eq('student_id', studentId);
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+            setTimeout(() => window.rotAdmin.switchTab('scores'), 300);
+        } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    async runAutoAssign() {
+        if (!confirm('Run auto-assign? This will replace all existing auto-assignments. Manual overrides will be preserved.')) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) { alert('Not connected.'); return; }
+
+            const [sitesRes, studentsRes, prefsRes] = await Promise.all([
+                sb.from('rotation_sites').select('*').eq('is_active', true),
+                sb.from('rotation_assignments').select('*'),
+                sb.from('rotation_preferences').select('*').order('preference_rank')
+            ]);
+            if (sitesRes.error) throw sitesRes.error;
+            if (studentsRes.error) throw studentsRes.error;
+            if (prefsRes.error) throw prefsRes.error;
+
+            const sites = sitesRes.data || [];
+            const students = (studentsRes.data || []).filter(s => s.student_score != null);
+            const prefs = prefsRes.data || [];
+
+            students.sort((a, b) => (b.student_score || 0) - (a.student_score || 0));
+
+            const slotMap = {};
+            sites.forEach(s => { slotMap[s.id] = s.available_slots; });
+
+            const prefMap = {};
+            prefs.forEach(p => {
+                if (!prefMap[p.student_id]) prefMap[p.student_id] = [];
+                prefMap[p.student_id].push(p);
+            });
+
+            const newAssignments = [];
+            for (const student of students) {
+                if (student.assignment_method === 'manual') continue; // preserve manual
+                const studentPrefs = prefMap[student.student_id] || [];
+                let assigned = false;
+                for (const pref of studentPrefs) {
+                    if (slotMap[pref.site_id] > 0) {
+                        slotMap[pref.site_id]--;
+                        newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: pref.site_id, student_score: student.student_score, preference_rank_received: pref.preference_rank, assignment_method: 'auto', assigned_at: new Date().toISOString() });
+                        assigned = true;
+                        break;
+                    }
+                }
+                if (!assigned) {
+                    const fallback = sites.find(s => slotMap[s.id] > 0);
+                    if (fallback) {
+                        slotMap[fallback.id]--;
+                        newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: fallback.id, student_score: student.student_score, preference_rank_received: null, assignment_method: 'auto-fallback', assigned_at: new Date().toISOString() });
+                    } else {
+                        newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: null, student_score: student.student_score, preference_rank_received: null, assignment_method: 'unassigned', assigned_at: new Date().toISOString() });
+                    }
+                }
+            }
+
+            if (newAssignments.length > 0) {
+                const { error } = await sb.from('rotation_assignments').upsert(newAssignments, { onConflict: 'student_id' });
+                if (error) throw error;
+            }
+
+            const assigned = newAssignments.filter(a => a.site_id).length;
+            alert('✅ Auto-assign complete! ' + assigned + ' of ' + newAssignments.length + ' students assigned.');
+            window.app.renderRotationSchedule();
+            setTimeout(() => window.rotAdmin.switchTab('assignments'), 300);
+        } catch (e) { alert('Auto-assign error: ' + e.message); }
+    },
+
+    async clearAssign() {
+        if (!confirm('Clear ALL assignments? Student names and scores will be kept, but all site assignments will be removed.')) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_assignments').update({ site_id: null, preference_rank_received: null, assignment_method: null, assigned_at: null }).neq('student_id', '~~never~~');
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+        } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    async overrideAssign(studentId, siteId) {
+        if (!siteId) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_assignments').upsert({ student_id: studentId, site_id: parseInt(siteId), preference_rank_received: null, assignment_method: 'manual', assigned_at: new Date().toISOString() }, { onConflict: 'student_id' });
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+            setTimeout(() => window.rotAdmin.switchTab('assignments'), 300);
+        } catch (e) { alert('Override error: ' + e.message); }
+    },
+
+    async exportAssignments() {
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const [aRes, sRes] = await Promise.all([
+                sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
+                sb.from('rotation_sites').select('id, site_name, specialty')
+            ]);
+            if (aRes.error) throw aRes.error;
+            const siteMap = {};
+            (sRes.data || []).forEach(s => { siteMap[s.id] = s; });
+            const rows = [['Rank', 'Student ID', 'Student Name', 'MS Score', 'Assigned Site', 'Specialty', 'Choice Rank', 'Method', 'Assigned Date']];
+            (aRes.data || []).filter(a => a.site_id).sort((a, b) => (b.student_score || 0) - (a.student_score || 0)).forEach((a, i) => {
+                const site = siteMap[a.site_id] || {};
+                rows.push([i + 1, a.student_id, a.student_name || '', a.student_score ?? '', site.site_name || '', site.specialty || '', a.preference_rank_received || '', a.assignment_method || '', a.assigned_at ? new Date(a.assigned_at).toLocaleDateString() : '']);
+            });
+            const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = 'rotation-assignments-' + new Date().toISOString().slice(0, 10) + '.csv';
+            a.click(); URL.revokeObjectURL(url);
+        } catch (e) { alert('Export error: ' + e.message); }
     }
 };
 
