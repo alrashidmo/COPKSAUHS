@@ -10239,14 +10239,23 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const sitesRows = sites.length === 0
             ? '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#bbb;font-size:0.95rem;">No rotation sites yet. Add your first site above.</td></tr>'
             : sites.map(s => `
-                <tr style="border-bottom:1px solid #f0f0f0;">
-                    <td style="padding:10px 12px;"><strong>${s.site_name}</strong></td>
-                    <td style="padding:10px 12px;"><span style="background:#e8f5e9;color:#1B5E20;padding:3px 10px;border-radius:12px;font-size:0.82rem;">${s.specialty || '—'}</span></td>
-                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;">${s.preceptor_name || '—'}</td>
-                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;">${s.location || '—'}</td>
-                    <td style="padding:10px 12px;text-align:center;"><span style="background:#e3f2fd;color:#1565C0;padding:3px 12px;border-radius:12px;font-weight:700;">${s.available_slots}</span></td>
-                    <td style="padding:10px 12px;text-align:center;">${s.is_active ? '<span style="color:#2e7d32;font-size:0.85rem;">● Active</span>' : '<span style="color:#bbb;font-size:0.85rem;">○ Inactive</span>'}</td>
-                    <td style="padding:10px 12px;"><button onclick="window.rotAdmin.deleteSite(${s.id})" style="background:#ffebee;color:#c62828;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">Delete</button></td>
+                <tr id="site-row-${s.id}" style="border-bottom:1px solid #f0f0f0;">
+                    <td style="padding:10px 12px;"><strong id="site-name-view-${s.id}">${s.site_name}</strong><input id="site-name-edit-${s.id}" value="${(s.site_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;"><span id="site-spec-view-${s.id}" style="background:#e8f5e9;color:#1B5E20;padding:3px 10px;border-radius:12px;font-size:0.82rem;">${s.specialty || '—'}</span><input id="site-spec-edit-${s.id}" value="${(s.specialty||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-prec-view-${s.id}">${s.preceptor_name || '—'}</span><input id="site-prec-edit-${s.id}" value="${(s.preceptor_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-loc-view-${s.id}">${s.location || '—'}</span><input id="site-loc-edit-${s.id}" value="${(s.location||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;text-align:center;"><span id="site-slots-view-${s.id}" style="background:#e3f2fd;color:#1565C0;padding:3px 12px;border-radius:12px;font-weight:700;">${s.available_slots}</span><input id="site-slots-edit-${s.id}" type="number" min="1" value="${s.available_slots||1}" style="display:none;width:60px;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;text-align:center;"></td>
+                    <td style="padding:10px 12px;text-align:center;"><span id="site-status-view-${s.id}">${s.is_active ? '<span style="color:#2e7d32;font-size:0.85rem;">● Active</span>' : '<span style="color:#bbb;font-size:0.85rem;">○ Inactive</span>'}</span><select id="site-status-edit-${s.id}" style="display:none;padding:5px 6px;border:1px solid #ccc;border-radius:5px;font-size:0.85rem;"><option value="true" ${s.is_active?'selected':''}>Active</option><option value="false" ${!s.is_active?'selected':''}>Inactive</option></select></td>
+                    <td style="padding:10px 12px;white-space:nowrap;">
+                        <span id="site-actions-view-${s.id}">
+                            <button onclick="window.rotAdmin.startEditSite(${s.id})" style="background:#e3f2fd;color:#1565C0;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;margin-right:4px;">Edit</button>
+                            <button onclick="window.rotAdmin.deleteSite(${s.id})" style="background:#ffebee;color:#c62828;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">Delete</button>
+                        </span>
+                        <span id="site-actions-edit-${s.id}" style="display:none;">
+                            <button onclick="window.rotAdmin.saveSite(${s.id})" style="background:#e8f5e9;color:#1B5E20;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;margin-right:4px;">Save</button>
+                            <button onclick="window.rotAdmin.cancelEditSite(${s.id})" style="background:#f5f5f5;color:#666;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;">Cancel</button>
+                        </span>
+                    </td>
                 </tr>`).join('');
 
         // ---- SCORES TAB ----
@@ -15116,6 +15125,45 @@ window.rotAdmin = {
             if (error) throw error;
             window.app.renderRotationSchedule();
         } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    startEditSite(id) {
+        ['name','spec','prec','loc','slots','status'].forEach(f => {
+            const v = document.getElementById(`site-${f}-view-${id}`);
+            const e = document.getElementById(`site-${f}-edit-${id}`);
+            if (v) v.style.display = 'none';
+            if (e) e.style.display = '';
+        });
+        document.getElementById(`site-actions-view-${id}`).style.display = 'none';
+        document.getElementById(`site-actions-edit-${id}`).style.display = '';
+    },
+
+    cancelEditSite(id) {
+        ['name','spec','prec','loc','slots','status'].forEach(f => {
+            const v = document.getElementById(`site-${f}-view-${id}`);
+            const e = document.getElementById(`site-${f}-edit-${id}`);
+            if (v) v.style.display = '';
+            if (e) e.style.display = 'none';
+        });
+        document.getElementById(`site-actions-view-${id}`).style.display = '';
+        document.getElementById(`site-actions-edit-${id}`).style.display = 'none';
+    },
+
+    async saveSite(id) {
+        const name = document.getElementById(`site-name-edit-${id}`)?.value?.trim();
+        const specialty = document.getElementById(`site-spec-edit-${id}`)?.value?.trim();
+        const preceptor_name = document.getElementById(`site-prec-edit-${id}`)?.value?.trim();
+        const location = document.getElementById(`site-loc-edit-${id}`)?.value?.trim();
+        const available_slots = parseInt(document.getElementById(`site-slots-edit-${id}`)?.value) || 1;
+        const is_active = document.getElementById(`site-status-edit-${id}`)?.value === 'true';
+        if (!name || !specialty) { alert('Site Name and Specialty are required.'); return; }
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) return;
+            const { error } = await sb.from('rotation_sites').update({ site_name: name, specialty, preceptor_name: preceptor_name || null, location: location || null, available_slots, is_active }).eq('id', id);
+            if (error) throw error;
+            window.app.renderRotationSchedule();
+        } catch (e) { alert('Error saving: ' + e.message); }
     },
 
     async syncAppeStudents() {
