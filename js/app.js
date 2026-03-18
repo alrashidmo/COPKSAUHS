@@ -10214,12 +10214,22 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         sites.forEach(s => { siteMap[s.id] = s; });
 
         const assignMap = {};
-        assignments.forEach(a => { assignMap[a.student_id] = { ...a, pref_count: 0 }; });
+        // Pre-populate from APPE_DATABASE (all P4 students from Admin Hub)
+        if (typeof APPE_DATABASE !== 'undefined' && APPE_DATABASE.students) {
+            APPE_DATABASE.students.filter(s => s.cohort === 'APPE').forEach(s => {
+                assignMap[s.id] = { student_id: s.id, student_name: s.name, student_score: null, site_id: null, pref_count: 0 };
+            });
+        }
+        // Overlay with existing rotation_assignments (preserves saved scores/assignments)
+        assignments.forEach(a => {
+            assignMap[a.student_id] = { ...(assignMap[a.student_id] || {}), ...a, pref_count: (assignMap[a.student_id] || {}).pref_count || 0 };
+        });
+        // Add preference submitters not yet in the map
         prefStudents.forEach(ps => {
             if (assignMap[ps.student_id]) {
                 assignMap[ps.student_id].pref_count = ps.pref_count;
             } else {
-                assignMap[ps.student_id] = { student_id: ps.student_id, student_name: '', student_score: null, site_id: null, pref_count: ps.pref_count };
+                assignMap[ps.student_id] = { student_id: ps.student_id, student_name: ps.student_id, student_score: null, site_id: null, pref_count: ps.pref_count };
             }
         });
         const studentList = Object.values(assignMap).sort((a, b) => (b.student_score || 0) - (a.student_score || 0));
@@ -10345,10 +10355,21 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
             <!-- SCORES TAB -->
             <div id="rot-tab-scores" style="display:none;">
+                <div class="card" style="margin-bottom:1.25rem;background:linear-gradient(135deg,#f8fffe,#f0f9f0);border:1px solid #c8e6c9;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:1rem;">
+                        <div>
+                            <h3 style="margin:0 0 0.3rem 0;color:#1B5E20;font-size:0.95rem;font-weight:700;">📋 P4 (APPE) Student List — from Admin Hub Database</h3>
+                            <p style="margin:0;color:#666;font-size:0.82rem;">All ${studentList.length} P4 students are shown below. Enter their MS Survey scores and click Save, or use Save All Scores to bulk-save. Sync to Supabase before running Auto-Assign.</p>
+                        </div>
+                        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+                            <button onclick="window.rotAdmin.syncAppeStudents()" style="background:#1B5E20;color:white;border:none;padding:8px 16px;border-radius:7px;cursor:pointer;font-weight:700;font-size:0.85rem;">🔄 Sync All P4 to Supabase</button>
+                            <button onclick="window.rotAdmin.saveAllScores()" style="background:#1565C0;color:white;border:none;padding:8px 16px;border-radius:7px;cursor:pointer;font-weight:700;font-size:0.85rem;">💾 Save All Scores</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="card" style="margin-bottom:1.25rem;">
-                    <h3 style="margin:0 0 0.3rem 0;color:#333;font-size:0.95rem;font-weight:700;">➕ Add P4 Student</h3>
-                    <p style="margin:0 0 1rem 0;color:#aaa;font-size:0.82rem;">Students also appear automatically once they submit preferences.</p>
-                    <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;">
+                    <h3 style="margin:0 0 0.3rem 0;color:#333;font-size:0.9rem;font-weight:700;">➕ Add Student Manually <span style="font-weight:400;color:#aaa;font-size:0.82rem;">(if not in P4 database)</span></h3>
+                    <div style="display:flex;gap:0.75rem;align-items:flex-end;flex-wrap:wrap;margin-top:0.75rem;">
                         <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Student ID</label><input type="text" id="new-student-id" placeholder="441210049" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;width:140px;font-size:0.88rem;"></div>
                         <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">Full Name</label><input type="text" id="new-student-name" placeholder="Full name" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;width:200px;font-size:0.88rem;"></div>
                         <div><label style="display:block;font-size:0.78rem;color:#888;margin-bottom:3px;font-weight:600;">MS Survey Score (0–100)</label><input type="number" id="new-student-score" min="0" max="100" step="0.01" placeholder="85.5" style="padding:7px 10px;border:1px solid #ddd;border-radius:6px;width:120px;font-size:0.88rem;"></div>
@@ -15088,6 +15109,67 @@ window.rotAdmin = {
             if (error) throw error;
             window.app.renderRotationSchedule();
         } catch (e) { alert('Error: ' + e.message); }
+    },
+
+    async syncAppeStudents() {
+        if (typeof APPE_DATABASE === 'undefined' || !APPE_DATABASE.students) {
+            alert('APPE_DATABASE not found.'); return;
+        }
+        const appeStudents = APPE_DATABASE.students.filter(s => s.cohort === 'APPE');
+        if (!confirm('Sync ' + appeStudents.length + ' P4 students to Supabase? Existing scores will be preserved.')) return;
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) { alert('Not connected.'); return; }
+            // Fetch existing to preserve scores
+            const { data: existing } = await sb.from('rotation_assignments').select('student_id, student_score').in('student_id', appeStudents.map(s => s.id));
+            const scoreMap = {};
+            (existing || []).forEach(r => { scoreMap[r.student_id] = r.student_score; });
+            const rows = appeStudents.map(s => ({ student_id: s.id, student_name: s.name, student_score: scoreMap[s.id] ?? null }));
+            // Upsert in batches of 50
+            for (let i = 0; i < rows.length; i += 50) {
+                const batch = rows.slice(i, i + 50);
+                const { error } = await sb.from('rotation_assignments').upsert(batch, { onConflict: 'student_id' });
+                if (error) throw error;
+            }
+            alert('✅ ' + rows.length + ' P4 students synced to Supabase!');
+            window.app.renderRotationSchedule();
+            setTimeout(() => window.rotAdmin.switchTab('scores'), 300);
+        } catch (e) { alert('Sync error: ' + e.message); }
+    },
+
+    async saveAllScores() {
+        try {
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb) { alert('Not connected.'); return; }
+            const rows = [];
+            document.querySelectorAll('#scores-tbody tr[id^="score-row-"]').forEach(row => {
+                const rowId = row.id.replace('score-row-', '');
+                // Find the actual student_id from the save button's onclick attribute
+                const saveBtn = row.querySelector('button[onclick*="saveScore"]');
+                if (!saveBtn) return;
+                const match = saveBtn.getAttribute('onclick').match(/saveScore\('([^']+)'\)/);
+                if (!match) return;
+                const studentId = match[1];
+                const nameInput = document.getElementById('name-' + rowId);
+                const scoreInput = document.getElementById('score-' + rowId);
+                const name = nameInput?.value?.trim();
+                const score = parseFloat(scoreInput?.value);
+                if (studentId && name) {
+                    rows.push({ student_id: studentId, student_name: name, student_score: isNaN(score) ? null : score });
+                }
+            });
+            if (rows.length === 0) { alert('No students found to save.'); return; }
+            for (let i = 0; i < rows.length; i += 50) {
+                const { error } = await sb.from('rotation_assignments').upsert(rows.slice(i, i + 50), { onConflict: 'student_id' });
+                if (error) throw error;
+            }
+            // Flash all rows green
+            document.querySelectorAll('#scores-tbody tr').forEach(row => {
+                row.style.background = '#e8f5e9';
+                setTimeout(() => { row.style.background = ''; }, 1500);
+            });
+            alert('✅ ' + rows.length + ' scores saved!');
+        } catch (e) { alert('Save all error: ' + e.message); }
     },
 
     async addStudent() {
