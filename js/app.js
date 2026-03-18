@@ -15114,14 +15114,22 @@ window.rotAdmin = {
         return [1,2,3,4,5,6,7,8,9,10].map(b => {
             const slots = avMap[b] != null ? avMap[b] : null;
             const on = slots !== null;
-            return `<div style="cursor:pointer;border-radius:10px;padding:10px 14px;font-size:0.82rem;font-weight:700;min-width:80px;text-align:center;border:2px solid ${on?'#2e7d32':'#ddd'};background:${on?'#e8f5e9':'#f5f5f5'};color:${on?'#1B5E20':'#aaa'};transition:all 0.2s;" onclick="window.rotAdmin.toggleBlock(${siteId},${b})">
-                <div style="font-size:0.78rem;color:${on?'#2e7d32':'#bbb'};">Block</div>
-                <div style="font-size:1rem;">${b}</div>
-                ${on
-                    ? `<div style="margin-top:4px;"><input type="number" min="1" max="10" value="${slots}" onclick="event.stopPropagation()" onchange="event.stopPropagation();window.rotAdmin.saveBlockCapacity(${siteId},${b},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`
-                    : `<div style="font-size:0.72rem;color:#ccc;margin-top:4px;">off</div>`
-                }
-            </div>`;
+            if (on) {
+                // Green chip: no click-to-toggle on outer div; use explicit ✕ button
+                return `<div style="border-radius:10px;padding:10px 14px;font-size:0.82rem;font-weight:700;min-width:80px;text-align:center;border:2px solid #2e7d32;background:#e8f5e9;color:#1B5E20;position:relative;">
+                    <button onclick="window.rotAdmin.toggleBlock(${siteId},${b})" title="Disable this block" style="position:absolute;top:3px;right:4px;background:none;border:none;cursor:pointer;font-size:0.75rem;color:#c62828;line-height:1;padding:0;">✕</button>
+                    <div style="font-size:0.78rem;color:#2e7d32;">Block</div>
+                    <div style="font-size:1rem;">${b}</div>
+                    <div style="margin-top:4px;"><input type="number" min="1" max="10" value="${slots}" onchange="window.rotAdmin.saveBlockCapacity(${siteId},${b},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>
+                </div>`;
+            } else {
+                // Gray chip: entire div is clickable to enable
+                return `<div onclick="window.rotAdmin.toggleBlock(${siteId},${b})" style="cursor:pointer;border-radius:10px;padding:10px 14px;font-size:0.82rem;font-weight:700;min-width:80px;text-align:center;border:2px solid #ddd;background:#f5f5f5;color:#aaa;transition:all 0.2s;">
+                    <div style="font-size:0.78rem;color:#bbb;">Block</div>
+                    <div style="font-size:1rem;">${b}</div>
+                    <div style="font-size:0.72rem;color:#ccc;margin-top:4px;">off</div>
+                </div>`;
+            }
         }).join('');
     },
 
