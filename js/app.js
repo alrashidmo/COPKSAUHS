@@ -4327,6 +4327,55 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             
             
             
+            // Resources Management Section
+            let existingResources = [];
+            try {
+                if (typeof window.SupabaseAuth !== 'undefined' && window.SupabaseAuth.supabase) {
+                    const { data } = await window.SupabaseAuth.supabase
+                        .from('college_resources')
+                        .select('*')
+                        .order('display_order', { ascending: true });
+                    if (data) existingResources = data;
+                }
+            } catch(e) {}
+
+            const resourceRows = existingResources.length === 0
+                ? `<p style="color:#999; text-align:center; margin:1rem 0;">No resources added yet.</p>`
+                : existingResources.map(r => `
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.75rem; background:#f9f9f9; border-radius:8px; margin-bottom:0.5rem;">
+                        <span style="font-size:1.5rem;">${r.icon || '📄'}</span>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; color:#1B5E20;">${r.title}</div>
+                            <div style="font-size:0.8rem; color:#999;">${r.url}</div>
+                        </div>
+                        <button onclick="window.deleteResource(${r.id})" style="background:#F44336; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer; font-size:0.85rem;">🗑️ Delete</button>
+                    </div>`).join('');
+
+            const resourcesSection = `
+                <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                    <h2 style="margin: 0 0 1.5rem 0; color: #1B5E20; font-size: 1.5rem;">📚 Manage Resources</h2>
+
+                    <!-- Add New Resource Form -->
+                    <div style="background:#f5f5f5; padding:1.5rem; border-radius:10px; margin-bottom:1.5rem;">
+                        <h3 style="margin:0 0 1rem 0; color:#333; font-size:1rem;">Add New Resource</h3>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                            <input id="res-title" type="text" placeholder="Title (e.g. Academic Renewal Policy)" style="padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                            <input id="res-url" type="url" placeholder="URL (https://...)" style="padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                            <input id="res-icon" type="text" placeholder="Icon emoji (e.g. 📄 📋 📑)" style="padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                            <input id="res-category" type="text" placeholder="Category (e.g. Academic, Clinical)" style="padding:10px; border:1px solid #ddd; border-radius:6px; font-size:0.9rem;">
+                        </div>
+                        <button onclick="window.addResource()" style="background:#1B5E20; color:white; border:none; padding:10px 24px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:0.95rem;">+ Add Resource</button>
+                    </div>
+
+                    <!-- Existing Resources -->
+                    <div id="resources-list">
+                        ${resourceRows}
+                    </div>
+                </div>
+            `;
+
             // Student Database & Management Section
             const studentDbSection = `
                 <div style="margin-top: 2rem; padding: 2rem; background: white; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
@@ -4434,6 +4483,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                             </div>
                         </div>
                         <div class="section-content">
+                            ${resourcesSection}
                             ${studentDbSection}
                         </div>
                     </div>
@@ -14767,6 +14817,53 @@ window.rejectTicket = async function(ticketId, studentId, studentEmail) {
         alert(`? Error: ${error.message}`);
     }
 };
+
+// ============================================================
+// RESOURCES MANAGEMENT (Admin)
+// ============================================================
+window.addResource = async () => {
+    const title = document.getElementById('res-title')?.value.trim();
+    const url = document.getElementById('res-url')?.value.trim();
+    const icon = document.getElementById('res-icon')?.value.trim() || '📄';
+    const category = document.getElementById('res-category')?.value.trim() || 'General';
+
+    if (!title || !url) {
+        alert('Please enter both a title and a URL.');
+        return;
+    }
+
+    try {
+        const { error } = await window.SupabaseAuth.supabase
+            .from('college_resources')
+            .insert({ title, url, icon, category });
+
+        if (error) throw error;
+
+        alert('✅ Resource added successfully!');
+        window.app.renderAdminHub();
+    } catch (e) {
+        alert(`❌ Error: ${e.message}`);
+    }
+};
+
+window.deleteResource = async (id) => {
+    if (!confirm('Delete this resource?')) return;
+
+    try {
+        const { error } = await window.SupabaseAuth.supabase
+            .from('college_resources')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        alert('✅ Resource deleted.');
+        window.app.renderAdminHub();
+    } catch (e) {
+        alert(`❌ Error: ${e.message}`);
+    }
+};
+
 
 
 

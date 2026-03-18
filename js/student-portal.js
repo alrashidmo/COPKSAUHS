@@ -1653,12 +1653,68 @@ window.StudentPortal = {
             console.error('Dashboard error:', error);
         }
     },
+    showResources: () => {
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = 'Resources';
+        renderResources();
+    },
     switchUserRole: (role) => {
         currentUserRole = role;
         alert(`Switched to ${role === 'admin' ? 'Admin' : 'Student'} mode`);
         StudentPortal.renderHome();
     }
 };
+
+// ============================================================
+// RENDER RESOURCES PAGE
+// ============================================================
+async function renderResources() {
+    const root = document.getElementById('app-root');
+    if (!root) return;
+
+    root.innerHTML = `<div style="padding: 2rem; text-align: center; color: #666;">Loading resources...</div>`;
+
+    let resources = [];
+    try {
+        if (typeof window.SupabaseAuth !== 'undefined' && window.SupabaseAuth.supabase) {
+            const { data, error } = await window.SupabaseAuth.supabase
+                .from('college_resources')
+                .select('*')
+                .eq('is_active', true)
+                .order('display_order', { ascending: true });
+            if (!error && data) resources = data;
+        }
+    } catch (e) {
+        console.warn('Could not load resources from Supabase:', e);
+    }
+
+    const cardsHTML = resources.length === 0
+        ? `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #999;">
+               <div style="font-size: 3rem; margin-bottom: 1rem;">📂</div>
+               <p style="font-size: 1.1rem;">No resources available yet.</p>
+           </div>`
+        : resources.map(r => `
+            <a href="${r.url}" target="_blank" rel="noopener noreferrer" style="text-decoration: none;">
+                <div style="background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 2rem 1.5rem; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 6px rgba(0,0,0,0.06);"
+                     onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)';"
+                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.06)';">
+                    <div style="font-size: 2.5rem; margin-bottom: 1rem;">${r.icon || '📄'}</div>
+                    <div style="color: #1B5E20; font-weight: 600; font-size: 0.95rem; line-height: 1.4;">${r.title}</div>
+                    ${r.category ? `<div style="margin-top: 0.5rem; font-size: 0.78rem; color: #999;">${r.category}</div>` : ''}
+                </div>
+            </a>`).join('');
+
+    root.innerHTML = `
+        <div style="padding: 2rem;">
+            <div style="margin-bottom: 2rem;">
+                <h1 style="margin: 0 0 0.5rem 0; font-size: 2rem; color: #1a1a1a; font-weight: 700;">📚 Resources</h1>
+                <p style="margin: 0; color: #666;">Official documents and resources from the College of Pharmacy</p>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.25rem;">
+                ${cardsHTML}
+            </div>
+        </div>`;
+}
 
 // ============================================================
 // INITIALIZE: Load submitted tickets from localStorage on startup
