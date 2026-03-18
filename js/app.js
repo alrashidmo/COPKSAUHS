@@ -1663,42 +1663,65 @@ class App {
 
     // --- Academic Programs: Data & State ---
     _initAcademicProgramsData() {
-        // Initialize with complete PharmD course list (45+ courses) + MSc programs
+        // Official KSAU-HS PharmD Study Plan (Fifth Edition) — 49 courses
         const pharmdCourses = [
-            // Year 1 Courses
-            { code: 'PHAR101', name: 'Introduction to Pharmacy', eval: { years: ['2023','2024','2025'], overall: [4.2, 4.1, 3.8], teaching: [4.3, 4.2, 3.9], assessment: [4.0, 3.9, 3.6], resources: [4.1, 4.0, 3.7], outcomes: [4.2, 4.1, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [89, 86, 81], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023': [78, 84, 72, 80], '2024': [74, 82, 70, 81], '2025': [71, 80, 68, 78] }, ploMap: { CLO1: ['PLO1'], CLO2: ['PLO2'], CLO3: ['PLO3'], CLO4: ['PLO1','PLO4'] }, benchmark: 75 }, comments: { strengths: ['Engaging intro', 'Clear objectives'], improvement: ['Assessment clarity', 'Resource availability'] } },
-            { code: 'PHAR102', name: 'Pharmaceutical Chemistry I', eval: { years: ['2023','2024','2025'], overall: [4.3, 4.2, 4.1], teaching: [4.4, 4.3, 4.2], assessment: [4.1, 4.0, 3.9], resources: [4.2, 4.1, 4.0], outcomes: [4.3, 4.2, 4.1], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [91, 89, 87], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023': [80, 82, 78], '2024': [79, 81, 77], '2025': [78, 80, 76] }, ploMap: { CLO1: ['PLO1'], CLO2: ['PLO2'], CLO3: ['PLO3'] }, benchmark: 75 }, comments: { strengths: ['Structured curriculum', 'Good resources'], improvement: ['More problem sets'] } },
-            { code: 'PHAR103', name: 'Pharmaceutical Calculation', eval: { years: ['2023','2024','2025'], overall: [3.9, 3.8, 3.7], teaching: [4.0, 3.9, 3.8], assessment: [3.8, 3.7, 3.6], resources: [3.9, 3.8, 3.7], outcomes: [3.9, 3.8, 3.7], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [85, 83, 81], benchmark: 85 }, clo: { list: ['CLO1','CLO2'], achievement: { '2023': [76, 74], '2024': [75, 73], '2025': [74, 72] }, ploMap: { CLO1: ['PLO1'], CLO2: ['PLO2'] }, benchmark: 75 }, comments: { strengths: ['Practical application'], improvement: ['More practice examples'] } },
-            { code: 'PHAR104', name: 'Medicinal Chemistry', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [88, 86, 84], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023': [79, 81, 77, 80], '2024': [78, 80, 76, 79], '2025': [77, 79, 75, 78] }, ploMap: { CLO1: ['PLO1'], CLO2: ['PLO2'], CLO3: ['PLO3'], CLO4: ['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Good examples', 'Clear structure'], improvement: ['More interactive content'] } },
-            { code: 'PHAR105', name: 'Biology for Pharmacists', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [87, 85, 83], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023': [78, 80, 76], '2024': [77, 79, 75], '2025': [76, 78, 74] }, ploMap: { CLO1: ['PLO1'], CLO2: ['PLO3'], CLO3: ['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Comprehensive', 'Relevant'], improvement: ['Update examples'] } },
-            // Year 2 Courses
-            { code: 'PHAR205', name: 'Pharmacology I', eval: { years: ['2023','2024','2025'], overall: [4.4, 4.3, 4.2], teaching: [4.5, 4.3, 4.2], assessment: [4.2, 4.1, 4.0], resources: [4.3, 4.2, 4.1], outcomes: [4.4, 4.2, 4.2], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [92, 90, 88], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[82,86,79], '2024':[84,85,80], '2025':[83,84,81] }, ploMap: { CLO1:['PLO2'], CLO2:['PLO3'], CLO3:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Strong lectures', 'Engaged faculty'], improvement: ['More practice questions'] } },
-            { code: 'PHAR206', name: 'Pharmacology II', eval: { years: ['2023','2024','2025'], overall: [4.3, 4.2, 4.1], teaching: [4.4, 4.3, 4.2], assessment: [4.1, 4.0, 3.9], resources: [4.2, 4.1, 4.0], outcomes: [4.3, 4.2, 4.1], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [90, 89, 87], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[81,83,80,82], '2024':[80,82,79,81], '2025':[79,81,78,80] }, ploMap: { CLO1:['PLO2'], CLO2:['PLO3'], CLO3:['PLO4'], CLO4:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Well-organized', 'Good examples'], improvement: ['More case studies'] } },
-            { code: 'PHAR210', name: 'Pharmaceutics I', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [86, 84, 82], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[77,79,75], '2024':[76,78,74], '2025':[75,77,73] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'] }, benchmark: 75 }, comments: { strengths: ['Practical labs'], improvement: ['Better equipment'] } },
-            { code: 'PHAR211', name: 'Pharmaceutics II', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [88, 86, 84], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[79,81,77,80], '2024':[78,80,76,79], '2025':[77,79,75,78] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Good formulations', 'Clear'], improvement: ['More modern examples'] } },
-            { code: 'PHAR220', name: 'Pharmacokinetics & Dynamics', eval: { years: ['2023','2024','2025'], overall: [4.2, 4.1, 4.0], teaching: [4.3, 4.2, 4.1], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.2, 4.1, 4.0], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [89, 87, 85], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[80,82,78], '2024':[79,81,77], '2025':[78,80,76] }, ploMap: { CLO1:['PLO2'], CLO2:['PLO3'], CLO3:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Mathematical approach', 'Relevant'], improvement: ['More simulations'] } },
-            { code: 'PHAR230', name: 'Therapeutics I', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [87, 85, 83], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[78,80,76,79], '2024':[77,79,75,78], '2025':[76,78,74,77] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Clinical focus', 'Engaging'], improvement: ['More evidence-based'] } },
-            // Year 3 Courses  
-            { code: 'PHAR330', name: 'Therapeutics II', eval: { years: ['2023','2024','2025'], overall: [3.9, 3.7, 3.6], teaching: [4.0, 3.8, 3.7], assessment: [3.7, 3.5, 3.4], resources: [3.9, 3.6, 3.5], outcomes: [3.8, 3.6, 3.5], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [83, 80, 78], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4','CLO5'], achievement: { '2023':[72,74,70,76,73], '2024':[70,73,68,74,71], '2025':[69,72,66,72,70] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'], CLO5:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Clinical relevance', 'Cases'], improvement: ['Assessment fairness', 'Load management'] } },
-            { code: 'PHAR340', name: 'Therapeutics III', eval: { years: ['2023','2024','2025'], overall: [3.8, 3.6, 3.5], teaching: [3.9, 3.7, 3.6], assessment: [3.6, 3.4, 3.3], resources: [3.8, 3.5, 3.4], outcomes: [3.7, 3.5, 3.4], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [81, 78, 76], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[70,72,68,74], '2024':[68,71,66,72], '2025':[67,70,65,71] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Complex cases'], improvement: ['More resources needed', 'Workload'] } },
-            { code: 'PHAR350', name: 'Social & Administrative Pharmacy', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [86, 84, 82], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[77,79,75], '2024':[76,78,74], '2025':[75,77,73] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO4'], CLO3:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Policy focus', 'Relevant'], improvement: ['More practice'] } },
-            { code: 'PHAR360', name: 'Pharmaceutics III (Industrial)', eval: { years: ['2023','2024','2025'], overall: [3.9, 3.8, 3.7], teaching: [4.0, 3.9, 3.8], assessment: [3.8, 3.7, 3.6], resources: [3.9, 3.8, 3.7], outcomes: [3.9, 3.8, 3.7], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [85, 83, 81], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[76,78,74,77], '2024':[75,77,73,76], '2025':[74,76,72,75] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Industry exposure'], improvement: ['More facility visits'] } },
-            { code: 'PHAR370', name: 'Medicinal Chemistry II', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [88, 86, 84], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[79,81,77,80], '2024':[78,80,76,79], '2025':[77,79,75,78] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Advanced content', 'Clear'], improvement: ['More application'] } },
-            // Year 4 / APPE Courses
-            { code: 'PHAR410', name: 'Clinical Pharmacy & Therapeutics', eval: { years: ['2023','2024','2025'], overall: [4.3, 4.2, 4.1], teaching: [4.4, 4.3, 4.2], assessment: [4.1, 4.0, 3.9], resources: [4.2, 4.1, 4.0], outcomes: [4.3, 4.2, 4.1], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [90, 89, 87], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4','CLO5'], achievement: { '2023':[81,83,80,82,79], '2024':[80,82,79,81,78], '2025':[79,81,78,80,77] }, ploMap: { CLO1:['PLO2'], CLO2:['PLO3'], CLO3:['PLO4'], CLO4:['PLO5'], CLO5:['PLO1'] }, benchmark: 75 }, comments: { strengths: ['Patient-focused', 'Excellent faculty'], improvement: ['More patient interaction'] } },
-            { code: 'PHAR420', name: 'Community Pharmacy Practice', eval: { years: ['2023','2024','2025'], overall: [4.2, 4.1, 4.0], teaching: [4.3, 4.2, 4.1], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.2, 4.1, 4.0], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [89, 88, 86], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[80,82,78,81], '2024':[79,81,77,80], '2025':[78,80,76,79] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO4'], CLO4:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Real-world experience', 'Practical'], improvement: ['More diverse settings'] } },
-            { code: 'PHAR430', name: 'Hospital Pharmacy Practice', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [87, 85, 83], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[78,80,76,79], '2024':[77,79,75,78], '2025':[76,78,74,77] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Systems approach', 'Comprehensive'], improvement: ['More technology'] } },
-            { code: 'PHAR440', name: 'Pharmacy Leadership & Management', eval: { years: ['2023','2024','2025'], overall: [3.9, 3.8, 3.7], teaching: [4.0, 3.9, 3.8], assessment: [3.8, 3.7, 3.6], resources: [3.9, 3.8, 3.7], outcomes: [3.9, 3.8, 3.7], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [84, 82, 80], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[75,77,73], '2024':[74,76,72], '2025':[73,75,71] }, ploMap: { CLO1:['PLO4'], CLO2:['PLO5'], CLO3:['PLO1'] }, benchmark: 75 }, comments: { strengths: ['Leadership focus'], improvement: ['More case studies needed'] } },
-            { code: 'PHAR450', name: 'Pharmacy Informatics & Technology', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [86, 84, 82], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[77,79,75], '2024':[76,78,74], '2025':[75,77,73] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'] }, benchmark: 75 }, comments: { strengths: ['Tech-forward', 'Modern'], improvement: ['More hands-on training'] } },
-            { code: 'PHAR460', name: 'Research Methods & Evidence', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [88, 86, 84], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[79,81,77,80], '2024':[78,80,76,79], '2025':[77,79,75,78] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Evidence-based', 'Rigorous'], improvement: ['More datasets'] } },
-            { code: 'PHAR470', name: 'Global Health & Pharmacy', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [86, 84, 82], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3'], achievement: { '2023':[77,79,75], '2024':[76,78,74], '2025':[75,77,73] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO4'], CLO3:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['International focus'], improvement: ['More field experience'] } },
-            { code: 'PHAR480', name: 'Patient Counseling Skills', eval: { years: ['2023','2024','2025'], overall: [4.2, 4.1, 4.0], teaching: [4.3, 4.2, 4.1], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.2, 4.1, 4.0], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [89, 88, 86], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4','CLO5'], achievement: { '2023':[80,82,78,81,79], '2024':[79,81,77,80,78], '2025':[78,80,76,79,77] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'], CLO5:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Interactive', 'Practical'], improvement: ['More recordings'] } },
-            { code: 'PHAR490', name: 'IPPE - Institutional Pharmacy', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [87, 85, 83], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4','CLO5'], achievement: { '2023':[78,80,76,79,77], '2024':[77,79,75,78,76], '2025':[76,78,74,77,75] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'], CLO5:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Hands-on experience'], improvement: ['More preceptor training'] } },
-            { code: 'PHAR500', name: 'APPE - Community Pharmacy', eval: { years: ['2023','2024','2025'], overall: [4.2, 4.1, 4.0], teaching: [4.3, 4.2, 4.1], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.2, 4.1, 4.0], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [89, 88, 86], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4','CLO5'], achievement: { '2023':[80,82,78,81,79], '2024':[79,81,77,80,78], '2025':[78,80,76,79,77] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'], CLO5:['PLO5'] }, benchmark: 75 }, comments: { strengths: ['Real-world immersion'], improvement: ['More diverse cases'] } },
-            { code: 'PHAR510', name: 'APPE - Clinical Hospital', eval: { years: ['2023','2024','2025'], overall: [4.3, 4.2, 4.1], teaching: [4.4, 4.3, 4.2], assessment: [4.1, 4.0, 3.9], resources: [4.2, 4.1, 4.0], outcomes: [4.3, 4.2, 4.1], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [90, 89, 87], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4','CLO5'], achievement: { '2023':[81,83,80,82,79], '2024':[80,82,79,81,78], '2025':[79,81,78,80,77] }, ploMap: { CLO1:['PLO2'], CLO2:['PLO3'], CLO3:['PLO4'], CLO4:['PLO5'], CLO5:['PLO1'] }, benchmark: 75 }, comments: { strengths: ['Clinical excellence', 'Strong faculty'], improvement: ['More patient encounters'] } },
-            { code: 'PHAR520', name: 'APPE - Specialty Practice', eval: { years: ['2023','2024','2025'], overall: [4.1, 4.0, 3.9], teaching: [4.2, 4.1, 4.0], assessment: [4.0, 3.9, 3.8], resources: [4.1, 4.0, 3.9], outcomes: [4.1, 4.0, 3.9], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [87, 85, 83], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[78,80,76,79], '2024':[77,79,75,78], '2025':[76,78,74,77] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Specialized knowledge'], improvement: ['More rotation options'] } },
-            { code: 'PHAR530', name: 'APPE - Elective Rotation 1', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [86, 84, 82], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[77,79,75,78], '2024':[76,78,74,77], '2025':[75,77,73,76] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Student choice', 'Flexible'], improvement: ['More options needed'] } },
-            { code: 'PHAR540', name: 'APPE - Elective Rotation 2', eval: { years: ['2023','2024','2025'], overall: [4.0, 3.9, 3.8], teaching: [4.1, 4.0, 3.9], assessment: [3.9, 3.8, 3.7], resources: [4.0, 3.9, 3.8], outcomes: [4.0, 3.9, 3.8], benchmark: 4.0 }, passRates: { years: ['2023','2024','2025'], values: [86, 84, 82], benchmark: 85 }, clo: { list: ['CLO1','CLO2','CLO3','CLO4'], achievement: { '2023':[77,79,75,78], '2024':[76,78,74,77], '2025':[75,77,73,76] }, ploMap: { CLO1:['PLO1'], CLO2:['PLO2'], CLO3:['PLO3'], CLO4:['PLO4'] }, benchmark: 75 }, comments: { strengths: ['Choice flexibility'], improvement: ['More tracking'] } }
+            // ── Year 1 · First Semester ──
+            { code: 'PHRB-301', name: 'Pharmacology I' },
+            { code: 'PHRB-303', name: 'Medicinal Chemistry I' },
+            { code: 'PHRB-305', name: 'Pharmaceutics I' },
+            { code: 'PHRB-307', name: 'Pharmaceutical Calculations' },
+            { code: 'PHRC-301', name: 'Introduction to Pharmacy' },
+            { code: 'PHRC-302', name: 'Communication Skills' },
+            { code: 'PHRC-303', name: 'Clinical Microbiology' },
+            { code: 'PHRC-300', name: 'IPPE I (Longitudinal)' },
+            // ── Year 1 · Second Semester ──
+            { code: 'PHRB-302', name: 'Pharmacology II' },
+            { code: 'PHRB-304', name: 'Medicinal Chemistry II' },
+            { code: 'PHRB-306', name: 'Pharmaceutics II' },
+            { code: 'PHRB-308', name: 'Sterile Dosage Forms' },
+            { code: 'PHRC-304', name: 'Immunology' },
+            { code: 'PHRC-305', name: 'Principles of Integrated Pharmacotherapy' },
+            { code: 'PHRC-317', name: 'Pharmacy Compounding' },
+            // ── Year 2 · First Semester ──
+            { code: 'PHRC-401', name: 'Integrated Pharmacotherapy I' },
+            { code: 'PHRC-403', name: 'Patient Assessment' },
+            { code: 'PHRC-404', name: 'Self-Care and Non-Prescription Drugs' },
+            { code: 'PHRC-405', name: 'Clinical Research Methodology' },
+            { code: 'PHRC-406', name: 'Pharm.D. Research I (Longitudinal)' },
+            { code: 'PHRC-400', name: 'IPPE II (Longitudinal)' },
+            // ── Year 2 · Second Semester ──
+            { code: 'PHRC-402', name: 'Integrated Pharmacotherapy II' },
+            { code: 'PHRC-407', name: 'Immunization' },
+            { code: 'PHRC-408', name: 'Alternative Therapy' },
+            { code: 'PHRC-409', name: 'Clinical Toxicology' },
+            { code: 'PHRC-415', name: 'Clinical Literature Evaluation' },
+            { code: 'PHRB-401', name: 'Biopharmaceutics and Pharmacokinetics' },
+            // ── Year 3 · First Semester ──
+            { code: 'PHRC-501', name: 'Integrated Pharmacotherapy III' },
+            { code: 'PHRC-503', name: 'Pharmacogenetics / Pharmacogenomics' },
+            { code: 'PHRC-504', name: 'Seminar' },
+            { code: 'PHRC-511', name: 'Applied Pharmacokinetics' },
+            { code: 'PHRC-516', name: 'Pharm.D. Research II (Longitudinal)' },
+            { code: 'PHRC-500', name: 'IPPE III (Longitudinal)' },
+            // ── Year 3 · Second Semester ──
+            { code: 'PHRC-502', name: 'Integrated Pharmacotherapy IV' },
+            { code: 'PHRC-505', name: 'Pharmacy Management and Economics' },
+            { code: 'PHRC-506', name: 'Medication Therapy Management' },
+            { code: 'PHRC-507', name: 'Introduction to Clinical Practice' },
+            { code: 'PHRC-508', name: 'Pharmacy Law' },
+            { code: 'PHRC-510', name: 'IPPE Community' },
+            // ── Year 4 · First Semester (APPE) ──
+            { code: 'PHRC-611', name: 'APPE I' },
+            { code: 'PHRC-612', name: 'APPE II' },
+            { code: 'PHRC-613', name: 'APPE III' },
+            { code: 'PHRC-614', name: 'APPE IV' },
+            { code: 'PHRC-615', name: 'APPE V' },
+            // ── Year 4 · Second Semester (APPE) ──
+            { code: 'PHRC-616', name: 'APPE VI' },
+            { code: 'PHRC-617', name: 'APPE VII' },
+            { code: 'PHRC-618', name: 'APPE VIII' },
+            { code: 'PHRC-619', name: 'APPE IX' },
+            { code: 'PHRC-620', name: 'APPE X' },
         ];
         
         this.academicPrograms = {
@@ -1988,14 +2011,14 @@ class App {
             return r && r < (mock?.eval?.benchmark || 4.0);
         }).length;
 
-        // Group by year level
-        const groups = {'Year 1':[],'Year 2':[],'Year 3':[],'Year 4+':[]};
+        // Group by year level (PHRB/PHRC: 3xx=Y1, 4xx=Y2, 5xx=Y3, 6xx=Y4 APPE)
+        const groups = {'Year 1':[],'Year 2':[],'Year 3':[],'Year 4 (APPE)':[]};
         courses.forEach(c => {
             const n = parseInt(c.code.replace(/\D/g,''));
-            if (n < 200) groups['Year 1'].push(c);
-            else if (n < 300) groups['Year 2'].push(c);
-            else if (n < 400) groups['Year 3'].push(c);
-            else groups['Year 4+'].push(c);
+            if (n < 400) groups['Year 1'].push(c);
+            else if (n < 500) groups['Year 2'].push(c);
+            else if (n < 600) groups['Year 3'].push(c);
+            else groups['Year 4 (APPE)'].push(c);
         });
 
         const groupedOptions = Object.entries(groups).filter(([,cs])=>cs.length).map(([label,cs]) =>
@@ -3417,6 +3440,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const list = this.academicPrograms.coursesByProgram[programId] || [];
         const out = [];
         list.forEach(c => {
+            if (!c.eval) return; // skip courses without evaluation data yet
             const f = this._computeCourseFlags(c);
             if (f.length) out.push({ code: c.code, name: c.name, flags: f });
         });
