@@ -1734,7 +1734,7 @@ async function renderRotationPreferences() {
 
     root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">⏳</div><p>Loading rotation data...</p></div>';
 
-    let sites = [], settings = { submissions_open: true }, assignment = null, savedPrefs = [];
+    let sites = [], settings = { submissions_open: true }, assignment = null, savedPrefs = [], availMap = {};
 
     try {
         const sb = window.SupabaseAuth?.supabase;
@@ -1742,17 +1742,24 @@ async function renderRotationPreferences() {
             const { data: { user } } = await sb.auth.getUser();
             _rotCurrentUserId = user?.id;
 
-            const [sitesRes, settingsRes, assignRes, prefsRes] = await Promise.all([
+            const [sitesRes, settingsRes, assignRes, prefsRes, avRes] = await Promise.all([
                 sb.from('rotation_sites').select('id, site_name, specialty').eq('is_active', true).order('site_name'),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
                 sb.from('rotation_assignments').select('*, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).maybeSingle(),
-                sb.from('rotation_preferences').select('site_id, preference_rank, submitted_at, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).order('preference_rank')
+                sb.from('rotation_preferences').select('site_id, preference_rank, submitted_at, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).order('preference_rank'),
+                sb.from('rotation_site_availability').select('site_id, block_number')
             ]);
 
             if (!sitesRes.error && sitesRes.data) sites = sitesRes.data;
             if (!settingsRes.error && settingsRes.data) settings = settingsRes.data;
             if (!assignRes.error) assignment = assignRes.data;
             if (!prefsRes.error && prefsRes.data) savedPrefs = prefsRes.data;
+            if (!avRes.error && avRes.data) {
+                avRes.data.forEach(a => {
+                    if (!availMap[a.site_id]) availMap[a.site_id] = [];
+                    availMap[a.site_id].push(a.block_number);
+                });
+            }
         }
     } catch (e) { console.warn('Rotation prefs load error:', e); }
 
@@ -1788,10 +1795,18 @@ async function renderRotationPreferences() {
             const isSel = selectedIds.has(s.id);
             const siteName = (s.site_name || '').replace(/'/g, "\\'");
             const specialty = (s.specialty || '').replace(/'/g, "\\'");
+            const blocks = availMap[s.id] || [];
+            const blockChips = [1,2,3,4,5,6,7,8,9,10].map(b =>
+                `<span title="Block ${b}" style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:4px;font-size:0.65rem;font-weight:700;background:${blocks.includes(b)?'#2e7d32':'#e0e0e0'};color:${blocks.includes(b)?'white':'#aaa'};">${b}</span>`
+            ).join('');
             return `
             <div data-site-card="${s.id}" onclick="window.rotStudent.previewRotation(${s.id},'${specialty}','${siteName}')" style="background:white;border:2px solid ${isSel ? '#a5d6a7' : '#e0e0e0'};border-radius:10px;padding:1.2rem;transition:border-color 0.2s,box-shadow 0.2s;cursor:pointer;" onmouseover="if(!this.style.outline)this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'" onmouseout="this.style.boxShadow=''">
                 <div style="font-weight:700;color:#1a1a1a;margin-bottom:0.4rem;font-size:0.92rem;line-height:1.35;">${s.site_name}</div>
-                <div style="font-size:0.8rem;color:#1B5E20;background:#e8f5e9;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:0.9rem;">${s.specialty || '—'}</div>
+                <div style="font-size:0.8rem;color:#1B5E20;background:#e8f5e9;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:0.6rem;">${s.specialty || '—'}</div>
+                <div style="margin-bottom:0.75rem;">
+                    <div style="font-size:0.68rem;color:#999;margin-bottom:3px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;">Available Blocks</div>
+                    <div style="display:flex;gap:3px;flex-wrap:wrap;">${blocks.length ? blockChips : '<span style="font-size:0.72rem;color:#bbb;">Not yet configured</span>'}</div>
+                </div>
                 <div><button data-site-btn="${s.id}" onclick="event.stopPropagation();window.rotStudent.addToPref(${s.id},'${siteName}','${specialty}')" ${isSel ? 'disabled' : ''} style="width:100%;padding:6px;border:none;border-radius:6px;cursor:${isSel ? 'default' : 'pointer'};font-weight:600;font-size:0.83rem;background:${isSel ? '#e8f5e9' : '#1B5E20'};color:${isSel ? '#2e7d32' : 'white'};transition:all 0.15s;">${isSel ? '✓ Added' : '+ Add to Preferences'}</button></div>
             </div>`;
         }).join('');

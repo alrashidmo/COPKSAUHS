@@ -10188,16 +10188,17 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.root.innerHTML = '<div style="padding:2rem;text-align:center;color:#666;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">⏳</div><p>Loading rotation data...</p></div>';
 
         let sites = [], settings = { submissions_open: true, academic_year: '2025-2026' };
-        let assignments = [], prefStudents = [];
+        let assignments = [], prefStudents = [], availMap = {};
 
         try {
             const sb = window.SupabaseAuth?.supabase;
             if (sb) {
-                const [sRes, stRes, aRes, pRes] = await Promise.all([
+                const [sRes, stRes, aRes, pRes, avRes] = await Promise.all([
                     sb.from('rotation_sites').select('*').order('site_name'),
                     sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
                     sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
-                    sb.from('rotation_preferences').select('student_id, preference_rank').order('student_id')
+                    sb.from('rotation_preferences').select('student_id, preference_rank').order('student_id'),
+                    sb.from('rotation_site_availability').select('*')
                 ]);
                 if (!sRes.error && sRes.data) sites = sRes.data;
                 if (!stRes.error && stRes.data) settings = stRes.data;
@@ -10206,6 +10207,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     const prefMap = {};
                     pRes.data.forEach(p => { prefMap[p.student_id] = (prefMap[p.student_id] || 0) + 1; });
                     prefStudents = Object.entries(prefMap).map(([id, count]) => ({ student_id: id, pref_count: count }));
+                }
+                const availMap = {};
+                if (!avRes.error && avRes.data) {
+                    avRes.data.forEach(a => {
+                        if (!availMap[a.site_id]) availMap[a.site_id] = {};
+                        availMap[a.site_id][a.block_number] = a.max_students;
+                    });
                 }
             }
         } catch (e) { console.warn('Rotation load error:', e); }
@@ -10249,12 +10257,34 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     <td style="padding:10px 12px;white-space:nowrap;">
                         <span id="site-actions-view-${s.id}">
                             <button onclick="window.rotAdmin.startEditSite(${s.id})" style="background:#e3f2fd;color:#1565C0;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;margin-right:4px;">Edit</button>
+                            <button onclick="window.rotAdmin.toggleBlockRow(${s.id})" style="background:#fff3e0;color:#e65100;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;margin-right:4px;" title="Set block availability">📅 Blocks</button>
                             <button onclick="window.rotAdmin.deleteSite(${s.id})" style="background:#ffebee;color:#c62828;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:600;">Delete</button>
                         </span>
                         <span id="site-actions-edit-${s.id}" style="display:none;">
                             <button onclick="window.rotAdmin.saveSite(${s.id})" style="background:#e8f5e9;color:#1B5E20;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700;margin-right:4px;">Save</button>
                             <button onclick="window.rotAdmin.cancelEditSite(${s.id})" style="background:#f5f5f5;color:#666;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.82rem;">Cancel</button>
                         </span>
+                    </td>
+                </tr>
+                <tr id="site-blocks-row-${s.id}" style="display:none;background:#fafafa;border-bottom:2px solid #e8f5e9;">
+                    <td colspan="7" style="padding:14px 20px;">
+                        <div style="margin-bottom:10px;font-size:0.82rem;font-weight:700;color:#555;">📅 Block Availability — click a block to toggle. Green = available. Set slots per block.</div>
+                        <div style="display:flex;flex-wrap:wrap;gap:8px;">
+                            ${[1,2,3,4,5,6,7,8,9,10].map(b => {
+                                const slots = availMap[s.id] && availMap[s.id][b] != null ? availMap[s.id][b] : null;
+                                const on = slots !== null;
+                                return `<div id="block-chip-${s.id}-${b}"
+                                    onclick="window.rotAdmin.toggleBlock(${s.id},${b})"
+                                    style="cursor:pointer;border-radius:10px;padding:10px 14px;font-size:0.82rem;font-weight:700;min-width:80px;text-align:center;border:2px solid ${on?'#2e7d32':'#ddd'};background:${on?'#e8f5e9':'#f5f5f5'};color:${on?'#1B5E20':'#aaa'};transition:all 0.2s;">
+                                    <div style="font-size:0.78rem;color:${on?'#2e7d32':'#bbb'};">Block</div>
+                                    <div style="font-size:1rem;">${b}</div>
+                                    ${on
+                                        ? `<div style="margin-top:4px;" onclick="event.stopPropagation()"><input type="number" min="1" max="10" value="${slots}" onchange="window.rotAdmin.saveBlockCapacity(${s.id},${b},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`
+                                        : `<div style="font-size:0.72rem;color:#ccc;margin-top:4px;">off</div>`
+                                    }
+                                </div>`;
+                            }).join('')}
+                        </div>
                     </td>
                 </tr>`).join('');
 
@@ -15087,6 +15117,37 @@ window.rotAdmin = {
         });
         if (tab === 'evaluations') window.rotAdmin.loadEvalsTab();
     },
+
+    toggleBlockRow(siteId) {
+        const row = document.getElementById('site-blocks-row-' + siteId);
+        if (row) row.style.display = row.style.display === 'none' ? 'table-row' : 'none';
+    },
+
+    async toggleBlock(siteId, blockNum) {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const chip = document.getElementById('block-chip-' + siteId + '-' + blockNum);
+        const on = chip && chip.style.background.includes('e8f5e9');
+        if (on) {
+            const { error } = await sb.from('rotation_site_availability').delete().eq('site_id', siteId).eq('block_number', blockNum);
+            if (error) { alert('Error: ' + error.message); return; }
+            chip.style.background = '#f5f5f5'; chip.style.border = '2px solid #ddd'; chip.style.color = '#aaa';
+            chip.innerHTML = `<div style="font-size:0.78rem;color:#bbb;">Block</div><div style="font-size:1rem;">${blockNum}</div><div style="font-size:0.72rem;color:#ccc;margin-top:4px;">off</div>`;
+        } else {
+            const { error } = await sb.from('rotation_site_availability').upsert({ site_id: siteId, block_number: blockNum, max_students: 1 }, { onConflict: 'site_id,block_number' });
+            if (error) { alert('Error: ' + error.message); return; }
+            chip.style.background = '#e8f5e9'; chip.style.border = '2px solid #2e7d32'; chip.style.color = '#1B5E20';
+            chip.innerHTML = `<div style="font-size:0.78rem;color:#2e7d32;">Block</div><div style="font-size:1rem;">${blockNum}</div><div style="margin-top:4px;" onclick="event.stopPropagation()"><input type="number" min="1" max="10" value="1" onchange="window.rotAdmin.saveBlockCapacity(${siteId},${blockNum},this.value)" style="width:36px;text-align:center;border:1px solid #a5d6a7;border-radius:4px;font-size:0.78rem;padding:2px;"> <span style="font-size:0.7rem;color:#666;">slots</span></div>`;
+        }
+    },
+
+    async saveBlockCapacity(siteId, blockNum, val) {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('rotation_site_availability').update({ max_students: parseInt(val) || 1 }).eq('site_id', siteId).eq('block_number', blockNum);
+        if (error) alert('Error saving capacity: ' + error.message);
+    },
+
 
     async toggleSubmissions(currentlyOpen) {
         try {
