@@ -8793,11 +8793,54 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     // --- V2: ENHANCED DASHBOARD WITH RADAR CHART & ANIMATIONS ---
-    renderPharmaScienceDashboardEnhanced_v2(deptLabel = 'Dept.of Pharmaceutical Sciences') {
+    async renderPharmaScienceDashboardEnhanced_v2(deptLabel = 'Dept.of Pharmaceutical Sciences') {
         this.pharmaDeptLabel = deptLabel;
+        const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+
+        this.root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2rem;">⏳</div><p>Loading department data...</p></div>';
+
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb) {
+            try {
+                const [statsRes, collabRes] = await Promise.all([
+                    sb.from('dept_stats').select('*').eq('dept_id', deptId).order('year'),
+                    sb.from('dept_collaborations').select('*').eq('dept_id', deptId).eq('active', true)
+                ]);
+                if (!statsRes.error && statsRes.data?.length) {
+                    const rows = statsRes.data;
+                    const latest = rows[rows.length - 1];
+                    this.pharmaData.research = {
+                        years: rows.map(r => r.year),
+                        q1: rows.map(r => r.q1_pubs),
+                        q2: rows.map(r => r.q2_pubs),
+                        q3: rows.map(r => r.q3_pubs),
+                        citations: rows.map(r => r.citations)
+                    };
+                    this.pharmaData.grants = {
+                        funnelValues: [latest.grants_submitted, latest.grants_review, latest.grants_awarded],
+                        fundingSources: [latest.grant_internal_sar, latest.grant_external_sar]
+                    };
+                    this.pharmaData.supervision = {
+                        values: [latest.supervision_undergrad, latest.supervision_masters, latest.supervision_phd]
+                    };
+                    this.pharmaData.development = {
+                        labels: ['Conferences', 'Workshops', 'Awards', 'Leadership', 'Comm. Service'],
+                        values: [latest.conferences, latest.workshops, latest.awards, latest.leadership, latest.comm_service]
+                    };
+                    this.pharmaData._deptId = deptId;
+                    this.pharmaData._years  = rows.map(r => r.year);
+                }
+                if (!collabRes.error && collabRes.data?.length) {
+                    this.pharmaData.collaborations = collabRes.data.map(c => ({
+                        country: c.country, flag: c.flag, institution: c.institution, type: c.collab_type
+                    }));
+                }
+            } catch(e) { console.warn('Dept data load error:', e); }
+        }
+
         this.title.innerHTML = `
             ${deptLabel}
-                <button onclick = "window.app.renderPharmaEditMode_v2()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >?? Edit Data</button >
+                <button onclick = "window.app.renderPharmaEditMode_v2()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >✏️ Edit Data</button >
                     `;
 
         const data = this.pharmaData;
@@ -9150,32 +9193,59 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 `;
     }
 
-    handlePharmaSave_v2() {
+    async handlePharmaSave_v2() {
         const form = document.getElementById('pharma-edit-form');
         const inputs = form.querySelectorAll('input');
         const values = {};
         inputs.forEach(input => values[input.name] = parseInt(input.value) || 0);
 
-        // Update Research
-        for (let i = 0; i < 5; i++) {
-            this.pharmaData.research.q1[i] = values[`q1_${i} `];
-            this.pharmaData.research.q2[i] = values[`q2_${i} `];
-            this.pharmaData.research.q3[i] = values[`q3_${i} `];
-            this.pharmaData.research.citations[i] = values[`cit_${i} `];
+        const years = this.pharmaData._years || this.pharmaData.research.years;
+        const deptId = this.pharmaData._deptId || 'practice';
+
+        // Update local cache
+        for (let i = 0; i < years.length; i++) {
+            this.pharmaData.research.q1[i]       = values[`q1_${i}`];
+            this.pharmaData.research.q2[i]       = values[`q2_${i}`];
+            this.pharmaData.research.q3[i]       = values[`q3_${i}`];
+            this.pharmaData.research.citations[i] = values[`cit_${i}`];
+        }
+        this.pharmaData.grants.funnelValues    = [values['grant_submit'], values['grant_review'], values['grant_awarded']];
+        this.pharmaData.supervision.values     = [values['sup_undergrad'], values['sup_master'], values['sup_phd']];
+        this.pharmaData.development.values     = [values['dev_0'], values['dev_1'], values['dev_2'], values['dev_3'], values['dev_4']];
+
+        // Save to Supabase
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb) {
+            try {
+                const upserts = years.map((year, i) => {
+                    const isLatest = i === years.length - 1;
+                    return {
+                        dept_id: deptId, year,
+                        q1_pubs: values[`q1_${i}`],
+                        q2_pubs: values[`q2_${i}`],
+                        q3_pubs: values[`q3_${i}`],
+                        citations: values[`cit_${i}`],
+                        ...(isLatest ? {
+                            grants_submitted:    values['grant_submit'],
+                            grants_review:       values['grant_review'],
+                            grants_awarded:      values['grant_awarded'],
+                            supervision_undergrad: values['sup_undergrad'],
+                            supervision_masters:   values['sup_master'],
+                            supervision_phd:       values['sup_phd'],
+                            conferences:  values['dev_0'],
+                            workshops:    values['dev_1'],
+                            awards:       values['dev_2'],
+                            leadership:   values['dev_3'],
+                            comm_service: values['dev_4'],
+                        } : {})
+                    };
+                });
+                const { error } = await sb.from('dept_stats').upsert(upserts, { onConflict: 'dept_id,year' });
+                if (error) console.error('Save error:', error);
+            } catch(e) { console.warn('Dept save error:', e); }
         }
 
-        // Update Grants
-        this.pharmaData.grants.funnelValues = [values['grant_submit'], values['grant_review'], values['grant_awarded']];
-
-        // Update Supervision
-        this.pharmaData.supervision.values = [values['sup_undergrad'], values['sup_master'], values['sup_phd']];
-
-        // Update Development (NEW)
-        this.pharmaData.development.values = [
-            values['dev_0'], values['dev_1'], values['dev_2'], values['dev_3'], values['dev_4']
-        ];
-
-        // Return to Dashboard with Animation
+        // Return to Dashboard
         this.renderPharmaScienceDashboardEnhanced_v2(this.pharmaDeptLabel);
     }
 
