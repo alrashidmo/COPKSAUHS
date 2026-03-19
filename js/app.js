@@ -5255,7 +5255,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 const content = `
                     <!-- 🏥 CLINICAL AFFAIRS: Rotation/Clinical Issue Requests -->
                     <div class="card" style="margin-bottom: 2rem; border-left: 4px solid #FF6B6B;">
-                        <h3 style="margin: 0 0 1.5rem 0; color: #333;">?? Rotation/Clinical Issue Requests</h3>
+                        <h3 style="margin: 0 0 1.5rem 0; color: #333;">📋 Rotation/Clinical Issue Requests</h3>
                         <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
                             <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
                                 <div style="font-size: 2rem; font-weight: bold; color: #2196F3;">
@@ -5782,7 +5782,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 ]
             },
             {
-                id: 'g5', title: 'Goal 5: Grad Studies', icon: '??', color: '#607d8b', progress: 60,
+                id: 'g5', title: 'Goal 5: Grad Studies', icon: '🎓', color: '#607d8b', progress: 60,
                 branches: [
                     { name: '5.1 Programs', kpis: [{ name: 'PharmSci Program', target: '100%', actual: 'Done' }, { name: 'Fellowship', target: '100%', actual: 'Pending' }] },
                     { name: '5.2 Competency', kpis: [{ name: 'Joint Program', target: '1', actual: 'In Prog' }] }
@@ -5792,7 +5792,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         const pharmdGoals = [
             {
-                id: 'ph1', title: 'Std 1: Mission & Mgt', icon: '??', color: '#673ab7', progress: 0,
+                id: 'ph1', title: 'Std 1: Mission & Mgt', icon: '🏛️', color: '#673ab7', progress: 0,
                 branches: [
                     {
                         name: '1.1 Planning', kpis: [
@@ -5817,7 +5817,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 ]
             },
             {
-                id: 'ph3', title: 'Std 3: Teaching', icon: '??', color: '#2196f3', progress: 0,
+                id: 'ph3', title: 'Std 3: Teaching', icon: '📚', color: '#2196f3', progress: 0,
                 branches: [
                     {
                         name: '3.1 Qual Learning', kpis: [
@@ -5838,7 +5838,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 ]
             },
             {
-                id: 'ph4', title: 'Std 4: Students', icon: '?????', color: '#00bcd4', progress: 0,
+                id: 'ph4', title: 'Std 4: Students', icon: '👥', color: '#00bcd4', progress: 0,
                 branches: [
                     {
                         name: '4.1 Services', kpis: [
@@ -5855,7 +5855,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 ]
             },
             {
-                id: 'ph5', title: 'Std 5: Faculty', icon: '?????', color: '#009688', progress: 0,
+                id: 'ph5', title: 'Std 5: Faculty', icon: '👨‍🏫', color: '#009688', progress: 0,
                 branches: [
                     {
                         name: '5.1 Ratios', kpis: [
@@ -5887,7 +5887,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 ]
             },
             {
-                id: 'ph6', title: 'Std 6: Resources', icon: '??', color: '#4caf50', progress: 0,
+                id: 'ph6', title: 'Std 6: Resources', icon: '🏗️', color: '#4caf50', progress: 0,
                 branches: [
                     {
                         name: '6.1 Resources', kpis: [
@@ -5900,7 +5900,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         const qualitySurveysData = [
             {
-                id: 'qs1', title: 'Student Surveys', icon: '??', color: '#ff9800', progress: 0,
+                id: 'qs1', title: 'Student Surveys', icon: '📝', color: '#ff9800', progress: 0,
                 kpis: [
                     { name: 'Course Evaluation Survey', y1: '3.8', y2: '4.0', y3: '4.1', target: '4.0' },
                     { name: 'Student Experience Survey', y1: '3.5', y2: '3.8', y3: '3.9', target: '4.0' },
@@ -5908,14 +5908,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 ]
             },
             {
-                id: 'qs2', title: 'Faculty & Staff', icon: '??', color: '#9c27b0', progress: 0,
+                id: 'qs2', title: 'Faculty & Staff', icon: '👨‍🏫', color: '#9c27b0', progress: 0,
                 kpis: [
                     { name: 'Faculty Experience Survey', y1: '3.9', y2: '4.1', y3: '4.0', target: '4.0' },
                     { name: 'Employee Satisfaction Survey', y1: '3.7', y2: '3.8', y3: '4.2', target: '4.0' }
                 ]
             },
             {
-                id: 'qs3', title: 'External Stakeholders', icon: '??', color: '#00bcd4', progress: 0,
+                id: 'qs3', title: 'External Stakeholders', icon: '🌐', color: '#00bcd4', progress: 0,
                 kpis: [
                     { name: 'Employers Satisfaction Survey', y1: '3.5', y2: '3.8', y3: '3.7', target: '4.0' },
                     { name: 'Alumni Survey', y1: '3.8', y2: '4.0', y3: '4.3', target: '4.0' }
@@ -6225,13 +6225,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         });
 
         const tabs = [
-            { id: 'strategic', label: '?? Strategic Goals' },
-            { id: 'pharmd', label: '?? PharmD Program KPI' },
-            { id: 'surveys', label: '?? Quality Surveys' },
-            { id: 'plo', label: '?? Learning Outcomes (PLOs)' },
-            { id: 'faculty', label: '????? Faculty' },
-            { id: 'people', label: '?? People & Distinctions' },
-            { id: 'data', label: '?? Reports' }
+            { id: 'strategic', label: '🎯 Strategic Goals' },
+            { id: 'pharmd', label: '📋 PharmD Program KPI' },
+            { id: 'surveys', label: '📈 Quality Surveys' },
+            { id: 'plo', label: '🎯 Learning Outcomes (PLOs)' },
+            { id: 'faculty', label: '👨‍🏫 Faculty' },
+            { id: 'people', label: '🏆 People & Distinctions' },
+            { id: 'data', label: '📊 Reports' }
         ];
 
         const tabNav = `
@@ -6256,7 +6256,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             content = `
                 <div class="fade-in-up">
                     <!-- Row 1: 5 Doughnut Charts -->
-                    <h3 style="margin-bottom:1rem;">?? Strategic Goal Progress</h3>
+                    <h3 style="margin-bottom:1rem;">🎯 Strategic Goal Progress</h3>
                     <div class="dashboard-grid" style="grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
                          ${strategicGoals.map(g => `
                             <div class="card" style="text-align: center; padding: 1rem;">
@@ -6274,7 +6274,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem;">
                         <!-- Row 2 Left: Radar Chart -->
                         <div class="card">
-                            <h3 style="margin-bottom:1rem;">?? Strategic Balance Logic</h3>
+                            <h3 style="margin-bottom:1rem;">⚖️ Strategic Balance Logic</h3>
                             <div style="height: 350px;">
                                 <canvas id="chartStratRadarDashboard"></canvas>
                             </div>
@@ -6282,7 +6282,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                         <!-- Row 2 Right: At Risk / Highlights -->
                         <div class="card" style="background: #fff8f8; border-left: 4px solid #f44336;">
-                            <h3 style="color: #d32f2f;">?? Attention Needed</h3>
+                            <h3 style="color: #d32f2f;">⚠️ Attention Needed</h3>
                             <ul style="padding-left: 1.2rem; margin-top: 1rem;">
                                 ${atRiskItems.length > 0 ? atRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">? All On Track!</li>'}
                             </ul>
@@ -6294,7 +6294,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                     <!-- Section 2: Interactive Grid -->
                     <div style="margin-top: 3rem; border-top: 2px dashed #eee; padding-top: 2rem;">
-                        <h3 style="margin-bottom: 0.5rem;">?? Strategic Goals Details & Editor</h3>
+                        <h3 style="margin-bottom: 0.5rem;">📝 Strategic Goals Details & Editor</h3>
                         <p class="text-muted" style="margin-bottom: 1.5rem;">Tap any card below to view branch goals or edit Target/Actual values.</p>
                         
                         <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
@@ -6312,7 +6312,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                         <span>${g.progress}% Done</span>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right; color: var(--primary-gold); font-size: 0.85rem; font-weight: 500;">
-                                        Tap to Edit ??
+                                        Tap to Edit ✏️
                                     </div>
                                 </div>
 
@@ -6322,7 +6322,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                         <div class="qa-modal-header">
                                             <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">${g.icon} ${g.title}</h3>
                                             <div style="display:flex; gap:1rem; align-items:center;">
-                                                <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">?? Save & Recalculate</button>
+                                                <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">💾 Save & Recalculate</button>
                                                 <button class="close-modal" style="position:static;" onclick="document.getElementById('modal-${g.id}').classList.remove('active')">?</button>
                                             </div>
                                         </div>
@@ -6345,7 +6345,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                                                 <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
                                                                 <td><input type="text" class="input-field kpi-target" value="${k.target}" style="padding:4px; font-size:0.9rem;"></td>
                                                                 <td><input type="text" class="input-field kpi-actual" value="${k.actual}" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
-                                                                <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '??' : (parseFloat(k.actual) >= parseFloat(k.target) ? '??' : '??')}</td>
+                                                                <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🔄' : (parseFloat(k.actual) >= parseFloat(k.target) ? '✅' : '❌')}</td>
                                                             </tr>
                                                         `).join('')
             ).join('')}
@@ -6413,7 +6413,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                         <!-- Left: Standards Overview -->
                         <div class="card">
-                            <h3 style="margin-bottom:1rem;">?? Program Standards Overview</h3>
+                            <h3 style="margin-bottom:1rem;">📋 Program Standards Overview</h3>
                             <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap:1rem;">
                                 ${pharmdGoals.map(g => `
                                     <div style="text-align:center;">
@@ -6432,14 +6432,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                          <!-- Right: Radar & Risks -->
                         <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1rem;">
                              <div class="card">
-                                <h3>?? Standards Balance</h3>
+                                <h3>⚖️ Standards Balance</h3>
                                 <div style="height: 200px;">
                                     <canvas id="chartPharmdRadarDashboard"></canvas>
                                 </div>
                             </div>
                             
                             <div class="card" style="background: #fff8f8; border-left: 4px solid #f44336;">
-                                <h3 style="color: #d32f2f;">?? Attention Needed</h3>
+                                <h3 style="color: #d32f2f;">⚠️ Attention Needed</h3>
                                 <ul style="padding-left: 1.2rem; margin-top: 1rem;">
                                     ${pharmdRiskItems.length > 0 ? pharmdRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">? All KPIs On Track!</li>'}
                                 </ul>
@@ -6464,7 +6464,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                     <span>${g.progress}% Done</span>
                                 </div>
                                 <div style="margin-top: 1rem; text-align: right; color: var(--primary-gold); font-size: 0.85rem; font-weight: 500;">
-                                    Tap to View Details ??
+                                    Tap to View Details 👁️
                                 </div>
                             </div>
 
@@ -6474,7 +6474,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                     <div class="qa-modal-header">
                                         <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">${g.icon} ${g.title}</h3>
                                         <div style="display:flex; gap:1rem; align-items:center;">
-                                            <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">?? Save & Recalculate</button>
+                                            <button class="btn btn-primary btn-sm" onclick="app.updateGoalStatus('${g.id}')">💾 Save & Recalculate</button>
                                             <button class="close-modal" style="position:static;" onclick="document.getElementById('modal-${g.id}').classList.remove('active')">?</button>
                                         </div>
                                     </div>
@@ -6497,7 +6497,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                                             <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
                                                             <td><input type="text" class="input-field kpi-target" value="${k.target}" style="padding:4px; font-size:0.9rem;"></td>
                                                             <td><input type="text" class="input-field kpi-actual" value="${k.actual}" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
-                                                            <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '??' : (parseFloat(k.actual) >= parseFloat(k.target) ? '??' : '??')}</td>
+                                                            <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🔄' : (parseFloat(k.actual) >= parseFloat(k.target) ? '✅' : '❌')}</td>
                                                         </tr>
                                                     `).join('')
             ).join('')}
@@ -6561,7 +6561,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     <div class="dashboard-grid" style="grid-template-columns: 2fr 1fr; gap: 2rem; margin-bottom: 2rem;">
                          <!-- Left: Visual Overview (Bar Charts) -->
                         <div class="card">
-                            <h3 style="margin-bottom:1rem;">?? Stakeholder Feedback Trends (3-Year)</h3>
+                            <h3 style="margin-bottom:1rem;">📈 Stakeholder Feedback Trends (3-Year)</h3>
                             <div style="display: flex; flex-direction: column; gap: 2rem;">
                                 ${qualitySurveysData.map(g => `
                                     <div>
@@ -6577,14 +6577,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                          <!-- Right: Radar & Risks -->
                         <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1rem;">
                              <div class="card">
-                                <h3>?? Surveys Balance</h3>
+                                <h3>⚖️ Surveys Balance</h3>
                                 <div style="height: 200px;">
                                     <canvas id="chartSurveyRadarDashboard"></canvas>
                                 </div>
                             </div>
                             
                             <div class="card" style="background: #fff8f8; border-left: 4px solid #f44336;">
-                                <h3 style="color: #d32f2f;">?? Attention Needed</h3>
+                                <h3 style="color: #d32f2f;">⚠️ Attention Needed</h3>
                                 <ul style="padding-left: 1.2rem; margin-top: 1rem;">
                                     ${surveyRiskItems.length > 0 ? surveyRiskItems.slice(0, 5).map(i => `<li>${i.text}</li>`).join('') : '<li style="list-style:none;">? All Surveys On Track!</li>'}
                                 </ul>
@@ -6594,7 +6594,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Bottom Section: Detailed Grid & Editor -->
                     <div style="margin-top: 3rem; border-top: 2px dashed #eee; padding-top: 2rem;">
-                         <h3 style="margin-bottom: 0.5rem;">?? Surveys Data Entry</h3>
+                         <h3 style="margin-bottom: 0.5rem;">📝 Surveys Data Entry</h3>
                         <p class="text-muted" style="margin-bottom: 1.5rem;">Enter scores (out of 5) for previous years. Status compares Y3 vs Target.</p>
                         
                         <div class="dashboard-grid" style="grid-template-columns: 1fr; gap: 1.5rem;">
@@ -6628,14 +6628,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                                         <td><input type="text" class="input-field kpi-y2" value="${k.y2}" style="text-align:center;"></td>
                                                         <td><input type="text" class="input-field kpi-y3" value="${k.y3}" style="text-align:center; font-weight:bold;"></td>
                                                         <td><input type="text" class="input-field kpi-target" value="${k.target}" style="text-align:center;"></td>
-                                                        <td class="kpi-status">${(parseFloat(k.y3) >= parseFloat(k.target)) ? '??' : '??'}</td>
+                                                        <td class="kpi-status">${(parseFloat(k.y3) >= parseFloat(k.target)) ? '✅' : '❌'}</td>
                                                     </tr>
                                                 `).join('')}
                                             </tbody>
                                         </table>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right;">
-                                         <button class="btn btn-primary btn-sm" onclick="alert('? Changes Saved (Demo)!')">?? Save Data</button>
+                                         <button class="btn btn-primary btn-sm" onclick="alert('? Changes Saved (Demo)!')">💾 Save Data</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -6760,7 +6760,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- LEFT: COURSE ASSESSMENT (Simulated Input) -->
                         <div class="card" style="height: fit-content;">
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
-                                <h3 style="margin:0;">?? Course Simulator</h3>
+                                <h3 style="margin:0;">🔬 Course Simulator</h3>
                                 <button class="btn btn-sm btn-outline" onclick="window.addPLOCourse()">? Add Course</button>
                             </div>
                             <p class="text-muted" style="margin-bottom: 1rem; font-size: 0.9rem;">
@@ -6784,13 +6784,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                             <td><input type="text" class="input-field course-name" value="${c.name}" style="width:100%;"></td>
                                             <td><input type="number" class="input-field course-grade" value="${c.grade}" style="width:100%; text-align:center;"></td>
                                             <td><input type="text" class="input-field course-map" value="${c.map.join(', ')}" style="width:100%; font-size:0.85rem;"></td>
-                                            <td style="text-align:center;"><span style="cursor:pointer; color:#f44336;" onclick="window.removePLOCourse(${i})">???</span></td>
+                                            <td style="text-align:center;"><span style="cursor:pointer; color:#f44336;" onclick="window.removePLOCourse(${i})">🗑️</span></td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
                             </table>
                             <div style="margin-top: 1rem; text-align: center;">
-                                <button class="btn btn-primary" style="width:100%;" onclick="window.recalcPLOs()">?? Update & Recalculate Outcomes</button>
+                                <button class="btn btn-primary" style="width:100%;" onclick="window.recalcPLOs()">🔄 Update & Recalculate Outcomes</button>
                             </div>
                         </div>
 
@@ -6799,7 +6799,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                             
                             <!-- Radar Chart -->
                             <div class="card">
-                                <h3>??? Domain Achievement Overview</h3>
+                                <h3>📊 Domain Achievement Overview</h3>
                                 <div style="height: 250px;">
                                     <canvas id="chartPloRadarDashboard"></canvas>
                                 </div>
@@ -6807,7 +6807,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                             <!-- Detailed Outcome List -->
                             <div class="card">
-                                <h3>?? Program Learning Outcomes Status</h3>
+                                <h3>🎯 Program Learning Outcomes Status</h3>
                                 <p class="text-muted" style="margin-bottom: 1rem;">Calculated based on linked course performance.</p>
                                 
                                 ${ploData.map(d => `
@@ -6880,16 +6880,16 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             content = `
                 <div class="dashboard-grid" style="align-items:start;">
                     <div class="card">
-                        <h3>?? Excel / CSV Reports</h3>
+                        <h3>📊 Excel / CSV Reports</h3>
                         <p>Download the latest detailed KPI report across all 5 Strategic Goals.</p>
                         <br>
                         <a href="data:text/csv;charset=utf-8,${generateKPI_CSV()}" download="strategic_goals_report.csv" class="btn btn-primary" style="text-decoration:none; display:inline-block;">
-                            ?? Download KPI Report (.csv)
+                            📊 Download KPI Report (.csv)
                         </a>
                     </div>
                     
                     <div class="card">
-                        <h3>?? KPI Management</h3>
+                        <h3>⚙️ KPI Management</h3>
                         <p>To edit Target or Actual values, please click on the <strong>Goal Cards</strong> in the "KPIs & Strategy" tab and use the <strong>"Save & Recalculate"</strong> button in the popup.</p>
                     </div>
                 </div>
@@ -6923,13 +6923,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 // Simple logic: If text contains 'Prog' or 'Pending', it's yellow.
                 // Otherwise compare numbers.
-                let status = '??';
+                let status = '❌';
                 if (actualVal.includes('Prog') || actualVal.includes('Pending') || actualVal.includes('Done')) {
-                    status = '??';
-                    if (actualVal.includes('Done')) status = '??';
+                    status = '🔄';
+                    if (actualVal.includes('Done')) status = '✅';
                 } else {
-                    if (actual >= target) status = '??';
-                    else status = '??';
+                    if (actual >= target) status = '✅';
+                    else status = '❌';
                 }
 
                 statusCell.textContent = status;
@@ -7066,7 +7066,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div class="flex-between">
                     <h3>Student Roster & Tracking</h3>
                     <div style="display:flex; gap:1rem;">
-                        <button class="btn btn-outline" onclick="window.print()">??? Print Roster</button>
+                        <button class="btn btn-outline" onclick="window.print()">🖨️ Print Roster</button>
                         <button class="btn btn-primary">Export Excel</button>
                     </div>
                 </div>
@@ -7318,7 +7318,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             </div>
 
             <div class="card" style="margin-top: 1rem;">
-                <h3>?? Grade Ranking System</h3>
+                <h3>🏅 Grade Ranking System</h3>
                 <div style="display: flex; justify-content: space-around; margin-top: 1rem;">
                     <div style="text-align: center;">
                         <div style="font-size: 2.5rem; color: var(--primary-green);">
@@ -7808,7 +7808,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         return `
                 <div class="dashboard-grid" >
                 <div class="card">
-                    <h3>?? Import Student Data (CSV)</h3>
+                    <h3>📥 Import Student Data (CSV)</h3>
                     <div style="display: flex; gap: 1rem; align-items: center; margin-top: 0.5rem; margin-bottom: 1.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid #eee;">
                         <input type="file" id="csvDetails" accept=".csv">
                         <button class="btn btn-primary" onclick="app.handleCSVImport()">Import Data</button>
@@ -7842,9 +7842,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div class="card">
                     <h3>Administrative Actions</h3>
                     <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <button class="btn btn-primary" onclick="app.exportReport('pdf')">?? Export PDF Report</button>
-                        <button class="btn btn-outline" onclick="app.exportReport('excel')">?? Export Excel</button>
-                        <button class="btn btn-outline" onclick="alert('Sending Notifications...')">?? Send Risk Notifications</button>
+                        <button class="btn btn-primary" onclick="app.exportReport('pdf')">📄 Export PDF Report</button>
+                        <button class="btn btn-outline" onclick="app.exportReport('excel')">📊 Export Excel</button>
+                        <button class="btn btn-outline" onclick="alert('Sending Notifications...')">🔔 Send Risk Notifications</button>
                     </div>
                 </div>
                 <div class="card">
@@ -7861,7 +7861,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             </div>
 
                 <div class="card" style="margin-top: 2rem; border-left: 4px solid var(--danger);">
-                    <h3>?? At-Risk Students Report</h3>
+                    <h3>⚠️ At-Risk Students Report</h3>
                     <p class="text-muted">Students with < 85% attendance or < 75% grade.</p>
                     <div class="data-table-container">
                         <table class="data-table">
@@ -8330,7 +8330,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 1. Research Outcomes -->
                     <div class="card">
-                        <h3>?? Research Output & Impact</h3>
+                        <h3>📊 Research Output & Impact</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartResearch"></canvas>
                         </div>
@@ -8341,7 +8341,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 2. Grant Funding -->
                     <div class="card">
-                        <h3>?? Grant Funding Sources</h3>
+                        <h3>💰 Grant Funding Sources</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartGrants"></canvas>
                         </div>
@@ -8352,7 +8352,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 3. Student Supervision -->
                     <div class="card">
-                        <h3>????? Student Supervision</h3>
+                        <h3>👥 Student Supervision</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartSupervision"></canvas>
                         </div>
@@ -8360,7 +8360,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 4. Professional Development -->
                     <div class="card">
-                        <h3>?? Professional Development</h3>
+                        <h3>🎯 Professional Development</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartDev"></canvas>
                         </div>
@@ -8481,7 +8481,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     renderPharmaScienceDashboardEnhanced() {
         this.title.innerHTML = `
             Dept.of Pharmaceutical Sciences
-                <button onclick = "window.app.renderPharmaEditMode()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >?? Edit Data</button >
+                <button onclick = "window.app.renderPharmaEditMode()" class="btn btn-sm btn-outline" style = "margin-left: 1rem; font-size: 0.8rem;" >✏️ Edit Data</button >
                     `;
 
         // --- Use State Data ---
@@ -8557,7 +8557,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 2. Grant Success Funnel -->
                     <div class="card">
-                        <h3>?? Grant Success Funnel</h3>
+                        <h3>💰 Grant Success Funnel</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartGrants"></canvas>
                         </div>
@@ -8568,7 +8568,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 3. Student Supervision -->
                     <div class="card">
-                        <h3>?? Supervision Load</h3>
+                        <h3>👥 Supervision Load</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartSupervision"></canvas>
                         </div>
@@ -8576,7 +8576,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 4. Global Collaborations (New) -->
                     <div class="card">
-                        <h3>?? Global Collaborations</h3>
+                        <h3>🌍 Global Collaborations</h3>
                         <div style="height: 300px; overflow-y:auto; padding-right:0.5rem;">
                             <ul style="list-style:none; padding:0;">
                                 ${collaborations.map(c => `
@@ -8684,7 +8684,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         this.root.innerHTML = `
                 <div class="card" style = "max-width: 800px; margin: 0 auto;" >
-                <h3>?? Update Metrics</h3>
+                <h3>✏️ Update Metrics</h3>
                 <form id="pharma-edit-form" style="display:grid; gap:1.5rem; margin-top:1rem;">
                     
                     <!-- Research Section -->
@@ -8919,7 +8919,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     
                     <!-- Research Quality (Stacked Bar) -->
                     <div class="card fade-in-up delay-1">
-                        <h3>?? Research Outcomes & Quality</h3>
+                        <h3>📊 Research Outcomes & Quality</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartResearch"></canvas>
                         </div>
@@ -8930,7 +8930,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Grant Funnel (Funnel/Bar) -->
                     <div class="card fade-in-up delay-2">
-                        <h3>?? Grant Success Pipeline</h3>
+                        <h3>💰 Grant Success Pipeline</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartGrants"></canvas>
                         </div>
@@ -8938,7 +8938,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Professional Profile (Radar Chart - NEW) -->
                     <div class="card fade-in-up delay-3">
-                        <h3>?? Professional & Academic Development</h3>
+                        <h3>🎯 Professional & Academic Development</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartRadar"></canvas>
                         </div>
@@ -8949,7 +8949,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Student Supervision (Bar) -->
                     <div class="card fade-in-up delay-4">
-                        <h3>????? Supervision & Mentorship</h3>
+                        <h3>👥 Supervision & Mentorship</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartSupervision"></canvas>
                         </div>
@@ -8959,7 +8959,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!--3. Global Collaborations List-->
                  <div class="card fade-in-up delay-4" style="margin-top: 1.5rem;">
-                    <h3>?? International Collaborations</h3>
+                    <h3>🌍 International Collaborations</h3>
                     <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; margin-top:1rem;">
                         ${collaborations.map(c => `
                             <div style="display:flex; align-items:center; padding: 1rem; border: 1px solid #eee; border-radius:8px; background:#fafafa;">
@@ -8976,7 +8976,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!--4. Faculty Directory(NEW)-->
                 <div class="card fade-in-up delay-4" style="margin-top: 1.5rem;">
-                    <h3>?? Department Faculty</h3>
+                    <h3>👨‍🏫 Department Faculty</h3>
                     <div style="margin-top:1rem; overflow-x:auto;">
                         <table style="width:100%; border-collapse: collapse; font-size: 0.95rem;">
                             <thead>
@@ -8995,7 +8995,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                     <tr style="border-bottom: 1px solid #eee; transition: background 0.2s;">
                                         <td style="padding:1rem; font-weight:bold; color:var(--primary-blue);">
                                             <div style="display:flex; align-items:center; gap:0.5rem;">
-                                                <div style="width:32px; height:32px; background:#e3f2fd; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary-blue); font-size:0.8rem;">?????</div>
+                                                <div style="width:32px; height:32px; background:#e3f2fd; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--primary-blue); font-size:0.8rem;">👤</div>
                                                 ${f.name}
                                             </div>
                                         </td>
@@ -9005,8 +9005,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                         </td>
                                         <td style="padding:1rem; color:#666;">${f.email}</td>
                                         <td style="padding:1rem; text-align:right; display:flex; gap:0.5rem; justify-content:flex-end;">
-                                            <button onclick="window.app.renderFacultyProfile('${f.email}')" class="btn btn-sm btn-outline">??? View Profile</button>
-                                            <a href="mailto:${f.email}" class="btn btn-sm btn-outline" title="Email">??</a>
+                                            <button onclick="window.app.renderFacultyProfile('${f.email}')" class="btn btn-sm btn-outline">👤 View Profile</button>
+                                            <a href="mailto:${f.email}" class="btn btn-sm btn-outline" title="Email">✉️</a>
                                         </td>
                                     </tr>
                                 `}).join('') : '<tr><td colspan="5" style="padding:1rem;">No faculty data available.</td></tr>'}
@@ -9105,7 +9105,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.root.innerHTML = `
                 <div class="card fade-in-up" style = "max-width: 900px; margin: 0 auto; border-top: 4px solid var(--primary-gold);" >
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                    <h3>?? Update Department Metrics</h3>
+                    <h3>✏️ Update Department Metrics</h3>
                     <button onclick="window.app.renderPharmaScienceDashboardEnhanced_v2(window.app.pharmaDeptLabel)" class="btn btn-sm btn-outline">Cancel</button>
                 </div>
                 
@@ -9186,7 +9186,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
 
                     <div style="text-align:right; margin-top:1rem; border-top:1px solid #eee; padding-top:1rem;">
-                         <button type="button" onclick="window.app.handlePharmaSave_v2()" class="btn btn-primary btn-lg">?? Save Changes</button>
+                         <button type="button" onclick="window.app.handlePharmaSave_v2()" class="btn btn-primary btn-lg">💾 Save Changes</button>
                     </div>
                 </form>
             </div>
@@ -9309,14 +9309,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div style="display:flex; gap:0.5rem;">
                     ${metrics.scholarUrl ? `
                         <button onclick="window.app.simulateScholarSync('${email}')" class="btn btn-sm btn-outline" style="border-color:#2196f3; color:#2196f3;">
-                            ?? Sync Scholar
+                            🔄 Sync Scholar
                         </button>
                     ` : `
                         <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-outline" style="border-color:#666; color:#666; opacity:0.7;">
                             ? Add Scholar Link
                         </button>
                     `}
-                    <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-primary">?? Edit Data</button>
+                    <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-primary">✏️ Edit Data</button>
                 </div>
             </div>
             `;
@@ -9384,7 +9384,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div class="card mb-4" style="background: linear-gradient(to right, #e3f2fd, #fff); border-left: 4px solid #2196f3;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <div>
-                            <h3 style="margin:0; color:#1565c0;">?? Teaching Load (Fall 2024)</h3>
+                            <h3 style="margin:0; color:#1565c0;">📚 Teaching Load (Fall 2024)</h3>
                             <p style="margin:0; opacity:0.8;">Assigned Credit Hours per Semester</p>
                         </div>
                         <div style="font-size: 2.5rem; font-weight:bold; color:#1565c0;">
@@ -9398,7 +9398,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Research Quality -->
                     <div class="card">
-                        <h3>?? Research Output</h3>
+                        <h3>📊 Research Output</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileResearch"></canvas>
                         </div>
@@ -9406,7 +9406,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Grant Funnel -->
                     <div class="card">
-                        <h3>?? Grant Activity</h3>
+                        <h3>💰 Grant Activity</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileGrants"></canvas>
                         </div>
@@ -9414,7 +9414,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Professional Profile -->
                     <div class="card">
-                        <h3>?? Annual Activity Profile</h3>
+                        <h3>📈 Annual Activity Profile</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileRadar"></canvas>
                         </div>
@@ -9422,7 +9422,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Supervision -->
                     <div class="card">
-                        <h3>?? Supervision Breakdown</h3>
+                        <h3>👥 Supervision Breakdown</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileSupervision"></canvas>
                         </div>
@@ -9465,7 +9465,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.root.innerHTML = `
                 < div class="card fade-in-up" style = "max-width: 900px; margin: 0 auto; border-top: 4px solid var(--primary-gold);" >
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                    <h3>?? Update Personal Metrics</h3>
+                    <h3>✏️ Update Personal Metrics</h3>
                     <button onclick="window.app.renderFacultyProfile('${email}')" class="btn btn-sm btn-outline">Cancel</button>
                 </div>
                 
@@ -9473,7 +9473,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     
                     <!-- Scholar Link & Indices -->
                     <div style="background:#f0f7ff; padding:1rem; border-radius:8px; border:1px dashed #2196f3;">
-                        <label style="font-weight:bold; color:#1565c0;">?? Google Scholar Details</label>
+                        <label style="font-weight:bold; color:#1565c0;">🎓 Google Scholar Details</label>
                         <input type="text" name="scholarUrl" value="${data.scholarUrl || ''}" placeholder="Paste Profile URL..." style="width:100%; padding:0.5rem; margin-top:0.5rem; border:1px solid #ccc; border-radius:4px; margin-bottom:1rem;">
                         
                         <div style="display:flex; gap:1rem;">
@@ -9541,13 +9541,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                          </div>
                          
                          <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px dashed #ddd;">
-                            <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">?? Teaching Load (Hours/Week)</label>
+                            <label style="font-weight:bold; display:block; margin-bottom:0.5rem;">📚 Teaching Load (Hours/Week)</label>
                             <input type="number" name="teachingLoad" value="${data.teachingLoad || 0}" style="width:150px; padding:0.5rem; font-size:1.1rem;">
                          </div>
                     </div>
 
                     <div style="text-align:right; margin-top:1rem; border-top:1px solid #eee; padding-top:1rem;">
-                         <button type="button" onclick="window.app.handleFacultySave('${email}')" class="btn btn-primary btn-lg">?? Save Profile</button>
+                         <button type="button" onclick="window.app.handleFacultySave('${email}')" class="btn btn-primary btn-lg">💾 Save Profile</button>
                     </div>
                 </form>
             </div >
@@ -9626,7 +9626,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             // Occasionally increment publication count (20% chance)
             if (Math.random() > 0.8) {
                 profile.research.q1[lastYearIdx] += 1;
-                alert(`?? New Publication Found!\nAdded to Q1[${profile.research.years[lastYearIdx]}]`);
+                alert(`📚 New Publication Found!\nAdded to Q1[${profile.research.years[lastYearIdx]}]`);
             }
 
             // Update timestamp
@@ -9913,7 +9913,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     renderRequestForm(type) {
-        this.title.textContent = `?? New Request: ${type} `;
+        this.title.textContent = `📋 New Request: ${type} `;
 
         // Common Course Field for ALL forms
         const courseField = `
@@ -9972,7 +9972,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div class="form-group mb-3">
                     <label style="display:block; margin-bottom:0.5rem; font-weight:bold;">Upload Proof (Simulated)</label>
                     <div style="border:2px dashed #ddd; padding:1.5rem; text-align:center; border-radius:4px; cursor:pointer; background:#f9f9f9;">
-                        ?? Click to Upload Document
+                        📎 Click to Upload Document
                     </div>
                 </div>
             `;
@@ -9996,14 +9996,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <button onclick="window.app.renderStudentPortal()" style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:1rem;">? Back to Portal</button>
                 <h2 style="color:var(--primary-blue); margin-top:0;">Request: ${type}</h2>
                 <div style="background:#e3f2fd; color:#1565c0; padding:1rem; border-radius:4px; margin-bottom:1.5rem; font-size:0.9rem;">
-                    ?? This request will be routed to the <strong>Clinical Affairs Admin</strong> for the selected Course/Level.
+                    ℹ️ This request will be routed to the <strong>Clinical Affairs Admin</strong> for the selected Course/Level.
                 </div>
                 
                 <form onsubmit="event.preventDefault(); window.app.handleRequestSubmit('${type}')" id="requestForm">
                     ${formFields}
                     <div style="text-align:right; margin-top:1.5rem;">
                         <button type="button" onclick="window.app.renderStudentPortal()" class="btn btn-outline" style="margin-right:0.5rem;">Cancel</button>
-                        <button type="submit" class="btn btn-primary">?? Submit Request</button>
+                        <button type="submit" class="btn btn-primary">📤 Submit Request</button>
                     </div>
                 </form>
             </div >
@@ -10037,7 +10037,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     renderDocumentHub() {
-        this.title.textContent = '?? Clinical Documentation Hub';
+        this.title.textContent = '📁 Clinical Documentation Hub';
         const docs = this.pharmaData.compliance;
 
         const html = `
@@ -10082,13 +10082,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                 </div>
 
                                 <div style="font-size:0.9rem; color:#666; margin-bottom:1.5rem;">
-                                    ${doc.date ? `<div>?? Date: ${doc.date}</div>` : ''}
-                                    ${doc.expiry ? `<div>?? Expires: ${doc.expiry}</div>` : ''}
+                                    ${doc.date ? `<div>📅 Date: ${doc.date}</div>` : ''}
+                                    ${doc.expiry ? `<div>⏰ Expires: ${doc.expiry}</div>` : ''}
                                     ${!doc.date ? '<div>Not uploaded yet</div>' : ''}
                                 </div>
 
                                 <button class="btn btn-outline btn-sm" style="width:100%;" onclick="window.app.handleAuthUpload('${doc.id}')">
-                                    ${doc.status === 'Missing' ? '?? Upload Document' : '?? Update / Renew'}
+                                    ${doc.status === 'Missing' ? '📤 Upload Document' : '🔄 Update / Renew'}
                                 </button>
                             </div>
                         `;
@@ -10096,7 +10096,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 </div>
 
                 <div style="margin-top:2rem; padding:1rem; background:#f0f7ff; border-radius:8px; display:flex; gap:1rem; align-items:center;">
-                    <div style="font-size:1.5rem;">??</div>
+                    <div style="font-size:1.5rem;">💬</div>
                     <div>
                         <strong>Need Help?</strong><br>
                         For technical issues with uploads, please contact IT Support. For questions about requirements, contact Clinical Affairs.
@@ -10164,14 +10164,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     renderHospitalProfiles() {
-        this.title.textContent = '?? Clinical Training Sites';
+        this.title.textContent = '🏥 Clinical Training Sites';
 
         const hospitals = [
-            { id: 'kamc', name: 'King Abdulaziz Medical City (KAMC)', type: 'National Guard', region: 'Riyadh', img: '??' },
-            { id: 'kfmc', name: 'King Fahad Medical City (KFMC)', type: 'MOH', region: 'Riyadh', img: '??' },
-            { id: 'kfsh', name: 'King Faisal Specialist Hospital', type: 'Specialist', region: 'Riyadh', img: '??' },
-            { id: 'security', name: 'Security Forces Hospital', type: 'MOI', region: 'Riyadh', img: '??' },
-            { id: 'nora', name: 'Princess Nourah Hospital', type: 'University', region: 'Riyadh', img: '??' }
+            { id: 'kamc', name: 'King Abdulaziz Medical City (KAMC)', type: 'National Guard', region: 'Riyadh', img: '🏥' },
+            { id: 'kfmc', name: 'King Fahad Medical City (KFMC)', type: 'MOH', region: 'Riyadh', img: '🏥' },
+            { id: 'kfsh', name: 'King Faisal Specialist Hospital', type: 'Specialist', region: 'Riyadh', img: '🏥' },
+            { id: 'security', name: 'Security Forces Hospital', type: 'MOI', region: 'Riyadh', img: '🏥' },
+            { id: 'nora', name: 'Princess Nourah Hospital', type: 'University', region: 'Riyadh', img: '🏥' }
         ];
 
         const html = `
@@ -10220,21 +10220,21 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <button onclick="window.app.renderHospitalProfiles()" style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:1rem;">? Back to Directory</button>
                 
                 <div style="text-align:center; margin-bottom:2rem;">
-                    <div style="font-size:4rem;">??</div>
+                    <div style="font-size:4rem;">🏥</div>
                     <h1 style="color:var(--primary-blue); margin:0.5rem 0;">${details.name}</h1>
                     <p style="color:#666; max-width:600px; margin:0 auto;">${details.desc}</p>
                 </div>
 
                 <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap:2rem;">
                     <div style="background:#f4f6f8; padding:1.5rem; border-radius:8px;">
-                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">?? Specific Requirements</h4>
+                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">📋 Specific Requirements</h4>
                         <ul style="margin-top:1rem; padding-left:1.5rem;">
                             ${details.reqs.map(r => `<li>${r}</li>`).join('') || '<li>Standard University Requirements</li>'}
                         </ul>
                     </div>
                     
                     <div style="background:#f4f6f8; padding:1.5rem; border-radius:8px;">
-                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">?? Key Contacts</h4>
+                        <h4 style="border-bottom:1px solid #ddd; padding-bottom:0.5rem;">📞 Key Contacts</h4>
                         <ul style="margin-top:1rem; padding-left:1.5rem;">
                             ${details.contacts.map(c => `<li>${c}</li>`).join('') || '<li>Contact Clinical Affairs</li>'}
                         </ul>
@@ -10242,8 +10242,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 </div>
 
                 <div style="margin-top:2rem; text-align:center;">
-                    <button class="btn btn-primary" onclick="alert('Opening Map...')">?? View Location</button>
-                    <button class="btn btn-outline" onclick="alert('Downloading Handbook...')">?? Download Site Handbook</button>
+                    <button class="btn btn-primary" onclick="alert('Opening Map...')">🗺️ View Location</button>
+                    <button class="btn btn-outline" onclick="alert('Downloading Handbook...')">📥 Download Site Handbook</button>
                 </div>
             </div >
                 `;
@@ -10251,7 +10251,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     renderMySchedule() {
-        this.title.textContent = '?? My Rotation Schedule';
+        this.title.textContent = '📅 My Rotation Schedule';
 
         // Mock Schedule
         const schedule = [
@@ -10268,7 +10268,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <button onclick="window.app.renderStudentPortal()" style="background:none; border:none; color:#666; cursor:pointer; margin-bottom:1rem;">? Back to Portal</button>
                 <div class="flex-between mb-4">
                      <h2 style="color:var(--primary-blue); margin:0;">2025-2026 Rotation Schedule</h2>
-                     <button class="btn btn-outline" onclick="window.print()">??? Print Schedule</button>
+                     <button class="btn btn-outline" onclick="window.print()">🖨️ Print Schedule</button>
                 </div>
 
                 <div class="data-table-container">
@@ -10468,7 +10468,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const html = `
                 < div class="card mb-4" >
                     <div class="flex-between">
-                        <input type="text" placeholder="?? Search by name or specialty..." style="padding:0.75rem; border:1px solid #ddd; border-radius:8px; width:400px; font-size:1rem;">
+                        <input type="text" placeholder="🔍 Search by name or specialty..." style="padding:0.75rem; border:1px solid #ddd; border-radius:8px; width:400px; font-size:1rem;">
                             <button class="btn btn-primary">+ Invite Preceptor</button>
                     </div>
             </div >
@@ -10478,7 +10478,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     <div class="card preceptor-card" style="transition:transform 0.2s;">
                         <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:1rem;">
                             <div style="display:flex; gap:1rem; align-items:center;">
-                                <div style="width:50px; height:50px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">?????</div>
+                                <div style="width:50px; height:50px; background:#eee; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">👤</div>
                                 <div>
                                     <h3 style="margin:0; font-size:1.1rem;">${p.name}</h3>
                                     <span class="badge-secondary">${p.specialty}</span>
@@ -10891,11 +10891,11 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                 <span class="badge-success" style="font-size: 0.8rem; padding: 2px 6px; border-radius: 4px;">${p.specialty}</span>
                             </div>
                             <div style="width: 40px; height: 40px; background: #eee; border-radius: 50%; display:flex; align-items:center; justify-content:center;">
-                                ?????
+                                👤
                             </div>
                         </div>
                         <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee;">
-                            <small>?? ${p.email}</small>
+                            <small>✉️ ${p.email}</small>
                         </div>
                     </div>
                 `).join('')}
@@ -10946,7 +10946,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.title.textContent = title;
         this.root.innerHTML = `
             <div class="card" style="text-align:center; padding:3rem;">
-                <h2 style="font-size:1.6rem; margin-bottom:0.5rem;">?? Under Construction</h2>
+                <h2 style="font-size:1.6rem; margin-bottom:0.5rem;">🚧 Under Construction</h2>
                 <p style="margin:0.25rem 0 1rem 0;">The ${title} module is currently being developed.</p>
                 <button class="btn btn-primary" onclick="app.render('dashboard')" style="margin-top: 0.5rem;">Return Home</button>
             </div>
@@ -11146,7 +11146,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <td><strong>${s.name}</strong><br><small>${s.id}</small></td>
                         <td>${score}</td>
                         <td>
-                            <button class="btn btn-primary" onclick="window.renderGradingModal('${type}', '${s.id}')">?? Grade (Rubric)</button>
+                            <button class="btn btn-primary" onclick="window.renderGradingModal('${type}', '${s.id}')">📝 Grade (Rubric)</button>
                         </td>
                     </tr >
                 `;
@@ -11174,7 +11174,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div class="card" style="background: linear-gradient(135deg, #2c3e50, #34495e); color: white;">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start;">
                         <div>
-                            <h3 style="color:white; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:0.5rem; margin-bottom:1rem;">?? Program Configuration</h3>
+                            <h3 style="color:white; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:0.5rem; margin-bottom:1rem;">⚙️ Program Configuration</h3>
                             <div style="display:flex; gap:2rem;">
                                 <div>
                                     <small style="text-transform:uppercase; opacity:0.7;">Current Session</small>
@@ -11198,7 +11198,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!-- Quick Actions -->
                 <div class="card">
-                    <h3>?? Data Entry Hub</h3>
+                    <h3>📝 Data Entry Hub</h3>
                     <div style="display:flex; flex-direction:column; gap:0.5rem;">
                         <button class="btn btn-primary" onclick="alert('Log New Incident Tool')">Log Professionalism Incident</button>
                         <button class="btn btn-outline" onclick="alert('Batch Upload Tool')">Batch Upload Excel</button>
@@ -11217,7 +11217,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                     <div>
                         <button class="btn btn-outline">Export CSV</button>
-                        <button class="btn btn-primary" onclick="window.downloadMockReport()">?? Download Report</button>
+                        <button class="btn btn-primary" onclick="window.downloadMockReport()">📄 Download Report</button>
                     </div>
                 </div>
 
@@ -11260,7 +11260,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- Home/Portal Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('student-portal');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                                ??
+                                🏠
                             </div>
                             <div class="card-content">
                                 <h4>Home</h4>
@@ -11272,7 +11272,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- IPPE I Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe1');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                                1??
+                                1️⃣
                             </div>
                             <div class="card-content">
                                 <h4>IPPE I</h4>
@@ -11284,7 +11284,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- IPPE II Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe2');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                                2??
+                                2️⃣
                             </div>
                             <div class="card-content">
                                 <h4>IPPE II</h4>
@@ -11296,7 +11296,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- IPPE III Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe3');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                                3??
+                                3️⃣
                             </div>
                             <div class="card-content">
                                 <h4>IPPE III</h4>
@@ -11308,7 +11308,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- IPPE Community Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('ippe-community');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
-                                ???
+                                🏘️
                             </div>
                             <div class="card-content">
                                 <h4>IPPE Community</h4>
@@ -11320,7 +11320,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <!-- APPE Experience Hub Card -->
                         <a href="#" class="clinical-nav-card" onclick="event.preventDefault(); window.app.render('appe-experience-hub');">
                             <div class="card-icon" style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);">
-                                ??
+                                🎓
                             </div>
                             <div class="card-content">
                                 <h4>APPE Experience Hub</h4>
@@ -11332,13 +11332,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 </div>
 
                 < div class="user-welcome" style = "margin-bottom: 2rem;" >
-                <h2>Welcome back, Raghad! ??</h2>
+                <h2>Welcome back, Raghad! 👋</h2>
                 <p>IPPE I - Community Pharmacy | Cohort 2025</p>
             </div >
 
             < !--Career Flow / Session Tracker-- >
             <div class="card mb-4" style="background: linear-gradient(to right, #f8f9fa, #fff);">
-                <h3 style="margin-bottom: 1rem; color: var(--primary-green);">?? Your Rotation Journey</h3>
+                <h3 style="margin-bottom: 1rem; color: var(--primary-green);">🗺️ Your Rotation Journey</h3>
                 <div style="display: flex; gap: 1rem; overflow-x: auto;">
                     
                     <!-- Previous -->
@@ -11368,7 +11368,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             <!--Active Requests Timeline-- >
             <div class="card mb-4">
                 <div class="flex-between">
-                    <h3 style="margin-bottom: 1rem; color: var(--primary-blue);">?? Active Requests</h3>
+                    <h3 style="margin-bottom: 1rem; color: var(--primary-blue);">📋 Active Requests</h3>
                     <button class="btn btn-sm btn-outline" onclick="window.app.renderRequestForm('General')">+ New Request</button>
                 </div>
                 
@@ -11461,18 +11461,18 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!-- Quick Actions -->
                 <div class="card">
-                    <h3>My Compass ??</h3>
+                    <h3>My Compass 🧭</h3>
                     <ul class="nav-menu">
                         <li style="padding: 0.5rem; border-bottom: 1px solid #eee; cursor:pointer;" onclick="window.app.renderDocumentHub()">
-                            ?? <strong>Document Hub</strong> <br>
+                            📁 <strong>Document Hub</strong> <br>
                             <small class="text-muted">Upload Compliance Docs</small>
                         </li>
                         <li style="padding: 0.5rem; border-bottom: 1px solid #eee; cursor:pointer;" onclick="window.app.renderHospitalProfiles()">
-                            ?? <strong>Hospital Directory</strong> <br>
+                            🏥 <strong>Hospital Directory</strong> <br>
                             <small class="text-muted">Explore Training Sites</small>
                         </li>
                         <li style="padding: 0.5rem; border-bottom: 1px solid #eee; cursor:pointer;" onclick="window.app.renderMySchedule()">
-                            ?? <strong>My Schedule</strong> <br>
+                            📅 <strong>My Schedule</strong> <br>
                             <small class="text-muted">View Rotation Blocks</small>
                         </li>
                     </ul>
@@ -11620,13 +11620,13 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
     const editHtml = `
         <div style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #333;">?? Edit Tab Content</h3>
+                <h3 style="margin: 0; color: #333;">✏️ Edit Tab Content</h3>
                 <button onclick="app.exitEditMode()" style="background: #f0f0f0; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Exit Edit Mode</button>
             </div>
 
             <!-- Tab Metadata Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; margin-bottom: 1.5rem; border-left: 4px solid #1B5E20;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Tab Information</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">ℹ️ Tab Information</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Tab Title</label>
@@ -11634,7 +11634,7 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
                     </div>
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Icon/Emoji</label>
-                        <input type="text" id="edit_icon" value="${editData.icon || '??'}" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;" />
+                        <input type="text" id="edit_icon" value="${editData.icon || '🌟'}" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem;" />
                     </div>
                 </div>
                 <div style="margin-bottom: 1rem;">
@@ -11642,45 +11642,45 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
                     <textarea id="edit_description" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; min-height: 80px; font-family: inherit;">${editData.description || ''}</textarea>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <button onclick="app.saveAlumniTabEdit('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Save Tab Info</button>
-                    <button onclick="app.resetAlumniTabEdit('${tab}'); app.render('${tab}');" style="background: #FF9800; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Reset</button>
+                    <button onclick="app.saveAlumniTabEdit('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">💾 Save Tab Info</button>
+                    <button onclick="app.resetAlumniTabEdit('${tab}'); app.render('${tab}');" style="background: #FF9800; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔄 Reset</button>
                 </div>
             </div>
 
             <!-- Data Editing Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #2196F3;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Edit Data & Numbers</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📊 Edit Data & Numbers</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     Edit individual metrics and values displayed on this tab
                 </p>
                 <div id="alumni_data_editor_${tab}" style="background: #f9f9f9; padding: 1rem; border-radius: 8px; max-height: 300px; overflow-y: auto; margin-bottom: 1rem;">
                     <p style="color: #999; text-align: center; padding: 2rem;">Click "Edit Metrics" to modify numbers and data</p>
                 </div>
-                <button onclick="app.showDataEditor('${tab}')" style="background: #2196F3; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">?? Edit Metrics & Numbers</button>
+                <button onclick="app.showDataEditor('${tab}')" style="background: #2196F3; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">✏️ Edit Metrics & Numbers</button>
             </div>
 
             <!-- Import/Export Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #F57C00; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">???? Import / Export Data</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📤📥 Import / Export Data</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Import from Excel/CSV</label>
                         <input type="file" id="alumni_data_file_${tab}" accept=".csv,.xlsx" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;" />
                     </div>
                     <div style="display: flex; align-items: flex-end;">
-                        <button onclick="app.importAlumniData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Import Data</button>
+                        <button onclick="app.importAlumniData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">📥 Import Data</button>
                     </div>
                 </div>
-                <button onclick="app.exportAlumniDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">?? Download Data as CSV</button>
+                <button onclick="app.exportAlumniDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">📊 Download Data as CSV</button>
             </div>
 
             <!-- Reset Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #E91E63; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Reset to Database</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">🔄 Reset to Database</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     Clear all manual edits and refresh numbers to show latest database values
                 </p>
-                <button onclick="app.resetAlumniMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Reset All Numbers to Database</button>
+                <button onclick="app.resetAlumniMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">🔄 Reset All Numbers to Database</button>
             </div>
         </div>
     `;
@@ -11817,7 +11817,7 @@ App.prototype.showDataEditor = function(tab) {
             </div>
             <button onclick="app.addNewMetric('${tab}')" style="background: #2196F3; color: white; padding: 0.5rem 1rem; border: none; border-radius: 4px; cursor: pointer; font-weight: 600; margin-top: 0.75rem; width: 100%;">? Add Metric</button>
         </div>
-        <button onclick="app.saveAllMetrics('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Save All Metrics</button>
+        <button onclick="app.saveAllMetrics('${tab}')" style="background: #1B5E20; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">💾 Save All Metrics</button>
     `;
 
     document.getElementById(`alumni_data_editor_${tab}`).innerHTML = editorPanel;
@@ -11926,7 +11926,7 @@ App.prototype.exportAlumniDataCSV = function(tab) {
 // ======================
 
 App.prototype.renderAlumniOverview = function() {
-    this.title.textContent = '????? Alumni Overview';
+    this.title.textContent = '🎓 Alumni Overview';
     const db = ALUMNI_DATABASE;
     const currentYear = document.getElementById('alumniYearFilter')?.value || '';
     const currentProgram = document.getElementById('alumniProgramFilter')?.value || '';
@@ -11965,7 +11965,7 @@ App.prototype.renderAlumniOverview = function() {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <!-- Total Alumni Card -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Total Alumni</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalAlumni.toLocaleString()}</div>
@@ -11980,14 +11980,14 @@ App.prototype.renderAlumniOverview = function() {
 
             <!-- Employment Rate Card -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">💼</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Employment Rate</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${employmentRate}%</div>
                 </div>
                 <div style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">
-                    <div>?? <strong>${db.employment_outcomes.total_employed || 345}</strong> Employed</div>
-                    <div style="margin-top: 0.3rem;">?? <strong>${activeAlumni - (db.employment_outcomes.total_employed || 345)}</strong> Postgrad/Other</div>
+                    <div>✅ <strong>${db.employment_outcomes.total_employed || 345}</strong> Employed</div>
+                    <div style="margin-top: 0.3rem;">🎓 <strong>${activeAlumni - (db.employment_outcomes.total_employed || 345)}</strong> Postgrad/Other</div>
                 </div>
                 <div style="background: #e3f2fd; height: 6px; border-radius: 3px; overflow: hidden;">
                     <div style="background: #2196F3; height: 100%; width: ${employmentRate}%; border-radius: 3px;"></div>
@@ -11999,14 +11999,14 @@ App.prototype.renderAlumniOverview = function() {
 
             <!-- Mentors & Preceptors Card -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🤝</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Active Contributors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #ff6b6b;">${mentorCount + db.preceptorship.total_preceptors}</div>
                 </div>
                 <div style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">
-                    <div>?? <strong>${mentorCount}</strong> Mentors</div>
-                    <div style="margin-top: 0.3rem;">?? <strong>${db.preceptorship.total_preceptors}</strong> Preceptors</div>
+                    <div>🌟 <strong>${mentorCount}</strong> Mentors</div>
+                    <div style="margin-top: 0.3rem;">🏥 <strong>${db.preceptorship.total_preceptors}</strong> Preceptors</div>
                 </div>
                 <div style="background: #ffebee; height: 6px; border-radius: 3px; overflow: hidden;">
                     <div style="background: #ff6b6b; height: 100%; width: 85%; border-radius: 3px;"></div>
@@ -12061,25 +12061,25 @@ App.prototype.renderAlumniOverview = function() {
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Engagement Activities</h3>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎤</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${db.engagement.guest_lectures}</div>
                     <div style="font-size: 0.85rem; color: #666;">Guest Lectures</div>
                 </div>
 
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💼</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${db.engagement.career_days}</div>
                     <div style="font-size: 0.85rem; color: #666;">Career Days</div>
                 </div>
 
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛠️</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #ff6b6b; margin-bottom: 0.3rem;">${db.engagement.workshops}</div>
                     <div style="font-size: 0.85rem; color: #666;">Workshops</div>
                 </div>
 
                 <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
                     <div style="font-size: 2rem; font-weight: 700; color: #FFA500; margin-bottom: 0.3rem;">${db.engagement.panels}</div>
                     <div style="font-size: 0.85rem; color: #666;">Panel Discussions</div>
                 </div>
@@ -12123,7 +12123,7 @@ App.prototype.renderAlumniDirectory = function() {
         alumniTable += `<td data-field="name" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; font-weight:600;">${a.name}</td>`;
         alumniTable += `<td data-field="program" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;"><span style="background: #e3f2fd; padding: 0.25rem 0.5rem; border-radius: 3px;">${a.program}</span></td>`;
         alumniTable += `<td data-field="graduationYear" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${a.graduationYear}</td>`;
-        const statusLabel = window.alumniEditMode ? a.status : `<span style="background: ${a.status === 'employed' ? '#E8F5E9' : '#E3F2FD'}; color: ${a.status === 'employed' ? '#2E7D32' : '#1565C0'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${a.status === 'employed' ? '?? Employed' : '?? Postgrad'}</span>`;
+        const statusLabel = window.alumniEditMode ? a.status : `<span style="background: ${a.status === 'employed' ? '#E8F5E9' : '#E3F2FD'}; color: ${a.status === 'employed' ? '#2E7D32' : '#1565C0'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${a.status === 'employed' ? '✅ Employed' : '🎓 Postgrad'}</span>`;
         alumniTable += `<td data-field="status" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${statusLabel}</td>`;
         alumniTable += `<td data-field="jobTitle" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${a.jobTitle}</td>`;
         alumniTable += `<td data-field="currentEmployer" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;"><small>${a.currentEmployer}</small></td>`;
@@ -12169,13 +12169,13 @@ App.prototype.renderAlumniDirectory = function() {
             ${alumniTable}
         </div>
         <div style="margin-top: 1.5rem; padding: 1rem; background: #e8f5e9; border-radius: 6px;">
-            <strong>?? Directory Statistics:</strong> ${filteredAlumni.length} of ${alumni.length} shown | ${alumni.filter(a => a.mentorWilling).length} mentors | ${alumni.filter(a => a.preceptorWilling).length} preceptors
+            <strong>📋 Directory Statistics:</strong> ${filteredAlumni.length} of ${alumni.length} shown | ${alumni.filter(a => a.mentorWilling).length} mentors | ${alumni.filter(a => a.preceptorWilling).length} preceptors
         </div>
     `;
 };
 
 App.prototype.renderAlumniOutcomes = function() {
-    const tabTitle = '?? Alumni Outcomes Tracking';
+    const tabTitle = '📊 Alumni Outcomes Tracking';
     this.title.textContent = this.getAlumniTabTitle('alumni-outcomes', tabTitle);
     const db = ALUMNI_DATABASE;
     const outcomes = db.employment_outcomes;
@@ -12195,7 +12195,7 @@ App.prototype.renderAlumniOutcomes = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-outcomes')" style="background: ${this.alumniEditMode === 'alumni-outcomes' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-outcomes' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-outcomes' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -12212,7 +12212,7 @@ App.prototype.renderAlumniOutcomes = function() {
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <!-- 12-Month Employment -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">💼</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">12-Month Employment</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${metric12m}</div>
@@ -12227,7 +12227,7 @@ App.prototype.renderAlumniOutcomes = function() {
 
             <!-- 6-Month Employment -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📅</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">6-Month Employment</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${metric6m}</div>
@@ -12242,7 +12242,7 @@ App.prototype.renderAlumniOutcomes = function() {
 
             <!-- Postgraduate Training -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Postgraduate Training</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${postgraduateCount}</div>
@@ -12257,7 +12257,7 @@ App.prototype.renderAlumniOutcomes = function() {
 
             <!-- Outcome Categories -->
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Outcome Categories</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${outcomes.outcomes.length}</div>
@@ -12351,7 +12351,7 @@ App.prototype.renderAlumniOutcomes = function() {
 };
 
 App.prototype.renderPostgraduateTracking = function() {
-    const tabTitle = '?? Postgraduate & Certification';
+    const tabTitle = '🎓 Postgraduate & Certification';
     this.title.textContent = this.getAlumniTabTitle('postgraduate-tracking', tabTitle);
     const db = ALUMNI_DATABASE;
     const pgData = db.postgraduate;
@@ -12369,7 +12369,7 @@ App.prototype.renderPostgraduateTracking = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('postgraduate-tracking')" style="background: ${this.alumniEditMode === 'postgraduate-tracking' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'postgraduate-tracking' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'postgraduate-tracking' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -12380,7 +12380,7 @@ App.prototype.renderPostgraduateTracking = function() {
         <!-- Top 4 Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Residencies</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${residencies}</div>
@@ -12404,7 +12404,7 @@ App.prototype.renderPostgraduateTracking = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🏆</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Fellowships</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${fellowships}</div>
@@ -12416,7 +12416,7 @@ App.prototype.renderPostgraduateTracking = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Programs</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${totalPG}</div>
@@ -12467,7 +12467,7 @@ App.prototype.renderPostgraduateTracking = function() {
 };
 
 App.prototype.renderAlumniEngagement = function() {
-    const tabTitle = '?? Engagement Tracking';
+    const tabTitle = '📅 Engagement Tracking';
     this.title.textContent = this.getAlumniTabTitle('alumni-engagement', tabTitle);
     const db = ALUMNI_DATABASE;
     const eng = db.engagement;
@@ -12487,7 +12487,7 @@ App.prototype.renderAlumniEngagement = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-engagement')" style="background: ${this.alumniEditMode === 'alumni-engagement' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-engagement' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-engagement' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -12498,31 +12498,31 @@ App.prototype.renderAlumniEngagement = function() {
         <!-- Top 5 Engagement Activities -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎤</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.5rem;">${guestLectures}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Guest Lectures</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💼</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.5rem;">${careerDays}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Career Days</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛠️</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.5rem;">${workshops}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Workshops</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💬</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.5rem;">${panels}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Panel Discussions</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌐</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #E91E63; margin-bottom: 0.5rem;">${conferences}</div>
                 <div style="font-size: 0.9rem; color: #666; font-weight: 600;">Conferences</div>
             </div>
@@ -12531,7 +12531,7 @@ App.prototype.renderAlumniEngagement = function() {
         <!-- Summary Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Engagements</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalEngagements}</div>
@@ -12543,7 +12543,7 @@ App.prototype.renderAlumniEngagement = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Alumni</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${activeAlumni}</div>
@@ -12555,7 +12555,7 @@ App.prototype.renderAlumniEngagement = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📈</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Participation Rate</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${participationRate}</div>
@@ -12570,7 +12570,7 @@ App.prototype.renderAlumniEngagement = function() {
 };
 
 App.prototype.renderMentorshipProgram = function() {
-    const tabTitle = '?? Mentorship Program';
+    const tabTitle = '🌟 Mentorship Program';
     this.title.textContent = this.getAlumniTabTitle('mentorship-program', tabTitle);
     const db = ALUMNI_DATABASE;
     const ment = db.mentorship;
@@ -12579,7 +12579,7 @@ App.prototype.renderMentorshipProgram = function() {
         <!-- Top 4 Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🌟</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Alumni Mentors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${ment.total_mentors}</div>
@@ -12591,7 +12591,7 @@ App.prototype.renderMentorshipProgram = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👥</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Student Mentees</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${ment.total_mentees}</div>
@@ -12603,11 +12603,11 @@ App.prototype.renderMentorshipProgram = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">⭐</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Average Rating</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${ment.avg_rating.toFixed(1)}</div>
-                    <div style="font-size: 1.2rem; color: #FFB300; letter-spacing: 2px;">?????</div>
+                    <div style="font-size: 1.2rem; color: #FFB300; letter-spacing: 2px;">⭐⭐⭐⭐⭐</div>
                 </div>
                 <div style="background: #fff3e0; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: 1rem;">
                     <div style="background: #FF9800; height: 100%; width: 92%; border-radius: 3px;"></div>
@@ -12616,7 +12616,7 @@ App.prototype.renderMentorshipProgram = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🤝</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Pairs</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${ment.active_pairs}</div>
@@ -12685,7 +12685,7 @@ App.prototype.renderMentorshipProgram = function() {
 };
 
 App.prototype.renderPreceptorPipeline = function() {
-    const tabTitle = '?? Preceptor & Training Sites';
+    const tabTitle = '🏥 Preceptor & Training Sites';
     this.title.textContent = this.getAlumniTabTitle('preceptor-pipeline', tabTitle);
     const db = ALUMNI_DATABASE;
     const precep = db.preceptorship;
@@ -12693,7 +12693,7 @@ App.prototype.renderPreceptorPipeline = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('preceptor-pipeline')" style="background: ${this.alumniEditMode === 'preceptor-pipeline' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'preceptor-pipeline' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'preceptor-pipeline' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -12704,7 +12704,7 @@ App.prototype.renderPreceptorPipeline = function() {
         <!-- Top 4 Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍⚕️</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Preceptors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${precep.total_preceptors}</div>
@@ -12716,7 +12716,7 @@ App.prototype.renderPreceptorPipeline = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">✅</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Preceptors</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${precep.active_preceptors}</div>
@@ -12728,7 +12728,7 @@ App.prototype.renderPreceptorPipeline = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">???</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🏥</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Training Sites</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${precep.training_sites}</div>
@@ -12740,7 +12740,7 @@ App.prototype.renderPreceptorPipeline = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📊</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Utilization Rate</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${precep.utilization_rate}%</div>
@@ -12770,7 +12770,7 @@ App.prototype.renderPreceptorPipeline = function() {
 
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left: 4px solid #FF9800; border-radius: 10px; margin-top: 1.5rem;">
                     <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
-                        <span style="font-size: 1.5rem;">??</span>
+                        <span style="font-size: 1.5rem;">⏳</span>
                         <div>
                             <strong style="display: block; margin-bottom: 0.3rem;">Pending Approvals</strong>
                             <div style="font-size: 1.3rem; font-weight: 700; color: #FF9800;">${precep.pending_approval}</div>
@@ -12808,7 +12808,7 @@ App.prototype.renderPreceptorPipeline = function() {
 };
 
 App.prototype.renderAlumniEvents = function() {
-    const tabTitle = '?? Events & Communication';
+    const tabTitle = '📅 Events & Communication';
     this.title.textContent = this.getAlumniTabTitle('alumni-events', tabTitle);
     const db = ALUMNI_DATABASE;
     const events = db.events;
@@ -12824,7 +12824,7 @@ App.prototype.renderAlumniEvents = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-events')" style="background: ${this.alumniEditMode === 'alumni-events' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-events' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-events' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -12833,26 +12833,26 @@ App.prototype.renderAlumniEvents = function() {
 
     this.root.innerHTML = editButton + editPanel + `
         <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="alert('Add new event - Coming soon!')">? Add Event</button>
-            <button class="btn btn-outline" onclick="alert('Send communications - Coming soon!')">?? Send Communication</button>
+            <button class="btn btn-primary" onclick="alert('Add new event - Coming soon!')">➕ Add Event</button>
+            <button class="btn btn-outline" onclick="alert('Send communications - Coming soon!')">📢 Send Communication</button>
         </div>
 
         <!-- Event Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📅</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${upcomingCount}</div>
                 <div style="font-size: 0.9rem; color: #666;">Upcoming Events</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${completedCount}</div>
                 <div style="font-size: 0.9rem; color: #666;">Completed Events</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${totalRegistrations}</div>
                 <div style="font-size: 0.9rem; color: #666;">Total Registrations</div>
             </div>
@@ -12866,18 +12866,18 @@ App.prototype.renderAlumniEvents = function() {
                     const bgColor = evt.status === 'Upcoming' ? '#fff3e0' : '#e8f5e9';
                     const borderColor = evt.status === 'Upcoming' ? '#FF9800' : '#1B5E20';
                     const statusColor = evt.status === 'Upcoming' ? '#FF9800' : '#1B5E20';
-                    const icon = evt.status === 'Upcoming' ? '??' : '?';
+                    const icon = evt.status === 'Upcoming' ? '📅' : '✅';
                     return `
                         <div style="padding: 1.5rem; background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 10px;">
                             <div style="display: flex; justify-content: space-between; align-items: start;">
                                 <div style="flex: 1;">
                                     <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">${icon} ${evt.title}</strong>
-                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">?? ${evt.location}</small>
-                                    <small style="color: #666;">?? ${evt.date}</small>
+                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">📍 ${evt.location}</small>
+                                    <small style="color: #666;">📅 ${evt.date}</small>
                                 </div>
                                 <div style="text-align: right;">
                                     <span style="background: ${statusColor}; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 0.5rem;">${evt.type}</span><br>
-                                    <small style="color: #666; font-weight: 600;">?? ${evt.registered} registered</small>
+                                    <small style="color: #666; font-weight: 600;">👥 ${evt.registered} registered</small>
                                 </div>
                             </div>
                         </div>
@@ -12889,7 +12889,7 @@ App.prototype.renderAlumniEvents = function() {
 };
 
 App.prototype.renderAlumniAchievements = function() {
-    const tabTitle = '?? Achievements & Recognition';
+    const tabTitle = '🏆 Achievements & Recognition';
     this.title.textContent = this.getAlumniTabTitle('alumni-achievements', tabTitle);
     const db = ALUMNI_DATABASE;
     const achievements = db.achievements;
@@ -12907,7 +12907,7 @@ App.prototype.renderAlumniAchievements = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-achievements')" style="background: ${this.alumniEditMode === 'alumni-achievements' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-achievements' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-achievements' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -12918,25 +12918,25 @@ App.prototype.renderAlumniAchievements = function() {
         <!-- Top Achievement Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏆</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${awards}</div>
                 <div style="font-size: 0.9rem; color: #666;">Awards & Recognition</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${publications}</div>
                 <div style="font-size: 0.9rem; color: #666;">Publications</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👔</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${leadership}</div>
                 <div style="font-size: 0.9rem; color: #666;">Leadership Roles</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📰</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${media}</div>
                 <div style="font-size: 0.9rem; color: #666;">Media Features</div>
             </div>
@@ -12982,7 +12982,7 @@ App.prototype.renderAlumniAchievements = function() {
 };
 
 App.prototype.renderAlumniFeedback = function() {
-    const tabTitle = '?? Feedback & Surveys';
+    const tabTitle = '📊 Feedback & Surveys';
     this.title.textContent = this.getAlumniTabTitle('alumni-feedback', tabTitle);
     const db = ALUMNI_DATABASE;
     const feedback = db.feedback;
@@ -12997,7 +12997,7 @@ App.prototype.renderAlumniFeedback = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-feedback')" style="background: ${this.alumniEditMode === 'alumni-feedback' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-feedback' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-feedback' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -13008,7 +13008,7 @@ App.prototype.renderAlumniFeedback = function() {
         <!-- Feedback Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">😊</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Overall Satisfaction</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${satisfactionRate}</div>
@@ -13020,17 +13020,17 @@ App.prototype.renderAlumniFeedback = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">⭐</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Average Score</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${avgScore}</div>
-                    <div style="font-size: 1rem; color: #FFB300; letter-spacing: 1px;">?????</div>
+                    <div style="font-size: 1rem; color: #FFB300; letter-spacing: 1px;">⭐⭐⭐⭐⭐</div>
                 </div>
                 <div style="font-size: 0.8rem; color: #666;">Out of 5 Stars</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📝</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Responses</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${responses}</div>
@@ -13072,7 +13072,7 @@ App.prototype.renderAlumniFeedback = function() {
 };
 
 App.prototype.renderAlumniDocuments = function() {
-    const tabTitle = '?? Documents & Records';
+    const tabTitle = '📁 Documents & Records';
     this.title.textContent = this.getAlumniTabTitle('alumni-documents', tabTitle);
     const db = ALUMNI_DATABASE;
     const docs = db.documents;
@@ -13087,17 +13087,17 @@ App.prototype.renderAlumniDocuments = function() {
     const totalDocs = this.createEditableMetric('alumni-documents', 'total', defaultTotal, '#e8f5e9', '#1B5E20');
     
     const documentTypes = [
-        { name: 'Consent Forms', icon: '?', count: consentForms, color: '#1B5E20' },
-        { name: 'Communication History', icon: '??', count: commHistory, color: '#1565C0' },
-        { name: 'CV Submissions', icon: '??', count: cvSubmissions, color: '#6A1B9A' },
-        { name: 'Certificates', icon: '??', count: certificates, color: '#F57C00' },
-        { name: 'Participation Letters', icon: '??', count: participationLetters, color: '#C62828' }
+        { name: 'Consent Forms', icon: '✅', count: consentForms, color: '#1B5E20' },
+        { name: 'Communication History', icon: '📧', count: commHistory, color: '#1565C0' },
+        { name: 'CV Submissions', icon: '📄', count: cvSubmissions, color: '#6A1B9A' },
+        { name: 'Certificates', icon: '🎓', count: certificates, color: '#F57C00' },
+        { name: 'Participation Letters', icon: '📋', count: participationLetters, color: '#C62828' }
     ];
 
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-documents')" style="background: ${this.alumniEditMode === 'alumni-documents' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-documents' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-documents' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -13108,25 +13108,25 @@ App.prototype.renderAlumniDocuments = function() {
         <!-- Top Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📁</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${totalDocs}</div>
                 <div style="font-size: 0.9rem; color: #666;">Total Documents</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${docs.consent_forms}</div>
                 <div style="font-size: 0.9rem; color: #666;">Consent Forms</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📄</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${docs.cv_submissions}</div>
                 <div style="font-size: 0.9rem; color: #666;">CV Submissions</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎓</div>
                 <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${docs.certificates}</div>
                 <div style="font-size: 0.9rem; color: #666;">Certificates</div>
             </div>
@@ -13161,16 +13161,16 @@ App.prototype.renderAlumniDocuments = function() {
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Document Management</h3>
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                <button style="padding: 0.75rem 1.5rem; background: #1976d2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Upload Document</button>
-                <button style="padding: 0.75rem 1.5rem; background: #388e3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Download Records</button>
-                <button style="padding: 0.75rem 1.5rem; background: #f57c00; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Manage Access</button>
+                <button style="padding: 0.75rem 1.5rem; background: #1976d2; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📤 Upload Document</button>
+                <button style="padding: 0.75rem 1.5rem; background: #388e3c; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Download Records</button>
+                <button style="padding: 0.75rem 1.5rem; background: #f57c00; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔒 Manage Access</button>
             </div>
         </div>
     `;
 };
 
 App.prototype.renderAlumniGovernance = function() {
-    const tabTitle = '?? Data Governance & Privacy';
+    const tabTitle = '🔒 Data Governance & Privacy';
     this.title.textContent = this.getAlumniTabTitle('alumni-governance', tabTitle);
     const db = ALUMNI_DATABASE;
 
@@ -13182,7 +13182,7 @@ App.prototype.renderAlumniGovernance = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-governance')" style="background: ${this.alumniEditMode === 'alumni-governance' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-governance' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-governance' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -13193,25 +13193,25 @@ App.prototype.renderAlumniGovernance = function() {
         <!-- Compliance Stats -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📋</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${totalConsents}</div>
                 <div style="font-size: 0.9rem; color: #666;">Total Consents</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${verified}</div>
                 <div style="font-size: 0.9rem; color: #666;">Verified</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">?</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">⏳</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${pending}</div>
                 <div style="font-size: 0.9rem; color: #666;">Pending Review</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🛡️</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">95%</div>
                 <div style="font-size: 0.9rem; color: #666;">Compliance Rate</div>
             </div>
@@ -13224,17 +13224,17 @@ App.prototype.renderAlumniGovernance = function() {
                 <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Privacy & Compliance Status</h3>
                 <div style="display: grid; gap: 0.75rem;">
                     <div style="padding: 1.5rem; background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%); border-left: 4px solid #1B5E20; border-radius: 8px;">
-                        <strong style="display: block; margin-bottom: 0.3rem; color: #1B5E20;">? GDPR Compliance</strong>
+                        <strong style="display: block; margin-bottom: 0.3rem; color: #1B5E20;">✅ GDPR Compliance</strong>
                         <small style="color: #666;">Fully compliant with data protection regulations</small>
                     </div>
 
                     <div style="padding: 1.5rem; background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); border-left: 4px solid #2196F3; border-radius: 8px;">
-                        <strong style="display: block; margin-bottom: 0.3rem; color: #2196F3;">??? Visibility Controls</strong>
+                        <strong style="display: block; margin-bottom: 0.3rem; color: #2196F3;">👁️ Visibility Controls</strong>
                         <small style="color: #666;">Alumni can manage profile visibility preferences</small>
                     </div>
 
                     <div style="padding: 1.5rem; background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border-left: 4px solid #FF9800; border-radius: 8px;">
-                        <strong style="display: block; margin-bottom: 0.3rem; color: #FF9800;">?? Data Retention</strong>
+                        <strong style="display: block; margin-bottom: 0.3rem; color: #FF9800;">🗓️ Data Retention</strong>
                         <small style="color: #666;">Compliant with FERPA and institutional policies</small>
                     </div>
                 </div>
@@ -13270,7 +13270,7 @@ App.prototype.renderAlumniGovernance = function() {
 };
 
 App.prototype.renderAlumniEcosystem = function() {
-    const tabTitle = '?? Alumni-Student Ecosystem';
+    const tabTitle = '🌱 Alumni-Student Ecosystem';
     this.title.textContent = this.getAlumniTabTitle('alumni-ecosystem', tabTitle);
     const db = ALUMNI_DATABASE;
 
@@ -13288,7 +13288,7 @@ App.prototype.renderAlumniEcosystem = function() {
     const editButton = `
         <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
             <button onclick="app.toggleAlumniEditMode('alumni-ecosystem')" style="background: ${this.alumniEditMode === 'alumni-ecosystem' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-ecosystem' ? '? Editing' : '?? Edit Tab'}
+                ${this.alumniEditMode === 'alumni-ecosystem' ? '✏️ Editing' : '✏️ Edit Tab'}
             </button>
         </div>
     `;
@@ -13299,25 +13299,25 @@ App.prototype.renderAlumniEcosystem = function() {
         <!-- Main Ecosystem Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🌟</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${totalMentors}</div>
                 <div style="font-size: 0.9rem; color: #666;">Mentors Active</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏥</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${totalPreceptors}</div>
                 <div style="font-size: 0.9rem; color: #666;">Preceptors</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💼</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${employmentRate}</div>
                 <div style="font-size: 0.9rem; color: #666;">Employment Success</div>
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">??</div>
+                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏛️</div>
                 <div style="font-size: 2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${advisoryCount}</div>
                 <div style="font-size: 0.9rem; color: #666;">Advisory Board</div>
             </div>
@@ -13329,7 +13329,7 @@ App.prototype.renderAlumniEcosystem = function() {
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
                 <!-- Mentorship Flow -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #1B5E2022 0%, #1B5E2011 100%); border-left: 4px solid #1B5E20; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🌟</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #1B5E20;">Mentorship Program</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni guiding students through professional development</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -13340,7 +13340,7 @@ App.prototype.renderAlumniEcosystem = function() {
 
                 <!-- Preceptorship Flow -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #2196F322 0%, #2196F311 100%); border-left: 4px solid #2196F3; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏥</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #2196F3;">Preceptorship Program</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni providing clinical training to pharmacy students</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -13351,7 +13351,7 @@ App.prototype.renderAlumniEcosystem = function() {
 
                 <!-- Employment Partnership -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #FF980022 0%, #FF980011 100%); border-left: 4px solid #FF9800; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💼</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #FF9800;">Employment Pathway</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni advancing to leadership positions, hiring graduates</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -13362,7 +13362,7 @@ App.prototype.renderAlumniEcosystem = function() {
 
                 <!-- Advisory & Governance -->
                 <div style="padding: 1.5rem; background: linear-gradient(135deg, #9C27B022 0%, #9C27B011 100%); border-left: 4px solid #9C27B0; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">??</div>
+                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🏛️</div>
                     <strong style="display: block; margin-bottom: 0.5rem; color: #9C27B0;">Advisory & Governance</strong>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.8rem;">Alumni shaping program direction and institutional strategy</div>
                     <div style="display: grid; gap: 0.3rem; font-size: 0.85rem; color: #555;">
@@ -13380,7 +13380,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Direct Mentorship Impact</strong>
-                        <span style="font-size: 1.2rem;">??</span>
+                        <span style="font-size: 1.2rem;">🌟</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Students receiving career guidance from alumni mentors, resulting in better career transitions
@@ -13393,7 +13393,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Clinical Training Impact</strong>
-                        <span style="font-size: 1.2rem;">??</span>
+                        <span style="font-size: 1.2rem;">🏥</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Students gaining hands-on clinical experience under alumni preceptors
@@ -13406,7 +13406,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Career Advancement</strong>
-                        <span style="font-size: 1.2rem;">??</span>
+                        <span style="font-size: 1.2rem;">💼</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Graduates transitioning to employment through alumni networks and recommendations
@@ -13419,7 +13419,7 @@ App.prototype.renderAlumniEcosystem = function() {
                 <div style="padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
                         <strong style="color: #333;">Program Innovation</strong>
-                        <span style="font-size: 1.2rem;">??</span>
+                        <span style="font-size: 1.2rem;">💡</span>
                     </div>
                     <div style="font-size: 0.9rem; color: #666; margin-bottom: 1rem;">
                         Alumni advisory board driving curriculum improvements and institutional strategy
@@ -13441,49 +13441,49 @@ App.prototype.renderResearchEditPanel = function(tab, tabTitle) {
     const editHtml = `
         <div style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #333;">?? Edit Research Data</h3>
+                <h3 style="margin: 0; color: #333;">✏️ Edit Research Data</h3>
                 <button onclick="app.render('${tab}')" style="background: #f0f0f0; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Exit Edit Mode</button>
             </div>
 
             <!-- Data Editing Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #2196F3;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Edit Research Metrics & Numbers</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📊 Edit Research Metrics & Numbers</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     All research section numbers are editable. Click any metric in the main view to edit it directly, or use the controls below.
                 </p>
                 <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
                     <h5 style="margin-top: 0; margin-bottom: 1rem; color: #333;">Quick Edit Shortcuts</h5>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
-                        <div>? Click any number to edit</div>
-                        <div>?? Changes save automatically</div>
-                        <div>?? Use reset button below to restore</div>
-                        <div>?? Data persists in browser</div>
+                        <div>👆 Click any number to edit</div>
+                        <div>💾 Changes save automatically</div>
+                        <div>🔄 Use reset button below to restore</div>
+                        <div>🖥️ Data persists in browser</div>
                     </div>
                 </div>
             </div>
 
             <!-- Import/Export Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #F57C00; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">???? Import / Export Data</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📤📥 Import / Export Data</h4>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
                         <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Import CSV/JSON</label>
                         <input type="file" id="research_data_file_${tab}" accept=".csv,.json,.xlsx" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;" />
                     </div>
                     <div style="display: flex; align-items: flex-end;">
-                        <button onclick="app.importResearchData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Import Data</button>
+                        <button onclick="app.importResearchData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">📥 Import Data</button>
                     </div>
                 </div>
-                <button onclick="app.exportResearchDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">?? Download Data as CSV</button>
+                <button onclick="app.exportResearchDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">📊 Download Data as CSV</button>
             </div>
 
             <!-- Reset Section -->
             <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #E91E63; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">?? Reset to Database</h4>
+                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">🔄 Reset to Database</h4>
                 <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
                     Clear all manual edits and refresh numbers to show latest database values
                 </p>
-                <button onclick="app.resetResearchMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">?? Reset All Numbers to Database</button>
+                <button onclick="app.resetResearchMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">🔄 Reset All Numbers to Database</button>
             </div>
         </div>
     `;
@@ -13491,7 +13491,7 @@ App.prototype.renderResearchEditPanel = function(tab, tabTitle) {
 };
 
 App.prototype.resetResearchMetrics = function(tab) {
-    if (confirm('?? Clear all manual edits and restore database values for this section?\n\nThis action cannot be undone.')) {
+    if (confirm('⚠️ Clear all manual edits and restore database values for this section?\n\nThis action cannot be undone.')) {
         localStorage.removeItem(`researchMetrics_${tab}`);
         localStorage.removeItem(`researchEdits_${tab}`);
         this.render(tab);
@@ -13511,10 +13511,10 @@ App.prototype.importResearchData = function(tab) {
             const content = e.target.result;
             const data = JSON.parse(content);
             localStorage.setItem(`researchMetrics_${tab}`, JSON.stringify(data));
-            alert('? Data imported successfully!');
+            alert('✅ Data imported successfully!');
             this.render(tab);
         } catch {
-            alert('?? Error importing file. Please ensure it is valid JSON.');
+            alert('❌ Error importing file. Please ensure it is valid JSON.');
         }
     };
     reader.readAsText(file);
@@ -13532,7 +13532,7 @@ App.prototype.exportResearchDataCSV = function(tab) {
 };
 
 App.prototype.renderResearchOverview = function() {
-    const tabTitle = '?? Research Overview';
+    const tabTitle = '📊 Research Overview';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
     const stats = db.stats;
@@ -13547,7 +13547,7 @@ App.prototype.renderResearchOverview = function() {
     this.root.innerHTML = `
         <!-- Edit Panel Button -->
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-overview', '${tabTitle}') + document.getElementById('research-overview-content').innerHTML; document.getElementById('research-overview-content').remove();" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-overview', '${tabTitle}') + document.getElementById('research-overview-content').innerHTML; document.getElementById('research-overview-content').remove();" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
 
         <div id="research-overview-content" style="display: none;"></div>
@@ -13555,7 +13555,7 @@ App.prototype.renderResearchOverview = function() {
         <!-- Quick KPIs -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Publications</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalPubs}</div>
@@ -13567,7 +13567,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📅</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Current Year</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${currentYearPubs}</div>
@@ -13579,7 +13579,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🔬</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Projects</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${activeProjects}</div>
@@ -13591,7 +13591,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🛡️</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active IRBs</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #E91E63;">${activeIRBs}</div>
@@ -13603,7 +13603,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">?????</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍🏫</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Faculty Involved</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${facultyCount}</div>
@@ -13615,7 +13615,7 @@ App.prototype.renderResearchOverview = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Students Involved</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #009688;">${studentCount}</div>
@@ -13668,7 +13668,7 @@ App.prototype.renderResearchOverview = function() {
                 ${db.publications.slice(0, 3).map(pub => `
                     <div style="padding: 1.5rem; background: #f9f9f9; border-left: 4px solid #1B5E20; border-radius: 10px;">
                         <strong style="color: #333; display: block; margin-bottom: 0.3rem;">${pub.title}</strong>
-                        <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${pub.journal} (${pub.quartile}) - ${pub.year}</small>
+                        <small style="color: #666; display: block; margin-bottom: 0.5rem;">📖 ${pub.journal} (${pub.quartile}) - ${pub.year}</small>
                         <small style="color: #999;">By: ${pub.authors}</small>
                     </div>
                 `).join('')}
@@ -13678,18 +13678,18 @@ App.prototype.renderResearchOverview = function() {
 };
 
 App.prototype.renderResearchPublications = function() {
-    const tabTitle = '?? Publications';
+    const tabTitle = '📚 Publications';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-publications', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-publications', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
 
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
             <input type="text" placeholder="Search publications..." style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;" />
-            <button style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Search</button>
+            <button style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Search</button>
         </div>
 
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
@@ -13704,9 +13704,9 @@ App.prototype.renderResearchPublications = function() {
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
                                 <div style="flex: 1;">
                                     <strong style="font-size: 1.1rem; color: #333; display: block; margin-bottom: 0.5rem;">${pub.title}</strong>
-                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">?? ${pub.authors}</small>
-                                    <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${pub.journal} | ${pub.quartile} Quartile | ${pub.year}</small>
-                                    <small style="color: #999;">?? DOI: ${pub.doi} | ?? ${pub.citations} citations</small>
+                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">👤 ${pub.authors}</small>
+                                    <small style="color: #666; display: block; margin-bottom: 0.5rem;">📖 ${pub.journal} | ${pub.quartile} Quartile | ${pub.year}</small>
+                                    <small style="color: #999;">🔗 DOI: ${pub.doi} | 📊 ${pub.citations} citations</small>
                                 </div>
                                 <span style="background: ${tagBg}; color: ${tagColor}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${pub.type}</span>
                             </div>
@@ -13719,13 +13719,13 @@ App.prototype.renderResearchPublications = function() {
 };
 
 App.prototype.renderResearchProjects = function() {
-    const tabTitle = '?? Research Projects';
+    const tabTitle = '🔬 Research Projects';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-projects', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-projects', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
     `;
 
@@ -13755,7 +13755,7 @@ App.prototype.renderResearchProjects = function() {
                                 <span style="background: ${stageColors[latestStage] || '#999'}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; white-space: nowrap;">${proj.status}</span>
                             </div>
                             <div style="margin-bottom: 1rem;">
-                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${proj.students} students involved | Duration: ${proj.startDate} to ${proj.endDate}</small>
+                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">👥 ${proj.students} students involved | Duration: ${proj.startDate} to ${proj.endDate}</small>
                             </div>
                             <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.75rem;">
                                 ${proj.stages.map(stage => `
@@ -13771,13 +13771,13 @@ App.prototype.renderResearchProjects = function() {
 };
 
 App.prototype.renderResearchIRB = function() {
-    const tabTitle = '?? IRB & Ethics';
+    const tabTitle = '🛡️ IRB & Ethics';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-irb', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-irb', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">IRB Approvals & Ethics Compliance</h3>
@@ -13789,13 +13789,13 @@ App.prototype.renderResearchIRB = function() {
                         <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${statusColor};">
                             <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
                                 <div style="flex: 1;">
-                                    <strong style="color: #333; display: block; margin-bottom: 0.3rem;">?? ${irb.id}</strong>
+                                    <strong style="color: #333; display: block; margin-bottom: 0.3rem;">📋 ${irb.id}</strong>
                                     <div style="color: #666; margin-bottom: 0.5rem;">${irb.title}</div>
                                     <small style="color: #666;">Approval: ${irb.approval} | Expires: ${irb.expiry}</small>
                                 </div>
                                 <div style="text-align: right;">
                                     <span style="background: ${statusBg}; color: ${statusColor}; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; display: block; margin-bottom: 0.5rem;">${irb.status}</span>
-                                    <small style="color: ${irb.daysToRenewal > 0 ? '#666' : '#f44336'}; font-weight: 600;">${irb.daysToRenewal > 0 ? '? ' + irb.daysToRenewal + ' days' : 'Expired ' + Math.abs(irb.daysToRenewal) + ' days ago'}</small>
+                                    <small style="color: ${irb.daysToRenewal > 0 ? '#666' : '#f44336'}; font-weight: 600;">${irb.daysToRenewal > 0 ? '⏳ ' + irb.daysToRenewal + ' days' : 'Expired ' + Math.abs(irb.daysToRenewal) + ' days ago'}</small>
                                 </div>
                             </div>
                         </div>
@@ -13807,7 +13807,7 @@ App.prototype.renderResearchIRB = function() {
 };
 
 App.prototype.renderResearchStudents = function() {
-    const tabTitle = '?? Student Research';
+    const tabTitle = '🎓 Student Research';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
     const stats = db.stats;
@@ -13818,12 +13818,12 @@ App.prototype.renderResearchStudents = function() {
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-students', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-students', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
         <!-- Key Metrics -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Student Involvement</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #009688;">${studentInvolvement}</div>
@@ -13835,7 +13835,7 @@ App.prototype.renderResearchStudents = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎤</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Presentations</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${studentPres}</div>
@@ -13847,7 +13847,7 @@ App.prototype.renderResearchStudents = function() {
             </div>
 
             <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">??</div>
+                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
                 <div style="margin-bottom: 1.5rem;">
                     <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Publications</div>
                     <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${studentPubs}</div>
@@ -13868,7 +13868,7 @@ App.prototype.renderResearchStudents = function() {
                         <div style="display: flex; justify-content: space-between; align-items: start;">
                             <div>
                                 <strong style="color: #333; font-size: 1.05rem;">${student.name}</strong>
-                                <small style="display: block; color: #666; margin-top: 0.5rem;">?? ${student.publications} publication(s) | ?? ${student.presentations} presentation(s) | ?? ${student.projects} project(s)</small>
+                                <small style="display: block; color: #666; margin-top: 0.5rem;">📚 ${student.publications} publication(s) | 🎤 ${student.presentations} presentation(s) | 🔬 ${student.projects} project(s)</small>
                             </div>
                             <span style="background: ${student.status === 'Active' ? '#e8f5e9' : '#f5f5f5'}; color: ${student.status === 'Active' ? '#1B5E20' : '#666'}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${student.status}</span>
                         </div>
@@ -13880,13 +13880,13 @@ App.prototype.renderResearchStudents = function() {
 };
 
 App.prototype.renderResearchFaculty = function() {
-    const tabTitle = '????? Faculty Research';
+    const tabTitle = '👨‍🏫 Faculty Research';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-faculty', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-faculty', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
         <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
             <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Faculty Researchers</h3>
@@ -13896,8 +13896,8 @@ App.prototype.renderResearchFaculty = function() {
                         <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
                             <div style="flex: 1;">
                                 <strong style="color: #333; font-size: 1.1rem; display: block; margin-bottom: 0.3rem;">${faculty.name}</strong>
-                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">?? ${faculty.interests}</small>
-                                <small style="color: #666;">?? ${faculty.publications} publications | ????? ${faculty.students} students supervised | ?? ${faculty.projects} active projects</small>
+                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">🔬 ${faculty.interests}</small>
+                                <small style="color: #666;">📚 ${faculty.publications} publications | 👥 ${faculty.students} students supervised | 🔬 ${faculty.projects} active projects</small>
                             </div>
                             <div style="text-align: right;">
                                 <small style="display: block; color: #999; margin-bottom: 0.5rem;">ORCID</small>
@@ -13912,21 +13912,21 @@ App.prototype.renderResearchFaculty = function() {
 };
 
 App.prototype.renderResearchCollaboration = function() {
-    const tabTitle = '?? Collaboration & Partnerships';
+    const tabTitle = '🤝 Collaboration & Partnerships';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-collaboration', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-collaboration', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
     `;
 
     const typeIcons = {
-        'Internal': '??',
-        'External': '??',
-        'Industry': '??',
-        'Hospital': '??'
+        'Internal': '🏫',
+        'External': '🌐',
+        'Industry': '🏭',
+        'Hospital': '🏥'
     };
 
     this.root.innerHTML = `
@@ -13943,7 +13943,7 @@ App.prototype.renderResearchCollaboration = function() {
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <strong style="color: #333; font-size: 1.05rem; display: block;">${typeIcons[collab.type]} ${collab.partner}</strong>
-                                    <small style="color: #666; display: block; margin-top: 0.3rem;">?? ${collab.projects} active project(s)</small>
+                                    <small style="color: #666; display: block; margin-top: 0.3rem;">🔬 ${collab.projects} active project(s)</small>
                                 </div>
                                 <span style="background: white; color: ${color}; padding: 0.5rem 1rem; border: 2px solid ${color}; border-radius: 6px; font-weight: 600;">${collab.status}</span>
                             </div>
@@ -13956,20 +13956,20 @@ App.prototype.renderResearchCollaboration = function() {
 };
 
 App.prototype.renderResearchRecognition = function() {
-    const tabTitle = '?? Recognition & Output';
+    const tabTitle = '🏆 Recognition & Output';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-recognition', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-recognition', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
     `;
 
     const typeIcons = {
-        'Award': '??',
-        'Citation': '??',
-        'Presentation': '??'
+        'Award': '🏆',
+        'Citation': '📊',
+        'Presentation': '🎤'
     };
 
     const typeColors = {
@@ -13988,7 +13988,7 @@ App.prototype.renderResearchRecognition = function() {
                             <div style="flex: 1;">
                                 <strong style="color: #333; font-size: 1.05rem; display: block; margin-bottom: 0.3rem;">${typeIcons[item.type]} ${item.title}</strong>
                                 <small style="color: #666; display: block; margin-bottom: 0.3rem;">Recipient: <strong>${item.recipient}</strong></small>
-                                <small style="color: #999;">?? ${item.date} | ${item.details}</small>
+                                <small style="color: #999;">📅 ${item.date} | ${item.details}</small>
                             </div>
                             <span style="background: ${typeColors[item.type]}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${item.type}</span>
                         </div>
@@ -14000,13 +14000,13 @@ App.prototype.renderResearchRecognition = function() {
 };
 
 App.prototype.renderResearchAnalytics = function() {
-    const tabTitle = '?? Analytics & Trends';
+    const tabTitle = '📈 Analytics & Trends';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-analytics', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-analytics', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
             <!-- Publications by Year -->
@@ -14062,20 +14062,20 @@ App.prototype.renderResearchAnalytics = function() {
 };
 
 App.prototype.renderResearchDocuments = function() {
-    const tabTitle = '?? Documents & Templates';
+    const tabTitle = '📄 Documents & Templates';
     this.title.textContent = tabTitle;
     const db = RESEARCH_DATABASE;
 
     this.root.innerHTML = `
         <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-documents', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Edit Data Control Center</button>
+            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-documents', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
         </div>
     `;
 
     const typeIcons = {
-        'Template': '??',
-        'Form': '??',
-        'Guideline': '??'
+        'Template': '📋',
+        'Form': '📝',
+        'Guideline': '📖'
     };
 
     const typeColors = {
@@ -14095,7 +14095,7 @@ App.prototype.renderResearchDocuments = function() {
                                 <strong style="color: #333; font-size: 1.05rem; display: block; margin-bottom: 0.3rem;">${typeIcons[doc.type]} ${doc.name}</strong>
                                 <small style="color: #666;">Last updated: ${doc.updated}</small>
                             </div>
-                            <button style="background: ${typeColors[doc.type]}; color: white; padding: 0.6rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">?? Download</button>
+                            <button style="background: ${typeColors[doc.type]}; color: white; padding: 0.6rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Download</button>
                         </div>
                     </div>
                 `).join('')}
@@ -14325,24 +14325,24 @@ window.getFacultyDashboardHTML = () => {
         <div class="card" style="grid-column: span 3;">
             <div class="flex-between">
                 <div>
-                    <h3>?? Faculty Achievement Matrix</h3>
-                    <p style="color:var(--text-muted); font-size:0.9rem;">Teaching � Research � Distinctions</p>
+                    <h3>🏆 Faculty Achievement Matrix</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">Teaching� Research � Distinctions</p>
                 </div>
                 <div style="display:flex; gap:10px;">
                     <select class="btn btn-outline" style="padding:5px 10px;">
-                        <option>?? College Overview (All)</option>
-                        <option>?? Clinical Pharmacy</option>
-                        <option>?? Pharm. Sciences</option>
-                        <option>?? Pharmacy Practice</option>
+                        <option>🏫 College Overview (All)</option>
+                        <option>💊 Clinical Pharmacy</option>
+                        <option>🔬 Pharm. Sciences</option>
+                        <option>🏥 Pharmacy Practice</option>
                     </select>
-                    <button class="btn btn-primary" onclick="alert('Exporting Report...')">?? Export Report</button>
+                    <button class="btn btn-primary" onclick="alert('Exporting Report...')">📊 Export Report</button>
                 </div>
             </div>
             
             <div class="dashboard-grid" style="grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem;">
                 <!-- Teaching Load -->
                 <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                    <h5 style="text-align:center;">?? Teaching Load</h5>
+                    <h5 style="text-align:center;">📚 Teaching Load</h5>
                     <div style="height:150px; position:relative;">
                         <canvas id="chartTeachingLoad"></canvas>
                         <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); text-align:center;">
@@ -14355,11 +14355,11 @@ window.getFacultyDashboardHTML = () => {
 
                 <!-- Research Output -->
                 <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                    <h5 style="text-align:center;">?? Research Output</h5>
+                    <h5 style="text-align:center;">📊 Research Output</h5>
                     <div style="display:flex; justify-content:space-around; margin-bottom:10px; font-size:0.8rem;">
-                        <span>?? Citations: <strong>1,240</strong></span>
-                        <span>?? Grants: <strong>12</strong></span>
-                        <span>?? Sup: <strong>45</strong></span>
+                        <span>📈 Citations: <strong>1,240</strong></span>
+                        <span>💰 Grants: <strong>12</strong></span>
+                        <span>👥 Sup: <strong>45</strong></span>
                     </div>
                      <div style="height:120px;">
                         <canvas id="chartResearchOutput"></canvas>
@@ -14368,9 +14368,9 @@ window.getFacultyDashboardHTML = () => {
 
                 <!-- Awards -->
                 <div class="card" style="box-shadow:none; border:1px solid #eee;">
-                    <h5 style="text-align:center;">?? Awards & Distinctions</h5>
+                    <h5 style="text-align:center;">🏆 Awards & Distinctions</h5>
                     <div style="height:150px; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                        <div style="font-size:3rem;">?? 8</div>
+                        <div style="font-size:3rem;">🏅 8</div>
                         <div style="color:var(--success); font-weight:bold;">+2 this year</div>
                         <div style="font-size:0.8rem; color:#888; margin-top:5px;">International & Regional</div>
                     </div>
@@ -14381,8 +14381,8 @@ window.getFacultyDashboardHTML = () => {
         <!-- Detailed Metrics -->
         <div class="card" style="grid-column: span 3;">
             <div class="flex-between">
-                <h3>?? Detailed Metrics (Editable)</h3>
-                <button class="btn btn-outline" onclick="window.renderFacultyTable()">?? Refresh Data</button>
+                <h3>📊 Detailed Metrics (Editable)</h3>
+                <button class="btn btn-outline" onclick="window.renderFacultyTable()">🔄 Refresh Data</button>
             </div>
             <div class="data-table-container mt-4">
                 <table class="data-table" id="faculty-table">
@@ -14427,10 +14427,10 @@ window.renderFacultyTable = () => {
             <td style="text-align:center;">${f.q3}</td>
             <td style="text-align:center;">${f.q4}</td>
             <td style="text-align:center;">${f.sup}</td>
-            <td style="text-align:center;">${f.awards > 0 ? '?? ' + f.awards : '-'}</td>
+            <td style="text-align:center;">${f.awards > 0 ? '🏅 ' + f.awards : '-'}</td>
             <td style="text-align:center;">
                 <a href="${f.scholar}" target="_blank" class="btn btn-outline" style="padding:2px 6px; font-size:0.8rem;">
-                    ?? Profile
+                    👤 Profile
                 </a>
             </td>
         </tr>
@@ -14881,7 +14881,7 @@ window.showActionModal = function(actionType, requestId, studentName, studentEma
                             <p style="margin-bottom: 1rem; color: #666;">
                                 <strong>${studentName}</strong>'s request (${requestId}) will be approved.
                             </p>
-                            <label>?? Approval Notes (Optional)</label>
+                            <label>📝 Approval Notes (Optional)</label>
                             <textarea id="approvalNotes" placeholder="Add any approval notes or instructions...">The request has been reviewed and approved.</textarea>
                         </div>
                         <div class="modal-footer">
@@ -14900,7 +14900,7 @@ window.showActionModal = function(actionType, requestId, studentName, studentEma
                             <p style="margin-bottom: 1rem; color: #666;">
                                 <strong>${studentName}</strong>'s request (${requestId}) will be rejected.
                             </p>
-                            <label>?? Rejection Reason (Required)</label>
+                            <label>❌ Rejection Reason (Required)</label>
                             <textarea id="rejectionReason" placeholder="Explain why this request is being rejected..." required>Documentation incomplete. Please resubmit with required supporting documents.</textarea>
                         </div>
                         <div class="modal-footer">
@@ -14922,22 +14922,22 @@ window.showActionModal = function(actionType, requestId, studentName, studentEma
             modalContent = `
                 <div class="modal-overlay active" id="actionModal" onclick="if(event.target === this) window.closeActionModal()">
                     <div class="modal-content">
-                        <div class="modal-header">?? Delegate Request</div>
+                        <div class="modal-header">📤 Delegate Request</div>
                         <div class="modal-body">
                             <p style="margin-bottom: 1rem; color: #666;">
                                 <strong>${studentName}</strong>'s request (${requestId}) will be forwarded to a department head.
                             </p>
-                            <label>?? Delegate To (Required)</label>
+                            <label>👤 Delegate To (Required)</label>
                             <select id="delegateTo" required style="cursor: pointer;">
                                 <option value="">-- Select Department --</option>
                                 ${departments.map(dept => `<option value="${dept.value}|${dept.label}|${dept.email}">${dept.label}</option>`).join('')}
                             </select>
-                            <label>?? Delegation Note (Optional)</label>
+                            <label>📝 Delegation Note (Optional)</label>
                             <textarea id="delegationNote" placeholder="Add specific instructions or context for the reviewer...">Please review this request and provide your approval or rejection.</textarea>
                         </div>
                         <div class="modal-footer">
                             <button class="modal-btn modal-btn-secondary" onclick="window.closeActionModal()">Cancel</button>
-                            <button class="modal-btn modal-btn-info" onclick="window.executeDelegation('${requestId}', '${studentName}', '${studentEmail}')">?? Confirm Delegation</button>
+                            <button class="modal-btn modal-btn-info" onclick="window.executeDelegation('${requestId}', '${studentName}', '${studentEmail}')">📤 Confirm Delegation</button>
                         </div>
                     </div>
                 </div>
