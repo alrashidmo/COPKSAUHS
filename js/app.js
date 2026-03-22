@@ -8793,6 +8793,69 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     // --- V2: ENHANCED DASHBOARD WITH RADAR CHART & ANIMATIONS ---
+    // Edit modal for a single academic year's dept data
+    showDeptYearEditor(deptLabel, acadYear) {
+        const deptId  = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+        const yk      = acadYear.split('-')[0];
+        const key     = `dept_year_${deptId}_${yk}`;
+        let existing  = {};
+        try { existing = JSON.parse(localStorage.getItem(key) || '{}'); } catch(e) {}
+
+        const field = (label, name, val, unit='') => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f0f0f0;">
+                <label style="font-size:0.88rem;color:#444;">${label}${unit?` <span style='color:#999;font-size:0.75rem;'>(${unit})</span>`:''}</label>
+                <input name="${name}" type="number" min="0" value="${val??''}" placeholder="0"
+                    style="width:100px;padding:0.35rem 0.5rem;border:1px solid #ddd;border-radius:6px;text-align:right;font-size:0.88rem;">
+            </div>`;
+
+        const d = existing;
+        const modal = document.createElement('div');
+        modal.id = 'deptYearModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background:#fff;border-radius:14px;width:480px;max-width:94vw;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+                <div style="padding:1.25rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
+                    <h3 style="margin:0;color:#2e7d32;">&#9998; Edit Data &mdash; ${acadYear}</h3>
+                    <button onclick="document.getElementById('deptYearModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#999;">&times;</button>
+                </div>
+                <form id="deptYearForm" style="padding:1.25rem 1.5rem;">
+                    <p style="margin:0 0 0.75rem;font-size:0.82rem;color:#888;">Changes are saved locally and reflected immediately in the dashboard.</p>
+                    <div style="font-size:0.75rem;font-weight:700;color:#2e7d32;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.5rem;">Publications</div>
+                    ${field('Q1 (High-Impact Journals)',  'q1',  d.q1)}
+                    ${field('Q2 Journals',                'q2',  d.q2)}
+                    ${field('Q3 Journals',                'q3',  d.q3)}
+                    <div style="font-size:0.75rem;font-weight:700;color:#1565c0;text-transform:uppercase;letter-spacing:0.05em;margin:1rem 0 0.5rem;">Funding & Researchers</div>
+                    ${field('External Grant Funding', 'grantExternal', d.grantExternal, 'SAR')}
+                    ${field('Student Researchers (Undergrad)', 'studentResearchers', d.studentResearchers)}
+                    ${field('Master Students', 'masterStudents', d.masterStudents)}
+                    ${field('PhD Students', 'phdStudents', d.phdStudents)}
+                    <div style="font-size:0.75rem;font-weight:700;color:#e65100;text-transform:uppercase;letter-spacing:0.05em;margin:1rem 0 0.5rem;">Recognition & Activity</div>
+                    ${field('Awards & Recognition', 'awards', d.awards)}
+                    ${field('Conferences', 'conferences', d.conferences)}
+                    ${field('Workshops', 'workshops', d.workshops)}
+                    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;">
+                        <button type="button" onclick="document.getElementById('deptYearModal').remove()" class="btn btn-outline">Cancel</button>
+                        <button type="button" onclick="window.app._saveDeptYearData('${deptLabel}','${acadYear}')" class="btn btn-primary" style="background:#2e7d32;border-color:#2e7d32;">Save Changes</button>
+                    </div>
+                </form>
+            </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _saveDeptYearData(deptLabel, acadYear) {
+        const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+        const yk     = acadYear.split('-')[0];
+        const form   = document.getElementById('deptYearForm');
+        const obj    = {};
+        form.querySelectorAll('input[name]').forEach(inp => {
+            const v = parseFloat(inp.value);
+            if (!isNaN(v)) obj[inp.name] = v;
+        });
+        try { localStorage.setItem(`dept_year_${deptId}_${yk}`, JSON.stringify(obj)); } catch(e) {}
+        document.getElementById('deptYearModal')?.remove();
+        this.renderPharmaScienceDashboardEnhanced_v2(deptLabel, acadYear);
+    }
+
     // Aggregate Scholar publication data from all synced faculty in this dept
     _aggregateScholarData(deptLabel) {
         const faculty = this.pharmaData.faculty || [];
@@ -8823,9 +8886,11 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         return { syncedCount, total: faculty.length, years, q1: aggQ1, q2: aggQ2, q3: aggQ3 };
     }
 
-    async renderPharmaScienceDashboardEnhanced_v2(deptLabel = 'Dept.of Pharmaceutical Sciences') {
+    async renderPharmaScienceDashboardEnhanced_v2(deptLabel = 'Dept.of Pharmaceutical Sciences', selectedAcadYear = null) {
         this.pharmaDeptLabel = deptLabel;
         const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+        if (selectedAcadYear) this.pharmaData._selectedAcadYear = selectedAcadYear;
+        const selAY = this.pharmaData._selectedAcadYear || '2024-2025';
 
         this.root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2rem;">⏳</div><p>Loading department data...</p></div>';
 
@@ -8886,13 +8951,32 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const data = this.pharmaData;
         if (!data) { console.error("Pharma Data not initialized"); return; }
 
-        // Mapped Data
+        // ── Academic year filter setup ──────────────────────────────────────────
+        const ACAD_YEARS = ['2022-2023','2023-2024','2024-2025','2025-2026','2026-2027','2027-2028','2028-2029','2029-2030'];
+        const selYearKey = selAY.split('-')[0]; // e.g. '2024'
+        const _loadYearData = yk => { try { const s = localStorage.getItem(`dept_year_${deptId}_${yk}`); return s ? JSON.parse(s) : null; } catch(e) { return null; } };
+        const selOverride   = _loadYearData(selYearKey);
+        const resYearIdx    = data.research.years.indexOf(selYearKey);
+        const selYearData   = selOverride || {
+            q1: resYearIdx >= 0 ? (data.research.q1[resYearIdx] || 0) : 0,
+            q2: resYearIdx >= 0 ? (data.research.q2[resYearIdx] || 0) : 0,
+            q3: resYearIdx >= 0 ? (data.research.q3[resYearIdx] || 0) : 0,
+            grantExternal:      data.grants.fundingSources[1],
+            studentResearchers: data.supervision.values[0],
+            awards:             data.development.values[2],
+        };
+        const selTotal = (selYearData.q1||0) + (selYearData.q2||0) + (selYearData.q3||0);
+
+        // Chart data for all 8 academic years
+        const chartQ1 = ACAD_YEARS.map(ay => { const yk=ay.split('-')[0]; const ov=_loadYearData(yk); if(ov) return ov.q1||0; const i=data.research.years.indexOf(yk); return i>=0?(data.research.q1[i]||0):0; });
+        const chartQ2 = ACAD_YEARS.map(ay => { const yk=ay.split('-')[0]; const ov=_loadYearData(yk); if(ov) return ov.q2||0; const i=data.research.years.indexOf(yk); return i>=0?(data.research.q2[i]||0):0; });
+        const chartQ3 = ACAD_YEARS.map(ay => { const yk=ay.split('-')[0]; const ov=_loadYearData(yk); if(ov) return ov.q3||0; const i=data.research.years.indexOf(yk); return i>=0?(data.research.q3[i]||0):0; });
+
+        // Mapped Data (kept for grant/supervision/dev charts)
         const researchData = {
-            years: data.research.years,
-            q1: data.research.q1,
-            q2: data.research.q2,
-            q3: data.research.q3,
-            publications: data.research.q1.map((v, i) => v + data.research.q2[i] + data.research.q3[i]) // Total
+            years: ACAD_YEARS,
+            q1: chartQ1, q2: chartQ2, q3: chartQ3,
+            publications: chartQ1.map((v, i) => v + chartQ2[i] + chartQ3[i])
         };
 
         const grantData = {
@@ -8930,27 +9014,43 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.root.innerHTML = style + `
                 <div class="dashboard-container" >
                 
+                <!-- Academic Year Filter -->
+                <div class="card fade-in-up" style="margin-bottom:1.25rem;padding:0.9rem 1.25rem;display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;">
+                    <span style="font-size:0.8rem;font-weight:600;color:#555;white-space:nowrap;">Academic Year:</span>
+                    ${ACAD_YEARS.map(ay => `
+                        <button onclick="window.app.renderPharmaScienceDashboardEnhanced_v2('${deptLabel}','${ay}')"
+                            style="padding:0.35rem 0.85rem;border-radius:20px;border:1.5px solid ${ay===selAY?'#2e7d32':'#ccc'};
+                            background:${ay===selAY?'#2e7d32':'#fff'};color:${ay===selAY?'#fff':'#555'};
+                            font-size:0.78rem;font-weight:${ay===selAY?'700':'400'};cursor:pointer;transition:all 0.15s;">
+                            ${ay}
+                        </button>`).join('')}
+                    <button onclick="window.app.showDeptYearEditor('${deptLabel}','${selAY}')"
+                        style="margin-left:auto;padding:0.35rem 0.85rem;border-radius:20px;border:1.5px solid #1565c0;background:#e3f2fd;color:#1565c0;font-size:0.78rem;font-weight:600;cursor:pointer;">
+                        &#9998; Edit ${selAY}
+                    </button>
+                </div>
+
                 <!--1. Header Stats(KPIs)-->
                 <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
                     <div class="card stat-card fade-in-up delay-1">
-                        <span class="stat-label">Total Publications (2024)</span>
-                        <span class="stat-value">${researchData.publications[researchData.publications.length - 1]}</span>
-                        <span class="stat-trend trend-up">High Impact (Q1): ${researchData.q1[researchData.q1.length - 1]}</span>
+                        <span class="stat-label">Total Publications (${selAY})</span>
+                        <span class="stat-value">${selTotal}</span>
+                        <span class="stat-trend trend-up">High Impact (Q1): ${selYearData.q1||0}</span>
                         ${_agg.syncedCount > 0 ? `<span style="font-size:0.7rem;color:#2e7d32;margin-top:4px;display:block;">&#128279; ${_agg.syncedCount} of ${_agg.total} faculty Scholar-synced</span>` : ''}
                     </div>
                     <div class="card stat-card fade-in-up delay-2">
                         <span class="stat-label">External Grant Funding</span>
-                        <span class="stat-value">${(grantData.fundingSources[1] / 1000000).toFixed(2)}M</span>
+                        <span class="stat-value">${((selYearData.grantExternal||grantData.fundingSources[1]) / 1000000).toFixed(2)}M</span>
                         <span class="stat-trend trend-neutral">SAR</span>
                     </div>
                     <div class="card stat-card fade-in-up delay-3">
                         <span class="stat-label">Student Researchers</span>
-                        <span class="stat-value">${supervisionData.values[0]}</span>
+                        <span class="stat-value">${selYearData.studentResearchers ?? supervisionData.values[0]}</span>
                         <span class="stat-trend">Undergraduate</span>
                     </div>
                     <div class="card stat-card fade-in-up delay-4">
                         <span class="stat-label">Awards & Recognition</span>
-                        <span class="stat-value">${devData.values[2]}</span>
+                        <span class="stat-value">${selYearData.awards ?? devData.values[2]}</span>
                         <span class="stat-trend trend-up">Faculty Awards</span>
                     </div>
                 </div>
