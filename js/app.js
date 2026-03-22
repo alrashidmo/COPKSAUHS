@@ -8842,6 +8842,121 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     // --- V2: ENHANCED DASHBOARD WITH RADAR CHART & ANIMATIONS ---
+    // Faculty management panel
+    showFacultyEditor(deptLabel) {
+        const deptId  = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+        const key     = `dept_faculty_${deptId}`;
+        const defaultList = deptId === 'practice' ? this.pharmaData.facultyPractice : this.pharmaData.faculty;
+        let list;
+        try { list = JSON.parse(localStorage.getItem(key) || 'null') || [...defaultList]; } catch(e) { list = [...defaultList]; }
+
+        const renderRows = () => list.map((f, i) => `
+            <tr style="border-bottom:1px solid #f0f0f0;">
+                <td style="padding:0.5rem 0.4rem;"><input data-i="${i}" data-f="name"  value="${f.name.replace(/"/g,'&quot;')}"  style="width:100%;border:1px solid #eee;border-radius:4px;padding:0.3rem 0.4rem;font-size:0.82rem;"></td>
+                <td style="padding:0.5rem 0.4rem;"><input data-i="${i}" data-f="role"  value="${f.role.replace(/"/g,'&quot;')}"  style="width:100%;border:1px solid #eee;border-radius:4px;padding:0.3rem 0.4rem;font-size:0.82rem;"></td>
+                <td style="padding:0.5rem 0.4rem;"><input data-i="${i}" data-f="email" value="${f.email.replace(/"/g,'&quot;')}" style="width:100%;border:1px solid #eee;border-radius:4px;padding:0.3rem 0.4rem;font-size:0.82rem;"></td>
+                <td style="padding:0.5rem 0.4rem;text-align:center;">
+                    <button data-del="${i}" style="background:#ffebee;border:none;color:#c62828;border-radius:6px;padding:0.25rem 0.6rem;cursor:pointer;font-size:0.8rem;">&#10005;</button>
+                </td>
+            </tr>`).join('');
+
+        const modal = document.createElement('div');
+        modal.id = 'facultyEditorModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background:#fff;border-radius:14px;width:820px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+                <div style="padding:1.1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                    <h3 style="margin:0;color:#2e7d32;">&#128106; Manage Faculty &mdash; ${deptLabel}</h3>
+                    <button onclick="document.getElementById('facultyEditorModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#999;">&times;</button>
+                </div>
+                <div style="overflow-y:auto;flex:1;padding:1.25rem 1.5rem;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;" id="facultyEditorTable">
+                        <thead><tr style="background:#f8f9fa;">
+                            <th style="padding:0.5rem;text-align:left;width:30%;">Name</th>
+                            <th style="padding:0.5rem;text-align:left;width:35%;">Role / Position</th>
+                            <th style="padding:0.5rem;text-align:left;width:28%;">Email</th>
+                            <th style="padding:0.5rem;width:7%;"></th>
+                        </tr></thead>
+                        <tbody id="facultyEditorBody">${renderRows()}</tbody>
+                    </table>
+                    <!-- Add new row -->
+                    <div style="margin-top:1rem;padding:0.75rem;background:#f8fdf8;border:1.5px dashed #a5d6a7;border-radius:8px;">
+                        <div style="font-size:0.78rem;font-weight:600;color:#2e7d32;margin-bottom:0.5rem;">&#43; Add New Faculty Member</div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.5rem;align-items:center;">
+                            <input id="newFacName"  placeholder="Full Name"       style="padding:0.4rem 0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.82rem;">
+                            <input id="newFacRole"  placeholder="Role / Position" style="padding:0.4rem 0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.82rem;">
+                            <input id="newFacEmail" placeholder="Email address"   style="padding:0.4rem 0.5rem;border:1px solid #ccc;border-radius:6px;font-size:0.82rem;">
+                            <button id="addFacBtn" style="padding:0.4rem 0.9rem;background:#2e7d32;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;white-space:nowrap;">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                    <button onclick="window.app._resetFacultyToDefault('${deptLabel}')" style="padding:0.4rem 0.9rem;border:1.5px solid #999;border-radius:8px;background:#fff;color:#666;font-size:0.82rem;cursor:pointer;">Reset to Default</button>
+                    <div style="display:flex;gap:0.75rem;">
+                        <button onclick="document.getElementById('facultyEditorModal').remove()" class="btn btn-outline">Cancel</button>
+                        <button onclick="window.app._saveFacultyFromEditor('${deptLabel}')" class="btn btn-primary" style="background:#2e7d32;border-color:#2e7d32;">Save Changes</button>
+                    </div>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+
+        // Wire up delete buttons and add button
+        modal.querySelector('#facultyEditorBody').addEventListener('click', e => {
+            const btn = e.target.closest('[data-del]');
+            if (!btn) return;
+            list.splice(parseInt(btn.dataset.del), 1);
+            modal.querySelector('#facultyEditorBody').innerHTML = renderRows();
+        });
+        modal.querySelector('#addFacBtn').addEventListener('click', () => {
+            const name  = modal.querySelector('#newFacName').value.trim();
+            const role  = modal.querySelector('#newFacRole').value.trim();
+            const email = modal.querySelector('#newFacEmail').value.trim();
+            if (!name || !email) { alert('Name and email are required.'); return; }
+            list.push({ name, role: role || 'Faculty', email });
+            modal.querySelector('#facultyEditorBody').innerHTML = renderRows();
+            modal.querySelector('#newFacName').value = '';
+            modal.querySelector('#newFacRole').value = '';
+            modal.querySelector('#newFacEmail').value = '';
+        });
+
+        // Keep list in sync with inline edits
+        modal._getList = () => {
+            const rows = modal.querySelectorAll('#facultyEditorBody tr');
+            const updated = [...list];
+            rows.forEach(row => {
+                row.querySelectorAll('input[data-i]').forEach(inp => {
+                    const i = parseInt(inp.dataset.i);
+                    if (updated[i]) updated[i][inp.dataset.f] = inp.value.trim();
+                });
+            });
+            return updated;
+        };
+        modal._list = list;
+        window._facultyEditorModal = modal;
+    }
+
+    _saveFacultyFromEditor(deptLabel) {
+        const modal  = window._facultyEditorModal;
+        const list   = modal?._getList() || [];
+        this._saveFacultyList(deptLabel, list);
+        document.getElementById('facultyEditorModal')?.remove();
+        this.renderPharmaScienceDashboardEnhanced_v2(deptLabel);
+    }
+
+    _saveFacultyList(deptLabel, list) {
+        const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+        try { localStorage.setItem(`dept_faculty_${deptId}`, JSON.stringify(list)); } catch(e) {}
+        this.pharmaData.faculty = list;
+    }
+
+    _resetFacultyToDefault(deptLabel) {
+        if (!confirm('Reset faculty list to the original default? This will discard all changes.')) return;
+        const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
+        localStorage.removeItem(`dept_faculty_${deptId}`);
+        document.getElementById('facultyEditorModal')?.remove();
+        this.renderPharmaScienceDashboardEnhanced_v2(deptLabel);
+    }
+
     // Edit modal for a single academic year's dept data
     showDeptYearEditor(deptLabel, acadYear) {
         const deptId  = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
@@ -9000,9 +9115,12 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const data = this.pharmaData;
         if (!data) { console.error("Pharma Data not initialized"); return; }
 
-        // Use dept-specific faculty list
-        data.faculty = deptId === 'practice' ? data.facultyPractice : (data.facultySciencesBackup || data.faculty);
-        if (deptId === 'sciences' && !data.facultySciencesBackup) data.facultySciencesBackup = data.faculty;
+        // Use dept-specific faculty list, with localStorage overrides
+        const _defaultFaculty = deptId === 'practice' ? data.facultyPractice : data.faculty;
+        try {
+            const stored = localStorage.getItem(`dept_faculty_${deptId}`);
+            data.faculty = stored ? JSON.parse(stored) : _defaultFaculty;
+        } catch(e) { data.faculty = _defaultFaculty; }
 
         // ── Academic year filter setup ──────────────────────────────────────────
         const ACAD_YEARS = ['2022-2023','2023-2024','2024-2025','2025-2026','2026-2027','2027-2028','2028-2029','2029-2030'];
@@ -9170,7 +9288,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!--4. Faculty Directory(NEW)-->
                 <div class="card fade-in-up delay-4" style="margin-top: 1.5rem;">
-                    <h3>👨‍🏫 Department Faculty</h3>
+                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;">
+                        <h3 style="margin:0;">&#128106; Department Faculty <span style="font-size:0.8rem;color:#888;font-weight:400;">(${data.faculty?.length || 0} members)</span></h3>
+                        <button onclick="window.app.showFacultyEditor('${deptLabel}')"
+                            style="padding:0.4rem 1rem;border-radius:8px;border:1.5px solid #2e7d32;background:#e8f5e9;color:#2e7d32;font-size:0.82rem;font-weight:600;cursor:pointer;">
+                            &#9998; Manage Faculty
+                        </button>
+                    </div>
                     <div style="margin-top:1rem; overflow-x:auto;">
                         <table style="width:100%; border-collapse: collapse; font-size: 0.95rem;">
                             <thead>
