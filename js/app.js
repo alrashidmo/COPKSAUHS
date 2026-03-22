@@ -9251,6 +9251,20 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // --- HELPER: Generate Consistent Mock Data for Faculty ---
     _getFacultyMetrics(email) {
+        // Return in-memory cached profile if available (Scholar sync / manual edit stored here)
+        if (this.pharmaData.facultyProfiles?.[email]) {
+            return this.pharmaData.facultyProfiles[email];
+        }
+        // Check localStorage for persisted Scholar/edit data
+        try {
+            const stored = localStorage.getItem(`faculty_profile_${email}`);
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                this.pharmaData.facultyProfiles[email] = parsed;
+                return parsed;
+            }
+        } catch(e) {}
+
         // Simple hash to make random-looking but consistent data for each email
         let hash = 0;
         for (let i = 0; i < email.length; i++) hash = (hash << 5) - hash + email.charCodeAt(i);
@@ -9296,24 +9310,24 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         this.title.innerHTML = `
                 <div style = "display:flex; align-items:center; gap:1rem; width:100%;" >
-                <button onclick="window.app.renderPharmaScienceDashboardEnhanced_v2(window.app.pharmaDeptLabel)" class="btn btn-sm btn-outline">? Dept.</button>
+                <button onclick="window.app.renderPharmaScienceDashboardEnhanced_v2(window.app.pharmaDeptLabel)" class="btn btn-sm btn-outline">&#8592; Dept.</button>
                 <div style="flex:1;">
                     <div style="display:flex; align-items:center; gap:0.5rem;">
                         <span style="font-size:1.2rem; font-weight:bold;">${metrics.name}</span>
                         <span class="badge-secondary" style="font-size:0.75rem;">${metrics.role}</span>
                     </div>
-                    ${metrics.lastSync ? `<div style="font-size:0.75rem; color:#2e7d32; margin-top:2px;">? Last synced with Scholar: ${new Date(metrics.lastSync).toLocaleTimeString()}</div>` : ''}
+                    ${metrics.lastSync ? `<div style="font-size:0.75rem; color:#2e7d32; margin-top:2px;">🔄 Scholar synced ${new Date(metrics.lastSync).toLocaleString()}${metrics.scholar_total_citations != null ? ' · ' + metrics.scholar_total_citations.toLocaleString() + ' total citations' : ''}</div>` : ''}
                 </div>
                 
                 <div style="display:flex; gap:0.5rem;">
                 <div style="display:flex; gap:0.5rem;">
                     ${metrics.scholarUrl ? `
-                        <button onclick="window.app.simulateScholarSync('${email}')" class="btn btn-sm btn-outline" style="border-color:#2196f3; color:#2196f3;">
+                        <button onclick="window.app.fetchScholarData('${email}')" class="btn btn-sm btn-outline" style="border-color:#1565c0; color:#1565c0;">
                             🔄 Sync Scholar
                         </button>
                     ` : `
-                        <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-outline" style="border-color:#666; color:#666; opacity:0.7;">
-                            ? Add Scholar Link
+                        <button onclick="window.app.showScholarInput('${email}')" class="btn btn-sm btn-outline" style="border-color:#1565c0; color:#1565c0;">
+                            🔗 Add Scholar Link
                         </button>
                     `}
                     <button onclick="window.app.renderFacultyEditMode('${email}')" class="btn btn-sm btn-primary">✏️ Edit Data</button>
@@ -9398,7 +9412,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- Research Quality -->
                     <div class="card">
-                        <h3>📊 Research Output</h3>
+                        <h3>📊 Research Output ${metrics.research.fromScholar ? '<span style="font-size:0.72rem;color:#1565c0;font-weight:400;margin-left:4px;">🔗 from Scholar · quartile breakdown via Edit Data</span>' : ''}</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartProfileResearch"></canvas>
                         </div>
@@ -9434,8 +9448,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         new Chart(document.getElementById('chartProfileResearch'), {
             type: 'bar',
-            data: { labels: researchData.years, datasets: [{ label: 'Q1', data: researchData.q1, backgroundColor: '#2e7d32' }, { label: 'Q2', data: researchData.q2, backgroundColor: '#66bb6a' }, { label: 'Q3', data: researchData.q3, backgroundColor: '#a5d6a7' }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true } } }
+            data: {
+                labels: researchData.years,
+                datasets: metrics.research.fromScholar
+                    ? [{ label: 'Publications (Scholar)', data: researchData.publications, backgroundColor: '#1565c0', borderRadius: 3 }]
+                    : [{ label: 'Q1', data: researchData.q1, backgroundColor: '#2e7d32' }, { label: 'Q2', data: researchData.q2, backgroundColor: '#66bb6a' }, { label: 'Q3', data: researchData.q3, backgroundColor: '#a5d6a7' }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: !metrics.research.fromScholar }, y: { stacked: !metrics.research.fromScholar, beginAtZero: true } } }
         });
 
         new Chart(document.getElementById('chartProfileGrants'), {
@@ -9595,49 +9614,142 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         // Update Teaching Load
         profile.teachingLoad = values['teachingLoad'];
 
-        // Save back to state
+        // Save back to state and persist
         this.pharmaData.facultyProfiles[email] = profile;
+        try { localStorage.setItem(`faculty_profile_${email}`, JSON.stringify(profile)); } catch(e) {}
 
         // Return to View Mode
         this.renderFacultyProfile(email);
     }
 
-    // --- NEW: Simulation Logic for Scholar Sync ---
-    simulateScholarSync(email) {
-        // 1. Show Loading State
-        const btn = document.querySelector('button[onclick*="simulateScholarSync"]');
-        if (btn) {
-            btn.innerHTML = '? Connecting...';
-            btn.disabled = true;
+    // --- Show Scholar URL input modal ---
+    showScholarInput(email) {
+        const existing = this.pharmaData.facultyProfiles[email]?.scholarUrl || '';
+        const modal = document.createElement('div');
+        modal.id = 'scholarModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background:white;padding:2rem;border-radius:12px;width:520px;max-width:92vw;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+                <h3 style="margin:0 0 0.5rem 0;color:#1565c0;">🔗 Add Google Scholar Link</h3>
+                <p style="color:#666;font-size:0.88rem;margin:0 0 1rem 0;">Paste the faculty member's Google Scholar profile URL. H-index, i10-index, citations, and publication counts will be fetched automatically.</p>
+                <input id="scholarUrlInput" type="text" value="${existing}" placeholder="https://scholar.google.com/citations?user=XXXXXX&hl=en"
+                    style="width:100%;padding:0.75rem;border:1px solid #ddd;border-radius:6px;font-size:0.88rem;margin-bottom:0.75rem;box-sizing:border-box;">
+                <div style="background:#e3f2fd;padding:0.6rem 0.75rem;border-radius:6px;font-size:0.78rem;color:#1565c0;margin-bottom:1.25rem;">
+                    📋 Example: https://scholar.google.com/citations?user=ZXCI7hMAAAAJ&hl=en
+                </div>
+                <div style="display:flex;gap:0.75rem;justify-content:flex-end;">
+                    <button onclick="document.getElementById('scholarModal').remove()" class="btn btn-outline">Cancel</button>
+                    <button onclick="window.app._submitScholarUrl('${email}')" class="btn btn-primary" style="background:#1565c0;border-color:#1565c0;">🔍 Fetch & Sync</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+        setTimeout(() => document.getElementById('scholarUrlInput')?.focus(), 50);
+    }
+
+    _submitScholarUrl(email) {
+        const url = document.getElementById('scholarUrlInput')?.value.trim();
+        if (!url || !url.includes('scholar.google.com')) {
+            alert('Please enter a valid Google Scholar profile URL.');
+            return;
         }
+        document.getElementById('scholarModal')?.remove();
+        this.fetchScholarData(email, url);
+    }
 
-        // 2. Simulate Network Request (2 seconds)
-        setTimeout(() => {
-            const profile = this.pharmaData.facultyProfiles[email];
-            if (!profile) return;
+    // --- Real Scholar Data Fetch via CORS proxy ---
+    async fetchScholarData(email, url = null) {
+        if (!this.pharmaData.facultyProfiles[email]) {
+            this.pharmaData.facultyProfiles[email] = this._getFacultyMetrics(email);
+        }
+        const profile = this.pharmaData.facultyProfiles[email];
+        const targetUrl = url || profile.scholarUrl;
+        if (!targetUrl) { this.showScholarInput(email); return; }
 
-            // 3. "Fetch" New Data (Random Increments for Realism)
-            const newCitations = Math.floor(Math.random() * 5) + 1; // 1-5 new citations
-            const lastYearIdx = profile.research.years.length - 1;
+        // Loading overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'scholarLoading';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.75rem;';
+        overlay.innerHTML = `<div style="font-size:2.5rem;">🔄</div><div style="font-weight:700;font-size:1.1rem;color:#1565c0;">Fetching Google Scholar data…</div><div style="color:#888;font-size:0.85rem;">Connecting via proxy — may take up to 20 seconds</div>`;
+        document.body.appendChild(overlay);
 
-            // Update Citations
-            profile.research.citations[lastYearIdx] += newCitations;
+        try {
+            const fetchUrl = targetUrl.includes('pagesize') ? targetUrl : targetUrl + '&pagesize=100';
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fetchUrl)}`;
 
-            // Occasionally increment publication count (20% chance)
-            if (Math.random() > 0.8) {
-                profile.research.q1[lastYearIdx] += 1;
-                alert(`📚 New Publication Found!\nAdded to Q1[${profile.research.years[lastYearIdx]}]`);
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 25000);
+            const res = await fetch(proxyUrl, { signal: controller.signal });
+            clearTimeout(timer);
+
+            if (!res.ok) throw new Error(`Proxy returned HTTP ${res.status}`);
+            const json = await res.json();
+            const html = json.contents;
+            if (!html) throw new Error('Empty response from proxy');
+            if (html.includes('please click the box below') || html.includes('recaptcha')) throw new Error('Google Scholar is showing a CAPTCHA. Try again in a few minutes.');
+            if (html.includes('unusual traffic')) throw new Error('Google Scholar detected automated access. Try again later.');
+
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+
+            // Parse stats table
+            let citations = null, hIndex = null, i10Index = null;
+            doc.querySelectorAll('#gsc_rsb_st tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length < 2) return;
+                const label = cells[0].textContent.trim().toLowerCase();
+                const val   = parseInt(cells[1].textContent.trim().replace(/,/g, ''));
+                if (isNaN(val)) return;
+                if (label.includes('citation'))  citations = val;
+                else if (label === 'h-index')    hIndex    = val;
+                else if (label.includes('i10'))  i10Index  = val;
+            });
+
+            // Count publications per year from visible list
+            const pubYears = {};
+            doc.querySelectorAll('#gsc_a_b .gsc_a_tr').forEach(row => {
+                const y = row.querySelector('.gsc_a_y span')?.textContent.trim();
+                if (y && /^\d{4}$/.test(y)) pubYears[y] = (pubYears[y] || 0) + 1;
+            });
+
+            if (hIndex === null && i10Index === null && citations === null && !Object.keys(pubYears).length) {
+                throw new Error('Could not parse any data. The Scholar page structure may have changed, or the profile is private.');
             }
 
-            // Update timestamp
-            profile.lastSync = new Date().toISOString();
+            // Apply to profile
+            profile.scholarUrl = targetUrl;
+            profile.lastSync   = new Date().toISOString();
+            if (hIndex    !== null) { profile.hIndex = hIndex;       profile.scholar_hIndex = hIndex; }
+            if (i10Index  !== null) { profile.i10Index = i10Index;   profile.scholar_i10Index = i10Index; }
+            if (citations !== null)   profile.scholar_total_citations = citations;
+
+            if (Object.keys(pubYears).length > 0) {
+                const allYears = ['2020', '2021', '2022', '2023', '2024'];
+                profile.research.years      = allYears;
+                profile.research.q1         = allYears.map(y => pubYears[y] || 0);
+                profile.research.q2         = allYears.map(() => 0);
+                profile.research.q3         = allYears.map(() => 0);
+                profile.research.fromScholar = true;
+            }
             this.pharmaData.facultyProfiles[email] = profile;
+            try { localStorage.setItem(`faculty_profile_${email}`, JSON.stringify(profile)); } catch(e) {}
 
-            // 4. Re-render
-            alert(`? Google Scholar Sync Complete!\n\n + ${newCitations} New Citations since last check.`);
-            this.renderFacultyProfile(email);
+            const summary = [
+                hIndex    !== null ? `H-index: ${hIndex}` : null,
+                i10Index  !== null ? `i10-index: ${i10Index}` : null,
+                citations !== null ? `Total citations: ${citations.toLocaleString()}` : null,
+                Object.keys(pubYears).length ? `Publications/year: ${Object.entries(pubYears).sort().map(([y,c])=>`${y}→${c}`).join(', ')}` : null,
+            ].filter(Boolean).join('\n');
 
-        }, 2000);
+            document.getElementById('scholarLoading')?.remove();
+            alert(`✅ Scholar sync complete!\n\n${summary}\n\nNote: publication counts are from the first 100 results. Use Edit Data to refine quartile breakdown.`);
+
+        } catch(e) {
+            document.getElementById('scholarLoading')?.remove();
+            console.error('Scholar fetch error:', e);
+            const msg = e.name === 'AbortError' ? 'Request timed out (25s). Check your connection.' : e.message;
+            const goManual = confirm(`❌ Scholar fetch failed:\n${msg}\n\nOpen Edit Data to enter values manually?`);
+            if (goManual) { this.renderFacultyEditMode(email); return; }
+        }
+        this.renderFacultyProfile(email);
     }
 
 
