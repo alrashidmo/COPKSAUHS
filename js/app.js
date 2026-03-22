@@ -7585,79 +7585,765 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
     getIPPEDashboardContent(activeTab, subTab, filterId) {
         try {
-            let allStudents = this.store.getStudents();
+            // ── Config per rotation ──────────────────────────────────────────
+            const IPPE_CFG = {
+                ippe1:     { label:'IPPE I',         cohort:'IPPE I',         color:'#2e7d32', hours:90,  year:'P1', special:'First clinical exposure' },
+                ippe2:     { label:'IPPE II',        cohort:'IPPE II',        color:'#e65100', hours:90,  year:'P2', special:'Clinical progression' },
+                ippe3:     { label:'IPPE III',       cohort:'IPPE III',       color:'#1565c0', hours:45,  year:'P3', special:'Pre-APPE preparation' },
+                community: { label:'IPPE Community', cohort:'IPPE Community', color:'#6a1b9a', hours:75,  year:'P3', special:'Community pharmacy focus' },
+            };
+            const cfg = IPPE_CFG[activeTab] || IPPE_CFG.ippe1;
 
-            // Filter by Level (Cohort)
-            if (activeTab === 'ippe1') {
-                allStudents = allStudents.filter(s => s.cohort === 'IPPE I' || s.cohort === 'IPPE 1');
-            } else if (activeTab === 'ippe2') {
-                allStudents = allStudents.filter(s => s.cohort === 'IPPE II' || s.cohort === 'IPPE 2');
-            } else if (activeTab === 'ippe3') {
-                allStudents = allStudents.filter(s => s.cohort === 'IPPE III' || s.cohort === 'IPPE 3');
-            } else if (activeTab === 'community') {
-                // Community uses IPPE III Roster (Same Students)
-                allStudents = allStudents.filter(s => s.cohort === 'IPPE III' || s.cohort === 'IPPE 3');
-            } else if (activeTab === 'appe') {
-                allStudents = allStudents.filter(s => s.cohort === 'APPE');
+            // ── Student filtering (store + APPE_DATABASE fallback) ───────────
+            const cohortMatch = (c, tab) => {
+                c = (c||'').toLowerCase().trim();
+                if (tab==='ippe1')     return c==='ippe i'||c==='ippe 1';
+                if (tab==='ippe2')     return c==='ippe ii'||c==='ippe 2';
+                if (tab==='ippe3')     return c==='ippe iii'||c==='ippe 3';
+                if (tab==='community') return c==='ippe community'||c==='community';
+                return false;
+            };
+            let students = (this.store.getStudents()||[]).filter(s => cohortMatch(s.cohort, activeTab));
+            if (!students.length && typeof APPE_DATABASE !== 'undefined') {
+                students = (APPE_DATABASE.students||[]).filter(s => cohortMatch(s.cohort, activeTab));
             }
 
-            // Filter Logic (Student Filter)
-            let students = allStudents;
-            if (filterId !== 'all') {
-                students = allStudents.filter(s => s.id === filterId);
-            }
-
-            // Sub-Navigation Tabs (Course Specific)
-            const tabs = [
-                { id: 'overview', label: 'Overview & Risk' },
-                { id: 'tracking', label: 'Tracking & Roster' },
-                { id: 'competency', label: 'Competency & Sessions' },
-                { id: 'assessments', label: 'Assessments & Grading' },
-                { id: 'admin', label: 'Admin & Reports' }
+            // ── Sub-tab navigation ───────────────────────────────────────────
+            const activeSub = (subTab === 'overview' || !subTab) ? 'performance' : subTab;
+            const subTabs = [
+                { id:'performance',  icon:'&#128202;', label:'Performance Metrics' },
+                { id:'distribution', icon:'&#128208;', label:'Grade Distribution'  },
+                { id:'hours',        icon:'&#128336;', label:'Hours Completed'     },
+                { id:'tracking',     icon:'&#128101;', label:'Tracking &amp; Roster' },
+                { id:'competency',   icon:'&#127979;', label:'Competency'          },
+                { id:'adminreports', icon:'&#9881;',   label:'Admin &amp; Reports' },
             ];
+            const subTabNav = `
+                <div class="card" style="padding:0.6rem 1rem;margin-bottom:1.25rem;border-left:4px solid ${cfg.color};">
+                    <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+                        <span style="font-size:0.88rem;font-weight:700;color:${cfg.color};white-space:nowrap;">${cfg.label}</span>
+                        <span style="color:#ddd;font-size:0.9rem;">&#124;</span>
+                        <div style="display:flex;gap:0.35rem;flex-wrap:wrap;">
+                            ${subTabs.map(t=>`
+                                <button onclick="app.renderHomePage('${activeTab}','${t.id}','all')"
+                                    style="padding:0.28rem 0.75rem;border-radius:20px;border:1.5px solid ${activeSub===t.id?cfg.color:'#ddd'};
+                                    background:${activeSub===t.id?cfg.color:'#fff'};color:${activeSub===t.id?'#fff':'#666'};
+                                    font-size:0.74rem;font-weight:${activeSub===t.id?'700':'400'};cursor:pointer;white-space:nowrap;">
+                                    ${t.icon} ${t.label}</button>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
 
-            const tabNav = `
-                <div class="tab-nav" style="margin-bottom: 1.5rem; border-bottom: 2px solid #eee;">
-                    ${tabs.map(tab => `
-                        <button 
-                            class="btn ${activeTab === tab.id ? 'btn-primary' : 'btn-outline'}" 
-                            style="margin-right: 0.5rem; border-bottom: ${activeTab === tab.id ? 'none' : '1px solid transparent'};"
-                            onclick="app.renderHomePage('${activeTab}', '${tab.id}', '${filterId}')"
-                        >
-                            ${tab.label}
-                        </button>
-                    `).join('')
-                }
-                </div>
-            `;
-
+            // ── Route to sub-tab renderer ────────────────────────────────────
             let content = '';
-            // Sub-View Routing
-            if (subTab === 'overview') {
-                if (activeTab === 'ippe2') content = this.renderIPPE2_Overview(allStudents, students, filterId, activeTab);
-                else if (activeTab === 'ippe3' || activeTab === 'community') content = this.renderIPPE3_Overview(allStudents, students, filterId);
-                else content = this.renderIPPE1_Overview(allStudents, students, filterId, activeTab);
-            }
-            else if (subTab === 'tracking') content = this.renderIPPE_Tracking(students);
-            else if (subTab === 'competency') content = this.renderIPPE_Competency_V2(students);
-            else if (subTab === 'assessments') content = this.renderIPPE_Assessments(students);
-            else if (subTab === 'admin') content = this.renderIPPE_Admin(students);
+            let initCharts = () => {};
+            if      (activeSub==='performance')  { const r=this.renderIPPE_PerformanceMetrics(students,activeTab,cfg); content=r.html; initCharts=r.initCharts||initCharts; }
+            else if (activeSub==='distribution') { const r=this.renderIPPE_GradeDistribution(students,activeTab,cfg);  content=r.html; initCharts=r.initCharts||initCharts; }
+            else if (activeSub==='hours')        content = this.renderIPPE_HoursCompleted(students,activeTab,cfg);
+            else if (activeSub==='tracking')     content = this.renderIPPE_Roster(students,activeTab,cfg);
+            else if (activeSub==='competency')   content = this.renderIPPE_CompetencyCLO(students,activeTab,cfg);
+            else if (activeSub==='adminreports') content = this.renderIPPE_AdminReports(students,activeTab,cfg);
 
-            // Return package
-            return {
-                html: tabNav + content,
-                initCharts: () => {
-                    if (subTab === 'overview') this.initIPPECharts(students, activeTab);
-                }
-            };
+            return { html: subTabNav + content, initCharts };
 
-        } catch (e) {
-            console.error(`Error in getIPPEDashboardContent(${activeTab}):`, e);
-            return {
-                html: `<div class="alert alert-danger">Error: ${e.message}</div>`,
-                initCharts: () => { }
-            };
+        } catch(e) {
+            console.error(`IPPE tab error(${activeTab}):`, e);
+            return { html:`<div class="card" style="color:red;padding:2rem;"><h3>&#9888; Error</h3><p>${e.message}</p></div>`, initCharts:()=>{} };
         }
+    }
+
+    // ── Shared helper: compute grades for all students ──────────────────────
+    _ippe_computeGrades(students) {
+        const INSTR = [
+            { key:'professionalism', label:'Professionalism',            wt:30 },
+            { key:'midYear',         label:'Mid-Year Written Evaluation', wt:10 },
+            { key:'endYear',         label:'End-Year Written Evaluation', wt:20 },
+            { key:'portfolio',       label:'Portfolio Evaluation',        wt:15 },
+            { key:'epa',             label:'EPA',                         wt:10 },
+            { key:'simulation',      label:'Simulation-Based Assessment', wt:15 },
+        ];
+        return students.map(s => {
+            let grading = null;
+            try { grading = this.store.calculateStudentGrade(s.id); } catch(e) {}
+            if (!grading) {
+                // Build from assessments directly
+                const a = s.assessments || {};
+                const p = s.professionalism || { score:10, violations:[] };
+                const profScore = (p.score/10)*100;
+                const comp = {
+                    professionalism: { score: profScore,                wt:30 },
+                    midYear:         { score: a.midYear?.score  ?? 100, wt:10 },
+                    endYear:         { score: a.endYear?.score  ?? 100, wt:20 },
+                    portfolio:       { score: a.portfolio?.score?? 100, wt:15 },
+                    epa:             { score: a.epa?.score      ?? 0,   wt:10 },
+                    simulation:      { score: a.simulation?.score ?? 0, wt:15 },
+                };
+                const finalGrade = Object.values(comp).reduce((sum,c)=>sum+(c.score*c.wt/100),0);
+                grading = { finalGrade: Math.round(finalGrade*10)/10, components: comp };
+            }
+            return { s, grading, final: grading?.finalGrade ?? 0 };
+        });
+    }
+
+    // ── 1. Performance Metrics ──────────────────────────────────────────────
+    renderIPPE_PerformanceMetrics(students, level, cfg) {
+        const INSTR = [
+            { key:'professionalism', label:'Professionalism',            wt:30 },
+            { key:'midYear',         label:'Mid-Year Written Evaluation', wt:10 },
+            { key:'endYear',         label:'End-Year Written Evaluation', wt:20 },
+            { key:'portfolio',       label:'Portfolio Evaluation',        wt:15 },
+            { key:'epa',             label:'EPA',                         wt:10 },
+            { key:'simulation',      label:'Simulation-Based Assessment', wt:15 },
+        ];
+        const graded   = this._ippe_computeGrades(students);
+        const n        = graded.length || 1;
+        const avgFinal = graded.reduce((s,g)=>s+g.final,0)/n;
+        const passing  = graded.filter(g=>g.final>=75).length;
+        const atRisk   = graded.filter(g=>g.final>0&&g.final<75).length;
+        const avgGPA   = students.length ? (students.reduce((s,st)=>s+(parseFloat(st.gpa)||0),0)/students.length).toFixed(2) : '—';
+        const avgAtt   = students.length ? (students.reduce((s,st)=>s+(parseFloat(st.attendance)||0),0)/students.length).toFixed(1) : '—';
+        const passRate = students.length ? ((passing/students.length)*100).toFixed(0) : '—';
+
+        const kpi = (label,val,sub,c) => `<div class="card" style="padding:1rem;text-align:center;border-top:3px solid ${c};">
+            <div style="font-size:0.65rem;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin-bottom:0.25rem;">${label}</div>
+            <div style="font-size:1.6rem;font-weight:800;color:${c};">${val}</div>
+            <div style="font-size:0.68rem;color:#aaa;">${sub}</div></div>`;
+
+        // Per-instrument cohort stats
+        const instrRows = INSTR.map(ins => {
+            const scores = graded.map(g=>g.grading?.components?.[ins.key]?.score).filter(v=>v!=null);
+            const avg    = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
+            const passes = scores.filter(v=>v>=75).length;
+            const risks  = scores.filter(v=>v>0&&v<75).length;
+            const c      = avg==null?'#bbb':avg>=85?'#2e7d32':avg>=75?'#ff9800':'#e53935';
+            return `<tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:0.5rem 0.75rem;font-size:0.82rem;font-weight:500;">${ins.label}</td>
+                <td style="padding:0.5rem;text-align:center;font-size:0.75rem;color:#888;">${ins.wt}%</td>
+                <td style="padding:0.5rem;text-align:center;font-weight:700;color:${c};">${avg!=null?avg.toFixed(1)+'%':'—'}</td>
+                <td style="padding:0.5rem;text-align:center;">
+                    ${avg!=null?`<div style="display:flex;align-items:center;gap:0.4rem;justify-content:center;">
+                        <div style="flex:1;max-width:80px;height:8px;background:#f0f0f0;border-radius:4px;">
+                            <div style="height:100%;width:${Math.min(100,avg)}%;background:${c};border-radius:4px;"></div></div>
+                        </div>`:'—'}
+                </td>
+                <td style="padding:0.5rem;text-align:center;font-size:0.78rem;color:#2e7d32;">${scores.length?passes:'-'}</td>
+                <td style="padding:0.5rem;text-align:center;font-size:0.78rem;color:${risks>0?'#e53935':'#bbb'};">${scores.length?risks:'-'}</td>
+            </tr>`;
+        }).join('');
+
+        // At-risk students
+        const atRiskList = graded.filter(g=>g.final>0&&g.final<75).sort((a,b)=>a.final-b.final);
+        const atRiskHTML = atRiskList.length
+            ? atRiskList.map(g=>`<div style="display:flex;align-items:center;gap:0.6rem;padding:0.4rem 0.6rem;background:#fff5f5;border-radius:6px;margin-bottom:0.3rem;">
+                <span style="font-size:1rem;">&#9888;</span>
+                <span style="flex:1;font-size:0.8rem;font-weight:500;">${g.s.name}</span>
+                <span style="font-size:0.75rem;color:#888;">GPA ${g.s.gpa??'—'}</span>
+                <span style="font-size:0.85rem;font-weight:700;color:#e53935;">${g.final.toFixed(1)}%</span>
+                <button onclick="app.render('student-details','${g.s.id}')" style="padding:0.2rem 0.6rem;border-radius:10px;border:1px solid #e53935;background:#fff;color:#e53935;font-size:0.7rem;cursor:pointer;">View</button>
+            </div>`).join('')
+            : `<div style="text-align:center;color:#bbb;padding:1rem;font-size:0.8rem;">No students currently at risk</div>`;
+
+        const html = `
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.25rem;">
+            ${kpi('Enrolled', students.length, cfg.label, cfg.color)}
+            ${kpi('Avg GPA', avgGPA+'/5', 'from registration', '#37474f')}
+            ${kpi('Avg Attendance', avgAtt+'%', 'Benchmark: 85%', parseFloat(avgAtt)>=85?'#2e7d32':parseFloat(avgAtt)>=75?'#ff9800':'#e53935')}
+            ${kpi('Pass Rate', passRate+'%', 'Threshold: 75%', parseFloat(passRate)>=85?'#2e7d32':parseFloat(passRate)>=70?'#ff9800':'#e53935')}
+            ${kpi('Avg Final Grade', avgFinal.toFixed(1)+'%', `${passing} passing / ${atRisk} at-risk`, avgFinal>=85?'#2e7d32':avgFinal>=75?'#ff9800':'#e53935')}
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;">
+            <div class="card fade-in-up">
+                <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128202; Grading Instrument Breakdown</h3>
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;font-size:0.72rem;text-transform:uppercase;color:#888;">
+                        <th style="padding:0.5rem 0.75rem;text-align:left;">Instrument</th>
+                        <th style="padding:0.5rem;text-align:center;">Weight</th>
+                        <th style="padding:0.5rem;text-align:center;">Cohort Avg</th>
+                        <th style="padding:0.5rem;text-align:center;">Progress</th>
+                        <th style="padding:0.5rem;text-align:center;color:#2e7d32;">Passing</th>
+                        <th style="padding:0.5rem;text-align:center;color:#e53935;">At-Risk</th>
+                    </tr></thead>
+                    <tbody>${instrRows}</tbody>
+                    <tfoot><tr style="background:#f8f9fa;border-top:2px solid #e0e0e0;font-weight:700;">
+                        <td style="padding:0.5rem 0.75rem;font-size:0.82rem;">FINAL GRADE</td>
+                        <td style="padding:0.5rem;text-align:center;font-size:0.75rem;">100%</td>
+                        <td style="padding:0.5rem;text-align:center;font-weight:800;color:${avgFinal>=75?'#2e7d32':'#e53935'};">${avgFinal.toFixed(1)}%</td>
+                        <td></td>
+                        <td style="padding:0.5rem;text-align:center;color:#2e7d32;font-weight:700;">${passing}</td>
+                        <td style="padding:0.5rem;text-align:center;color:${atRisk>0?'#e53935':'#bbb'};font-weight:700;">${atRisk}</td>
+                    </tr></tfoot>
+                </table>
+                <p style="font-size:0.68rem;color:#bbb;margin:0.5rem 0 0;">* Passing Score: &#8805;75% &nbsp;&#124;&nbsp; Automatic failure: uncorrected professionalism violations, excessive absences</p>
+            </div>
+            <div class="card fade-in-up">
+                <h3 style="margin:0 0 1rem;font-size:0.9rem;color:#e53935;">&#9888; At-Risk Students (${atRiskList.length})</h3>
+                ${atRiskHTML}
+            </div>
+        </div>`;
+        return { html, initCharts: ()=>{} };
+    }
+
+    // ── 2. Grade Distribution ───────────────────────────────────────────────
+    renderIPPE_GradeDistribution(students, level, cfg) {
+        const graded = this._ippe_computeGrades(students);
+        const INSTR  = [
+            { key:'professionalism', label:'Professionalism',            wt:30 },
+            { key:'midYear',         label:'Mid-Year Written Eval',       wt:10 },
+            { key:'endYear',         label:'End-Year Written Eval',       wt:20 },
+            { key:'portfolio',       label:'Portfolio Evaluation',        wt:15 },
+            { key:'epa',             label:'EPA',                         wt:10 },
+            { key:'simulation',      label:'Simulation-Based Assessment', wt:15 },
+        ];
+
+        // Bucket final grades
+        const buckets = [
+            { label:'95–100%', min:95, max:100, color:'#1b5e20' },
+            { label:'85–94%',  min:85, max:95,  color:'#2e7d32' },
+            { label:'75–84%',  min:75, max:85,  color:'#66bb6a' },
+            { label:'70–74%',  min:70, max:75,  color:'#ff9800' },
+            { label:'60–69%',  min:60, max:70,  color:'#f44336' },
+            { label:'< 60%',   min:0,  max:60,  color:'#b71c1c' },
+        ];
+        const counts = buckets.map(b => graded.filter(g=>g.final>=b.min&&g.final<b.max).length);
+        const maxCnt = Math.max(...counts, 1);
+
+        const histogram = buckets.map((b,i)=>`
+            <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+                <span style="font-size:0.75rem;width:60px;text-align:right;color:#555;">${b.label}</span>
+                <div style="flex:1;height:26px;background:#f5f5f5;border-radius:4px;position:relative;">
+                    <div style="height:100%;width:${(counts[i]/maxCnt)*100}%;background:${b.color};border-radius:4px;transition:width 0.6s;display:flex;align-items:center;padding-left:6px;">
+                        ${counts[i]>0?`<span style="font-size:0.72rem;font-weight:700;color:#fff;">${counts[i]}</span>`:''}
+                    </div>
+                    ${counts[i]===0?`<span style="position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:0.72rem;color:#bbb;">0</span>`:''}
+                </div>
+                <span style="font-size:0.72rem;width:30px;text-align:left;color:#888;">${counts[i]>0?((counts[i]/graded.length)*100).toFixed(0)+'%':''}</span>
+            </div>`).join('');
+
+        // Instrument averages (horizontal comparison bars)
+        const instrBars = INSTR.map(ins=>{
+            const scores = graded.map(g=>g.grading?.components?.[ins.key]?.score).filter(v=>v!=null);
+            const avg    = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
+            const c      = avg==null?'#ddd':avg>=85?'#2e7d32':avg>=75?'#ff9800':'#e53935';
+            return `<div style="margin-bottom:0.6rem;">
+                <div style="display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:0.2rem;">
+                    <span style="color:#555;">${ins.label} <span style="color:#bbb;">(${ins.wt}%)</span></span>
+                    <span style="font-weight:700;color:${c};">${avg!=null?avg.toFixed(1)+'%':'no data'}</span>
+                </div>
+                <div style="height:10px;background:#f0f0f0;border-radius:5px;">
+                    <div style="height:100%;width:${avg??0}%;background:${c};border-radius:5px;"></div>
+                </div>
+            </div>`;
+        }).join('');
+
+        const html = `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+            <div class="card fade-in-up">
+                <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128208; Final Grade Distribution</h3>
+                <div style="margin-bottom:0.75rem;font-size:0.72rem;color:#888;">
+                    <span style="display:inline-block;padding:0.15rem 0.5rem;background:#66bb6a30;border-left:3px solid #2e7d32;border-radius:2px;">Passing (&#8805;75%): ${graded.filter(g=>g.final>=75).length} students</span>
+                    &nbsp;
+                    <span style="display:inline-block;padding:0.15rem 0.5rem;background:#f4433630;border-left:3px solid #e53935;border-radius:2px;">At-Risk (&lt;75%): ${graded.filter(g=>g.final>0&&g.final<75).length} students</span>
+                </div>
+                ${histogram}
+                <div style="border-top:2px dashed #ffd600;padding-top:0.5rem;margin-top:0.5rem;">
+                    <span style="font-size:0.7rem;color:#888;">&#9660; 75% passing threshold</span>
+                </div>
+            </div>
+            <div class="card fade-in-up">
+                <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128202; Average Score by Instrument</h3>
+                ${instrBars}
+                <div style="margin-top:1rem;padding:0.6rem;background:#f8f9fa;border-radius:6px;">
+                    <div style="font-size:0.7rem;color:#888;margin-bottom:0.3rem;">Grade Score Legend</div>
+                    ${[['&#8805;85%','Excellent','#2e7d32'],['75–84%','Passing','#66bb6a'],['70–74%','Near-fail','#ff9800'],['&lt;70%','At-Risk','#e53935']].map(([r,l,c])=>
+                        `<span style="font-size:0.7rem;margin-right:0.75rem;"><span style="color:${c};font-weight:700;">${r}</span> ${l}</span>`
+                    ).join('')}
+                </div>
+            </div>
+        </div>
+        <div class="card fade-in-up" style="margin-top:1.25rem;">
+            <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128101; Individual Student Grades</h3>
+            <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                    <th style="padding:0.45rem 0.6rem;text-align:center;">#</th><th style="padding:0.45rem 0.6rem;text-align:left;">Student</th>
+                    ${INSTR.map(i=>`<th style="padding:0.45rem 0.5rem;text-align:center;font-size:0.65rem;">${i.label.split(' ').slice(-1)[0]}<br><span style="color:#aaa;">${i.wt}%</span></th>`).join('')}
+                    <th style="padding:0.45rem 0.6rem;text-align:center;color:#d32f2f;font-weight:800;">Final</th>
+                </tr></thead>
+                <tbody>${graded.sort((a,b)=>b.final-a.final).map((g,i)=>{
+                    const c = g.final>=85?'#2e7d32':g.final>=75?'#ff9800':'#e53935';
+                    return `<tr style="border-bottom:1px solid #f5f5f5;${g.final<75&&g.final>0?'background:#fff5f5;':''}">
+                        <td style="padding:0.35rem 0.6rem;text-align:center;color:#888;">${i+1}</td>
+                        <td style="padding:0.35rem 0.6rem;font-weight:500;">${g.s.name}</td>
+                        ${INSTR.map(ins=>{const sc=g.grading?.components?.[ins.key]?.score;return`<td style="padding:0.35rem 0.5rem;text-align:center;color:${sc==null?'#ddd':sc>=75?'#2e7d32':'#e53935'};">${sc!=null?sc.toFixed(0)+'%':'—'}</td>`;}).join('')}
+                        <td style="padding:0.35rem 0.6rem;text-align:center;font-weight:800;color:${c};">${g.final.toFixed(1)}%</td>
+                    </tr>`;
+                }).join('')}</tbody>
+            </table></div>
+        </div>`;
+        return { html, initCharts: ()=>{} };
+    }
+
+    // ── 3. Hours Completed ──────────────────────────────────────────────────
+    renderIPPE_HoursCompleted(students, level, cfg) {
+        const stored = (() => { try { const s=localStorage.getItem(`ippe_hours_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+        const reqHours = cfg.hours;
+
+        const rows = students.map(s => {
+            const hrs   = parseFloat(stored[s.id] ?? s.hoursCompleted ?? 0);
+            const pct   = Math.min(100,(hrs/reqHours)*100);
+            const c     = pct>=100?'#2e7d32':pct>=60?'#ff9800':'#e53935';
+            const status = pct>=100?'&#9989; Complete':pct>0?'In Progress':'Not Started';
+            return { s, hrs, pct, c, status };
+        });
+
+        const complete   = rows.filter(r=>r.pct>=100).length;
+        const inProgress = rows.filter(r=>r.pct>0&&r.pct<100).length;
+        const notStarted = rows.filter(r=>r.pct===0).length;
+
+        const kpiBox = (label,val,sub,c) => `<div class="card" style="padding:1rem;text-align:center;border-top:3px solid ${c};">
+            <div style="font-size:0.65rem;text-transform:uppercase;color:#888;margin-bottom:0.25rem;">${label}</div>
+            <div style="font-size:1.6rem;font-weight:800;color:${c};">${val}</div>
+            <div style="font-size:0.7rem;color:#aaa;">${sub}</div></div>`;
+
+        return `
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem;">
+            ${kpiBox('Required Hours', reqHours+'h', cfg.label+' rotation', cfg.color)}
+            ${kpiBox('Completed', complete, 'students (100%)', '#2e7d32')}
+            ${kpiBox('In Progress', inProgress, 'students (&lt;100%)', '#ff9800')}
+            ${kpiBox('Not Started', notStarted, 'students (0h)', notStarted>0?'#e53935':'#bbb')}
+        </div>
+        <div class="card fade-in-up">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#128336; Per-Student Hours</h3>
+                <button onclick="window.app._showIPPEHoursEditor('${level}','${cfg.label}')"
+                    style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid ${cfg.color};background:#fff;color:${cfg.color};font-size:0.75rem;font-weight:600;cursor:pointer;">
+                    &#9998; Update Hours</button>
+            </div>
+            <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                    <th style="padding:0.45rem 0.75rem;text-align:left;">Student</th>
+                    <th style="padding:0.45rem;text-align:center;">Hours</th>
+                    <th style="padding:0.45rem;text-align:center;min-width:150px;">Progress</th>
+                    <th style="padding:0.45rem;text-align:center;">Status</th>
+                </tr></thead>
+                <tbody>${rows.map(r=>`<tr style="border-bottom:1px solid #f5f5f5;">
+                    <td style="padding:0.4rem 0.75rem;font-weight:500;">${r.s.name}</td>
+                    <td style="padding:0.4rem;text-align:center;font-weight:700;color:${r.c};">${r.hrs}/${reqHours}</td>
+                    <td style="padding:0.4rem;">
+                        <div style="height:10px;background:#f0f0f0;border-radius:5px;">
+                            <div style="height:100%;width:${r.pct}%;background:${r.c};border-radius:5px;transition:width 0.5s;"></div>
+                        </div>
+                    </td>
+                    <td style="padding:0.4rem;text-align:center;font-size:0.75rem;">${r.status}</td>
+                </tr>`).join('')}</tbody>
+            </table></div>
+        </div>`;
+    }
+
+    _showIPPEHoursEditor(level, label) {
+        const stored = (() => { try { const s=localStorage.getItem(`ippe_hours_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+        let students = (this.store.getStudents()||[]).filter(s => {
+            const c=(s.cohort||'').toLowerCase().trim();
+            if(level==='ippe1') return c==='ippe i'||c==='ippe 1';
+            if(level==='ippe2') return c==='ippe ii'||c==='ippe 2';
+            if(level==='ippe3') return c==='ippe iii'||c==='ippe 3';
+            if(level==='community') return c==='ippe community'||c==='community';
+            return false;
+        });
+        if (!students.length && typeof APPE_DATABASE!=='undefined') {
+            students = (APPE_DATABASE.students||[]).filter(s=>{const c=(s.cohort||'').toLowerCase().trim();if(level==='ippe1')return c==='ippe i';if(level==='ippe2')return c==='ippe ii';if(level==='ippe3')return c==='ippe iii';if(level==='community')return c==='ippe community';return false;});
+        }
+        const modal = document.createElement('div');
+        modal.id = 'ippeHoursModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `<div style="background:#fff;border-radius:14px;width:520px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <h3 style="margin:0;font-size:1rem;">&#128336; Update Hours &mdash; ${label}</h3>
+                <button onclick="document.getElementById('ippeHoursModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            </div>
+            <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                    <thead><tr style="background:#f8f9fa;"><th style="padding:0.4rem 0.6rem;text-align:left;">Student</th><th style="padding:0.4rem;text-align:center;">Hours Completed</th></tr></thead>
+                    <tbody>${students.map(s=>`<tr style="border-bottom:1px solid #f5f5f5;">
+                        <td style="padding:0.4rem 0.6rem;">${s.name}</td>
+                        <td style="padding:0.35rem;text-align:center;"><input data-sid="${s.id}" type="number" min="0" max="500" step="1" value="${stored[s.id]??s.hoursCompleted??0}" style="width:70px;padding:0.25rem;border:1px solid #e0e0e0;border-radius:4px;text-align:center;font-size:0.8rem;"></td>
+                    </tr>`).join('')}</tbody>
+                </table>
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:0.75rem;flex-shrink:0;">
+                <button onclick="document.getElementById('ippeHoursModal').remove()" class="btn btn-outline">Cancel</button>
+                <button onclick="window.app._saveIPPEHours('${level}')" class="btn btn-primary">Save Hours</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _saveIPPEHours(level) {
+        const modal  = document.getElementById('ippeHoursModal');
+        const saved  = {};
+        modal.querySelectorAll('input[data-sid]').forEach(inp => { const v=parseFloat(inp.value); if(!isNaN(v)) saved[inp.dataset.sid]=v; });
+        try { localStorage.setItem(`ippe_hours_${level}`, JSON.stringify(saved)); } catch(e){}
+        modal.remove();
+        this.renderHomePage(level,'hours','all');
+    }
+
+    // ── 4. Tracking & Roster ────────────────────────────────────────────────
+    renderIPPE_Roster(students, level, cfg) {
+        const graded = this._ippe_computeGrades(students);
+        const sorted = graded.sort((a,b)=>b.final-a.final);
+
+        const rows = sorted.map((g,i) => {
+            const s   = g.s;
+            const att = parseFloat(s.attendance)||0;
+            const c   = g.final>=85?'#2e7d32':g.final>=75?'#ff9800':g.final>0?'#e53935':'#bbb';
+            const ac  = att>=90?'#2e7d32':att>=80?'#ff9800':'#e53935';
+            const badge = g.final>=75
+                ? `<span style="background:#e8f5e9;color:#2e7d32;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.68rem;font-weight:600;">Passing</span>`
+                : g.final>0
+                    ? `<span style="background:#fce4ec;color:#e53935;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.68rem;font-weight:600;">At-Risk</span>`
+                    : `<span style="background:#f5f5f5;color:#aaa;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.68rem;font-weight:600;">No Data</span>`;
+            const medalIcon = i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':`${i+1}`;
+            return `<tr style="border-bottom:1px solid #f5f5f5;${g.final<75&&g.final>0?'background:#fff8f8;':''}${i<3?'background:#fffde7;':''}">
+                <td style="padding:0.4rem 0.6rem;text-align:center;font-size:${i<3?'1.05rem':'0.8rem'};">${medalIcon}</td>
+                <td style="padding:0.4rem 0.6rem;font-weight:${i<3?600:400};">${s.name}</td>
+                <td style="padding:0.4rem 0.6rem;text-align:center;font-size:0.8rem;">${s.gpa??'—'}/5</td>
+                <td style="padding:0.4rem 0.6rem;text-align:center;font-weight:700;color:${c};">${g.final>0?g.final.toFixed(1)+'%':'—'}</td>
+                <td style="padding:0.4rem 0.6rem;text-align:center;">${badge}</td>
+                <td style="padding:0.4rem 0.6rem;text-align:center;">
+                    <div style="display:flex;align-items:center;gap:0.35rem;justify-content:center;">
+                        <div style="width:50px;height:7px;background:#f0f0f0;border-radius:4px;">
+                            <div style="height:100%;width:${Math.min(100,att)}%;background:${ac};border-radius:4px;"></div></div>
+                        <span style="font-size:0.75rem;color:${ac};font-weight:600;">${att}%</span>
+                    </div>
+                </td>
+                <td style="padding:0.4rem 0.6rem;text-align:center;">
+                    <button onclick="app.render('student-details','${s.id}')" style="padding:0.2rem 0.6rem;border-radius:10px;border:1px solid ${cfg.color};background:#fff;color:${cfg.color};font-size:0.7rem;cursor:pointer;">Profile</button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        return `
+        <div class="card fade-in-up">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#128101; Student Roster &mdash; ${cfg.label} (${students.length} students)</h3>
+                <div style="display:flex;gap:0.5rem;">
+                    <button onclick="window.app._exportIPPERoster('${level}')"
+                        style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid ${cfg.color};background:#fff;color:${cfg.color};font-size:0.75rem;cursor:pointer;">
+                        &#8659; Export CSV</button>
+                </div>
+            </div>
+            <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                    <th style="padding:0.45rem 0.6rem;text-align:center;">#</th>
+                    <th style="padding:0.45rem 0.6rem;text-align:left;">Student Name</th>
+                    <th style="padding:0.45rem;text-align:center;">GPA</th>
+                    <th style="padding:0.45rem;text-align:center;">Final Grade</th>
+                    <th style="padding:0.45rem;text-align:center;">Status</th>
+                    <th style="padding:0.45rem;text-align:center;">Attendance</th>
+                    <th style="padding:0.45rem;text-align:center;">Profile</th>
+                </tr></thead>
+                <tbody>${rows}</tbody>
+            </table></div>
+        </div>`;
+    }
+
+    _exportIPPERoster(level) {
+        const graded = this._ippe_computeGrades(
+            (this.store.getStudents()||[]).filter(s=>{const c=(s.cohort||'').toLowerCase().trim();if(level==='ippe1')return c==='ippe i'||c==='ippe 1';if(level==='ippe2')return c==='ippe ii'||c==='ippe 2';if(level==='ippe3')return c==='ippe iii'||c==='ippe 3';if(level==='community')return c==='ippe community';return false;})
+        );
+        const rows = graded.map(g=>[g.s.name,g.s.id,g.s.gpa??'',g.final.toFixed(1),g.final>=75?'Passing':'At-Risk',g.s.attendance??''].join(','));
+        const csv  = ['Name,ID,GPA,Final Grade,Status,Attendance',...rows].join('\n');
+        const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+        a.download=`${level}_roster.csv`; a.click();
+    }
+
+    // ── 5. Competency — CLO / PLO / NQF ────────────────────────────────────
+    renderIPPE_CompetencyCLO(students, level, cfg) {
+        const storedCLOs = (() => { try { const s=localStorage.getItem(`ippe_clos_${level}`); return s?JSON.parse(s):[]; } catch(e){return[];} })();
+        const storedAch  = (() => { try { const s=localStorage.getItem(`ippe_clo_ach_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+
+        const defaultCLOs = storedCLOs.length ? storedCLOs : [
+            { id:'CLO1',  label:'Identify and retrieve drug information from evidence-based resources', cat:'K', plo:'PLO1', nqf:'NQF Level 6 – Knowledge' },
+            { id:'CLO2',  label:'Interpret clinical laboratory values in patient care contexts',          cat:'K', plo:'PLO2', nqf:'NQF Level 6 – Knowledge' },
+            { id:'CLO3',  label:'Apply pharmacokinetic principles to individualize dosing',               cat:'K', plo:'PLO2', nqf:'NQF Level 6 – Knowledge' },
+            { id:'CLO4',  label:'Conduct patient medication history interviews',                          cat:'S', plo:'PLO3', nqf:'NQF Level 6 – Skills' },
+            { id:'CLO5',  label:'Perform medication reconciliation',                                      cat:'S', plo:'PLO3', nqf:'NQF Level 6 – Skills' },
+            { id:'CLO6',  label:'Provide structured patient counseling on medications',                   cat:'S', plo:'PLO4', nqf:'NQF Level 6 – Skills' },
+            { id:'CLO7',  label:'Document clinical interventions using SOAP format',                      cat:'S', plo:'PLO4', nqf:'NQF Level 6 – Skills' },
+            { id:'CLO8',  label:'Demonstrate culturally sensitive patient communication',                 cat:'S', plo:'PLO5', nqf:'NQF Level 6 – Skills' },
+            { id:'CLO9',  label:'Demonstrate professional behavior and ethical conduct',                  cat:'V', plo:'PLO6', nqf:'NQF Level 6 – Values' },
+            { id:'CLO10', label:'Demonstrate punctuality and time management',                            cat:'V', plo:'PLO6', nqf:'NQF Level 6 – Values' },
+            { id:'CLO11', label:'Accept and act on constructive feedback',                                cat:'V', plo:'PLO7', nqf:'NQF Level 6 – Values' },
+            { id:'CLO12', label:'Collaborate effectively within the healthcare team',                     cat:'V', plo:'PLO7', nqf:'NQF Level 6 – Values' },
+        ];
+
+        const cats = { K:{ label:'Knowledge', color:'#1565c0', icon:'&#128218;' }, S:{ label:'Skills', color:'#2e7d32', icon:'&#9883;' }, V:{ label:'Values', color:'#6a1b9a', icon:'&#127775;' } };
+
+        const achBar = (cloId) => {
+            const pct = parseFloat(storedAch[cloId] ?? NaN);
+            if (isNaN(pct)) return `<span style="color:#bbb;font-size:0.75rem;">Not entered</span>`;
+            const c = pct>=80?'#2e7d32':pct>=65?'#ff9800':'#e53935';
+            return `<div style="display:flex;align-items:center;gap:0.4rem;">
+                <div style="flex:1;height:10px;background:#f0f0f0;border-radius:5px;">
+                    <div style="height:100%;width:${pct}%;background:${c};border-radius:5px;"></div></div>
+                <span style="font-size:0.75rem;font-weight:700;color:${c};white-space:nowrap;">${pct}%</span>
+            </div>`;
+        };
+
+        const cloSections = Object.entries(cats).map(([catKey,cat])=>{
+            const clos = defaultCLOs.filter(c=>c.cat===catKey);
+            if (!clos.length) return '';
+            return `<div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid ${cat.color};">
+                <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:0.75rem;"
+                    onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';">
+                    <h3 style="margin:0;color:${cat.color};font-size:0.9rem;">${cat.icon} ${cat.label} CLOs <span style="font-weight:400;color:#aaa;font-size:0.78rem;">(${clos.length} CLOs)</span></h3>
+                    <span style="color:${cat.color};">&#9660;</span>
+                </div>
+                <div>
+                    <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                        <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                            <th style="padding:0.4rem 0.6rem;text-align:left;width:50px;">CLO</th>
+                            <th style="padding:0.4rem 0.6rem;text-align:left;">Learning Outcome</th>
+                            <th style="padding:0.4rem 0.6rem;text-align:center;width:70px;">PLO</th>
+                            <th style="padding:0.4rem 0.6rem;text-align:left;width:180px;">NQF Descriptor</th>
+                            <th style="padding:0.4rem 0.6rem;text-align:left;min-width:150px;">Achievement %</th>
+                        </tr></thead>
+                        <tbody>${clos.map(clo=>`<tr style="border-bottom:1px solid #f5f5f5;">
+                            <td style="padding:0.4rem 0.6rem;font-weight:700;color:${cat.color};">${clo.id}</td>
+                            <td style="padding:0.4rem 0.6rem;">${clo.label}</td>
+                            <td style="padding:0.4rem 0.6rem;text-align:center;"><span style="background:${cat.color}15;color:${cat.color};padding:0.1rem 0.4rem;border-radius:6px;font-size:0.72rem;font-weight:600;">${clo.plo}</span></td>
+                            <td style="padding:0.4rem 0.6rem;font-size:0.72rem;color:#666;">${clo.nqf}</td>
+                            <td style="padding:0.4rem 0.6rem;">${achBar(clo.id)}</td>
+                        </tr>`).join('')}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        }).join('');
+
+        return `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;">
+            <div>
+                <div style="font-size:0.75rem;color:#888;">12–15 CLOs mapped to PLOs and NQF. Achievement % entered per academic year.</div>
+            </div>
+            <div style="display:flex;gap:0.5rem;">
+                <button onclick="window.app._showCLOAchievementEditor('${level}','${cfg.label}')"
+                    style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid ${cfg.color};background:#fff;color:${cfg.color};font-size:0.75rem;font-weight:600;cursor:pointer;">
+                    &#9998; Update Achievement %</button>
+                <button onclick="window.app._showCLOConfigEditor('${level}','${cfg.label}')"
+                    style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid #546e7a;background:#fff;color:#546e7a;font-size:0.75rem;font-weight:600;cursor:pointer;">
+                    &#9965; Configure CLOs</button>
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.25rem;">
+            ${Object.entries(cats).map(([k,c])=>{
+                const cloCnt=defaultCLOs.filter(cl=>cl.cat===k).length;
+                const entered=defaultCLOs.filter(cl=>cl.cat===k&&!isNaN(parseFloat(storedAch[cl.id]))).length;
+                const avgAch=defaultCLOs.filter(cl=>cl.cat===k&&!isNaN(parseFloat(storedAch[cl.id]))).map(cl=>parseFloat(storedAch[cl.id]));
+                const avg=avgAch.length?( avgAch.reduce((a,b)=>a+b,0)/avgAch.length).toFixed(1):null;
+                return `<div class="card" style="padding:1rem;border-top:3px solid ${c.color};text-align:center;">
+                    <div style="font-size:0.65rem;text-transform:uppercase;color:#888;margin-bottom:0.3rem;">${c.icon} ${c.label}</div>
+                    <div style="font-size:1.5rem;font-weight:800;color:${c.color};">${avg??'—'}${avg?'%':''}</div>
+                    <div style="font-size:0.7rem;color:#aaa;">${cloCnt} CLOs &middot; ${entered} entered</div>
+                </div>`;
+            }).join('')}
+        </div>
+        ${cloSections}`;
+    }
+
+    _showCLOAchievementEditor(level, label) {
+        const stored = (() => { try { const s=localStorage.getItem(`ippe_clos_${level}`); return s?JSON.parse(s):[]; } catch(e){return[];} })();
+        const ach    = (() => { try { const s=localStorage.getItem(`ippe_clo_ach_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+        const defaultIds = ['CLO1','CLO2','CLO3','CLO4','CLO5','CLO6','CLO7','CLO8','CLO9','CLO10','CLO11','CLO12'];
+        const clos = stored.length ? stored : defaultIds.map((id,i)=>({id,label:'CLO '+(i+1)}));
+        const modal = document.createElement('div');
+        modal.id = 'cloAchModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `<div style="background:#fff;border-radius:14px;width:500px;max-width:96vw;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <h3 style="margin:0;font-size:1rem;">&#127775; CLO Achievement % &mdash; ${label}</h3>
+                <button onclick="document.getElementById('cloAchModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            </div>
+            <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1;font-size:0.8rem;">
+                <p style="color:#888;margin:0 0 0.75rem;">Enter % of students who achieved each CLO this academic year (0–100)</p>
+                ${clos.map(c=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:0.35rem 0;border-bottom:1px solid #f5f5f5;">
+                    <span style="flex:1;">${c.id}: ${c.label}</span>
+                    <input data-clo="${c.id}" type="number" min="0" max="100" step="1" value="${ach[c.id]??''}" placeholder="—"
+                        style="width:65px;padding:0.25rem;border:1px solid #e0e0e0;border-radius:4px;text-align:center;margin-left:0.5rem;">
+                </div>`).join('')}
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:0.75rem;flex-shrink:0;">
+                <button onclick="document.getElementById('cloAchModal').remove()" class="btn btn-outline">Cancel</button>
+                <button onclick="window.app._saveCLOAchievement('${level}')" class="btn btn-primary">Save</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _saveCLOAchievement(level) {
+        const modal = document.getElementById('cloAchModal');
+        const ach   = {};
+        modal.querySelectorAll('input[data-clo]').forEach(inp=>{ const v=parseFloat(inp.value); if(!isNaN(v)) ach[inp.dataset.clo]=v; });
+        try { localStorage.setItem(`ippe_clo_ach_${level}`, JSON.stringify(ach)); } catch(e){}
+        modal.remove();
+        this.renderHomePage(level,'competency','all');
+    }
+
+    _showCLOConfigEditor(level, label) {
+        const stored = (() => { try { const s=localStorage.getItem(`ippe_clos_${level}`); return s?JSON.parse(s):[]; } catch(e){return[];} })();
+        const modal = document.createElement('div');
+        modal.id = 'cloConfigModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `<div style="background:#fff;border-radius:14px;width:680px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <h3 style="margin:0;font-size:1rem;">&#9965; Configure CLOs &mdash; ${label}</h3>
+                <button onclick="document.getElementById('cloConfigModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            </div>
+            <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1;">
+                <p style="color:#888;font-size:0.78rem;margin:0 0 0.75rem;">Define CLOs for this rotation. Category: K=Knowledge, S=Skills, V=Values</p>
+                <table style="width:100%;border-collapse:collapse;font-size:0.78rem;" id="cloConfigTable">
+                    <thead><tr style="background:#f8f9fa;"><th style="padding:0.4rem;">ID</th><th style="padding:0.4rem;">Learning Outcome</th><th style="padding:0.4rem;width:40px;">Cat</th><th style="padding:0.4rem;width:60px;">PLO</th><th style="padding:0.4rem;width:120px;">NQF</th><th style="padding:0.4rem;width:30px;"></th></tr></thead>
+                    <tbody id="cloConfigBody">
+                        ${(stored.length?stored:[{id:'CLO1',label:'',cat:'K',plo:'PLO1',nqf:'NQF Level 6'}]).map(c=>`<tr>
+                            <td><input name="id" value="${c.id}" style="width:55px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;"></td>
+                            <td><input name="label" value="${c.label}" style="width:100%;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;"></td>
+                            <td><select name="cat" style="width:42px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;"><option ${c.cat==='K'?'selected':''}>K</option><option ${c.cat==='S'?'selected':''}>S</option><option ${c.cat==='V'?'selected':''}>V</option></select></td>
+                            <td><input name="plo" value="${c.plo}" style="width:55px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;"></td>
+                            <td><input name="nqf" value="${c.nqf}" style="width:115px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;"></td>
+                            <td><button onclick="this.closest('tr').remove()" style="background:none;border:none;color:#e53935;cursor:pointer;font-size:1rem;">&#215;</button></td>
+                        </tr>`).join('')}
+                    </tbody>
+                </table>
+                <button onclick="const tr=document.createElement('tr');tr.innerHTML='<td><input name=&quot;id&quot; placeholder=&quot;CLO&quot; style=&quot;width:55px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;&quot;></td><td><input name=&quot;label&quot; placeholder=&quot;Learning outcome description&quot; style=&quot;width:100%;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;&quot;></td><td><select name=&quot;cat&quot; style=&quot;width:42px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;&quot;><option>K</option><option>S</option><option>V</option></select></td><td><input name=&quot;plo&quot; placeholder=&quot;PLO1&quot; style=&quot;width:55px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;&quot;></td><td><input name=&quot;nqf&quot; placeholder=&quot;NQF Level&quot; style=&quot;width:115px;padding:0.2rem;border:1px solid #e0e0e0;border-radius:3px;font-size:0.75rem;&quot;></td><td><button onclick=&quot;this.closest(&apos;tr&apos;).remove()&quot; style=&quot;background:none;border:none;color:#e53935;cursor:pointer;font-size:1rem;&quot;>&#215;</button></td>';document.getElementById('cloConfigBody').appendChild(tr);"
+                    style="margin-top:0.75rem;padding:0.3rem 0.8rem;border-radius:12px;border:1.5px solid #1565c0;background:#fff;color:#1565c0;font-size:0.75rem;cursor:pointer;">+ Add CLO</button>
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:0.75rem;flex-shrink:0;">
+                <button onclick="document.getElementById('cloConfigModal').remove()" class="btn btn-outline">Cancel</button>
+                <button onclick="window.app._saveCLOConfig('${level}')" class="btn btn-primary">Save CLOs</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _saveCLOConfig(level) {
+        const tbody = document.getElementById('cloConfigBody');
+        const clos  = [];
+        tbody.querySelectorAll('tr').forEach(tr=>{
+            const inputs = tr.querySelectorAll('input,select');
+            if (inputs.length>=5) {
+                const [id,label,cat,plo,nqf] = [...inputs].map(i=>i.value.trim());
+                if (id&&label) clos.push({id,label,cat,plo,nqf});
+            }
+        });
+        try { localStorage.setItem(`ippe_clos_${level}`, JSON.stringify(clos)); } catch(e){}
+        document.getElementById('cloConfigModal').remove();
+        this.renderHomePage(level,'competency','all');
+    }
+
+    // ── 6. Admin & Reports ──────────────────────────────────────────────────
+    renderIPPE_AdminReports(students, level, cfg) {
+        const graded = this._ippe_computeGrades(students);
+        const atRisk = graded.filter(g=>g.final>0&&g.final<75);
+
+        const milestones = (() => { try { const s=localStorage.getItem(`ippe_milestones_${level}`); return s?JSON.parse(s):{};} catch(e){return{};} })();
+        const MILESTONES = [
+            { id:'sites',       label:'Site Contracts Signed'             },
+            { id:'orientation', label:'Student Orientation Completed'     },
+            { id:'mideval',     label:'Mid-Year Evaluations Submitted'    },
+            { id:'endeval',     label:'End-Year Evaluations Submitted'    },
+            { id:'portfolio',   label:'Portfolio Reviews Completed'       },
+            { id:'epa',         label:'EPA Assessments Submitted'         },
+            { id:'simulation',  label:'Simulation Assessments Completed'  },
+            { id:'grades',      label:'Final Grades Finalized'            },
+        ];
+        const mDone = MILESTONES.filter(m=>milestones[m.id]).length;
+
+        const milestoneHTML = MILESTONES.map(m=>`
+            <div style="display:flex;align-items:center;gap:0.75rem;padding:0.5rem 0.75rem;border-radius:6px;background:${milestones[m.id]?'#f1f8e9':'#fafafa'};margin-bottom:0.3rem;border:1px solid ${milestones[m.id]?'#a5d6a7':'#e0e0e0'};">
+                <input type="checkbox" id="ms_${m.id}" ${milestones[m.id]?'checked':''} onchange="window.app._toggleMilestone('${level}','${m.id}',this.checked)"
+                    style="width:16px;height:16px;cursor:pointer;">
+                <label for="ms_${m.id}" style="font-size:0.82rem;cursor:pointer;flex:1;color:${milestones[m.id]?'#2e7d32':'#555'};">
+                    ${milestones[m.id]?'<s>':''} ${m.label} ${milestones[m.id]?'</s>':''}</label>
+                ${milestones[m.id]?`<span style="font-size:0.7rem;color:#2e7d32;">&#9989;</span>`:`<span style="font-size:0.7rem;color:#bbb;">Pending</span>`}
+            </div>`).join('');
+
+        const bulkBtn = (label,icon,action,c='#1565c0') =>
+            `<button onclick="${action}" style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;border-radius:8px;border:1.5px solid ${c};background:#fff;color:${c};font-size:0.8rem;font-weight:600;cursor:pointer;width:100%;margin-bottom:0.5rem;">
+                <span>${icon}</span><span>${label}</span></button>`;
+
+        return `
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
+            <!-- Bulk Actions -->
+            <div class="card fade-in-up">
+                <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#9889; Bulk Actions</h3>
+                ${bulkBtn('Export Full Cohort Roster (CSV)','&#8659;',`window.app._exportIPPERoster('${level}')`,cfg.color)}
+                ${bulkBtn('Export At-Risk Student List','&#9888;',`window.app._exportAtRisk('${level}')`, '#e53935')}
+                ${bulkBtn('Print Cohort Summary','&#128438;','window.print()', '#546e7a')}
+                <div style="border-top:1px solid #eee;padding-top:0.75rem;margin-top:0.25rem;">
+                    <div style="font-size:0.7rem;color:#aaa;margin-bottom:0.5rem;">Quick Stats</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                        <div style="padding:0.5rem;background:#f8f9fa;border-radius:6px;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:800;color:#2e7d32;">${graded.filter(g=>g.final>=75).length}</div>
+                            <div style="font-size:0.65rem;color:#888;">Passing</div>
+                        </div>
+                        <div style="padding:0.5rem;background:#fff5f5;border-radius:6px;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:800;color:#e53935;">${atRisk.length}</div>
+                            <div style="font-size:0.65rem;color:#888;">At-Risk</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Milestone Checklist -->
+            <div class="card fade-in-up">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
+                    <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#9989; Academic Year Milestones</h3>
+                    <span style="font-size:0.78rem;font-weight:700;color:${mDone===MILESTONES.length?'#2e7d32':'#ff9800'};">${mDone}/${MILESTONES.length}</span>
+                </div>
+                <div style="height:6px;background:#f0f0f0;border-radius:3px;margin-bottom:1rem;">
+                    <div style="height:100%;width:${(mDone/MILESTONES.length)*100}%;background:${mDone===MILESTONES.length?'#2e7d32':'#ff9800'};border-radius:3px;transition:width 0.5s;"></div>
+                </div>
+                ${milestoneHTML}
+            </div>
+        </div>
+        <!-- At-Risk Detail Table -->
+        ${atRisk.length?`<div class="card fade-in-up">
+            <h3 style="margin:0 0 1rem;font-size:0.9rem;color:#e53935;">&#9888; At-Risk Student Detail (${atRisk.length})</h3>
+            <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                <thead><tr style="background:#fff5f5;border-bottom:2px solid #ffcdd2;">
+                    <th style="padding:0.4rem 0.75rem;text-align:left;">Student</th>
+                    <th style="padding:0.4rem;text-align:center;">Final Grade</th>
+                    <th style="padding:0.4rem;text-align:center;">Lowest Instrument</th>
+                    <th style="padding:0.4rem;text-align:center;">Attendance</th>
+                    <th style="padding:0.4rem;text-align:center;">Action</th>
+                </tr></thead>
+                <tbody>${atRisk.map(g=>{
+                    const comps = g.grading?.components||{};
+                    const lowest = Object.entries(comps).sort((a,b)=>a[1].score-b[1].score)[0];
+                    return `<tr style="border-bottom:1px solid #f5f5f5;">
+                        <td style="padding:0.4rem 0.75rem;font-weight:500;">${g.s.name}</td>
+                        <td style="padding:0.4rem;text-align:center;font-weight:800;color:#e53935;">${g.final.toFixed(1)}%</td>
+                        <td style="padding:0.4rem;text-align:center;font-size:0.75rem;color:#ff9800;">${lowest?lowest[0]+' ('+lowest[1].score.toFixed(0)+'%)':'—'}</td>
+                        <td style="padding:0.4rem;text-align:center;color:${parseFloat(g.s.attendance)>=85?'#2e7d32':'#e53935'};">${g.s.attendance??'—'}%</td>
+                        <td style="padding:0.4rem;text-align:center;">
+                            <button onclick="app.render('student-details','${g.s.id}')" style="padding:0.2rem 0.6rem;border-radius:10px;border:1px solid #e53935;background:#fff;color:#e53935;font-size:0.7rem;cursor:pointer;">View Profile</button>
+                        </td>
+                    </tr>`;
+                }).join('')}</tbody>
+            </table>
+        </div>`:'<div class="card" style="text-align:center;color:#2e7d32;padding:1.5rem;"><div style="font-size:1.5rem;">&#9989;</div><div style="font-weight:600;margin-top:0.5rem;">No students at risk</div></div>'}`;
+    }
+
+    _toggleMilestone(level, id, checked) {
+        const ms = (() => { try { const s=localStorage.getItem(`ippe_milestones_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+        ms[id] = checked;
+        try { localStorage.setItem(`ippe_milestones_${level}`, JSON.stringify(ms)); } catch(e){}
+    }
+
+    _exportAtRisk(level) {
+        const graded = this._ippe_computeGrades(
+            (this.store.getStudents()||[]).filter(s=>{const c=(s.cohort||'').toLowerCase().trim();if(level==='ippe1')return c==='ippe i'||c==='ippe 1';if(level==='ippe2')return c==='ippe ii'||c==='ippe 2';if(level==='ippe3')return c==='ippe iii'||c==='ippe 3';if(level==='community')return c==='ippe community';return false;})
+        ).filter(g=>g.final>0&&g.final<75);
+        const csv = ['Name,ID,GPA,Final Grade,Attendance',...graded.map(g=>[g.s.name,g.s.id,g.s.gpa??'',g.final.toFixed(1),g.s.attendance??''].join(','))].join('\n');
+        const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+        a.download=`${level}_at_risk.csv`; a.click();
     }
 
     renderIPPE_Competency_V2(students) {
