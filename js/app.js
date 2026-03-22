@@ -7608,7 +7608,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 if (tab==='ippe1')     return c==='p1'||c==='ippe i'||c==='ippe 1';
                 if (tab==='ippe2')     return c==='p2'||c==='ippe ii'||c==='ippe 2';
                 if (tab==='ippe3')     return c==='p3'||c==='ippe iii'||c==='ippe 3';
-                if (tab==='community') return c==='p3'||c==='ippe community'||c==='community';
+                if (tab==='community') return c==='p3'||c==='ippe iii'||c==='ippe 3'||c==='ippe community'||c==='community';
                 return false;
             };
             // Primary: Supabase students fetched live (_sbStudents)
@@ -7958,7 +7958,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             if (level==='ippe1')     return c==='p1'||c==='ippe i'||c==='ippe 1';
             if (level==='ippe2')     return c==='p2'||c==='ippe ii'||c==='ippe 2';
             if (level==='ippe3')     return c==='p3'||c==='ippe iii'||c==='ippe 3';
-            if (level==='community') return c==='p3'||c==='ippe community'||c==='community';
+            if (level==='community') return c==='p3'||c==='ippe iii'||c==='ippe 3'||c==='ippe community'||c==='community';
             return false;
         };
         let s = (this._sbStudents||[]).filter(st => match(st.cohort));
