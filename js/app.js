@@ -5521,23 +5521,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             ${kpi('Matching Success', matchingSuccess?matchingSuccess+'%':null, 'Preference vs assigned', color(matchingSuccess,75,60))}
         </div>
 
-        <!-- 2-column layout: Sections 1+Ranking on left, Sections 2+3 on right -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.25rem;">
-
-        <!-- LEFT COLUMN -->
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
-        ${section('&#127979;','1','Experiential Education Quality','#2e7d32',`
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
-                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Course Quality (out of 5)</div>${rotBar(manual.courseQuality||{},'/5')}</div>
-                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Preceptor Quality (out of 5)</div>${rotBar(manual.preceptorByRotation||{},'/5')}</div>
-                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Site Quality (out of 5)</div>${rotBar(manual.siteByRotation||{},'/5')}</div>
-                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Student Satisfaction (out of 5)</div>${rotBar(manual.satisfactionByRotation||{},'/5')}</div>
-            </div>
-            <div style="margin-top:1rem;height:240px;"><canvas id="chartRadarQuality"></canvas></div>
-        `)}
-
-        <!-- Student Ranking System -->
-        <div class="card fade-in-up" style="margin-bottom:0;border-left:4px solid #d32f2f;">
+        <!-- ★ Student Ranking System — full width -->
+        <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #d32f2f;">
             <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:0.75rem;"
                 onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.rankArr').textContent=b.style.display==='none'?'&#9654;':'&#9660;';">
                 <h3 style="margin:0;color:#d32f2f;font-size:0.95rem;">&#127942; Student Ranking System</h3>
@@ -5567,79 +5552,88 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div id="rankTab_P3" style="display:none">${rankingTable(p3Rankings,'P3')}</div>
             </div>
         </div>
-        </div><!-- /LEFT COLUMN -->
 
-        <!-- RIGHT COLUMN -->
-        <div style="display:flex;flex-direction:column;gap:1.25rem;">
-        ${section('&#127891;','2','Student Performance &amp; Outcomes','#1565c0',`
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:0.5rem;">
-                ${kpi('Avg CLO %', avgCLO?avgCLO+'%':null, 'Benchmark: 75%', color(avgCLO,75,65))}
-                ${kpi('End-Year %', endYearPct?endYearPct+'%':null, 'Benchmark: 70%', color(endYearPct,70,60))}
-                ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'All rotations', color(avgAttendance,85,75))}
-            </div>
-            <div style="margin-top:1rem;"><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Students Below Benchmark per Rotation</div>
-            ${ROTATION_TYPES.map(r=>{const v=manual.belowBenchmark?.[r]; return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span><span style="font-size:0.85rem;font-weight:700;color:${v>0?'#e53935':'#2e7d32'};">${v!=null?v+' students':'\u2014'}</span></div>`;}).join('')}
-            </div>
-        `)}
-
-        ${section('&#128105;','3','Preceptor Engagement &amp; Quality','#6a1b9a',`
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:0.5rem;">
-                ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Benchmark: 85%', color(evalCompletionRate,85,70))}
-                ${kpi('Avg Preceptor Score', preceptorQuality?preceptorQuality+'/5':null, 'Benchmark: 3.5/5', color(preceptorQuality,3.5,3))}
-                ${kpi('Active Preceptors', manual.activePreceptors||null, 'Across all sites', '#6a1b9a')}
-                ${kpi('Response Rate', manual.preceptorResponseRate?manual.preceptorResponseRate+'%':null, 'Eval submission', color(manual.preceptorResponseRate,85,70))}
-            </div>
-        `,false)}
-        </div><!-- /RIGHT COLUMN -->
-
-        </div><!-- /2-col grid -->
-
-        ${section('&#127970;','4','Site Quality &amp; Capacity','#e65100',`
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
-                <div>
-                    <div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Active Sites by Rotation Type</div>
-                    ${ROTATION_TYPES.map(r=>{const c=manual.sitesByType?.[r]||0; const max=Math.max(...ROTATION_TYPES.map(x=>manual.sitesByType?.[x]||1),1);
-                    return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.45rem;">
-                        <span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span>
-                        <div style="flex:1;height:11px;background:#f0f0f0;border-radius:6px;overflow:hidden;"><div style="height:100%;width:${(c/max)*100}%;background:${ROTATION_COLORS[r]};border-radius:6px;"></div></div>
-                        <span style="font-size:0.72rem;width:25px;text-align:right;font-weight:600;">${c||'\u2014'}</span>
-                    </div>`;}).join('')}
+        <!-- Row 1: Section 1 | Section 2 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.25rem;">
+            <div>${section('&#127979;','1','Experiential Education Quality','#2e7d32',`
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
+                    <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Course Quality (out of 5)</div>${rotBar(manual.courseQuality||{},'/5')}</div>
+                    <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Preceptor Quality (out of 5)</div>${rotBar(manual.preceptorByRotation||{},'/5')}</div>
+                    <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Site Quality (out of 5)</div>${rotBar(manual.siteByRotation||{},'/5')}</div>
+                    <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Student Satisfaction (out of 5)</div>${rotBar(manual.satisfactionByRotation||{},'/5')}</div>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;align-content:start;">
-                    ${kpi('Site Utilization', siteUtilization?siteUtilization+'%':null, 'Capacity used', color(siteUtilization,90,70))}
-                    ${kpi('Student:Preceptor', studentPreceptorRatio?studentPreceptorRatio+':1':null, 'Target &#8804; 5:1', color(studentPreceptorRatio?6-+studentPreceptorRatio:null,3,1))}
-                    ${kpi('Site Performance', siteQuality?siteQuality+'/5':null, 'Avg score', color(siteQuality,3.5,3))}
-                    ${kpi('New Sites', manual.newSites||null, 'Added this year', '#e65100')}
+                <div style="margin-top:1rem;height:240px;"><canvas id="chartRadarQuality"></canvas></div>
+            `)}</div>
+            <div>${section('&#127891;','2','Student Performance &amp; Outcomes','#1565c0',`
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:0.5rem;">
+                    ${kpi('Avg CLO %', avgCLO?avgCLO+'%':null, 'Benchmark: 75%', color(avgCLO,75,65))}
+                    ${kpi('End-Year %', endYearPct?endYearPct+'%':null, 'Benchmark: 70%', color(endYearPct,70,60))}
+                    ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'All rotations', color(avgAttendance,85,75))}
                 </div>
-            </div>
-        `,false)}
+                <div style="margin-top:1rem;"><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Students Below Benchmark per Rotation</div>
+                ${ROTATION_TYPES.map(r=>{const v=manual.belowBenchmark?.[r]; return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span><span style="font-size:0.85rem;font-weight:700;color:${v>0?'#e53935':'#2e7d32'};">${v!=null?v+' students':'\u2014'}</span></div>`;}).join('')}
+                </div>
+            `)}</div>
+        </div>
 
-        ${section('&#9881;','5','Operational Efficiency','#00695c',`
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
-                ${kpi('Matching Success', matchingSuccess?matchingSuccess+'%':null, 'Pref vs assigned', color(matchingSuccess,75,60))}
-                ${kpi('Time to Assign', timeToAssign?timeToAssign+' days':null, 'Target &#8804; 7 days', color(timeToAssign?8-+timeToAssign:null,3,1))}
-                ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Submitted on time', color(evalCompletionRate,85,70))}
-                ${kpi('Admin Turnaround', adminTurnaround?adminTurnaround+' days':null, 'Target &#8804; 3 days', color(adminTurnaround?4-+adminTurnaround:null,2,1))}
-            </div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;">
-                ${kpi('Total Requests', totalTickets||null, `${pendingTickets} pending`, '#00695c')}
-                ${kpi('Approved', approvedTickets||null, approvalRate?approvalRate+'% rate':'', '#2e7d32')}
-                ${kpi('Allocation Satisfaction', allocationSat?allocationSat+'%':null, 'Student-reported', color(allocationSat,75,60))}
-            </div>
-        `,false)}
+        <!-- Row 2: Section 3 | Section 4 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.25rem;">
+            <div>${section('&#128105;','3','Preceptor Engagement &amp; Quality','#6a1b9a',`
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:0.5rem;">
+                    ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Benchmark: 85%', color(evalCompletionRate,85,70))}
+                    ${kpi('Avg Preceptor Score', preceptorQuality?preceptorQuality+'/5':null, 'Benchmark: 3.5/5', color(preceptorQuality,3.5,3))}
+                    ${kpi('Active Preceptors', manual.activePreceptors||null, 'Across all sites', '#6a1b9a')}
+                    ${kpi('Response Rate', manual.preceptorResponseRate?manual.preceptorResponseRate+'%':null, 'Eval submission', color(manual.preceptorResponseRate,85,70))}
+                </div>
+            `,false)}</div>
+            <div>${section('&#127970;','4','Site Quality &amp; Capacity','#e65100',`
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
+                    <div>
+                        <div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Active Sites by Rotation Type</div>
+                        ${ROTATION_TYPES.map(r=>{const c=manual.sitesByType?.[r]||0; const max=Math.max(...ROTATION_TYPES.map(x=>manual.sitesByType?.[x]||1),1);
+                        return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.45rem;">
+                            <span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span>
+                            <div style="flex:1;height:11px;background:#f0f0f0;border-radius:6px;overflow:hidden;"><div style="height:100%;width:${(c/max)*100}%;background:${ROTATION_COLORS[r]};border-radius:6px;"></div></div>
+                            <span style="font-size:0.72rem;width:25px;text-align:right;font-weight:600;">${c||'\u2014'}</span>
+                        </div>`;}).join('')}
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;align-content:start;">
+                        ${kpi('Site Utilization', siteUtilization?siteUtilization+'%':null, 'Capacity used', color(siteUtilization,90,70))}
+                        ${kpi('Student:Preceptor', studentPreceptorRatio?studentPreceptorRatio+':1':null, 'Target &#8804; 5:1', color(studentPreceptorRatio?6-+studentPreceptorRatio:null,3,1))}
+                        ${kpi('Site Performance', siteQuality?siteQuality+'/5':null, 'Avg score', color(siteQuality,3.5,3))}
+                        ${kpi('New Sites', manual.newSites||null, 'Added this year', '#e65100')}
+                    </div>
+                </div>
+            `,false)}</div>
+        </div>
 
-        <!-- Section 6: Composite Indices (always open) -->
-        <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #37474f;">
-            <h3 style="margin:0 0 1rem 0;color:#37474f;font-size:0.95rem;">&#128200; 6. Composite Indices</h3>
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;align-items:start;">
-                ${gauge('EEI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Experiential Excellence</span>', eei)}
-                ${gauge('SPI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Site Performance</span>', spi)}
-                ${gauge('OEI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Operational Efficiency</span>', oei)}
-                ${gauge('Satisfaction<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Student-reported</span>', studentSatisfaction)}
-            </div>
-            <p style="font-size:0.68rem;color:#bbb;text-align:center;margin:0.25rem 0 0;">
-                EEI = (Satisfaction + Preceptor + CLO&#247;20) / 3 &nbsp;&#124;&nbsp; SPI = (Site + Pass&#247;20 + Utilization&#247;20) / 3 &nbsp;&#124;&nbsp; OEI = (Matching + Evals + Approval) / 3 / 20
-            </p>
+        <!-- Row 3: Section 5 | Section 6 -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.25rem;">
+            <div>${section('&#9881;','5','Operational Efficiency','#00695c',`
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:0.5rem;">
+                    ${kpi('Matching Success', matchingSuccess?matchingSuccess+'%':null, 'Pref vs assigned', color(matchingSuccess,75,60))}
+                    ${kpi('Time to Assign', timeToAssign?timeToAssign+' days':null, 'Target &#8804; 7 days', color(timeToAssign?8-+timeToAssign:null,3,1))}
+                    ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Submitted on time', color(evalCompletionRate,85,70))}
+                    ${kpi('Admin Turnaround', adminTurnaround?adminTurnaround+' days':null, 'Target &#8804; 3 days', color(adminTurnaround?4-+adminTurnaround:null,2,1))}
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;">
+                    ${kpi('Total Requests', totalTickets||null, `${pendingTickets} pending`, '#00695c')}
+                    ${kpi('Approved', approvedTickets||null, approvalRate?approvalRate+'% rate':'', '#2e7d32')}
+                    ${kpi('Allocation Satisfaction', allocationSat?allocationSat+'%':null, 'Student-reported', color(allocationSat,75,60))}
+                </div>
+            `,false)}</div>
+            <div><div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #37474f;">
+                <h3 style="margin:0 0 1rem 0;color:#37474f;font-size:0.95rem;">&#128200; 6. Composite Indices</h3>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.5rem;align-items:start;">
+                    ${gauge('EEI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Experiential Excellence</span>', eei)}
+                    ${gauge('SPI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Site Performance</span>', spi)}
+                    ${gauge('OEI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Operational Efficiency</span>', oei)}
+                    ${gauge('Satisfaction<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Student-reported</span>', studentSatisfaction)}
+                </div>
+                <p style="font-size:0.65rem;color:#bbb;text-align:center;margin:0.5rem 0 0;">
+                    EEI = (Satisfaction + Preceptor + CLO&#247;20) / 3<br>SPI = (Site + Pass&#247;20 + Util&#247;20) / 3 &nbsp;&#124;&nbsp; OEI = (Match + Evals + Approval) / 3 / 20
+                </p>
+            </div></div>
         </div>
 
         <!-- APPE Evaluation Rankings -->
