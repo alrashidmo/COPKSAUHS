@@ -5521,29 +5521,23 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             ${kpi('Matching Success', matchingSuccess?matchingSuccess+'%':null, 'Preference vs assigned', color(matchingSuccess,75,60))}
         </div>
 
+        <!-- 2-column layout: Sections 1+Ranking on left, Sections 2+3 on right -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;margin-bottom:1.25rem;">
+
+        <!-- LEFT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
         ${section('&#127979;','1','Experiential Education Quality','#2e7d32',`
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:0.5rem;">
                 <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Course Quality (out of 5)</div>${rotBar(manual.courseQuality||{},'/5')}</div>
                 <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Preceptor Quality (out of 5)</div>${rotBar(manual.preceptorByRotation||{},'/5')}</div>
                 <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Site Quality (out of 5)</div>${rotBar(manual.siteByRotation||{},'/5')}</div>
                 <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Student Satisfaction (out of 5)</div>${rotBar(manual.satisfactionByRotation||{},'/5')}</div>
             </div>
-            <div style="margin-top:1rem;height:260px;"><canvas id="chartRadarQuality"></canvas></div>
-        `)}
-
-        ${section('&#127891;','2','Student Performance &amp; Outcomes','#1565c0',`
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:0.5rem;">
-                ${kpi('Avg CLO %', avgCLO?avgCLO+'%':null, 'Benchmark: 75%', color(avgCLO,75,65))}
-                ${kpi('End-Year %', endYearPct?endYearPct+'%':null, 'Benchmark: 70%', color(endYearPct,70,60))}
-                ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'All rotations', color(avgAttendance,85,75))}
-            </div>
-            <div style="margin-top:1rem;"><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Students Below Benchmark per Rotation</div>
-            ${ROTATION_TYPES.map(r=>{const v=manual.belowBenchmark?.[r]; return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span><span style="font-size:0.85rem;font-weight:700;color:${v>0?'#e53935':'#2e7d32'};">${v!=null?v+' students':'\u2014'}</span></div>`;}).join('')}
-            </div>
+            <div style="margin-top:1rem;height:240px;"><canvas id="chartRadarQuality"></canvas></div>
         `)}
 
         <!-- Student Ranking System -->
-        <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #d32f2f;">
+        <div class="card fade-in-up" style="margin-bottom:0;border-left:4px solid #d32f2f;">
             <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:0.75rem;"
                 onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.rankArr').textContent=b.style.display==='none'?'&#9654;':'&#9660;';">
                 <h3 style="margin:0;color:#d32f2f;font-size:0.95rem;">&#127942; Student Ranking System</h3>
@@ -5573,15 +5567,32 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div id="rankTab_P3" style="display:none">${rankingTable(p3Rankings,'P3')}</div>
             </div>
         </div>
+        </div><!-- /LEFT COLUMN -->
+
+        <!-- RIGHT COLUMN -->
+        <div style="display:flex;flex-direction:column;gap:1.25rem;">
+        ${section('&#127891;','2','Student Performance &amp; Outcomes','#1565c0',`
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:0.5rem;">
+                ${kpi('Avg CLO %', avgCLO?avgCLO+'%':null, 'Benchmark: 75%', color(avgCLO,75,65))}
+                ${kpi('End-Year %', endYearPct?endYearPct+'%':null, 'Benchmark: 70%', color(endYearPct,70,60))}
+                ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'All rotations', color(avgAttendance,85,75))}
+            </div>
+            <div style="margin-top:1rem;"><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Students Below Benchmark per Rotation</div>
+            ${ROTATION_TYPES.map(r=>{const v=manual.belowBenchmark?.[r]; return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span><span style="font-size:0.85rem;font-weight:700;color:${v>0?'#e53935':'#2e7d32'};">${v!=null?v+' students':'\u2014'}</span></div>`;}).join('')}
+            </div>
+        `)}
 
         ${section('&#128105;','3','Preceptor Engagement &amp; Quality','#6a1b9a',`
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:0.5rem;">
                 ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Benchmark: 85%', color(evalCompletionRate,85,70))}
                 ${kpi('Avg Preceptor Score', preceptorQuality?preceptorQuality+'/5':null, 'Benchmark: 3.5/5', color(preceptorQuality,3.5,3))}
                 ${kpi('Active Preceptors', manual.activePreceptors||null, 'Across all sites', '#6a1b9a')}
                 ${kpi('Response Rate', manual.preceptorResponseRate?manual.preceptorResponseRate+'%':null, 'Eval submission', color(manual.preceptorResponseRate,85,70))}
             </div>
         `,false)}
+        </div><!-- /RIGHT COLUMN -->
+
+        </div><!-- /2-col grid -->
 
         ${section('&#127970;','4','Site Quality &amp; Capacity','#e65100',`
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
