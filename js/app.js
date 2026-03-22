@@ -1483,6 +1483,55 @@ class App {
                 { name: 'Dr. Lama Alsheddi', role: 'Assistant Professor', email: 'sheddil@ksau-hs.edu.sa' },
                 { name: 'Dr. Saqer Al Arifi', role: 'Assistant Professor', email: 'arifis@ksau-hs.edu.sa' },
                 { name: 'Dr. Saleh Alanizi', role: 'Assistant Professor', email: 'anazis@mngha.med.sa' }
+            ],
+            // ── Pharmacy Practice faculty & administrators ──────────────────
+            facultyPractice: [
+                // Administrators
+                { name: 'Prof. Abdulkareem AlBekairy',  role: 'Professor / Dean',                                          email: 'bekairya@ksau-hs.edu.sa' },
+                { name: 'Prof. Shmeylan Al Harbi',      role: 'Professor / Associate Dean, Academic & Student Affairs',    email: 'harbish@ksau-hs.edu.sa' },
+                { name: 'Dr. Abdulrahman Al Shaya',     role: 'Associate Professor / Associate Dean, Clinical Affairs',    email: 'shayaab@ksau-hs.edu.sa' },
+                { name: 'Dr. Sumaya AlMohareb',         role: 'Assistant Professor / Assistant Dean, Academic & Student Affairs', email: 'moharebsu@ksau-hs.edu.sa' },
+                { name: 'Dr. Omar Al Shaya',            role: 'Associate Professor / Assistant Dean, Academic Affairs',    email: 'shayao@ksau-hs.edu.sa' },
+                // Department of Pharmacy Practice
+                { name: 'Dr. Khalid Bin Saleh',         role: 'Associate Professor / Chairperson',   email: 'salehk@ksau-hs.edu.sa' },
+                { name: 'Prof. Abdulmalik Alkatheri',   role: 'Professor',                           email: 'alkatheria@ksau-hs.edu.sa' },
+                { name: 'Prof. Majed Al Jeraisy',       role: 'Professor',                           email: 'jeraisym@ksau-hs.edu.sa' },
+                { name: 'Dr. Majed Al Yami',            role: 'Associate Professor',                 email: 'yamim@ksau-hs.edu.sa' },
+                { name: 'Dr. Hisham Badreldin',         role: 'Associate Professor',                 email: 'aldeenh@ksau-hs.edu.sa' },
+                { name: 'Dr. Mohammad Shawaqfeh',       role: 'Associate Professor',                 email: 'shawaqfehm@ksau-hs.edu.sa' },
+                { name: 'Dr. Shuroug AlOwais',          role: 'Associate Professor',                 email: 'owaiss@ksau-hs.edu.sa' },
+                { name: 'Dr. Yousef Al Aqeel',          role: 'Associate Professor',                 email: 'alaqeely@ksau-hs.edu.sa' },
+                { name: 'Dr. Hind Al Modaimegh',        role: 'Associate Professor',                 email: 'modaimeghh@ksau-hs.edu.sa' },
+                { name: 'Dr. Jawaher Gramish',          role: 'Associate Professor',                 email: 'gramishj@mngha.med.sa' },
+                { name: 'Dr. Mohammed Alrashed',        role: 'Assistant Professor',                 email: 'alrashidm@ksau-hs.edu.sa' },
+                { name: 'Dr. Abdulmajeed Al Shehri',    role: 'Assistant Professor',                 email: 'shehriabdul@ksau-hs.edu.sa' },
+                { name: 'Dr. Mohammed Al Zahrani',      role: 'Assistant Professor',                 email: 'alzahranimoham@ksau-hs.edu.sa' },
+                { name: 'Dr. Nada Al Suhebany',         role: 'Assistant Professor',                 email: 'suhebanyn@ksau-hs.edu.sa' },
+                { name: 'Dr. Atheer Aldairem',          role: 'Assistant Professor',                 email: 'dairema@ksau-hs.edu.sa' },
+                { name: 'Dr. Maha AlDoughaim',          role: 'Assistant Professor',                 email: 'doughaimm@ksau-hs.edu.sa' },
+                { name: 'Dr. Lama Alfehaid',            role: 'Assistant Professor',                 email: 'fehaidl@ksau-hs.edu.sa' },
+                { name: 'Dr. Lama Alsheddi',            role: 'Assistant Professor',                 email: 'sheddil@ksau-hs.edu.sa' },
+                { name: 'Dr. Saleh Dekhail',            role: 'Assistant Professor',                 email: 'dekhaels@mngha.med.sa' },
+                { name: 'Dr. Numan Al Abdan',           role: 'Assistant Professor',                 email: 'abdann@mngha.med.sa' },
+                { name: 'Dr. Faisal Al Sehli',          role: 'Assistant Professor',                 email: 'sehlief@mngha.med.sa' },
+                { name: 'Dr. Fahad Aldhahri',           role: 'Assistant Professor',                 email: 'aldhahrifa@mngha.med.sa' },
+                { name: 'Dr. Khalid Alsulaiman',        role: 'Assistant Professor',                 email: 'alsulaimankh@mngha.med.sa' },
+                { name: 'Dr. Yousef Al-Rajhi',          role: 'Assistant Professor',                 email: 'rajhiy@mngha.med.sa' },
+                { name: 'Dr. Sarah Al Yousif',          role: 'Assistant Professor',                 email: 'yousifs@mngha.med.sa' },
+                { name: 'Dr. Abeer Alsmari',            role: 'Assistant Professor',                 email: 'alsmariab@mngha.med.sa' },
+                { name: 'Dr. Khuloud Aljoudi',          role: 'Assistant Professor',                 email: 'aljoudikh@mngha.med.sa' },
+                { name: 'Dr. Lolowa Al Swaidan',        role: 'Assistant Professor',                 email: 'swaidanl@mngha.med.sa' },
+                { name: 'Mr. Abdelhameed Elfadol',      role: 'Lecturer',                            email: 'fadola@ksau-hs.edu.sa' },
+                { name: 'Mr. Ahmed Elmubark',           role: 'Lecturer',                            email: 'mubarka@ksau-hs.edu.sa' },
+                { name: 'Mr. Mohammed Ahmed',           role: 'Lecturer',                            email: 'ahmedmo@ksau-hs.edu.sa' },
+                { name: 'Ms. Mariam Abdalla',           role: 'Lecturer',                            email: 'abdallama@ksau-hs.edu.sa' },
+                { name: 'Ms. Shazia Adnan',             role: 'Lecturer',                            email: 'adnans@ksau-hs.edu.sa' },
+                { name: 'Hamoud Al Samhan',             role: 'Lecturer',                            email: 'samhanh@mngha.med.sa' },
+                { name: 'Lt. Col. Khalil Al Majed',     role: 'Lecturer',                            email: 'majidk@mngha.med.sa' },
+                { name: 'Zohour Bootah',                role: 'Lecturer',                            email: 'bootahz@mngha.med.sa' },
+                { name: 'Laila Carolina Abu Esba',      role: 'Lecturer',                            email: 'abuesbala@mngha.med.sa' },
+                { name: 'Dalal Abdulkarim',             role: 'Lecturer',                            email: 'alabdulkareemda@mngha.med.sa' },
+                { name: 'Mohammed AlOtaibi',            role: 'Clinical Preceptor',                  email: 'otaibim7@mngha.med.sa' },
             ]
         };
 
@@ -8950,6 +8999,10 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         const data = this.pharmaData;
         if (!data) { console.error("Pharma Data not initialized"); return; }
+
+        // Use dept-specific faculty list
+        data.faculty = deptId === 'practice' ? data.facultyPractice : (data.facultySciencesBackup || data.faculty);
+        if (deptId === 'sciences' && !data.facultySciencesBackup) data.facultySciencesBackup = data.faculty;
 
         // ── Academic year filter setup ──────────────────────────────────────────
         const ACAD_YEARS = ['2022-2023','2023-2024','2024-2025','2025-2026','2026-2027','2027-2028','2028-2029','2029-2030'];
