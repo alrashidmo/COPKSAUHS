@@ -1,3 +1,40 @@
+// =============================================================================
+// IPPE GRADING CONFIG — edit this block to change instruments, weights,
+// grade buckets, and thresholds across ALL IPPE tabs at once.
+// =============================================================================
+const IPPE_GRADING_CONFIG = {
+
+    // ── Grading instruments ─────────────────────────────────────────────────
+    // key    : matches the field name in rotation_evaluations / assessments
+    // label  : shown in the UI
+    // wt     : weight (must sum to 100)
+    instruments: [
+        { key: 'professionalism', label: 'Professionalism',             wt: 30 },
+        { key: 'midYear',         label: 'Mid-Year Written Evaluation',  wt: 10 },
+        { key: 'endYear',         label: 'End-Year Written Evaluation',  wt: 20 },
+        { key: 'portfolio',       label: 'Portfolio Evaluation',         wt: 15 },
+        { key: 'epa',             label: 'EPA',                          wt: 10 },
+        { key: 'simulation',      label: 'Simulation-Based Assessment',  wt: 15 },
+    ],
+
+    // ── Grade buckets for the histogram ─────────────────────────────────────
+    // min is inclusive, max is exclusive (except last bucket min:0)
+    gradeBuckets: [
+        { label: '95–100%', min: 95, max: 101, color: '#1b5e20' },
+        { label: '85–94%',  min: 85, max: 95,  color: '#2e7d32' },
+        { label: '75–84%',  min: 75, max: 85,  color: '#66bb6a' },
+        { label: '70–74%',  min: 70, max: 75,  color: '#ff9800' },
+        { label: '60–69%',  min: 60, max: 70,  color: '#f44336' },
+        { label: '< 60%',   min: 0,  max: 60,  color: '#b71c1c' },
+    ],
+
+    // ── Thresholds ───────────────────────────────────────────────────────────
+    passingScore:      75,   // % — students below this are "at-risk"
+    excellentScore:    85,   // % — shown as green in colour coding
+    attendanceBenchmark: 85, // % — benchmark shown on the Attendance KPI card
+};
+// =============================================================================
+
 // === APPE DATABASE ===
 const APPE_DATABASE = {
     students: [
@@ -7699,19 +7736,15 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // ── 1. Performance Metrics ──────────────────────────────────────────────
     renderIPPE_PerformanceMetrics(students, level, cfg) {
-        const INSTR = [
-            { key:'professionalism', label:'Professionalism',            wt:30 },
-            { key:'midYear',         label:'Mid-Year Written Evaluation', wt:10 },
-            { key:'endYear',         label:'End-Year Written Evaluation', wt:20 },
-            { key:'portfolio',       label:'Portfolio Evaluation',        wt:15 },
-            { key:'epa',             label:'EPA',                         wt:10 },
-            { key:'simulation',      label:'Simulation-Based Assessment', wt:15 },
-        ];
+        const INSTR    = IPPE_GRADING_CONFIG.instruments;
+        const PASS     = IPPE_GRADING_CONFIG.passingScore;
+        const EXCEL    = IPPE_GRADING_CONFIG.excellentScore;
+        const ATT_BM   = IPPE_GRADING_CONFIG.attendanceBenchmark;
         const graded   = this._ippe_computeGrades(students);
         const n        = graded.length || 1;
         const avgFinal = graded.reduce((s,g)=>s+g.final,0)/n;
-        const passing  = graded.filter(g=>g.final>=75).length;
-        const atRisk   = graded.filter(g=>g.final>0&&g.final<75).length;
+        const passing  = graded.filter(g=>g.final>=PASS).length;
+        const atRisk   = graded.filter(g=>g.final>0&&g.final<PASS).length;
         const avgGPA   = students.length ? (students.reduce((s,st)=>s+(parseFloat(st.gpa)||0),0)/students.length).toFixed(2) : '—';
         const avgAtt   = students.length ? (students.reduce((s,st)=>s+(parseFloat(st.attendance)||0),0)/students.length).toFixed(1) : '—';
         const passRate = students.length ? ((passing/students.length)*100).toFixed(0) : '—';
@@ -7725,9 +7758,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const instrRows = INSTR.map(ins => {
             const scores = graded.map(g=>g.grading?.components?.[ins.key]?.score).filter(v=>v!=null);
             const avg    = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
-            const passes = scores.filter(v=>v>=75).length;
-            const risks  = scores.filter(v=>v>0&&v<75).length;
-            const c      = avg==null?'#bbb':avg>=85?'#2e7d32':avg>=75?'#ff9800':'#e53935';
+            const passes = scores.filter(v=>v>=PASS).length;
+            const risks  = scores.filter(v=>v>0&&v<PASS).length;
+            const c      = avg==null?'#bbb':avg>=EXCEL?'#2e7d32':avg>=PASS?'#ff9800':'#e53935';
             return `<tr style="border-bottom:1px solid #f5f5f5;">
                 <td style="padding:0.5rem 0.75rem;font-size:0.82rem;font-weight:500;">${ins.label}</td>
                 <td style="padding:0.5rem;text-align:center;font-size:0.75rem;color:#888;">${ins.wt}%</td>
@@ -7759,9 +7792,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.25rem;">
             ${kpi('Enrolled', students.length, cfg.label, cfg.color)}
             ${kpi('Avg GPA', avgGPA+'/5', 'from registration', '#37474f')}
-            ${kpi('Avg Attendance', avgAtt+'%', 'Benchmark: 85%', parseFloat(avgAtt)>=85?'#2e7d32':parseFloat(avgAtt)>=75?'#ff9800':'#e53935')}
-            ${kpi('Pass Rate', passRate+'%', 'Threshold: 75%', parseFloat(passRate)>=85?'#2e7d32':parseFloat(passRate)>=70?'#ff9800':'#e53935')}
-            ${kpi('Avg Final Grade', avgFinal.toFixed(1)+'%', `${passing} passing / ${atRisk} at-risk`, avgFinal>=85?'#2e7d32':avgFinal>=75?'#ff9800':'#e53935')}
+            ${kpi('Avg Attendance', avgAtt+'%', `Benchmark: ${ATT_BM}%`, parseFloat(avgAtt)>=ATT_BM?'#2e7d32':parseFloat(avgAtt)>=75?'#ff9800':'#e53935')}
+            ${kpi('Pass Rate', passRate+'%', `Threshold: ${PASS}%`, parseFloat(passRate)>=EXCEL?'#2e7d32':parseFloat(passRate)>=70?'#ff9800':'#e53935')}
+            ${kpi('Avg Final Grade', avgFinal.toFixed(1)+'%', `${passing} passing / ${atRisk} at-risk`, avgFinal>=EXCEL?'#2e7d32':avgFinal>=PASS?'#ff9800':'#e53935')}
         </div>
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;">
             <div class="card fade-in-up">
@@ -7785,7 +7818,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <td style="padding:0.5rem;text-align:center;color:${atRisk>0?'#e53935':'#bbb'};font-weight:700;">${atRisk}</td>
                     </tr></tfoot>
                 </table>
-                <p style="font-size:0.68rem;color:#bbb;margin:0.5rem 0 0;">* Passing Score: &#8805;75% &nbsp;&#124;&nbsp; Automatic failure: uncorrected professionalism violations, excessive absences</p>
+                <p style="font-size:0.68rem;color:#bbb;margin:0.5rem 0 0;">* Passing Score: &#8805;${PASS}% &nbsp;&#124;&nbsp; Automatic failure: uncorrected professionalism violations, excessive absences</p>
             </div>
             <div class="card fade-in-up">
                 <h3 style="margin:0 0 1rem;font-size:0.9rem;color:#e53935;">&#9888; At-Risk Students (${atRiskList.length})</h3>
@@ -7797,25 +7830,11 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // ── 2. Grade Distribution ───────────────────────────────────────────────
     renderIPPE_GradeDistribution(students, level, cfg) {
-        const graded = this._ippe_computeGrades(students);
-        const INSTR  = [
-            { key:'professionalism', label:'Professionalism',            wt:30 },
-            { key:'midYear',         label:'Mid-Year Written Eval',       wt:10 },
-            { key:'endYear',         label:'End-Year Written Eval',       wt:20 },
-            { key:'portfolio',       label:'Portfolio Evaluation',        wt:15 },
-            { key:'epa',             label:'EPA',                         wt:10 },
-            { key:'simulation',      label:'Simulation-Based Assessment', wt:15 },
-        ];
-
-        // Bucket final grades
-        const buckets = [
-            { label:'95–100%', min:95, max:100, color:'#1b5e20' },
-            { label:'85–94%',  min:85, max:95,  color:'#2e7d32' },
-            { label:'75–84%',  min:75, max:85,  color:'#66bb6a' },
-            { label:'70–74%',  min:70, max:75,  color:'#ff9800' },
-            { label:'60–69%',  min:60, max:70,  color:'#f44336' },
-            { label:'< 60%',   min:0,  max:60,  color:'#b71c1c' },
-        ];
+        const graded  = this._ippe_computeGrades(students);
+        const INSTR   = IPPE_GRADING_CONFIG.instruments;
+        const PASS    = IPPE_GRADING_CONFIG.passingScore;
+        const EXCEL   = IPPE_GRADING_CONFIG.excellentScore;
+        const buckets = IPPE_GRADING_CONFIG.gradeBuckets;
         const counts = buckets.map(b => graded.filter(g=>g.final>=b.min&&g.final<b.max).length);
         const maxCnt = Math.max(...counts, 1);
 
@@ -7835,7 +7854,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const instrBars = INSTR.map(ins=>{
             const scores = graded.map(g=>g.grading?.components?.[ins.key]?.score).filter(v=>v!=null);
             const avg    = scores.length ? scores.reduce((a,b)=>a+b,0)/scores.length : null;
-            const c      = avg==null?'#ddd':avg>=85?'#2e7d32':avg>=75?'#ff9800':'#e53935';
+            const c      = avg==null?'#ddd':avg>=EXCEL?'#2e7d32':avg>=PASS?'#ff9800':'#e53935';
             return `<div style="margin-bottom:0.6rem;">
                 <div style="display:flex;justify-content:space-between;font-size:0.72rem;margin-bottom:0.2rem;">
                     <span style="color:#555;">${ins.label} <span style="color:#bbb;">(${ins.wt}%)</span></span>
@@ -7852,13 +7871,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             <div class="card fade-in-up">
                 <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128208; Final Grade Distribution</h3>
                 <div style="margin-bottom:0.75rem;font-size:0.72rem;color:#888;">
-                    <span style="display:inline-block;padding:0.15rem 0.5rem;background:#66bb6a30;border-left:3px solid #2e7d32;border-radius:2px;">Passing (&#8805;75%): ${graded.filter(g=>g.final>=75).length} students</span>
+                    <span style="display:inline-block;padding:0.15rem 0.5rem;background:#66bb6a30;border-left:3px solid #2e7d32;border-radius:2px;">Passing (&#8805;${PASS}%): ${graded.filter(g=>g.final>=PASS).length} students</span>
                     &nbsp;
-                    <span style="display:inline-block;padding:0.15rem 0.5rem;background:#f4433630;border-left:3px solid #e53935;border-radius:2px;">At-Risk (&lt;75%): ${graded.filter(g=>g.final>0&&g.final<75).length} students</span>
+                    <span style="display:inline-block;padding:0.15rem 0.5rem;background:#f4433630;border-left:3px solid #e53935;border-radius:2px;">At-Risk (&lt;${PASS}%): ${graded.filter(g=>g.final>0&&g.final<PASS).length} students</span>
                 </div>
                 ${histogram}
                 <div style="border-top:2px dashed #ffd600;padding-top:0.5rem;margin-top:0.5rem;">
-                    <span style="font-size:0.7rem;color:#888;">&#9660; 75% passing threshold</span>
+                    <span style="font-size:0.7rem;color:#888;">&#9660; ${PASS}% passing threshold</span>
                 </div>
             </div>
             <div class="card fade-in-up">
