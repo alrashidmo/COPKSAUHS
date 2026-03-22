@@ -5313,6 +5313,75 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const oei = (matchingSuccess && evalCompletionRate && approvalRate)
             ? (((+matchingSuccess + +evalCompletionRate + +approvalRate) / 3 / 20)).toFixed(2) : null;
 
+        // ── Student Ranking Computation ─────────────────────────────────────
+        const manualStudentScores = manual.studentScores || {};
+        const computeRanking = (cohortKey) => {
+            let src = students.filter(s => {
+                const c = (s.cohort || '').toLowerCase().trim();
+                if (cohortKey === 'P1') return c === 'ippe i' || c === 'ippe 1';
+                if (cohortKey === 'P2') return c === 'ippe ii' || c === 'ippe 2';
+                if (cohortKey === 'P3') return c === 'ippe iii' || c === 'ippe 3' || c === 'ippe community';
+                return false;
+            });
+            if (!src.length && typeof APPE_DATABASE !== 'undefined') {
+                src = (APPE_DATABASE.students || []).filter(s => {
+                    const c = (s.cohort || '').toLowerCase().trim();
+                    if (cohortKey === 'P1') return c === 'ippe i';
+                    if (cohortKey === 'P2') return c === 'ippe ii';
+                    if (cohortKey === 'P3') return c === 'ippe iii' || c === 'ippe community';
+                    return false;
+                });
+            }
+            return src.map(s => {
+                const gpaRaw    = parseFloat(s.gpa) || 0;
+                const gpaScore  = (gpaRaw / 4.0) * 100;
+                const stEvals   = evals.filter(e => (e.student_id != null && String(e.student_id) === String(s.id)) || (e.student_email && e.student_email === s.email));
+                const evalAvgRaw = stEvals.length ? stEvals.reduce((a, e) => a + (parseFloat(e.score) || 0), 0) / stEvals.length : 0;
+                const evalScore  = (evalAvgRaw / 5) * 100;
+                const extra      = manualStudentScores[String(s.id)] || manualStudentScores[s.email] || {};
+                const research    = parseFloat(extra.research)    || 0;
+                const community_s = parseFloat(extra.community)   || 0;
+                const conferences = parseFloat(extra.conferences) || 0;
+                const total = (gpaScore * 0.44) + (evalScore * 0.44) + (research * 0.04) + (community_s * 0.04) + (conferences * 0.04);
+                return { id: String(s.id), name: s.name, email: s.email, gpa: gpaRaw, gpaScore: gpaScore.toFixed(1), evalAvgRaw: evalAvgRaw ? evalAvgRaw.toFixed(2) : null, evalScore: evalScore.toFixed(1), research, community: community_s, conferences, total: total.toFixed(1) };
+            }).sort((a, b) => parseFloat(b.total) - parseFloat(a.total));
+        };
+        const p1Rankings = computeRanking('P1');
+        const p2Rankings = computeRanking('P2');
+        const p3Rankings = computeRanking('P3');
+
+        // ── APPE Evaluation Rankings ────────────────────────────────────────
+        const appeStudentSet = new Set();
+        students.filter(s => (s.cohort || '').toLowerCase().includes('appe')).forEach(s => { if (s.id) appeStudentSet.add(String(s.id)); if (s.email) appeStudentSet.add(s.email); });
+        if (typeof APPE_DATABASE !== 'undefined') (APPE_DATABASE.students || []).filter(s => (s.cohort || '').toLowerCase() === 'appe').forEach(s => { if (s.id) appeStudentSet.add(String(s.id)); if (s.email) appeStudentSet.add(s.email); });
+        const appeEvals = evals.filter(e => appeStudentSet.has(String(e.student_id)) || (e.student_email && appeStudentSet.has(e.student_email)));
+
+        const buildSiteRanks = () => {
+            const map = {};
+            appeEvals.forEach(e => {
+                const site = sites.find(s => String(s.id) === String(e.site_id));
+                const name = site ? (site.name || site.site_name || `Site ${e.site_id}`) : (e.site_name || (e.site_id ? `Site ${e.site_id}` : null));
+                if (!name) return;
+                if (!map[name]) map[name] = { name, scores: [] };
+                const sc = parseFloat(e.site_score ?? e.score ?? NaN);
+                if (!isNaN(sc)) map[name].scores.push(sc);
+            });
+            return Object.values(map).map(x => ({ name: x.name, count: x.scores.length, avg: x.scores.length ? (x.scores.reduce((a,b)=>a+b,0)/x.scores.length).toFixed(2) : null })).filter(x => x.avg !== null).sort((a,b) => parseFloat(b.avg)-parseFloat(a.avg));
+        };
+        const buildPreceptorRanks = () => {
+            const map = {};
+            appeEvals.forEach(e => {
+                const name = e.preceptor_name || (e.preceptor_id ? `Preceptor ${e.preceptor_id}` : null);
+                if (!name) return;
+                if (!map[name]) map[name] = { name, scores: [] };
+                const sc = parseFloat(e.preceptor_score ?? NaN);
+                if (!isNaN(sc)) map[name].scores.push(sc);
+            });
+            return Object.values(map).map(x => ({ name: x.name, count: x.scores.length, avg: x.scores.length ? (x.scores.reduce((a,b)=>a+b,0)/x.scores.length).toFixed(2) : null })).filter(x => x.avg !== null).sort((a,b) => parseFloat(b.avg)-parseFloat(a.avg));
+        };
+        const siteRanks      = buildSiteRanks();
+        const preceptorRanks = buildPreceptorRanks();
+
         // ── Auto Alerts ────────────────────────────────────────────────────
         const alerts = [];
         if (pendingTickets > 0)    alerts.push({ color:'#ff9800', icon:'&#9203;', text:`${pendingTickets} rotation request${pendingTickets>1?'s':''} pending review` });
@@ -5367,6 +5436,49 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <div style="display:${open?'block':'none'}">${content}</div>
             </div>`;
 
+        const rankingTable = (rankings, cohortLabel) => {
+            if (!rankings.length) return `<p style="text-align:center;color:#aaa;font-size:0.82rem;padding:1.5rem 0;">No student data found for ${cohortLabel}</p>`;
+            return `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                    <th style="padding:0.5rem 0.6rem;text-align:center;width:36px;">#</th>
+                    <th style="padding:0.5rem 0.6rem;text-align:left;">Student</th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;">GPA<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">/4.0 &middot; 44%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;">Experiential<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">Eval &middot; 44%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;">Research<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">4%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;">Community<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">4%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;">Conference<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">4%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;color:#d32f2f;font-weight:800;">Score</th>
+                </tr></thead>
+                <tbody>${rankings.slice(0,15).map((s,i) => {
+                    const medalIcon = i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':`${i+1}`;
+                    const sc = parseFloat(s.total);
+                    const tc = sc>=80?'#2e7d32':sc>=65?'#ff9800':'#e53935';
+                    return `<tr style="border-bottom:1px solid #f5f5f5;${i<3?'background:#fffde7;':''}">
+                        <td style="padding:0.4rem 0.6rem;text-align:center;font-size:${i<3?'1.1rem':'0.82rem'};">${medalIcon}</td>
+                        <td style="padding:0.4rem 0.6rem;font-weight:${i<3?600:400};">${s.name}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.gpa||'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.evalAvgRaw?s.evalAvgRaw+'/5':'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.research||'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.community||'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.conferences||'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;font-weight:800;color:${tc};">${s.total}</td>
+                    </tr>`;
+                }).join('')}</tbody>
+            </table></div>`;
+        };
+
+        const evalRankRow = (item, idx, isTop, total) => {
+            const sc = parseFloat(item.avg);
+            const c  = isTop ? (sc>=4?'#2e7d32':sc>=3?'#ff9800':'#e53935') : '#e53935';
+            const rank = isTop ? idx+1 : total - (5 - idx - 1);
+            return `<div style="display:flex;align-items:center;gap:0.6rem;padding:0.45rem 0.6rem;border-radius:6px;background:${isTop?'#f1f8e9':'#fce4ec'};margin-bottom:0.35rem;">
+                <span style="font-size:0.75rem;font-weight:700;color:${c};width:22px;text-align:center;">${isTop?'#'+rank:'&#8595;'}</span>
+                <span style="flex:1;font-size:0.8rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${item.name}</span>
+                <span style="font-size:0.7rem;color:#999;white-space:nowrap;">${item.count} eval${item.count!==1?'s':''}</span>
+                <span style="font-size:0.88rem;font-weight:700;color:${c};white-space:nowrap;">${item.avg}/5</span>
+            </div>`;
+        };
+
         // ── Sub-tab navigation (kept for drill-down) ────────────────────────
         const tabNav = `
             <div class="card" style="padding:0.5rem 1rem;margin-bottom:1.25rem;">
@@ -5420,16 +5532,47 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         `)}
 
         ${section('&#127891;','2','Student Performance &amp; Outcomes','#1565c0',`
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:0.5rem;">
                 ${kpi('Avg CLO %', avgCLO?avgCLO+'%':null, 'Benchmark: 75%', color(avgCLO,75,65))}
                 ${kpi('End-Year %', endYearPct?endYearPct+'%':null, 'Benchmark: 70%', color(endYearPct,70,60))}
-                ${kpi('Top Performers', topPerformersPct?topPerformersPct+'%':null, 'CARE-44 &#8805; 80th pct', '#1565c0')}
                 ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'All rotations', color(avgAttendance,85,75))}
             </div>
             <div style="margin-top:1rem;"><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Students Below Benchmark per Rotation</div>
             ${ROTATION_TYPES.map(r=>{const v=manual.belowBenchmark?.[r]; return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span><span style="font-size:0.85rem;font-weight:700;color:${v>0?'#e53935':'#2e7d32'};">${v!=null?v+' students':'\u2014'}</span></div>`;}).join('')}
             </div>
         `)}
+
+        <!-- Student Ranking System -->
+        <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #d32f2f;">
+            <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:0.75rem;"
+                onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.rankArr').textContent=b.style.display==='none'?'&#9654;':'&#9660;';">
+                <h3 style="margin:0;color:#d32f2f;font-size:0.95rem;">&#127942; Student Ranking System</h3>
+                <span class="rankArr" style="color:#d32f2f;font-size:0.85rem;">&#9660;</span>
+            </div>
+            <div>
+                <div style="background:#fce4ec;border-radius:8px;padding:0.6rem 1rem;margin-bottom:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;">
+                    <span style="font-size:0.72rem;font-weight:700;color:#c62828;">Ranking Formula:</span>
+                    ${[['GPA','44%'],['Experiential Courses','44%'],['Research','4%'],['Community','4%'],['Conferences','4%']].map(([l,p])=>
+                        `<span style="font-size:0.72rem;color:#555;"><strong style="color:#c62828;">${p}</strong> ${l}</span>`
+                    ).join('')}
+                    <button onclick="event.stopPropagation();window.app.showStudentScoreEditor('${selAY}')"
+                        style="margin-left:auto;padding:0.25rem 0.8rem;border-radius:15px;border:1.5px solid #d32f2f;background:#fff;color:#d32f2f;font-size:0.73rem;font-weight:600;cursor:pointer;">
+                        &#9998; Enter Survey Scores
+                    </button>
+                </div>
+                <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+                    ${['P1','P2','P3'].map((p,i) => {
+                        const cnt = [p1Rankings,p2Rankings,p3Rankings][i].length;
+                        return `<button onclick="['P1','P2','P3'].forEach(x=>{document.getElementById('rankTab_'+x).style.display='none';});document.getElementById('rankTab_${p}').style.display='block';this.parentElement.querySelectorAll('button').forEach(b=>{b.style.background='#fff';b.style.color='#d32f2f';});this.style.background='#d32f2f';this.style.color='#fff';"
+                            style="padding:0.35rem 1.1rem;border-radius:20px;border:1.5px solid #d32f2f;background:${i===0?'#d32f2f':'#fff'};color:${i===0?'#fff':'#d32f2f'};font-size:0.8rem;font-weight:600;cursor:pointer;">
+                            ${p} <span style="font-size:0.68rem;font-weight:400;">(${cnt})</span></button>`;
+                    }).join('')}
+                </div>
+                <div id="rankTab_P1">${rankingTable(p1Rankings,'P1')}</div>
+                <div id="rankTab_P2" style="display:none">${rankingTable(p2Rankings,'P2')}</div>
+                <div id="rankTab_P3" style="display:none">${rankingTable(p3Rankings,'P3')}</div>
+            </div>
+        </div>
 
         ${section('&#128105;','3','Preceptor Engagement &amp; Quality','#6a1b9a',`
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
@@ -5486,6 +5629,42 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             <p style="font-size:0.68rem;color:#bbb;text-align:center;margin:0.25rem 0 0;">
                 EEI = (Satisfaction + Preceptor + CLO&#247;20) / 3 &nbsp;&#124;&nbsp; SPI = (Site + Pass&#247;20 + Utilization&#247;20) / 3 &nbsp;&#124;&nbsp; OEI = (Matching + Evals + Approval) / 3 / 20
             </p>
+        </div>
+
+        <!-- APPE Evaluation Rankings -->
+        <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #e91e63;">
+            <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:0.75rem;"
+                onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.appeArr').textContent=b.style.display==='none'?'&#9654;':'&#9660;';">
+                <h3 style="margin:0;color:#e91e63;font-size:0.95rem;">&#127919; APPE Evaluation Rankings</h3>
+                <span class="appeArr" style="color:#e91e63;font-size:0.85rem;">&#9660;</span>
+            </div>
+            <div>
+                <p style="font-size:0.78rem;color:#888;margin:0 0 1rem;">Based on APPE rotation evaluation submissions linked to the APPE Rotation Preference System. Top 5 highest and lowest 5 rated by average score (out of 5).</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;">
+                    <!-- Site Evaluations -->
+                    <div>
+                        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#e65100;margin-bottom:0.75rem;">&#127970; Rotation Site Evaluations</div>
+                        ${siteRanks.length > 0 ? `
+                            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;color:#2e7d32;margin-bottom:0.4rem;padding:0.2rem 0.4rem;background:#f1f8e9;border-radius:4px;">&#9650; Top 5</div>
+                            ${siteRanks.slice(0,5).map((x,i)=>evalRankRow(x,i,true,siteRanks.length)).join('')}
+                            ${siteRanks.length >= 6 ? `
+                            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;color:#e53935;margin:0.75rem 0 0.4rem;padding:0.2rem 0.4rem;background:#fce4ec;border-radius:4px;">&#9660; Lowest 5</div>
+                            ${siteRanks.slice(-5).reverse().map((x,i)=>evalRankRow(x,i,false,siteRanks.length)).join('')}` : ''}
+                        ` : `<div style="text-align:center;color:#bbb;font-size:0.8rem;padding:2rem 0;border:2px dashed #f0f0f0;border-radius:8px;">No APPE site evaluation data yet<br><span style="font-size:0.72rem;">Data populates from rotation_evaluations in Supabase</span></div>`}
+                    </div>
+                    <!-- Preceptor Evaluations -->
+                    <div>
+                        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#6a1b9a;margin-bottom:0.75rem;">&#128104;&#8203;&#127979; Preceptor Evaluations</div>
+                        ${preceptorRanks.length > 0 ? `
+                            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;color:#2e7d32;margin-bottom:0.4rem;padding:0.2rem 0.4rem;background:#f1f8e9;border-radius:4px;">&#9650; Top 5</div>
+                            ${preceptorRanks.slice(0,5).map((x,i)=>evalRankRow(x,i,true,preceptorRanks.length)).join('')}
+                            ${preceptorRanks.length >= 6 ? `
+                            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;color:#e53935;margin:0.75rem 0 0.4rem;padding:0.2rem 0.4rem;background:#fce4ec;border-radius:4px;">&#9660; Lowest 5</div>
+                            ${preceptorRanks.slice(-5).reverse().map((x,i)=>evalRankRow(x,i,false,preceptorRanks.length)).join('')}` : ''}
+                        ` : `<div style="text-align:center;color:#bbb;font-size:0.8rem;padding:2rem 0;border:2px dashed #f0f0f0;border-radius:8px;">No APPE preceptor evaluation data yet<br><span style="font-size:0.72rem;">Data populates from rotation_evaluations in Supabase</span></div>`}
+                    </div>
+                </div>
+            </div>
         </div>`;
 
         // Radar chart
@@ -5613,6 +5792,99 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         try { localStorage.setItem(`clinical_year_${yk}`, JSON.stringify(obj)); } catch(e) {}
         document.getElementById('clinicalYearModal')?.remove();
+        this.renderClinicalDashboard(acadYear);
+    }
+
+    showStudentScoreEditor(acadYear) {
+        const yk = acadYear.split('-')[0];
+        const stored = this._loadClinicalYearData(yk);
+        const scores = stored.studentScores || {};
+
+        // Gather students from APPE_DATABASE (P1/P2/P3 only)
+        const cohortGroups = { P1: [], P2: [], P3: [] };
+        if (typeof APPE_DATABASE !== 'undefined') {
+            (APPE_DATABASE.students || []).forEach(s => {
+                const c = (s.cohort || '').toLowerCase().trim();
+                if (c === 'ippe i')        cohortGroups.P1.push(s);
+                else if (c === 'ippe ii')  cohortGroups.P2.push(s);
+                else if (c === 'ippe iii' || c === 'ippe community') cohortGroups.P3.push(s);
+            });
+        }
+
+        const studentRows = (list) => list.map(s => {
+            const key = String(s.id) || s.email;
+            const ex  = scores[key] || {};
+            return `<tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:0.35rem 0.6rem;font-size:0.78rem;">${s.name}</td>
+                <td style="padding:0.35rem 0.4rem;"><input data-student="${key}" data-field="research"    type="number" min="0" max="100" step="0.1" value="${ex.research??''}"    placeholder="\u2014" style="width:58px;padding:0.25rem;border:1px solid #e0e0e0;border-radius:4px;text-align:center;font-size:0.78rem;"></td>
+                <td style="padding:0.35rem 0.4rem;"><input data-student="${key}" data-field="community"   type="number" min="0" max="100" step="0.1" value="${ex.community??''}"   placeholder="\u2014" style="width:58px;padding:0.25rem;border:1px solid #e0e0e0;border-radius:4px;text-align:center;font-size:0.78rem;"></td>
+                <td style="padding:0.35rem 0.4rem;"><input data-student="${key}" data-field="conferences" type="number" min="0" max="100" step="0.1" value="${ex.conferences??''}" placeholder="\u2014" style="width:58px;padding:0.25rem;border:1px solid #e0e0e0;border-radius:4px;text-align:center;font-size:0.78rem;"></td>
+            </tr>`;
+        }).join('');
+
+        const cohortTab = (key, list) => `
+            <div id="sseTab_${key}" style="display:${key==='P1'?'block':'none'};">
+                <p style="font-size:0.75rem;color:#888;margin:0 0 0.6rem;">Enter scores 0&#8211;100 per student (from Microsoft Survey)</p>
+                <div style="overflow-y:auto;max-height:380px;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        <thead><tr style="background:#f8f9fa;position:sticky;top:0;border-bottom:2px solid #e0e0e0;">
+                            <th style="padding:0.45rem 0.6rem;text-align:left;font-size:0.78rem;">Student</th>
+                            <th style="padding:0.45rem;text-align:center;width:72px;font-size:0.78rem;">Research</th>
+                            <th style="padding:0.45rem;text-align:center;width:72px;font-size:0.78rem;">Community</th>
+                            <th style="padding:0.45rem;text-align:center;width:78px;font-size:0.78rem;">Conferences</th>
+                        </tr></thead>
+                        <tbody>${list.length ? studentRows(list) : '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:1.5rem;font-size:0.82rem;">No students</td></tr>'}</tbody>
+                    </table>
+                </div>
+            </div>`;
+
+        const modal = document.createElement('div');
+        modal.id = 'studentScoreModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background:#fff;border-radius:14px;width:620px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+                <div style="padding:1.1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                    <h3 style="margin:0;color:#d32f2f;font-size:1rem;">&#127942; Student Survey Scores &#8212; ${acadYear}</h3>
+                    <button onclick="document.getElementById('studentScoreModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+                </div>
+                <div style="padding:1rem 1.5rem 0;flex-shrink:0;">
+                    <div style="font-size:0.72rem;color:#888;margin-bottom:0.75rem;">Scores contribute: <strong style="color:#c62828;">Research 4%</strong> &nbsp; <strong style="color:#c62828;">Community 4%</strong> &nbsp; <strong style="color:#c62828;">Conferences 4%</strong> of the total ranking score</div>
+                    <div style="display:flex;gap:0.4rem;">
+                        ${['P1','P2','P3'].map((p,i) => `
+                            <button onclick="['P1','P2','P3'].forEach(x=>{document.getElementById('sseTab_'+x).style.display='none';});document.getElementById('sseTab_${p}').style.display='block';this.parentElement.querySelectorAll('button').forEach(b=>{b.style.background='#fff';b.style.color='#d32f2f';});this.style.background='#d32f2f';this.style.color='#fff';"
+                                style="padding:0.3rem 0.9rem;border-radius:15px;border:1.5px solid #d32f2f;background:${i===0?'#d32f2f':'#fff'};color:${i===0?'#fff':'#d32f2f'};font-size:0.8rem;font-weight:600;cursor:pointer;">
+                                ${p} <span style="font-size:0.68rem;font-weight:400;">(${cohortGroups[p].length})</span></button>`).join('')}
+                    </div>
+                </div>
+                <div style="padding:0.75rem 1.5rem;overflow-y:auto;flex:1;">
+                    ${cohortTab('P1', cohortGroups.P1)}
+                    ${cohortTab('P2', cohortGroups.P2)}
+                    ${cohortTab('P3', cohortGroups.P3)}
+                </div>
+                <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:0.75rem;flex-shrink:0;">
+                    <button onclick="document.getElementById('studentScoreModal').remove()" class="btn btn-outline">Cancel</button>
+                    <button onclick="window.app._saveStudentScores('${acadYear}')" class="btn btn-primary" style="background:#d32f2f;border-color:#d32f2f;">Save Scores</button>
+                </div>
+            </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _saveStudentScores(acadYear) {
+        const yk     = acadYear.split('-')[0];
+        const modal  = document.getElementById('studentScoreModal');
+        const scores = {};
+        modal.querySelectorAll('input[data-student]').forEach(inp => {
+            const v = parseFloat(inp.value);
+            if (isNaN(v)) return;
+            const key   = inp.dataset.student;
+            const field = inp.dataset.field;
+            if (!scores[key]) scores[key] = {};
+            scores[key][field] = v;
+        });
+        const existing = this._loadClinicalYearData(yk);
+        existing.studentScores = scores;
+        try { localStorage.setItem(`clinical_year_${yk}`, JSON.stringify(existing)); } catch(e) {}
+        modal.remove();
         this.renderClinicalDashboard(acadYear);
     }
 
