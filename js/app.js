@@ -5334,7 +5334,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             }
             return src.map(s => {
                 const gpaRaw    = parseFloat(s.gpa) || 0;
-                const gpaScore  = (gpaRaw / 4.0) * 100;
+                const gpaScore  = (gpaRaw / 5.0) * 100;
                 const stEvals   = evals.filter(e => (e.student_id != null && String(e.student_id) === String(s.id)) || (e.student_email && e.student_email === s.email));
                 const evalAvgRaw = stEvals.length ? stEvals.reduce((a, e) => a + (parseFloat(e.score) || 0), 0) / stEvals.length : 0;
                 const evalScore  = (evalAvgRaw / 5) * 100;
@@ -5438,16 +5438,21 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         const rankingTable = (rankings, cohortLabel) => {
             if (!rankings.length) return `<p style="text-align:center;color:#aaa;font-size:0.82rem;padding:1.5rem 0;">No student data found for ${cohortLabel}</p>`;
-            return `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
-                <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
-                    <th style="padding:0.5rem 0.6rem;text-align:center;width:36px;">#</th>
-                    <th style="padding:0.5rem 0.6rem;text-align:left;">Student</th>
-                    <th style="padding:0.5rem 0.6rem;text-align:center;">GPA<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">/4.0 &middot; 44%</span></th>
-                    <th style="padding:0.5rem 0.6rem;text-align:center;">Experiential<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">Eval &middot; 44%</span></th>
-                    <th style="padding:0.5rem 0.6rem;text-align:center;">Research<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">4%</span></th>
-                    <th style="padding:0.5rem 0.6rem;text-align:center;">Community<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">4%</span></th>
-                    <th style="padding:0.5rem 0.6rem;text-align:center;">Conference<br><span style="font-size:0.6rem;font-weight:400;color:#aaa;">4%</span></th>
-                    <th style="padding:0.5rem 0.6rem;text-align:center;color:#d32f2f;font-weight:800;">Score</th>
+            return `
+                <div style="display:flex;gap:1.25rem;font-size:0.7rem;margin-bottom:0.75rem;flex-wrap:wrap;">
+                    <span style="display:flex;align-items:center;gap:0.3rem;color:#555;"><span style="background:#f0f4f8;border:1px solid #cfd8dc;border-radius:4px;padding:0.1rem 0.4rem;font-size:0.65rem;color:#546e7a;">&#128274; Auto</span> Pulled from system &mdash; cannot be edited here</span>
+                    <span style="display:flex;align-items:center;gap:0.3rem;color:#555;"><span style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:4px;padding:0.1rem 0.4rem;font-size:0.65rem;color:#2e7d32;">&#9998; Survey</span> Enter via &ldquo;Enter Survey Scores&rdquo; button</span>
+                </div>
+                <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                <thead><tr style="border-bottom:2px solid #e0e0e0;">
+                    <th style="padding:0.5rem 0.6rem;text-align:center;width:36px;background:#f8f9fa;">#</th>
+                    <th style="padding:0.5rem 0.6rem;text-align:left;background:#f8f9fa;">Student</th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;background:#f0f4f8;color:#37474f;">&#128274; GPA<br><span style="font-size:0.6rem;font-weight:400;color:#90a4ae;">/5.0 &middot; 44%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;background:#f0f4f8;color:#37474f;">&#128274; Experiential<br><span style="font-size:0.6rem;font-weight:400;color:#90a4ae;">Rotation eval &middot; 44%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;background:#f1f8e9;color:#2e7d32;">&#9998; Research<br><span style="font-size:0.6rem;font-weight:400;color:#a5d6a7;">Survey &middot; 4%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;background:#f1f8e9;color:#2e7d32;">&#9998; Community<br><span style="font-size:0.6rem;font-weight:400;color:#a5d6a7;">Survey &middot; 4%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;background:#f1f8e9;color:#2e7d32;">&#9998; Conference<br><span style="font-size:0.6rem;font-weight:400;color:#a5d6a7;">Survey &middot; 4%</span></th>
+                    <th style="padding:0.5rem 0.6rem;text-align:center;background:#fff3e0;color:#d32f2f;font-weight:800;">Score<br><span style="font-size:0.6rem;font-weight:400;color:#ffb74d;">/100</span></th>
                 </tr></thead>
                 <tbody>${rankings.slice(0,15).map((s,i) => {
                     const medalIcon = i===0?'&#129351;':i===1?'&#129352;':i===2?'&#129353;':`${i+1}`;
@@ -5456,8 +5461,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     return `<tr style="border-bottom:1px solid #f5f5f5;${i<3?'background:#fffde7;':''}">
                         <td style="padding:0.4rem 0.6rem;text-align:center;font-size:${i<3?'1.1rem':'0.82rem'};">${medalIcon}</td>
                         <td style="padding:0.4rem 0.6rem;font-weight:${i<3?600:400};">${s.name}</td>
-                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.gpa||'\u2014'}</td>
-                        <td style="padding:0.4rem 0.6rem;text-align:center;">${s.evalAvgRaw?s.evalAvgRaw+'/5':'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;background:#f9fbfc;">${s.gpa?s.gpa+'/5':'\u2014'}</td>
+                        <td style="padding:0.4rem 0.6rem;text-align:center;background:#f9fbfc;">${s.evalAvgRaw?s.evalAvgRaw+'/5':'\u2014'}</td>
                         <td style="padding:0.4rem 0.6rem;text-align:center;">${s.research||'\u2014'}</td>
                         <td style="padding:0.4rem 0.6rem;text-align:center;">${s.community||'\u2014'}</td>
                         <td style="padding:0.4rem 0.6rem;text-align:center;">${s.conferences||'\u2014'}</td>
@@ -5529,7 +5534,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <span class="rankArr" style="color:#d32f2f;font-size:0.85rem;">&#9660;</span>
             </div>
             <div>
-                <div style="background:#fce4ec;border-radius:8px;padding:0.6rem 1rem;margin-bottom:1rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;">
+                <div style="background:#fce4ec;border-radius:8px;padding:0.6rem 1rem;margin-bottom:0.6rem;display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;">
                     <span style="font-size:0.72rem;font-weight:700;color:#c62828;">Ranking Formula:</span>
                     ${[['GPA','44%'],['Experiential Courses','44%'],['Research','4%'],['Community','4%'],['Conferences','4%']].map(([l,p])=>
                         `<span style="font-size:0.72rem;color:#555;"><strong style="color:#c62828;">${p}</strong> ${l}</span>`
@@ -5538,6 +5543,16 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         style="margin-left:auto;padding:0.25rem 0.8rem;border-radius:15px;border:1.5px solid #d32f2f;background:#fff;color:#d32f2f;font-size:0.73rem;font-weight:600;cursor:pointer;">
                         &#9998; Enter Survey Scores
                     </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;">
+                    <div style="background:#f0f4f8;border-radius:6px;padding:0.45rem 0.75rem;border-left:3px solid #546e7a;">
+                        <div style="font-size:0.68rem;font-weight:700;color:#546e7a;">&#128274; GPA (out of 5.0)</div>
+                        <div style="font-size:0.65rem;color:#78909c;margin-top:0.15rem;">Auto-pulled from the <strong>students</strong> table in Supabase (registration system). To update a student&apos;s GPA, edit it in the Supabase table directly.</div>
+                    </div>
+                    <div style="background:#f0f4f8;border-radius:6px;padding:0.45rem 0.75rem;border-left:3px solid #546e7a;">
+                        <div style="font-size:0.68rem;font-weight:700;color:#546e7a;">&#128274; Experiential Grade</div>
+                        <div style="font-size:0.65rem;color:#78909c;margin-top:0.15rem;">Auto-pulled from <strong>rotation_evaluations</strong> in Supabase. Read-only &mdash; reflects submitted IPPE/rotation eval scores.</div>
+                    </div>
                 </div>
                 <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
                     ${['P1','P2','P3'].map((p,i) => {
