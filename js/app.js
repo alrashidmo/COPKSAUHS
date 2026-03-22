@@ -8793,6 +8793,36 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     // --- V2: ENHANCED DASHBOARD WITH RADAR CHART & ANIMATIONS ---
+    // Aggregate Scholar publication data from all synced faculty in this dept
+    _aggregateScholarData(deptLabel) {
+        const faculty = this.pharmaData.faculty || [];
+        const years   = ['2020', '2021', '2022', '2023', '2024'];
+        const aggQ1   = new Array(years.length).fill(0);
+        const aggQ2   = new Array(years.length).fill(0);
+        const aggQ3   = new Array(years.length).fill(0);
+        let syncedCount = 0;
+
+        faculty.forEach(f => {
+            try {
+                const stored = localStorage.getItem(`faculty_profile_${f.email}`);
+                if (!stored) return;
+                const profile = JSON.parse(stored);
+                if (!profile.research) return;
+                syncedCount++;
+                const pYears = profile.research.years || years;
+                years.forEach((y, i) => {
+                    const yi = pYears.indexOf(y);
+                    if (yi === -1) return;
+                    aggQ1[i] += profile.research.q1?.[yi] || 0;
+                    aggQ2[i] += profile.research.q2?.[yi] || 0;
+                    aggQ3[i] += profile.research.q3?.[yi] || 0;
+                });
+            } catch(e) {}
+        });
+
+        return { syncedCount, total: faculty.length, years, q1: aggQ1, q2: aggQ2, q3: aggQ3 };
+    }
+
     async renderPharmaScienceDashboardEnhanced_v2(deptLabel = 'Dept.of Pharmaceutical Sciences') {
         this.pharmaDeptLabel = deptLabel;
         const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
@@ -8837,6 +8867,16 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 }
             } catch(e) { console.warn('Dept data load error:', e); }
         }
+
+        // ── Scholar aggregate: overlay faculty synced data when Supabase has no dept_stats ──
+        const _agg = this._aggregateScholarData(deptLabel);
+        if (_agg.syncedCount > 0 && !this.pharmaData._deptId) {
+            this.pharmaData.research.years = _agg.years;
+            this.pharmaData.research.q1    = _agg.q1;
+            this.pharmaData.research.q2    = _agg.q2;
+            this.pharmaData.research.q3    = _agg.q3;
+        }
+        this.pharmaData.research._agg = _agg;
 
         this.title.innerHTML = `
             ${deptLabel}
@@ -8896,6 +8936,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <span class="stat-label">Total Publications (2024)</span>
                         <span class="stat-value">${researchData.publications[researchData.publications.length - 1]}</span>
                         <span class="stat-trend trend-up">High Impact (Q1): ${researchData.q1[researchData.q1.length - 1]}</span>
+                        ${_agg.syncedCount > 0 ? `<span style="font-size:0.7rem;color:#2e7d32;margin-top:4px;display:block;">&#128279; ${_agg.syncedCount} of ${_agg.total} faculty Scholar-synced</span>` : ''}
                     </div>
                     <div class="card stat-card fade-in-up delay-2">
                         <span class="stat-label">External Grant Funding</span>
