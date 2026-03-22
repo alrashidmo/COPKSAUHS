@@ -4930,7 +4930,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             console.error('? Error in renderAdminHub:', error);
             console.error('Stack:', error.stack);
             this.root.innerHTML = `<div style="padding: 2rem; color: red;">
-                <h3>? Error Loading Admin Hub</h3>
+                <h3>&#9888; Error Loading Admin Hub</h3>
                 <p><strong>Error Message:</strong> ${error.message}</p>
                 <p><strong>Type:</strong> ${error.name}</p>
                 <details style="margin-top: 1rem; padding: 1rem; background: #f5f5f5; border-radius: 4px;">
@@ -7866,7 +7866,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!-- Manual Entry Card -->
                 <div class="card" style="border-top: 4px solid var(--primary-gold);">
-                    <h3>? Add Single Student</h3>
+                    <h3>&#43; Add Single Student</h3>
                     <p class="text-muted">Manually add a student. Year Level is auto-assigned.</p>
                     <form onsubmit="event.preventDefault(); app.handleAddManualStudent()" id="manualStudentForm" style="display:grid; gap:1rem;">
                         <input type="text" name="manualId" placeholder="Student ID" required class="form-control" style="padding:0.5rem; border:1px solid #ccc; border-radius:4px;">
@@ -8595,7 +8595,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                     <!-- 1. Research Outcomes (Q-Index Stacked) -->
                     <div class="card">
-                        <h3>? Research Quality (Q-Index)</h3>
+                        <h3>&#128202; Research Quality (Q-Index)</h3>
                         <div style="height: 300px; position:relative;">
                             <canvas id="chartResearch"></canvas>
                         </div>
@@ -8633,7 +8633,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                         <span style="font-size: 2rem;">${c.flag}</span>
                                         <div>
                                             <div style="font-weight:bold; font-size:1.05rem;">${c.institution}</div>
-                                            <div style="color:#666; font-size:0.9rem;">${c.country} ? ${c.type}</div>
+                                            <div style="color:#666; font-size:0.9rem;">${c.country} &middot; ${c.type}</div>
                                         </div>
                                     </li>
                                 `).join('')}
@@ -8947,6 +8947,38 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
         try { localStorage.setItem(`dept_faculty_${deptId}`, JSON.stringify(list)); } catch(e) {}
         this.pharmaData.faculty = list;
+    }
+
+    // ── Export Data button ───────────────────────────────────────────────────
+    exportCurrentPage() {
+        const deptLabel = this.pharmaDeptLabel;
+        if (deptLabel) {
+            // Export faculty CSV + dept year data JSON
+            const faculty = this.pharmaData.faculty || [];
+            const csvRows = [['Name','Role','Email'],
+                ...faculty.map(f => [`"${f.name}"`, `"${f.role}"`, `"${f.email}"`])];
+            const csv = csvRows.map(r => r.join(',')).join('\n');
+            this._downloadFile(`${deptLabel.replace(/[^a-z0-9]/gi,'_')}_faculty.csv`, csv, 'text/csv');
+        } else {
+            // Full academic affairs backup as JSON
+            const backup = { exportedAt: new Date().toISOString(), data: {} };
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k.startsWith('dept_') || k.startsWith('faculty_') || k.startsWith('faculty_profile_')) {
+                    try { backup.data[k] = JSON.parse(localStorage.getItem(k)); } catch(e) { backup.data[k] = localStorage.getItem(k); }
+                }
+            }
+            this._downloadFile('academic_affairs_backup.json', JSON.stringify(backup, null, 2), 'application/json');
+        }
+    }
+
+    _downloadFile(filename, content, type) {
+        const blob = new Blob(['\uFEFF' + content], { type: type + ';charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
     }
 
     _resetFacultyToDefault(deptLabel) {
