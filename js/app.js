@@ -5219,6 +5219,403 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         }
     }
 
+    // ── Clinical Affairs Dashboard ────────────────────────────────────────────
+    async renderClinicalDashboard(selectedAcadYear = null) {
+        if (selectedAcadYear) this._clinicalYear = selectedAcadYear;
+        const selAY   = this._clinicalYear || '2024-2025';
+        const selKey  = selAY.split('-')[0];
+
+        this.title.textContent = 'Clinical Affairs Hub';
+        this.root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2rem;">&#8987;</div><p>Loading Clinical Affairs data&#8230;</p></div>';
+
+        // Fetch from Supabase
+        const sb = window.SupabaseAuth?.supabase;
+        let students = [], sites = [], assignments = [], tickets = [], prefs = [], evals = [];
+        if (sb) {
+            try {
+                const [sRes, siRes, aRes, tRes, pRes, eRes] = await Promise.all([
+                    sb.from('students').select('*'),
+                    sb.from('rotation_sites').select('*'),
+                    sb.from('rotation_assignments').select('*'),
+                    sb.from('submitted_tickets').select('*'),
+                    sb.from('rotation_preferences').select('*'),
+                    sb.from('rotation_evaluations').select('*'),
+                ]);
+                students    = sRes.data   || [];
+                sites       = siRes.data  || [];
+                assignments = aRes.data   || [];
+                tickets     = tRes.data   || [];
+                prefs       = pRes.data   || [];
+                evals       = eRes.data   || [];
+            } catch(e) { console.warn('Clinical data fetch:', e); }
+        }
+
+        const manual = this._loadClinicalYearData(selKey);
+
+        // Constants
+        const ROTATION_TYPES  = ['IPPE I','IPPE II','IPPE III','IPPE Community','APPE'];
+        const ROTATION_COLORS = { 'IPPE I':'#4caf50','IPPE II':'#ff9800','IPPE III':'#2196f3','IPPE Community':'#9c27b0','APPE':'#e91e63' };
+        const ACAD_YEARS      = ['2022-2023','2023-2024','2024-2025','2025-2026','2026-2027','2027-2028','2028-2029','2029-2030'];
+
+        // ── Calculate KPIs from real data ──────────────────────────────────
+        const totalEnrolled = students.length || manual.totalEnrolled || 0;
+
+        const cohortCounts = {};
+        ROTATION_TYPES.forEach(r => cohortCounts[r] = 0);
+        students.forEach(s => {
+            const c = (s.cohort || '').toLowerCase();
+            if      (c.includes('ippe') && (c.includes('1') || c.includes('i '))) cohortCounts['IPPE I']++;
+            else if (c.includes('ippe') && (c.includes('2') || c.includes('ii'))) cohortCounts['IPPE II']++;
+            else if (c.includes('ippe') && (c.includes('3') || c.includes('iii'))) cohortCounts['IPPE III']++;
+            else if (c.includes('community')) cohortCounts['IPPE Community']++;
+            else if (c.includes('appe'))      cohortCounts['APPE']++;
+        });
+
+        const attVals = students.map(s => s.attendance).filter(v => v != null);
+        const avgAttendance = attVals.length ? (attVals.reduce((a,b)=>a+b,0)/attVals.length).toFixed(1) : null;
+
+        const pendingTickets  = tickets.filter(t => (t.status||'').toLowerCase() === 'pending').length;
+        const approvedTickets = tickets.filter(t => (t.status||'').toLowerCase() === 'approved').length;
+        const totalTickets    = tickets.length;
+        const approvalRate    = totalTickets > 0 ? ((approvedTickets/totalTickets)*100).toFixed(0) : manual.approvalRate || null;
+
+        const activeSites = sites.length;
+
+        let matchingSuccess = manual.matchingSuccess || null;
+        if (prefs.length > 0 && assignments.length > 0) {
+            let matched = 0;
+            assignments.forEach(a => {
+                if (prefs.some(p => p.student_id === a.student_id && p.site_id === a.site_id)) matched++;
+            });
+            matchingSuccess = ((matched / assignments.length) * 100).toFixed(0);
+        }
+
+        const evalCompletionRate = manual.evalCompletion || (evals.length > 0 ? ((evals.filter(e=>e.submitted).length/evals.length)*100).toFixed(0) : null);
+        const studentPreceptorRatio = (assignments.length > 0 && sites.length > 0) ? (assignments.length/sites.length).toFixed(1) : (manual.studentPreceptorRatio || null);
+
+        // Manual-only KPIs
+        const avgCLO              = manual.avgCLO              || null;
+        const endYearPct          = manual.endYearPct          || null;
+        const studentSatisfaction = manual.studentSatisfaction || null;
+        const preceptorQuality    = manual.preceptorQuality    || null;
+        const siteQuality         = manual.siteQuality         || null;
+        const siteUtilization     = manual.siteUtilization     || null;
+        const topPerformersPct    = manual.topPerformersPct    || null;
+        const allocationSat       = manual.allocationSatisfaction || null;
+        const timeToAssign        = manual.timeToAssign        || null;
+        const adminTurnaround     = manual.adminTurnaround     || null;
+
+        // Composite indices
+        const eei = (studentSatisfaction && preceptorQuality && avgCLO)
+            ? (((+studentSatisfaction + +preceptorQuality + +avgCLO/20) / 3)).toFixed(2) : null;
+        const spi = (siteQuality && (endYearPct||avgCLO) && siteUtilization)
+            ? (((+siteQuality + +(endYearPct||avgCLO)/20 + +siteUtilization/20) / 3)).toFixed(2) : null;
+        const oei = (matchingSuccess && evalCompletionRate && approvalRate)
+            ? (((+matchingSuccess + +evalCompletionRate + +approvalRate) / 3 / 20)).toFixed(2) : null;
+
+        // ── Auto Alerts ────────────────────────────────────────────────────
+        const alerts = [];
+        if (pendingTickets > 0)    alerts.push({ color:'#ff9800', icon:'&#9203;', text:`${pendingTickets} rotation request${pendingTickets>1?'s':''} pending review` });
+        if (avgAttendance !== null && parseFloat(avgAttendance) < 85) alerts.push({ color:'#e53935', icon:'&#9888;', text:`Average attendance ${avgAttendance}% is below the 85% benchmark` });
+        if (!avgCLO)               alerts.push({ color:'#1565c0', icon:'&#8505;',  text:'CLO %, End-Year %, and quality scores not yet entered \u2014 click \u201cEdit Data\u201d to populate' });
+        if (activeSites === 0)     alerts.push({ color:'#e53935', icon:'&#9888;', text:'No training sites found \u2014 verify rotation_sites table in Supabase' });
+
+        // ── Helper functions ───────────────────────────────────────────────
+        const val = (v, unit='') => v != null ? `${v}${unit}` : '&#8212;';
+        const color = (v, good, warn) => v == null ? '#bbb' : (+v >= good ? '#2e7d32' : +v >= warn ? '#ff9800' : '#e53935');
+
+        const kpi = (label, v, sub, c) => `
+            <div class="card" style="padding:1rem;text-align:center;border-top:3px solid ${c};">
+                <div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin-bottom:0.3rem;">${label}</div>
+                <div style="font-size:1.7rem;font-weight:800;color:${v==null?'#ccc':c};">${v!=null?v:'&#8212;'}</div>
+                ${sub?`<div style="font-size:0.7rem;color:#888;margin-top:0.2rem;">${sub}</div>`:''}
+            </div>`;
+
+        const gauge = (label, v, max=5) => {
+            const pct = v ? Math.min(100,(+v/max)*100) : 0;
+            const gc  = pct>=80?'#2e7d32':pct>=60?'#ff9800':'#e53935';
+            return `<div style="text-align:center;padding:0.75rem;">
+                <svg viewBox="0 0 36 36" width="100" height="100" style="transform:rotate(-90deg);display:block;margin:0 auto;">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#eee" stroke-width="3.5"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="${gc}" stroke-width="3.5"
+                        stroke-dasharray="${pct} ${100-pct}" stroke-linecap="round"/>
+                </svg>
+                <div style="font-size:1.15rem;font-weight:800;color:${v?gc:'#ccc'};margin-top:-50px;height:36px;line-height:36px;">${v!=null?v:'\u2014'}</div>
+                <div style="margin-top:18px;font-size:0.72rem;font-weight:600;color:#555;">${label}</div>
+            </div>`;
+        };
+
+        const rotBar = (dataObj, unit='') => ROTATION_TYPES.map(r => {
+            const v   = dataObj?.[r];
+            const pct = v ? Math.min(100, (+v/5)*100) : 0;
+            return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.45rem;">
+                <span style="font-size:0.72rem;width:105px;flex-shrink:0;color:#555;">${r}</span>
+                <div style="flex:1;height:11px;background:#f0f0f0;border-radius:6px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${ROTATION_COLORS[r]};border-radius:6px;transition:width 0.6s;"></div>
+                </div>
+                <span style="font-size:0.72rem;width:40px;text-align:right;font-weight:600;color:#333;">${v!=null?v+unit:'\u2014'}</span>
+            </div>`;
+        }).join('');
+
+        const section = (icon, num, title, color, content, open=true) => `
+            <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid ${color};">
+                <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;padding-bottom:${open?'0.75rem':'0'};"
+                    onclick="const b=this.nextElementSibling;b.style.display=b.style.display==='none'?'block':'none';this.querySelector('.sarr').textContent=b.style.display==='none'?'&#9654;':'&#9660;';">
+                    <h3 style="margin:0;color:${color};font-size:0.95rem;">${icon} ${num}. ${title}</h3>
+                    <span class="sarr" style="color:${color};font-size:0.85rem;">${open?'&#9660;':'&#9654;'}</span>
+                </div>
+                <div style="display:${open?'block':'none'}">${content}</div>
+            </div>`;
+
+        // ── Sub-tab navigation (kept for drill-down) ────────────────────────
+        const tabNav = `
+            <div class="card" style="padding:0.5rem 1rem;margin-bottom:1.25rem;">
+                <div style="display:flex;gap:0.5rem;overflow-x:auto;padding-bottom:2px;">
+                    <button class="btn btn-primary" style="flex-shrink:0;border-radius:20px;">&#128202; Overview</button>
+                    ${['ippe1','ippe2','ippe3','community','appe'].map((id,i) =>
+                        `<button class="btn btn-outline" onclick="app.renderHomePage('${id}')" style="flex-shrink:0;border-radius:20px;">${['IPPE I','IPPE II','IPPE III','Community','APPE'][i]}</button>`
+                    ).join('')}
+                </div>
+            </div>`;
+
+        // ── Render ──────────────────────────────────────────────────────────
+        this.root.innerHTML = tabNav + `
+        <!-- Academic Year Filter -->
+        <div class="card fade-in-up" style="margin-bottom:1.25rem;padding:0.9rem 1.25rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+            <span style="font-size:0.78rem;font-weight:600;color:#555;white-space:nowrap;">Academic Year:</span>
+            ${ACAD_YEARS.map(ay => `
+                <button onclick="window.app.renderClinicalDashboard('${ay}')"
+                    style="padding:0.3rem 0.8rem;border-radius:20px;border:1.5px solid ${ay===selAY?'#1565c0':'#ddd'};
+                    background:${ay===selAY?'#1565c0':'#fff'};color:${ay===selAY?'#fff':'#666'};
+                    font-size:0.76rem;font-weight:${ay===selAY?'700':'400'};cursor:pointer;white-space:nowrap;">${ay}</button>`).join('')}
+            <button onclick="window.app.showClinicalYearEditor('${selAY}')"
+                style="margin-left:auto;padding:0.3rem 0.9rem;border-radius:20px;border:1.5px solid #1565c0;background:#e3f2fd;color:#1565c0;font-size:0.76rem;font-weight:600;cursor:pointer;white-space:nowrap;">
+                &#9998; Edit ${selAY}
+            </button>
+        </div>
+
+        ${alerts.length ? `<div style="margin-bottom:1.25rem;display:flex;flex-direction:column;gap:0.4rem;">
+            ${alerts.map(a=>`<div style="display:flex;align-items:center;gap:0.75rem;padding:0.65rem 1rem;border-radius:8px;background:${a.color}15;border-left:4px solid ${a.color};">
+                <span>${a.icon}</span><span style="font-size:0.83rem;color:#333;">${a.text}</span>
+            </div>`).join('')}
+        </div>`:''}
+
+        <!-- Hero KPI Strip -->
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:1rem;margin-bottom:1.25rem;">
+            ${kpi('Total Enrolled', totalEnrolled||null, `${ROTATION_TYPES.filter(r=>cohortCounts[r]>0).length} active rotation types`, '#1565c0')}
+            ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'Benchmark: 85%', color(avgAttendance,85,75))}
+            ${kpi('Active Sites', activeSites||null, 'Training locations', '#6a1b9a')}
+            ${kpi('Approval Rate', approvalRate?approvalRate+'%':null, `${approvedTickets} of ${totalTickets} requests`, color(approvalRate,80,60))}
+            ${kpi('Matching Success', matchingSuccess?matchingSuccess+'%':null, 'Preference vs assigned', color(matchingSuccess,75,60))}
+        </div>
+
+        ${section('&#127979;','1','Experiential Education Quality','#2e7d32',`
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
+                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Course Quality (out of 5)</div>${rotBar(manual.courseQuality||{},'/5')}</div>
+                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Preceptor Quality (out of 5)</div>${rotBar(manual.preceptorByRotation||{},'/5')}</div>
+                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Site Quality (out of 5)</div>${rotBar(manual.siteByRotation||{},'/5')}</div>
+                <div><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Student Satisfaction (out of 5)</div>${rotBar(manual.satisfactionByRotation||{},'/5')}</div>
+            </div>
+            <div style="margin-top:1rem;height:260px;"><canvas id="chartRadarQuality"></canvas></div>
+        `)}
+
+        ${section('&#127891;','2','Student Performance &amp; Outcomes','#1565c0',`
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
+                ${kpi('Avg CLO %', avgCLO?avgCLO+'%':null, 'Benchmark: 75%', color(avgCLO,75,65))}
+                ${kpi('End-Year %', endYearPct?endYearPct+'%':null, 'Benchmark: 70%', color(endYearPct,70,60))}
+                ${kpi('Top Performers', topPerformersPct?topPerformersPct+'%':null, 'CARE-44 &#8805; 80th pct', '#1565c0')}
+                ${kpi('Avg Attendance', avgAttendance?avgAttendance+'%':null, 'All rotations', color(avgAttendance,85,75))}
+            </div>
+            <div style="margin-top:1rem;"><div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Students Below Benchmark per Rotation</div>
+            ${ROTATION_TYPES.map(r=>{const v=manual.belowBenchmark?.[r]; return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.4rem;"><span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span><span style="font-size:0.85rem;font-weight:700;color:${v>0?'#e53935':'#2e7d32'};">${v!=null?v+' students':'\u2014'}</span></div>`;}).join('')}
+            </div>
+        `)}
+
+        ${section('&#128105;','3','Preceptor Engagement &amp; Quality','#6a1b9a',`
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
+                ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Benchmark: 85%', color(evalCompletionRate,85,70))}
+                ${kpi('Avg Preceptor Score', preceptorQuality?preceptorQuality+'/5':null, 'Benchmark: 3.5/5', color(preceptorQuality,3.5,3))}
+                ${kpi('Active Preceptors', manual.activePreceptors||null, 'Across all sites', '#6a1b9a')}
+                ${kpi('Response Rate', manual.preceptorResponseRate?manual.preceptorResponseRate+'%':null, 'Eval submission', color(manual.preceptorResponseRate,85,70))}
+            </div>
+        `,false)}
+
+        ${section('&#127970;','4','Site Quality &amp; Capacity','#e65100',`
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:0.5rem;">
+                <div>
+                    <div style="font-size:0.7rem;font-weight:700;color:#666;text-transform:uppercase;margin-bottom:0.5rem;">Active Sites by Rotation Type</div>
+                    ${ROTATION_TYPES.map(r=>{const c=manual.sitesByType?.[r]||0; const max=Math.max(...ROTATION_TYPES.map(x=>manual.sitesByType?.[x]||1),1);
+                    return `<div style="display:flex;align-items:center;gap:0.6rem;margin-bottom:0.45rem;">
+                        <span style="font-size:0.72rem;width:105px;flex-shrink:0;">${r}</span>
+                        <div style="flex:1;height:11px;background:#f0f0f0;border-radius:6px;overflow:hidden;"><div style="height:100%;width:${(c/max)*100}%;background:${ROTATION_COLORS[r]};border-radius:6px;"></div></div>
+                        <span style="font-size:0.72rem;width:25px;text-align:right;font-weight:600;">${c||'\u2014'}</span>
+                    </div>`;}).join('')}
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;align-content:start;">
+                    ${kpi('Site Utilization', siteUtilization?siteUtilization+'%':null, 'Capacity used', color(siteUtilization,90,70))}
+                    ${kpi('Student:Preceptor', studentPreceptorRatio?studentPreceptorRatio+':1':null, 'Target &#8804; 5:1', color(studentPreceptorRatio?6-+studentPreceptorRatio:null,3,1))}
+                    ${kpi('Site Performance', siteQuality?siteQuality+'/5':null, 'Avg score', color(siteQuality,3.5,3))}
+                    ${kpi('New Sites', manual.newSites||null, 'Added this year', '#e65100')}
+                </div>
+            </div>
+        `,false)}
+
+        ${section('&#9881;','5','Operational Efficiency','#00695c',`
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:0.5rem;">
+                ${kpi('Matching Success', matchingSuccess?matchingSuccess+'%':null, 'Pref vs assigned', color(matchingSuccess,75,60))}
+                ${kpi('Time to Assign', timeToAssign?timeToAssign+' days':null, 'Target &#8804; 7 days', color(timeToAssign?8-+timeToAssign:null,3,1))}
+                ${kpi('On-Time Eval %', evalCompletionRate?evalCompletionRate+'%':null, 'Submitted on time', color(evalCompletionRate,85,70))}
+                ${kpi('Admin Turnaround', adminTurnaround?adminTurnaround+' days':null, 'Target &#8804; 3 days', color(adminTurnaround?4-+adminTurnaround:null,2,1))}
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;">
+                ${kpi('Total Requests', totalTickets||null, `${pendingTickets} pending`, '#00695c')}
+                ${kpi('Approved', approvedTickets||null, approvalRate?approvalRate+'% rate':'', '#2e7d32')}
+                ${kpi('Allocation Satisfaction', allocationSat?allocationSat+'%':null, 'Student-reported', color(allocationSat,75,60))}
+            </div>
+        `,false)}
+
+        <!-- Section 6: Composite Indices (always open) -->
+        <div class="card fade-in-up" style="margin-bottom:1.25rem;border-left:4px solid #37474f;">
+            <h3 style="margin:0 0 1rem 0;color:#37474f;font-size:0.95rem;">&#128200; 6. Composite Indices</h3>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;align-items:start;">
+                ${gauge('EEI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Experiential Excellence</span>', eei)}
+                ${gauge('SPI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Site Performance</span>', spi)}
+                ${gauge('OEI<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Operational Efficiency</span>', oei)}
+                ${gauge('Satisfaction<br><span style="font-size:0.65rem;color:#aaa;font-weight:400;">Student-reported</span>', studentSatisfaction)}
+            </div>
+            <p style="font-size:0.68rem;color:#bbb;text-align:center;margin:0.25rem 0 0;">
+                EEI = (Satisfaction + Preceptor + CLO&#247;20) / 3 &nbsp;&#124;&nbsp; SPI = (Site + Pass&#247;20 + Utilization&#247;20) / 3 &nbsp;&#124;&nbsp; OEI = (Matching + Evals + Approval) / 3 / 20
+            </p>
+        </div>`;
+
+        // Radar chart
+        setTimeout(() => {
+            try {
+                const ctx = document.getElementById('chartRadarQuality');
+                if (!ctx) return;
+                const cq  = manual.courseQuality        || {};
+                const pq  = manual.preceptorByRotation  || {};
+                const sq  = manual.siteByRotation       || {};
+                const sat = manual.satisfactionByRotation|| {};
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ROTATION_TYPES,
+                        datasets: [
+                            { label:'Course Quality',    data: ROTATION_TYPES.map(r=>+(cq[r]||0)),  backgroundColor:'rgba(46,125,50,0.12)',  borderColor:'#2e7d32', pointBackgroundColor:'#2e7d32', pointRadius:4 },
+                            { label:'Preceptor Quality', data: ROTATION_TYPES.map(r=>+(pq[r]||0)),  backgroundColor:'rgba(21,101,192,0.12)', borderColor:'#1565c0', pointBackgroundColor:'#1565c0', pointRadius:4 },
+                            { label:'Site Quality',      data: ROTATION_TYPES.map(r=>+(sq[r]||0)),  backgroundColor:'rgba(230,81,0,0.12)',   borderColor:'#e65100', pointBackgroundColor:'#e65100', pointRadius:4 },
+                            { label:'Satisfaction',      data: ROTATION_TYPES.map(r=>+(sat[r]||0)), backgroundColor:'rgba(106,27,154,0.12)', borderColor:'#6a1b9a', pointBackgroundColor:'#6a1b9a', pointRadius:4 },
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        scales: { r: { min:0, max:5, ticks:{ stepSize:1, font:{size:9} }, pointLabels:{ font:{size:11} } } },
+                        plugins: { legend:{ position:'bottom', labels:{ font:{size:10}, boxWidth:12 } } }
+                    }
+                });
+            } catch(e) { console.warn('Radar chart:', e); }
+        }, 50);
+    }
+
+    _loadClinicalYearData(yearKey) {
+        try { const s = localStorage.getItem(`clinical_year_${yearKey}`); return s ? JSON.parse(s) : {}; } catch(e) { return {}; }
+    }
+
+    showClinicalYearEditor(acadYear) {
+        const yk = acadYear.split('-')[0];
+        const d  = this._loadClinicalYearData(yk);
+        const ROTATION_TYPES = ['IPPE I','IPPE II','IPPE III','IPPE Community','APPE'];
+
+        const field = (label, name, val, unit='') => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid #f5f5f5;">
+                <label style="font-size:0.82rem;color:#444;">${label}${unit?` <span style='font-size:0.7rem;color:#aaa;'>(${unit})</span>`:''}</label>
+                <input name="${name}" type="number" min="0" step="0.1" value="${val??''}" placeholder="\u2014"
+                    style="width:85px;padding:0.3rem 0.4rem;border:1px solid #e0e0e0;border-radius:5px;text-align:right;font-size:0.82rem;">
+            </div>`;
+
+        const rotFields = (prefix, unit) => ROTATION_TYPES.map(r =>
+            field(r, `${prefix}__${r.replace(/ /g,'_')}`, d[prefix]?.[r], unit)
+        ).join('');
+
+        const secHead = (icon, label, color) =>
+            `<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:${color};padding:0.75rem 0 0.4rem;border-top:2px solid ${color}20;margin-top:0.75rem;">${icon} ${label}</div>`;
+
+        const modal = document.createElement('div');
+        modal.id = 'clinicalYearModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+            <div style="background:#fff;border-radius:14px;width:500px;max-width:95vw;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+                <div style="padding:1.1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                    <h3 style="margin:0;color:#1565c0;font-size:1rem;">&#9998; Edit Clinical Data \u2014 ${acadYear}</h3>
+                    <button onclick="document.getElementById('clinicalYearModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+                </div>
+                <form id="clinicalYearForm" style="padding:1.25rem 1.5rem;overflow-y:auto;flex:1;">
+                    ${secHead('&#127979;','Experiential Education Quality (score /5)','#2e7d32')}
+                    <div style="font-size:0.7rem;color:#aaa;margin-bottom:0.3rem;">Course Quality per Rotation</div>${rotFields('courseQuality','/5')}
+                    <div style="font-size:0.7rem;color:#aaa;margin:0.6rem 0 0.3rem;">Preceptor Quality per Rotation</div>${rotFields('preceptorByRotation','/5')}
+                    <div style="font-size:0.7rem;color:#aaa;margin:0.6rem 0 0.3rem;">Site Quality per Rotation</div>${rotFields('siteByRotation','/5')}
+                    <div style="font-size:0.7rem;color:#aaa;margin:0.6rem 0 0.3rem;">Student Satisfaction per Rotation</div>${rotFields('satisfactionByRotation','/5')}
+
+                    ${secHead('&#127891;','Student Performance','#1565c0')}
+                    ${field('Avg CLO %','avgCLO',d.avgCLO,'%')}
+                    ${field('End-Year %','endYearPct',d.endYearPct,'%')}
+                    ${field('Top Performers %','topPerformersPct',d.topPerformersPct,'%')}
+                    <div style="font-size:0.7rem;color:#aaa;margin:0.6rem 0 0.3rem;">Students Below Benchmark per Rotation</div>${rotFields('belowBenchmark','students')}
+
+                    ${secHead('&#128105;','Preceptor Quality','#6a1b9a')}
+                    ${field('Avg Preceptor Score','preceptorQuality',d.preceptorQuality,'/5')}
+                    ${field('Active Preceptors','activePreceptors',d.activePreceptors,'count')}
+                    ${field('Response Rate','preceptorResponseRate',d.preceptorResponseRate,'%')}
+                    ${field('On-Time Eval Completion','evalCompletion',d.evalCompletion,'%')}
+
+                    ${secHead('&#127970;','Site Quality & Capacity','#e65100')}
+                    ${field('Site Utilization Rate','siteUtilization',d.siteUtilization,'%')}
+                    ${field('Site Performance Score','siteQuality',d.siteQuality,'/5')}
+                    ${field('New Sites Added','newSites',d.newSites,'count')}
+                    <div style="font-size:0.7rem;color:#aaa;margin:0.6rem 0 0.3rem;">Sites by Rotation Type</div>${rotFields('sitesByType','sites')}
+
+                    ${secHead('&#9881;','Operational Efficiency','#00695c')}
+                    ${field('Student Satisfaction (overall)','studentSatisfaction',d.studentSatisfaction,'/5')}
+                    ${field('Time to Assign (avg)','timeToAssign',d.timeToAssign,'days')}
+                    ${field('Admin Turnaround','adminTurnaround',d.adminTurnaround,'days')}
+                    ${field('Allocation Satisfaction','allocationSatisfaction',d.allocationSatisfaction,'%')}
+                    ${field('Matching Success','matchingSuccess',d.matchingSuccess,'%')}
+
+                    <div style="display:flex;gap:0.75rem;justify-content:flex-end;margin-top:1.25rem;padding-top:0.75rem;border-top:1px solid #eee;">
+                        <button type="button" onclick="document.getElementById('clinicalYearModal').remove()" class="btn btn-outline">Cancel</button>
+                        <button type="button" onclick="window.app._saveClinicalFromEditor('${acadYear}')" class="btn btn-primary" style="background:#1565c0;border-color:#1565c0;">Save Changes</button>
+                    </div>
+                </form>
+            </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _saveClinicalFromEditor(acadYear) {
+        const yk   = acadYear.split('-')[0];
+        const form = document.getElementById('clinicalYearForm');
+        const GROUPED = ['courseQuality','preceptorByRotation','siteByRotation','satisfactionByRotation','belowBenchmark','sitesByType'];
+        const obj  = {};
+
+        form.querySelectorAll('input[name]').forEach(inp => {
+            const v = parseFloat(inp.value);
+            if (isNaN(v)) return;
+            const name = inp.name;
+            const grp  = GROUPED.find(g => name.startsWith(g + '__'));
+            if (grp) {
+                if (!obj[grp]) obj[grp] = {};
+                const rk = name.slice(grp.length + 2).replace(/_/g,' ');
+                obj[grp][rk] = v;
+            } else {
+                obj[name] = v;
+            }
+        });
+
+        try { localStorage.setItem(`clinical_year_${yk}`, JSON.stringify(obj)); } catch(e) {}
+        document.getElementById('clinicalYearModal')?.remove();
+        this.renderClinicalDashboard(acadYear);
+    }
+
     _renderHomePageFull(activeTab = 'overview', subTab = 'overview', filterId = 'all') {
         try {
             const allStudents = this.store.getStudents();
@@ -5269,105 +5666,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             `;
 
             if (activeTab === 'overview') {
-                // ... (Overview Logic) ...
-                // --- OVERVIEW TAB CONTENT (Metrics & Charts) ---
-
-                // Helper to Calculate Metrics
-                const calcMetrics = (students, targetHours, key) => {
-                    const avg = (accessor) => {
-                        const vals = students.map(accessor).filter(v => v != null);
-                        if (!vals.length) return 0;
-                        return vals.reduce((a, b) => a + b, 0) / vals.length;
-                    };
-                    return {
-                        enrolled: students.length,
-                        attendance: avg(s => s.attendance),
-                        hours: targetHours,
-                        clo: avg(s => 80 + (Math.random() * 10)),
-                        professionalism: avg(s => s.professionalism ? s.professionalism.score : 9.5),
-                        midYear: avg(s => 82 + (Math.random() * 8)),
-                        endYear: avg(s => 85 + (Math.random() * 8)),
-                        portfolio: avg(s => 88 + (Math.random() * 5)),
-                        epa: avg(s => key === 'Y1' ? 3.2 : (key === 'Y2' ? 3.8 : 4.4)),
-                        simulation: avg(s => 84 + (Math.random() * 10))
-                    };
-                };
-
-                const cohortMetrics = Object.keys(cohorts).map(key => ({
-                    key, ...cohorts[key],
-                    metrics: calcMetrics(cohortData[key], cohorts[key].hours, key)
-                }));
-
-                const labels = cohortMetrics.map(c => c.label);
-                const bgColors = cohortMetrics.map(c => c.color);
-
-                const content = `
-                    <!-- 🏥 CLINICAL AFFAIRS: Rotation/Clinical Issue Requests -->
-                    <div class="card" style="margin-bottom: 2rem; border-left: 4px solid #FF6B6B;">
-                        <h3 style="margin: 0 0 1.5rem 0; color: #333;">📋 Rotation/Clinical Issue Requests</h3>
-                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem;">
-                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #2196F3;">
-                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.submitted : 0}
-                                </div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📋 Total Submitted</div>
-                            </div>
-                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #4CAF50;">
-                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.approved : 0}
-                                </div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Approved</div>
-                            </div>
-                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #FF9800;">
-                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.pending : 0}
-                                </div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">📋 Pending</div>
-                            </div>
-                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #F44336;">
-                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.rejected : 0}
-                                </div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">? Rejected</div>
-                            </div>
-                            <div style="background: #FFFFFF; border: 1px solid #ddd; border-radius: 8px; padding: 1.5rem; text-align: center;">
-                                <div style="font-size: 2rem; font-weight: bold; color: #2196F3;">
-                                    ${typeof StudentPortalManager !== 'undefined' && StudentPortalManager.clinicalTracking ? StudentPortalManager.clinicalTracking.inProgress : 0}
-                                </div>
-                                <div style="font-size: 0.9rem; color: #666; margin-top: 0.5rem;">⏳ In Progress</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Metrics Grid -->
-                    <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); gap: 1rem;">
-                        <div class="card"><h5 class="text-center mb-2">Total Enrolled</h5><div style="height:150px;"><canvas id="chartEnrolled"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">Attendance (%)</h5><div style="height:150px;"><canvas id="chartAttendance"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">Hours Completed</h5><div style="height:150px;"><canvas id="chartHours"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">Avg CLO %</h5><div style="height:150px;"><canvas id="chartCLO"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">Professionalism</h5><div style="height:150px;"><canvas id="chartProf"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">Mid-Year %</h5><div style="height:150px;"><canvas id="chartMid"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">End-Year %</h5><div style="height:150px;"><canvas id="chartEnd"></canvas></div></div>
-                        <div class="card"><h5 class="text-center mb-2">Portfolio %</h5><div style="height:150px;"><canvas id="chartPort"></canvas></div></div>
-                    </div>
-                `;
-
-                // Render Container
-                this.root.innerHTML = tabNav + content;
-
-                // Init Overview Charts
-                const noScale = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } };
-                const scale = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } };
-
-                new Chart(document.getElementById('chartEnrolled'), { type: 'doughnut', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.enrolled), backgroundColor: bgColors }] }, options: noScale });
-                new Chart(document.getElementById('chartAttendance'), { type: 'bar', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.attendance), backgroundColor: bgColors }] }, options: scale });
-                new Chart(document.getElementById('chartHours'), { type: 'bar', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.hours), backgroundColor: bgColors }] }, options: scale });
-                new Chart(document.getElementById('chartCLO'), { type: 'line', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.clo), borderColor: '#555', pointBackgroundColor: bgColors, tension: 0.3 }] }, options: scale });
-                new Chart(document.getElementById('chartProf'), { type: 'polarArea', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.professionalism), backgroundColor: bgColors }] }, options: { ...noScale, scales: { r: { display: false } } } });
-                new Chart(document.getElementById('chartMid'), { type: 'line', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.midYear), borderColor: '#555', pointBackgroundColor: bgColors }] }, options: scale });
-                new Chart(document.getElementById('chartEnd'), { type: 'line', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.endYear), borderColor: '#555', pointBackgroundColor: bgColors }] }, options: scale });
-                new Chart(document.getElementById('chartPort'), { type: 'pie', data: { labels, datasets: [{ data: cohortMetrics.map(c => c.metrics.portfolio), backgroundColor: bgColors }] }, options: noScale });
-
+                this.renderClinicalDashboard();
+                return;
             } else if (activeTab === 'appe') {
                 // --- APPE TAB: Show Full APPE Experience Hub ---
                 if (typeof window.renderAPPEExperienceHub === 'function') {
