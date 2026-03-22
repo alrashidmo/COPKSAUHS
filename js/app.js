@@ -5908,7 +5908,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.renderClinicalDashboard(acadYear);
     }
 
-    _renderHomePageFull(activeTab = 'overview', subTab = 'overview', filterId = 'all') {
+    async _renderHomePageFull(activeTab = 'overview', subTab = 'overview', filterId = 'all') {
         try {
             const allStudents = this.store.getStudents();
             const kpis = this.store.getKPIs();
@@ -5970,13 +5970,20 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 }
             } else {
                 // --- SPECIFIC COURSE DASHBOARDS (IPPE I, II, III, Community) ---
-                // Get content from helper
+                // Show loading state while fetching from Supabase
+                this.root.innerHTML = tabNav + `<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2rem;">&#8987;</div><p>Loading IPPE data from Supabase&#8230;</p></div>`;
+
+                // Fetch live students from Supabase, cache on this._sbStudents
+                const _sb = window.SupabaseAuth?.supabase;
+                if (_sb) {
+                    try {
+                        const { data } = await _sb.from('students').select('*');
+                        this._sbStudents = data || [];
+                    } catch(e) { this._sbStudents = []; }
+                } else { this._sbStudents = []; }
+
                 const dash = this.getIPPEDashboardContent(activeTab, subTab, filterId);
-
-                // Render
                 this.root.innerHTML = tabNav + `<div class="fade-in-up">${dash.html}</div>`;
-
-                // Init Charts if init function exists
                 if (dash.initCharts) {
                     setTimeout(() => dash.initCharts(), 50);
                 }
@@ -7594,16 +7601,21 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             };
             const cfg = IPPE_CFG[activeTab] || IPPE_CFG.ippe1;
 
-            // ── Student filtering (store + APPE_DATABASE fallback) ───────────
+            // ── Student filtering: Supabase (P1/P2/P3) → store → APPE_DATABASE ─
+            // P1 → IPPE I, P2 → IPPE II, P3 → IPPE III + Community, P4 → APPE
             const cohortMatch = (c, tab) => {
                 c = (c||'').toLowerCase().trim();
-                if (tab==='ippe1')     return c==='ippe i'||c==='ippe 1';
-                if (tab==='ippe2')     return c==='ippe ii'||c==='ippe 2';
-                if (tab==='ippe3')     return c==='ippe iii'||c==='ippe 3';
-                if (tab==='community') return c==='ippe community'||c==='community';
+                if (tab==='ippe1')     return c==='p1'||c==='ippe i'||c==='ippe 1';
+                if (tab==='ippe2')     return c==='p2'||c==='ippe ii'||c==='ippe 2';
+                if (tab==='ippe3')     return c==='p3'||c==='ippe iii'||c==='ippe 3';
+                if (tab==='community') return c==='p3'||c==='ippe community'||c==='community';
                 return false;
             };
-            let students = (this.store.getStudents()||[]).filter(s => cohortMatch(s.cohort, activeTab));
+            // Primary: Supabase students fetched live (_sbStudents)
+            let students = (this._sbStudents||[]).filter(s => cohortMatch(s.cohort, activeTab));
+            // Fallback 1: store (APPE_DATABASE-backed)
+            if (!students.length) students = (this.store.getStudents()||[]).filter(s => cohortMatch(s.cohort, activeTab));
+            // Fallback 2: APPE_DATABASE directly
             if (!students.length && typeof APPE_DATABASE !== 'undefined') {
                 students = (APPE_DATABASE.students||[]).filter(s => cohortMatch(s.cohort, activeTab));
             }
@@ -7939,19 +7951,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         </div>`;
     }
 
+    // ── Centralised Supabase-aware student getter for IPPE renderers ──────────
+    _ippeGetStudents(level) {
+        const match = c => {
+            c = (c||'').toLowerCase().trim();
+            if (level==='ippe1')     return c==='p1'||c==='ippe i'||c==='ippe 1';
+            if (level==='ippe2')     return c==='p2'||c==='ippe ii'||c==='ippe 2';
+            if (level==='ippe3')     return c==='p3'||c==='ippe iii'||c==='ippe 3';
+            if (level==='community') return c==='p3'||c==='ippe community'||c==='community';
+            return false;
+        };
+        let s = (this._sbStudents||[]).filter(st => match(st.cohort));
+        if (!s.length) s = (this.store.getStudents()||[]).filter(st => match(st.cohort));
+        if (!s.length && typeof APPE_DATABASE!=='undefined') s = (APPE_DATABASE.students||[]).filter(st => match(st.cohort));
+        return s;
+    }
+
     _showIPPEHoursEditor(level, label) {
         const stored = (() => { try { const s=localStorage.getItem(`ippe_hours_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
-        let students = (this.store.getStudents()||[]).filter(s => {
-            const c=(s.cohort||'').toLowerCase().trim();
-            if(level==='ippe1') return c==='ippe i'||c==='ippe 1';
-            if(level==='ippe2') return c==='ippe ii'||c==='ippe 2';
-            if(level==='ippe3') return c==='ippe iii'||c==='ippe 3';
-            if(level==='community') return c==='ippe community'||c==='community';
-            return false;
-        });
-        if (!students.length && typeof APPE_DATABASE!=='undefined') {
-            students = (APPE_DATABASE.students||[]).filter(s=>{const c=(s.cohort||'').toLowerCase().trim();if(level==='ippe1')return c==='ippe i';if(level==='ippe2')return c==='ippe ii';if(level==='ippe3')return c==='ippe iii';if(level==='community')return c==='ippe community';return false;});
-        }
+        const students = this._ippeGetStudents(level);
         const modal = document.createElement('div');
         modal.id = 'ippeHoursModal';
         modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
@@ -8047,9 +8065,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     _exportIPPERoster(level) {
-        const graded = this._ippe_computeGrades(
-            (this.store.getStudents()||[]).filter(s=>{const c=(s.cohort||'').toLowerCase().trim();if(level==='ippe1')return c==='ippe i'||c==='ippe 1';if(level==='ippe2')return c==='ippe ii'||c==='ippe 2';if(level==='ippe3')return c==='ippe iii'||c==='ippe 3';if(level==='community')return c==='ippe community';return false;})
-        );
+        const graded = this._ippe_computeGrades(this._ippeGetStudents(level));
         const rows = graded.map(g=>[g.s.name,g.s.id,g.s.gpa??'',g.final.toFixed(1),g.final>=75?'Passing':'At-Risk',g.s.attendance??''].join(','));
         const csv  = ['Name,ID,GPA,Final Grade,Status,Attendance',...rows].join('\n');
         const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
@@ -8338,9 +8354,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     _exportAtRisk(level) {
-        const graded = this._ippe_computeGrades(
-            (this.store.getStudents()||[]).filter(s=>{const c=(s.cohort||'').toLowerCase().trim();if(level==='ippe1')return c==='ippe i'||c==='ippe 1';if(level==='ippe2')return c==='ippe ii'||c==='ippe 2';if(level==='ippe3')return c==='ippe iii'||c==='ippe 3';if(level==='community')return c==='ippe community';return false;})
-        ).filter(g=>g.final>0&&g.final<75);
+        const graded = this._ippe_computeGrades(this._ippeGetStudents(level)).filter(g=>g.final>0&&g.final<75);
         const csv = ['Name,ID,GPA,Final Grade,Attendance',...graded.map(g=>[g.s.name,g.s.id,g.s.gpa??'',g.final.toFixed(1),g.s.attendance??''].join(','))].join('\n');
         const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
         a.download=`${level}_at_risk.csv`; a.click();
