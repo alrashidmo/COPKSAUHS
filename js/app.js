@@ -9674,17 +9674,30 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
         try {
             const fetchUrl = targetUrl.includes('pagesize') ? targetUrl : targetUrl + '&pagesize=100';
-            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(fetchUrl)}`;
+            const encoded  = encodeURIComponent(fetchUrl);
 
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), 25000);
-            const res = await fetch(proxyUrl, { signal: controller.signal });
-            clearTimeout(timer);
+            // Try multiple CORS proxies in order
+            const proxies = [
+                { url: `https://api.allorigins.win/get?url=${encoded}`,          parse: async r => (await r.json()).contents },
+                { url: `https://corsproxy.io/?${encoded}`,                        parse: async r => r.text() },
+                { url: `https://api.codetabs.com/v1/proxy?quest=${encoded}`,      parse: async r => r.text() },
+            ];
 
-            if (!res.ok) throw new Error(`Proxy returned HTTP ${res.status}`);
-            const json = await res.json();
-            const html = json.contents;
-            if (!html) throw new Error('Empty response from proxy');
+            let html = null;
+            let lastErr = null;
+            for (const proxy of proxies) {
+                try {
+                    const controller = new AbortController();
+                    const timer = setTimeout(() => controller.abort(), 20000);
+                    const res = await fetch(proxy.url, { signal: controller.signal });
+                    clearTimeout(timer);
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const content = await proxy.parse(res);
+                    if (content && content.length > 500) { html = content; break; }
+                } catch(e) { lastErr = e; }
+            }
+            if (!html) throw new Error(lastErr?.message || 'All proxies failed. Check your internet connection.');
+
             if (html.includes('please click the box below') || html.includes('recaptcha')) throw new Error('Google Scholar is showing a CAPTCHA. Try again in a few minutes.');
             if (html.includes('unusual traffic')) throw new Error('Google Scholar detected automated access. Try again later.');
 
