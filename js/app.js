@@ -7723,7 +7723,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             if (manual) {
                 const comp = {};
                 INSTR.forEach(ins => { comp[ins.key] = { score: manual[ins.key]??0, wt: ins.wt }; });
-                const finalGrade = INSTR.reduce((sum,ins)=>sum+(comp[ins.key].score*ins.wt/100),0);
+                // Scores are entered as points out of weight (e.g. 27/30), so final = direct sum
+                const finalGrade = INSTR.reduce((sum,ins)=>sum+(comp[ins.key].score),0);
                 return { s, grading: { finalGrade: Math.round(finalGrade*10)/10, components: comp }, final: Math.round(finalGrade*10)/10 };
             }
             // Otherwise try Supabase store
@@ -7756,22 +7757,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const existing = document.getElementById('ippeScoreModal');
         if (existing) existing.remove();
 
-        const headerCols = INSTR.map(ins=>`<th style="padding:0.35rem 0.4rem;text-align:center;white-space:nowrap;font-size:0.65rem;color:#888;font-weight:600;min-width:72px;">${ins.label}<br><span style="color:#bbb;">${ins.wt}%</span></th>`).join('');
+        // Header: show instrument name + max marks (= weight)
+        const headerCols = INSTR.map(ins=>`<th style="padding:0.35rem 0.4rem;text-align:center;white-space:nowrap;font-size:0.65rem;color:#888;font-weight:600;min-width:72px;">${ins.label}<br><span style="color:#bbb;">out of ${ins.wt}</span></th>`).join('');
 
         const studentRows = students.map(s => {
             const sc = saved[s.id] || {};
+            // Each score is entered as points out of the component's weight (0–wt)
+            // Final = sum of all entered scores → naturally sums to 100 if full marks
             const inputs = INSTR.map(ins => {
                 const val = sc[ins.key] ?? '';
                 return `<td style="padding:0.25rem 0.3rem;text-align:center;">
                     <input data-sid="${s.id}" data-key="${ins.key}" data-wt="${ins.wt}"
-                        type="number" min="0" max="100" step="0.1" value="${val}" placeholder="—"
+                        type="number" min="0" max="${ins.wt}" step="0.1" value="${val}" placeholder="/ ${ins.wt}"
                         oninput="window.app._updateIPPEScoreRow(this)"
                         style="width:62px;padding:0.2rem 0.3rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.78rem;text-align:center;">
                 </td>`;
             }).join('');
             const final = INSTR.reduce((sum,ins)=>{
                 const v = parseFloat(sc[ins.key]);
-                return sum + (isNaN(v)?0:v*ins.wt/100);
+                return sum + (isNaN(v) ? 0 : v);   // direct sum — scores already scaled to weight
             },0);
             const fc = final>=PASS?'#2e7d32':final>0?'#e53935':'#bbb';
             return `<tr data-sid="${s.id}" style="border-bottom:1px solid #f5f5f5;">
@@ -7789,7 +7793,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
                 <div>
                     <h3 style="margin:0;font-size:1rem;">&#128221; Student Scores &mdash; ${label}</h3>
-                    <p style="margin:0.2rem 0 0;font-size:0.72rem;color:#888;">Enter scores (0–100) per instrument. Final grade calculates automatically. Saves to browser.</p>
+                    <p style="margin:0.2rem 0 0;font-size:0.72rem;color:#888;">Enter points earned out of each instrument's max (shown in column header). Final = sum of all scores. Saves to browser.</p>
                 </div>
                 <button onclick="document.getElementById('ippeScoreModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
             </div>
@@ -7825,7 +7829,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         let final = 0;
         inputs.forEach(el => {
             const v = parseFloat(el.value);
-            if (!isNaN(v)) final += v * parseFloat(el.dataset.wt) / 100;
+            if (!isNaN(v)) final += v;   // scores are already in weight-space, just sum
         });
         const cell = document.getElementById(`final_${sid}`);
         if (cell) {
