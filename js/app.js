@@ -12860,6 +12860,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
             <div style="display:flex;border-bottom:2px solid #e0e0e0;margin-bottom:1.5rem;">
                 <button id="tab-btn-sites" onclick="window.rotAdmin.switchTab('sites')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid #1B5E20;margin-bottom:-2px;cursor:pointer;font-weight:700;color:#1B5E20;font-size:0.9rem;">🏥 Sites (${sites.length})</button>
+                <button id="tab-btn-preceptors" onclick="window.rotAdmin.switchTab('preceptors')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">👨‍⚕️ Preceptors (${[...new Set(sites.map(s=>s.preceptor_name).filter(Boolean))].length})</button>
                 <button id="tab-btn-scores" onclick="window.rotAdmin.switchTab('scores')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">📊 Scores (${studentList.length})</button>
                 <button id="tab-btn-assignments" onclick="window.rotAdmin.switchTab('assignments')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">📋 Assignments (${assignedCount}/${studentList.length})</button>
                 <button id="tab-btn-evaluations" onclick="window.rotAdmin.switchTab('evaluations')" style="padding:0.75rem 1.5rem;background:none;border:none;border-bottom:3px solid transparent;margin-bottom:-2px;cursor:pointer;color:#888;font-size:0.9rem;">⭐ Evaluations</button>
@@ -12896,6 +12897,53 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                 </div>
             </div>
+
+            <!-- PRECEPTORS TAB -->
+            <div id="rot-tab-preceptors" style="display:none;">${(()=>{
+                // Group sites by preceptor name
+                const map = {};
+                sites.forEach(s => {
+                    const name = (s.preceptor_name||'').trim();
+                    if (!name) return;
+                    if (!map[name]) map[name] = { name, email: s.preceptor_email||'—', sites:[] };
+                    map[name].sites.push(s);
+                });
+                const preceptors = Object.values(map).sort((a,b)=>a.name.localeCompare(b.name));
+                if (!preceptors.length) return `<div class="card" style="text-align:center;padding:3rem;color:#aaa;"><div style="font-size:2rem;margin-bottom:0.5rem;">👨‍⚕️</div><p>No preceptors found. Add a preceptor name when creating a rotation site.</p></div>`;
+                const rows = preceptors.map(p=>{
+                    const siteTags = p.sites.map(s=>`<span style="display:inline-block;padding:0.15rem 0.5rem;background:#e8f5e9;border-radius:8px;font-size:0.72rem;color:#2e7d32;margin:0.1rem;">${s.name||s.site_name||'Site'}</span>`).join(' ');
+                    const specialties = [...new Set(p.sites.map(s=>s.specialty).filter(Boolean))].join(', ') || '—';
+                    return `<tr style="border-bottom:1px solid #f5f5f5;">
+                        <td style="padding:0.65rem 0.75rem;font-weight:600;font-size:0.85rem;">👨‍⚕️ ${p.name}</td>
+                        <td style="padding:0.65rem 0.75rem;font-size:0.8rem;color:#1565c0;">${p.email!=='—'?`<a href="mailto:${p.email}" style="color:#1565c0;text-decoration:none;">${p.email}</a>`:'—'}</td>
+                        <td style="padding:0.65rem 0.75rem;font-size:0.78rem;color:#555;">${specialties}</td>
+                        <td style="padding:0.65rem 0.75rem;text-align:center;"><span style="background:#e3f2fd;color:#1565c0;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.75rem;font-weight:700;">${p.sites.length} site${p.sites.length!==1?'s':''}</span></td>
+                        <td style="padding:0.65rem 0.75rem;">${siteTags}</td>
+                    </tr>`;
+                }).join('');
+                return `<div class="card" style="margin-bottom:1.25rem;background:linear-gradient(135deg,#f8fbff,#f0f4ff);border:1px solid #c5cae9;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
+                        <div>
+                            <h3 style="margin:0 0 0.2rem;color:#1a237e;font-size:0.95rem;">👨‍⚕️ Preceptor Directory</h3>
+                            <p style="margin:0;font-size:0.8rem;color:#888;">${preceptors.length} preceptors across ${sites.length} sites — auto-derived from rotation sites. Edit preceptor details from the Sites tab.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                                <th style="text-align:left;padding:0.6rem 0.75rem;font-size:0.78rem;color:#666;font-weight:700;">Preceptor Name</th>
+                                <th style="text-align:left;padding:0.6rem 0.75rem;font-size:0.78rem;color:#666;font-weight:700;">Email</th>
+                                <th style="text-align:left;padding:0.6rem 0.75rem;font-size:0.78rem;color:#666;font-weight:700;">Specialties</th>
+                                <th style="text-align:center;padding:0.6rem 0.75rem;font-size:0.78rem;color:#666;font-weight:700;">Sites</th>
+                                <th style="text-align:left;padding:0.6rem 0.75rem;font-size:0.78rem;color:#666;font-weight:700;">Assigned Sites</th>
+                            </tr></thead>
+                            <tbody>${rows}</tbody>
+                        </table>
+                    </div>
+                </div>`;
+            })()}</div>
 
             <!-- SCORES TAB -->
             <div id="rot-tab-scores" style="display:none;">
@@ -17609,7 +17657,7 @@ window.deleteResource = async (id) => {
 // ============================================================
 window.rotAdmin = {
     switchTab(tab) {
-        ['sites', 'scores', 'assignments', 'evaluations'].forEach(t => {
+        ['sites', 'preceptors', 'scores', 'assignments', 'evaluations'].forEach(t => {
             const panel = document.getElementById('rot-tab-' + t);
             const btn = document.getElementById('tab-btn-' + t);
             if (panel) panel.style.display = t === tab ? 'block' : 'none';
