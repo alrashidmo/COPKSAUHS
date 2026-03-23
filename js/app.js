@@ -7869,7 +7869,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const PASS     = gc.passingScore;
         const EXCEL    = gc.excellentScore;
         const ATT_BM   = gc.attendanceBenchmark;
-        const graded   = this._ippe_computeGrades(students);
+        const graded   = this._ippe_computeGrades(students, level);
         const n        = graded.length || 1;
         const avgFinal = graded.reduce((s,g)=>s+g.final,0)/n;
         const passing  = graded.filter(g=>g.final>=PASS).length;
@@ -7962,7 +7962,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // ── 2. Grade Distribution ───────────────────────────────────────────────
     renderIPPE_GradeDistribution(students, level, cfg) {
-        const graded  = this._ippe_computeGrades(students);
+        const graded  = this._ippe_computeGrades(students, level);
         const gc      = this._loadIPPEGradingConfig();
         const INSTR   = gc.instruments;
         const PASS    = gc.passingScore;
@@ -8417,7 +8417,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // ── 4. Tracking & Roster ────────────────────────────────────────────────
     renderIPPE_Roster(students, level, cfg) {
-        const graded = this._ippe_computeGrades(students);
+        const graded = this._ippe_computeGrades(students, level);
         const sorted = graded.sort((a,b)=>b.final-a.final);
 
         const rows = sorted.map((g,i) => {
@@ -8482,7 +8482,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     _exportIPPERoster(level) {
-        const graded = this._ippe_computeGrades(this._ippeGetStudents(level));
+        const graded = this._ippe_computeGrades(this._ippeGetStudents(level), level);
         const rows = graded.map(g=>[g.s.name,g.s.id,g.s.gpa??'',g.final.toFixed(1),g.final>=75?'Passing':'At-Risk',g.s.attendance??''].join(','));
         const csv  = ['Name,ID,GPA,Final Grade,Status,Attendance',...rows].join('\n');
         const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
@@ -8673,7 +8673,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // ── 6. Admin & Reports ──────────────────────────────────────────────────
     renderIPPE_AdminReports(students, level, cfg) {
-        const graded = this._ippe_computeGrades(students);
+        const graded = this._ippe_computeGrades(students, level);
         const atRisk = graded.filter(g=>g.final>0&&g.final<75);
 
         const milestones = (() => { try { const s=localStorage.getItem(`ippe_milestones_${level}`); return s?JSON.parse(s):{};} catch(e){return{};} })();
@@ -8771,7 +8771,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     _exportAtRisk(level) {
-        const graded = this._ippe_computeGrades(this._ippeGetStudents(level)).filter(g=>g.final>0&&g.final<75);
+        const graded = this._ippe_computeGrades(this._ippeGetStudents(level), level).filter(g=>g.final>0&&g.final<75);
         const csv = ['Name,ID,GPA,Final Grade,Attendance',...graded.map(g=>[g.s.name,g.s.id,g.s.gpa??'',g.final.toFixed(1),g.s.attendance??''].join(','))].join('\n');
         const a=document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
         a.download=`${level}_at_risk.csv`; a.click();
