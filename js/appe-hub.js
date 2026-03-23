@@ -710,100 +710,165 @@
 
     /* ═══════════════════════════════════════════════════════════
        TAB 5 - AUTO-MATCH
+       Priority = Student Ranking Score (same formula as Clinical
+       Dashboard): GPA 44% + Experiential 44% + Research 4% +
+       Community 4% + Conferences 4%  (stored as student_score
+       in rotation_assignments, out of 100).
+       Higher-ranked students pick their preferred site first.
     ═══════════════════════════════════════════════════════════ */
     function _tabMatching() {
-        const weights = (() => {
-            try { return JSON.parse(localStorage.getItem('appe_match_weights')||'null'); } catch(e) {}
-            return null;
-        })() || { preference: 50, score: 30, balance: 20 };
-
-        const total = weights.preference + weights.score + weights.balance;
-        const valid = Math.abs(total - 100) <= 1;
-
-        const sliders = [
-            { key:'preference', label:'Student Preference', col:C.primaryMd, desc:'Priority given to ranked site choices' },
-            { key:'score',      label:'Academic Score',     col:C.blue,      desc:'Higher GPA students get priority picks' },
-            { key:'balance',    label:'Site Balance',       col:C.purple,    desc:'Distribute students evenly across sites' },
-        ];
-
-        const sliderHTML = sliders.map(s => `
-            <div style="background:#f8fafc;border-radius:14px;padding:1.25rem;border:1px solid ${C.border};margin-bottom:0.75rem;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <div>
-                        <div style="font-size:0.88rem;font-weight:700;color:${C.text};">${s.label}</div>
-                        <div style="font-size:0.72rem;color:${C.muted};margin-top:2px;">${s.desc}</div>
-                    </div>
-                    <span id="wt-val-${s.key}"
-                          style="font-size:1.3rem;font-weight:800;color:${s.col};min-width:52px;text-align:right;">
-                        ${weights[s.key]}%
-                    </span>
-                </div>
-                <input type="range" min="0" max="100" value="${weights[s.key]}" id="wt-${s.key}"
-                       oninput="window.appeHubUpdateWeight('${s.key}',this.value)"
-                       style="width:100%;accent-color:${s.col};height:6px;border-radius:50px;cursor:pointer;">
-            </div>`).join('');
-
-        const warn = !valid
-            ? `<div style="background:${C.amberPl};color:${C.amber};padding:10px 14px;border-radius:10px;
-                           font-size:0.82rem;font-weight:600;margin-bottom:1rem;border:1px solid ${C.amber}30;">
-                   Weights sum to ${total}%. Must add up to 100%.
-               </div>` : '';
-
         const { assignments: as, students: st, sites: si } = _data;
+
+        /* Build score map from existing rotation_assignments */
+        const scoreMap = {};
+        as.forEach(a => { if (a.student_score != null) scoreMap[String(a.student_id)] = a.student_score; });
+
         const placed    = as.filter(a => a.site_id).length;
         const choice1   = as.filter(a => a.preference_rank_received === 1).length;
         const sitesUsed = new Set(as.filter(a=>a.site_id).map(a=>a.site_id)).size;
         const pending   = st.filter(s => !as.find(a=>String(a.student_id)===String(s.id)&&a.site_id)).length;
+        const scored    = st.filter(s => scoreMap[String(s.id)] != null).length;
+
+        /* Top 10 ranked students */
+        const ranked = [...st]
+            .map(s => ({ ...s, _score: scoreMap[String(s.id)] ?? null }))
+            .filter(s => s._score != null)
+            .sort((a,b) => b._score - a._score)
+            .slice(0, 10);
+
+        const rankRows = ranked.length
+            ? ranked.map((s, i) => {
+                const sc  = s._score;
+                const col = sc >= 80 ? C.green : sc >= 65 ? C.amber : C.red;
+                const medal = i===0 ? '\uD83E\uDD47' : i===1 ? '\uD83E\uDD48' : i===2 ? '\uD83E\uDD49' : `${i+1}`;
+                const assigned = as.find(a=>String(a.student_id)===String(s.id)&&a.site_id);
+                const site     = assigned ? (si.find(x=>x.id===assigned.site_id)||{}) : null;
+                return `<tr style="border-bottom:1px solid ${C.border};">
+                    <td style="padding:9px 12px;text-align:center;font-size:${i<3?'1.1rem':'0.82rem'};">${medal}</td>
+                    <td style="padding:9px 12px;font-size:0.85rem;font-weight:600;color:${C.text};">${s.name||s.id}</td>
+                    <td style="padding:9px 12px;text-align:center;font-size:1rem;font-weight:800;color:${col};">${sc}</td>
+                    <td style="padding:9px 12px;font-size:0.78rem;color:${C.muted};">
+                        ${site ? `<span style="background:${C.greenPl};color:${C.green};padding:2px 9px;border-radius:50px;font-size:0.72rem;font-weight:700;">\u2713 ${site.site_name||'Assigned'}</span>` : `<span style="color:${C.muted};">\u2014</span>`}
+                    </td>
+                </tr>`;
+            }).join('')
+            : `<tr><td colspan="4" style="padding:2rem;text-align:center;color:${C.muted};">
+                   No ranking scores yet. Enter scores via the Clinical Dashboard &rarr; Student Ranking System.
+               </td></tr>`;
+
+        const formulaItems = [
+            { label:'GPA',                  pct:'44%', col:'#1565c0', pale:'#e3f2fd', note:'From students table' },
+            { label:'Experiential Courses',  pct:'44%', col:'#2e7d32', pale:'#e8f5e9', note:'From rotation_evaluations' },
+            { label:'Research',              pct:'4%',  col:'#6a1b9a', pale:'#f3e5f5', note:'Survey score'        },
+            { label:'Community Service',     pct:'4%',  col:'#e65100', pale:'#fff3e0', note:'Survey score'        },
+            { label:'Conferences',           pct:'4%',  col:'#b45309', pale:'#fffbeb', note:'Survey score'        },
+        ];
+
+        const formulaHTML = formulaItems.map(f => `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;
+                        background:${f.pale};border-radius:12px;border:1px solid ${f.col}20;">
+                <span style="font-size:1.3rem;font-weight:800;color:${f.col};min-width:42px;">${f.pct}</span>
+                <div>
+                    <div style="font-size:0.85rem;font-weight:700;color:${C.text};">${f.label}</div>
+                    <div style="font-size:0.72rem;color:${C.muted};">${f.note}</div>
+                </div>
+            </div>`).join('');
 
         return `
         <div style="display:grid;gap:1.25rem;">
-            <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">Auto-Match Algorithm</h2>
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
+                <div>
+                    <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">Auto-Match Algorithm</h2>
+                    <p style="margin:4px 0 0;font-size:0.82rem;color:${C.muted};">
+                        Priority order uses the Student Ranking Score &mdash; higher ranked students pick their preferred site first.
+                    </p>
+                </div>
+                <button onclick="window.appeHubRunMatch()"
+                        style="background:${C.primary};color:#fff;border:none;padding:10px 24px;
+                               border-radius:50px;cursor:pointer;font-size:0.9rem;font-weight:700;">
+                    \uD83D\uDD00 Run Matching
+                </button>
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start;">
 
-                <div style="background:${C.card};border-radius:18px;padding:1.75rem;
-                            box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
-                            border:1px solid ${C.border};">
-                    <h3 style="margin:0 0 1.25rem;font-size:0.95rem;font-weight:700;color:${C.text};">Configure Weights</h3>
-                    ${sliderHTML}
-                    ${warn}
-                    <div style="display:flex;gap:10px;margin-top:1rem;">
-                        <button onclick="window.appeHubRunMatch()"
-                                style="flex:1;background:${valid?C.primary:'#ccc'};color:#fff;border:none;
-                                       padding:12px;border-radius:10px;cursor:${valid?'pointer':'not-allowed'};
-                                       font-size:0.9rem;font-weight:700;">
-                            Run Matching
-                        </button>
-                        <button onclick="window.appeHubResetWeights()"
-                                style="background:#f1f5f9;color:${C.muted};border:none;
-                                       padding:12px 16px;border-radius:10px;cursor:pointer;font-size:0.85rem;">
-                            Reset
-                        </button>
+                <!-- Left: Formula + How it works -->
+                <div style="display:grid;gap:1rem;">
+                    <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                                box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                                border:1px solid ${C.border};">
+                        <h3 style="margin:0 0 1rem;font-size:0.95rem;font-weight:700;color:${C.text};">
+                            \uD83C\uDFC6 Ranking Formula (out of 100)
+                        </h3>
+                        <div style="display:grid;gap:8px;">${formulaHTML}</div>
+                        <div style="margin-top:1rem;padding:10px 14px;background:#f8fafc;border-radius:10px;
+                                    border:1px solid ${C.border};font-size:0.78rem;color:${C.muted};line-height:1.5;">
+                            Scores are managed in the <strong>Clinical Dashboard &rarr; Student Ranking System</strong>.
+                            ${scored < st.length
+                                ? `<span style="color:${C.amber};font-weight:600;"> ${st.length - scored} students have no score yet &mdash; they will be assigned by fallback.</span>`
+                                : `<span style="color:${C.green};font-weight:600;"> All ${scored} students have scores.</span>`}
+                        </div>
+                    </div>
+
+                    <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                                box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                                border:1px solid ${C.border};">
+                        <h3 style="margin:0 0 1rem;font-size:0.95rem;font-weight:700;color:${C.text};">How It Works</h3>
+                        ${[
+                            ['\uD83C\uDFC6','1. Rank students','Sort all students by ranking score (high &rarr; low)'],
+                            ['\u2B50','2. Apply preferences','Each student gets their highest available preferred site'],
+                            ['\u2696\uFE0F','3. Fallback','Students with no preference or full sites: assigned to least-loaded active site'],
+                            ['\uD83D\uDCBE','4. Save','Results written directly to Supabase rotation_assignments'],
+                        ].map(([ic,title,desc]) => `
+                            <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+                                <span style="font-size:1.1rem;flex-shrink:0;margin-top:1px;">${ic}</span>
+                                <div>
+                                    <div style="font-size:0.82rem;font-weight:700;color:${C.text};">${title}</div>
+                                    <div style="font-size:0.75rem;color:${C.muted};">${desc}</div>
+                                </div>
+                            </div>`).join('')}
                     </div>
                 </div>
 
+                <!-- Right: Current results + Top 10 -->
                 <div style="display:grid;gap:1rem;">
                     <div style="background:${C.card};border-radius:18px;padding:1.5rem;
                                 box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
                                 border:1px solid ${C.border};">
                         <h3 style="margin:0 0 1rem;font-size:0.95rem;font-weight:700;color:${C.text};">Current Results</h3>
                         ${[
-                            ['Assigned / Total',  placed + ' / ' + st.length, C.green   ],
-                            ['Got #1 Choice',     choice1,                     C.primaryMd],
-                            ['Sites in Use',      sitesUsed,                   C.blue    ],
-                            ['Still Unassigned',  pending, pending>0?C.amber:C.muted],
+                            ['Assigned / Total', placed+' / '+st.length, C.green   ],
+                            ['Got #1 Choice',    choice1,                  C.primaryMd],
+                            ['Sites in Use',     sitesUsed,                C.blue    ],
+                            ['Unassigned',       pending, pending>0?C.amber:C.muted ],
+                            ['With Scores',      scored+' / '+st.length,  C.purple  ],
                         ].map(([lbl,val,col]) => `
                             <div style="display:flex;justify-content:space-between;align-items:center;
-                                        padding:10px 0;border-bottom:1px solid ${C.border};">
-                                <span style="font-size:0.85rem;color:${C.muted};">${lbl}</span>
-                                <span style="font-size:1.05rem;font-weight:700;color:${col};">${val}</span>
+                                        padding:8px 0;border-bottom:1px solid ${C.border};">
+                                <span style="font-size:0.82rem;color:${C.muted};">${lbl}</span>
+                                <span style="font-size:0.95rem;font-weight:700;color:${col};">${val}</span>
                             </div>`).join('')}
                     </div>
 
-                    <div style="background:${C.primaryPl};border:2px dashed ${C.primaryMd}50;
-                                border-radius:18px;padding:1.5rem;text-align:center;">
-                        <div style="font-size:2.5rem;margin-bottom:10px;">\uD83D\uDD00</div>
-                        <div style="font-size:0.85rem;font-weight:600;color:${C.primary};line-height:1.6;">
-                            Adjust weights then click Run Matching. Results are written directly to Supabase.
+                    <div style="background:${C.card};border-radius:18px;overflow:hidden;
+                                box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                                border:1px solid ${C.border};">
+                        <div style="padding:1rem 1.25rem;border-bottom:2px solid ${C.border};
+                                    background:linear-gradient(135deg,#fff7ed,#fffbeb);">
+                            <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:#b45309;">\uD83C\uDFC6 Top 10 Ranked Students</h3>
+                        </div>
+                        <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;">
+                                <thead>
+                                    <tr style="background:#f8fafc;border-bottom:1px solid ${C.border};">
+                                        <th style="${_th('center')}">#</th>
+                                        <th style="${_th('left')}">Student</th>
+                                        <th style="${_th('center')}">Score</th>
+                                        <th style="${_th('left')}">Assigned To</th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rankRows}</tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -811,51 +876,26 @@
         </div>`;
     }
 
-    window.appeHubUpdateWeight = function (key, val) {
-        const el = document.getElementById('wt-val-' + key);
-        if (el) el.textContent = val + '%';
-        const w = {};
-        ['preference','score','balance'].forEach(k => {
-            w[k] = parseInt(document.getElementById('wt-' + k)?.value || 0);
-        });
-        localStorage.setItem('appe_match_weights', JSON.stringify(w));
-        const total = Object.values(w).reduce((a,b)=>a+b,0);
-        const btn   = document.querySelector('[onclick="window.appeHubRunMatch()"]');
-        if (btn) {
-            const ok = Math.abs(total-100) <= 1;
-            btn.style.background = ok ? C.primary : '#ccc';
-            btn.style.cursor     = ok ? 'pointer'  : 'not-allowed';
-        }
-    };
-
-    window.appeHubResetWeights = function () {
-        localStorage.removeItem('appe_match_weights');
-        const panel = document.getElementById('appe-hub-panel');
-        if (panel) panel.innerHTML = _tabMatching();
-    };
-
     window.appeHubRunMatch = async function () {
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Supabase not connected.'); return; }
 
-        const w = (() => {
-            try { return JSON.parse(localStorage.getItem('appe_match_weights')||'null'); } catch(e) {}
-            return null;
-        })() || { preference:50, score:30, balance:20 };
-
-        if (Math.abs(w.preference + w.score + w.balance - 100) > 1) {
-            alert('Weights must sum to 100.'); return;
-        }
-
         const { students, sites, assignments, preferences } = _data;
         const activeSites = sites.filter(s => s.is_active !== false);
-        const unassigned  = students.filter(s =>
+
+        /* Only process students not yet assigned to a site */
+        const unassigned = students.filter(s =>
             !assignments.find(a => String(a.student_id)===String(s.id) && a.site_id)
         );
 
         if (!unassigned.length) { alert('All students are already assigned!'); return; }
         if (!activeSites.length){ alert('No active sites available.');          return; }
 
+        /* Build score map from existing rotation_assignments (student_score = ranking score) */
+        const scoreMap = {};
+        assignments.forEach(a => { if (a.student_score != null) scoreMap[String(a.student_id)] = a.student_score; });
+
+        /* Build preference map: studentId → [{rank, site_id}] sorted by rank */
         const prefMap = {};
         preferences.forEach(p => {
             if (!prefMap[p.student_id]) prefMap[p.student_id] = [];
@@ -863,17 +903,23 @@
         });
         Object.values(prefMap).forEach(arr => arr.sort((a,b)=>a.rank-b.rank));
 
+        /* Track slot usage from already-assigned students */
         const usedSlots = {};
         assignments.filter(a=>a.site_id).forEach(a => {
             usedSlots[a.site_id] = (usedSlots[a.site_id]||0) + 1;
         });
 
-        const sorted = [...unassigned].sort((a,b) => (b.gpa||0)-(a.gpa||0));
-        const results = [];
+        /* Sort unassigned students by ranking score DESC (higher ranked picks first) */
+        const sorted = [...unassigned].sort((a,b) =>
+            (scoreMap[String(b.id)] ?? -1) - (scoreMap[String(a.id)] ?? -1)
+        );
 
+        const results = [];
         sorted.forEach(student => {
             const prefs  = prefMap[student.id] || [];
             let bestSite = null, bestRank = null;
+
+            /* Try each preference in order */
             for (const pref of prefs) {
                 const site = activeSites.find(s => s.id === pref.site_id);
                 if (!site) continue;
@@ -881,6 +927,8 @@
                     bestSite = site; bestRank = pref.rank; break;
                 }
             }
+
+            /* Fallback: least-loaded active site */
             if (!bestSite) {
                 const avail = activeSites.filter(s => (usedSlots[s.id]||0) < (s.available_slots||1));
                 if (avail.length) {
@@ -890,11 +938,13 @@
                     )[0];
                 }
             }
+
             if (bestSite) {
                 usedSlots[bestSite.id] = (usedSlots[bestSite.id]||0) + 1;
                 results.push({
                     student_id:               student.id,
                     student_name:             student.name || student.id,
+                    student_score:            scoreMap[String(student.id)] ?? null,
                     site_id:                  bestSite.id,
                     assignment_method:        bestRank ? 'preference' : 'fallback',
                     preference_rank_received: bestRank || null,
@@ -904,19 +954,20 @@
 
         if (!results.length) { alert('No assignments could be generated.'); return; }
 
-        const byPref    = results.filter(r=>r.preference_rank_received).length;
+        const byPref     = results.filter(r=>r.preference_rank_received).length;
         const byFallback = results.length - byPref;
         if (!confirm(
-            `Assign ${results.length} student${results.length!==1?'s':''}?\n` +
-            `  ${byPref} matched by preference\n` +
-            `  ${byFallback} assigned by fallback\n\nThis writes to Supabase. Continue?`
+            `Assign ${results.length} student${results.length!==1?'s':''}?\n\n` +
+            `  \u2B50 ${byPref} matched to a preferred site\n` +
+            `  \u2696\uFE0F ${byFallback} assigned by fallback\n\n` +
+            `Priority was based on Student Ranking Scores.\nThis writes to Supabase. Continue?`
         )) return;
 
         try {
             const { error } = await sb.from('rotation_assignments')
                 .upsert(results, { onConflict: 'student_id' });
             if (error) throw error;
-            alert(`${results.length} students assigned successfully!`);
+            alert(`\u2705 ${results.length} students assigned successfully!`);
             await _loadData();
             const panel = document.getElementById('appe-hub-panel');
             if (panel) panel.innerHTML = _tabMatching();
