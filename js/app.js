@@ -8248,7 +8248,130 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         let s = (this._sbStudents||[]).filter(st => match(st.cohort));
         if (!s.length) s = (this.store.getStudents()||[]).filter(st => match(st.cohort));
         if (!s.length && typeof APPE_DATABASE!=='undefined') s = (APPE_DATABASE.students||[]).filter(st => match(st.cohort));
+        // Merge manually added students (never duplicated by ID)
+        const manual = this._ippeGetManualStudents(level);
+        const existingIds = new Set(s.map(st=>String(st.id)));
+        manual.forEach(st => { if (!existingIds.has(String(st.id))) s.push(st); });
         return s;
+    }
+
+    _ippeGetManualStudents(level) {
+        try { const s=localStorage.getItem(`ippe_manual_${level}`); return s?JSON.parse(s):[]; } catch(e){ return []; }
+    }
+
+    _showIPPEAddStudentModal(level, cfgLabel) {
+        const existing = document.getElementById('ippeAddStudentModal');
+        if (existing) existing.remove();
+        const manual = this._ippeGetManualStudents(level);
+
+        const listRows = manual.length ? manual.map((st,i)=>`
+            <tr style="border-bottom:1px solid #f5f5f5;font-size:0.78rem;">
+                <td style="padding:0.35rem 0.5rem;">${st.name}</td>
+                <td style="padding:0.35rem 0.5rem;color:#888;">${st.id}</td>
+                <td style="padding:0.35rem 0.5rem;text-align:center;">${st.gpa??'—'}</td>
+                <td style="padding:0.35rem 0.5rem;text-align:center;">${st.attendance??'—'}%</td>
+                <td style="padding:0.35rem;text-align:center;">
+                    <button onclick="window.app._ippeDeleteManualStudent('${level}',${i})" style="padding:0.15rem 0.5rem;border-radius:8px;border:1px solid #e53935;background:#fff;color:#e53935;font-size:0.7rem;cursor:pointer;">Remove</button>
+                </td>
+            </tr>`).join('')
+            : `<tr><td colspan="5" style="padding:1rem;text-align:center;color:#bbb;font-size:0.78rem;">No manually added students yet</td></tr>`;
+
+        const modal = document.createElement('div');
+        modal.id = 'ippeAddStudentModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+        <div style="background:#fff;border-radius:14px;width:580px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <h3 style="margin:0;font-size:1rem;">&#128100; Add Student &mdash; ${cfgLabel}</h3>
+                <button onclick="document.getElementById('ippeAddStudentModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            </div>
+            <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1;">
+                <p style="font-size:0.78rem;color:#888;margin:0 0 1rem;">Add students who are not yet in Supabase. They will appear in all IPPE tabs for this rotation.</p>
+
+                <div style="background:#f8f9fa;border-radius:10px;padding:1rem;margin-bottom:1.25rem;">
+                    <h4 style="margin:0 0 0.75rem;font-size:0.85rem;color:#37474f;">New Student</h4>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-bottom:0.6rem;">
+                        <div>
+                            <label style="font-size:0.72rem;color:#555;display:block;margin-bottom:0.2rem;">Full Name *</label>
+                            <input id="ms_name" placeholder="e.g. Ahmed Al-Rashidi" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem;color:#555;display:block;margin-bottom:0.2rem;">Student ID *</label>
+                            <input id="ms_id" placeholder="e.g. 45-1-1-1-0999" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem;color:#555;display:block;margin-bottom:0.2rem;">Email</label>
+                            <input id="ms_email" placeholder="student@ksau-hs.edu.sa" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem;color:#555;display:block;margin-bottom:0.2rem;">GPA (out of 5.0)</label>
+                            <input id="ms_gpa" type="number" min="0" max="5" step="0.01" placeholder="e.g. 3.8" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem;color:#555;display:block;margin-bottom:0.2rem;">Attendance (%)</label>
+                            <input id="ms_att" type="number" min="0" max="100" placeholder="e.g. 92" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.72rem;color:#555;display:block;margin-bottom:0.2rem;">Risk Level</label>
+                            <select id="ms_risk" style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.85rem;box-sizing:border-box;">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="ms_err" style="display:none;color:#e53935;font-size:0.75rem;margin-bottom:0.5rem;"></div>
+                    <button onclick="window.app._ippeAddManualStudent('${level}')" class="btn btn-primary" style="background:#2e7d32;border-color:#2e7d32;font-size:0.82rem;">+ Add to Roster</button>
+                </div>
+
+                <h4 style="margin:0 0 0.5rem;font-size:0.85rem;color:#37474f;">Manually Added Students (${manual.length})</h4>
+                <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                    <thead><tr style="background:#f8f9fa;font-size:0.72rem;color:#888;text-transform:uppercase;">
+                        <th style="padding:0.35rem 0.5rem;text-align:left;">Name</th>
+                        <th style="padding:0.35rem 0.5rem;text-align:left;">ID</th>
+                        <th style="padding:0.35rem 0.5rem;text-align:center;">GPA</th>
+                        <th style="padding:0.35rem 0.5rem;text-align:center;">Attendance</th>
+                        <th style="padding:0.35rem;text-align:center;"></th>
+                    </tr></thead>
+                    <tbody id="ms_list">${listRows}</tbody>
+                </table>
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:flex-end;flex-shrink:0;">
+                <button onclick="document.getElementById('ippeAddStudentModal').remove();window.app.renderHomePage('${level}','tracking','all')" class="btn btn-primary">Done</button>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _ippeAddManualStudent(level) {
+        const name  = document.getElementById('ms_name').value.trim();
+        const id    = document.getElementById('ms_id').value.trim();
+        const email = document.getElementById('ms_email').value.trim();
+        const gpa   = parseFloat(document.getElementById('ms_gpa').value) || null;
+        const att   = parseFloat(document.getElementById('ms_att').value) || null;
+        const risk  = document.getElementById('ms_risk').value;
+        const errEl = document.getElementById('ms_err');
+
+        if (!name || !id) { errEl.textContent='Name and Student ID are required.'; errEl.style.display='block'; return; }
+
+        const existing = this._ippeGetManualStudents(level);
+        if (existing.some(s=>String(s.id)===String(id))) {
+            errEl.textContent='A student with this ID already exists.'; errEl.style.display='block'; return;
+        }
+        errEl.style.display='none';
+
+        existing.push({ id, name, email, gpa, attendance: att, risk, cohort: level==='ippe1'?'P1':level==='ippe2'?'P2':'P3', _manual: true });
+        try { localStorage.setItem(`ippe_manual_${level}`, JSON.stringify(existing)); } catch(e) {}
+
+        // Refresh modal
+        this._showIPPEAddStudentModal(level, {'ippe1':'IPPE I','ippe2':'IPPE II','ippe3':'IPPE III','community':'IPPE Community'}[level]||level);
+    }
+
+    _ippeDeleteManualStudent(level, index) {
+        const existing = this._ippeGetManualStudents(level);
+        existing.splice(index, 1);
+        try { localStorage.setItem(`ippe_manual_${level}`, JSON.stringify(existing)); } catch(e) {}
+        this._showIPPEAddStudentModal(level, {'ippe1':'IPPE I','ippe2':'IPPE II','ippe3':'IPPE III','community':'IPPE Community'}[level]||level);
     }
 
     _showIPPEHoursEditor(level, label) {
@@ -8328,6 +8451,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
                 <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#128101; Student Roster &mdash; ${cfg.label} (${students.length} students)</h3>
                 <div style="display:flex;gap:0.5rem;">
+                    <button onclick="window.app._showIPPEAddStudentModal('${level}','${cfg.label}')"
+                        style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid #2e7d32;background:#fff;color:#2e7d32;font-size:0.75rem;cursor:pointer;">
+                        &#128100; Add Student</button>
                     <button onclick="window.app._showIPPEScoreEditor('${level}','${cfg.label}')"
                         style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid #1565c0;background:#fff;color:#1565c0;font-size:0.75rem;cursor:pointer;">
                         &#128221; Enter Scores</button>
