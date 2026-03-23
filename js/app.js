@@ -12900,6 +12900,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
             <!-- PRECEPTORS TAB -->
             <div id="rot-tab-preceptors" style="display:none;">${(()=>{
+                // Colour palette — cycles through for each unique specialty
+                const PALETTE = [
+                    { bg:'#e8f5e9', fg:'#2e7d32' }, { bg:'#e3f2fd', fg:'#1565c0' },
+                    { bg:'#fce4ec', fg:'#c62828' }, { bg:'#fff3e0', fg:'#e65100' },
+                    { bg:'#f3e5f5', fg:'#6a1b9a' }, { bg:'#e0f7fa', fg:'#00695c' },
+                    { bg:'#fff8e1', fg:'#f57f17' }, { bg:'#fbe9e7', fg:'#bf360c' },
+                    { bg:'#e8eaf6', fg:'#283593' }, { bg:'#f9fbe7', fg:'#558b2f' },
+                    { bg:'#e0f2f1', fg:'#004d40' }, { bg:'#fdf6ec', fg:'#795548' },
+                ];
+                // Assign a stable colour to each unique specialty across the whole tab
+                const allSpecialties = [...new Set(sites.map(s=>s.specialty).filter(Boolean))].sort();
+                const specColor = {};
+                allSpecialties.forEach((sp,i) => { specColor[sp] = PALETTE[i % PALETTE.length]; });
+
+                const specBadge = sp => {
+                    const c = specColor[sp] || PALETTE[0];
+                    return `<span style="display:inline-block;padding:0.15rem 0.55rem;background:${c.bg};color:${c.fg};border-radius:10px;font-size:0.72rem;font-weight:600;margin:0.1rem;">${sp}</span>`;
+                };
+
                 // Group sites by preceptor name
                 const map = {};
                 sites.forEach(s => {
@@ -12910,22 +12929,32 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 });
                 const preceptors = Object.values(map).sort((a,b)=>a.name.localeCompare(b.name));
                 if (!preceptors.length) return `<div class="card" style="text-align:center;padding:3rem;color:#aaa;"><div style="font-size:2rem;margin-bottom:0.5rem;">👨‍⚕️</div><p>No preceptors found. Add a preceptor name when creating a rotation site.</p></div>`;
+
+                // Specialty legend
+                const legend = allSpecialties.map(sp => specBadge(sp)).join(' ');
+
                 const rows = preceptors.map(p=>{
-                    const siteTags = p.sites.map(s=>`<span style="display:inline-block;padding:0.15rem 0.5rem;background:#e8f5e9;border-radius:8px;font-size:0.72rem;color:#2e7d32;margin:0.1rem;">${s.name||s.site_name||'Site'}</span>`).join(' ');
-                    const specialties = [...new Set(p.sites.map(s=>s.specialty).filter(Boolean))].join(', ') || '—';
+                    const uniqueSpecs = [...new Set(p.sites.map(s=>s.specialty).filter(Boolean))];
+                    const specBadges = uniqueSpecs.map(sp => specBadge(sp)).join(' ') || '<span style="color:#bbb;font-size:0.78rem;">—</span>';
+                    const siteTags  = p.sites.map(s => {
+                        const c = specColor[s.specialty] || PALETTE[0];
+                        return `<span style="display:inline-block;padding:0.15rem 0.5rem;background:${c.bg};border:1px solid ${c.fg}30;border-radius:8px;font-size:0.72rem;color:${c.fg};margin:0.1rem;">${s.name||s.site_name||'Site'}</span>`;
+                    }).join(' ');
                     return `<tr style="border-bottom:1px solid #f5f5f5;">
                         <td style="padding:0.65rem 0.75rem;font-weight:600;font-size:0.85rem;">👨‍⚕️ ${p.name}</td>
-                        <td style="padding:0.65rem 0.75rem;font-size:0.8rem;color:#1565c0;">${p.email!=='—'?`<a href="mailto:${p.email}" style="color:#1565c0;text-decoration:none;">${p.email}</a>`:'—'}</td>
-                        <td style="padding:0.65rem 0.75rem;font-size:0.78rem;color:#555;">${specialties}</td>
+                        <td style="padding:0.65rem 0.75rem;font-size:0.8rem;">${p.email!=='—'?`<a href="mailto:${p.email}" style="color:#1565c0;text-decoration:none;">${p.email}</a>`:'—'}</td>
+                        <td style="padding:0.65rem 0.75rem;">${specBadges}</td>
                         <td style="padding:0.65rem 0.75rem;text-align:center;"><span style="background:#e3f2fd;color:#1565c0;padding:0.15rem 0.5rem;border-radius:8px;font-size:0.75rem;font-weight:700;">${p.sites.length} site${p.sites.length!==1?'s':''}</span></td>
                         <td style="padding:0.65rem 0.75rem;">${siteTags}</td>
                     </tr>`;
                 }).join('');
                 return `<div class="card" style="margin-bottom:1.25rem;background:linear-gradient(135deg,#f8fbff,#f0f4ff);border:1px solid #c5cae9;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;">
-                        <div>
-                            <h3 style="margin:0 0 0.2rem;color:#1a237e;font-size:0.95rem;">👨‍⚕️ Preceptor Directory</h3>
-                            <p style="margin:0;font-size:0.8rem;color:#888;">${preceptors.length} preceptors across ${sites.length} sites — auto-derived from rotation sites. Edit preceptor details from the Sites tab.</p>
+                    <div style="margin-bottom:0.75rem;">
+                        <h3 style="margin:0 0 0.2rem;color:#1a237e;font-size:0.95rem;">👨‍⚕️ Preceptor Directory</h3>
+                        <p style="margin:0 0 0.75rem;font-size:0.8rem;color:#888;">${preceptors.length} preceptors · ${allSpecialties.length} specialties · ${sites.length} sites — Edit preceptor details from the Sites tab.</p>
+                        <div style="display:flex;flex-wrap:wrap;gap:0.2rem;align-items:center;">
+                            <span style="font-size:0.72rem;color:#aaa;margin-right:0.3rem;font-weight:600;">SPECIALTIES:</span>
+                            ${legend}
                         </div>
                     </div>
                 </div>
