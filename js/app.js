@@ -7702,36 +7702,160 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     // ── Shared helper: compute grades for all students ──────────────────────
-    _ippe_computeGrades(students) {
-        const INSTR = [
-            { key:'professionalism', label:'Professionalism',            wt:30 },
-            { key:'midYear',         label:'Mid-Year Written Evaluation', wt:10 },
-            { key:'endYear',         label:'End-Year Written Evaluation', wt:20 },
-            { key:'portfolio',       label:'Portfolio Evaluation',        wt:15 },
-            { key:'epa',             label:'EPA',                         wt:10 },
-            { key:'simulation',      label:'Simulation-Based Assessment', wt:15 },
-        ];
+    // Priority: manual localStorage scores → Supabase store → APPE_DATABASE fallback
+    _ippe_computeGrades(students, level) {
+        const gc    = this._loadIPPEGradingConfig();
+        const INSTR = gc.instruments;
+        // Detect level from first student's cohort if not passed
+        const lvl   = level || (() => {
+            const c = (students[0]?.cohort||'').toLowerCase();
+            if (c==='p1'||c.includes('ippe i')||c==='ippe 1') return 'ippe1';
+            if (c==='p2'||c.includes('ippe ii')||c==='ippe 2') return 'ippe2';
+            if (c==='p3'||c.includes('ippe iii')||c.includes('community')) return 'ippe3';
+            return 'ippe1';
+        })();
+        // Load manually entered scores from localStorage
+        const saved = (() => { try { const s=localStorage.getItem(`ippe_scores_${lvl}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+
         return students.map(s => {
+            // If manual scores exist for this student, use them
+            const manual = saved[s.id];
+            if (manual) {
+                const comp = {};
+                INSTR.forEach(ins => { comp[ins.key] = { score: manual[ins.key]??0, wt: ins.wt }; });
+                const finalGrade = INSTR.reduce((sum,ins)=>sum+(comp[ins.key].score*ins.wt/100),0);
+                return { s, grading: { finalGrade: Math.round(finalGrade*10)/10, components: comp }, final: Math.round(finalGrade*10)/10 };
+            }
+            // Otherwise try Supabase store
             let grading = null;
             try { grading = this.store.calculateStudentGrade(s.id); } catch(e) {}
             if (!grading) {
-                // Build from assessments directly
                 const a = s.assessments || {};
                 const p = s.professionalism || { score:10, violations:[] };
                 const profScore = (p.score/10)*100;
-                const comp = {
-                    professionalism: { score: profScore,                wt:30 },
-                    midYear:         { score: a.midYear?.score  ?? 100, wt:10 },
-                    endYear:         { score: a.endYear?.score  ?? 100, wt:20 },
-                    portfolio:       { score: a.portfolio?.score?? 100, wt:15 },
-                    epa:             { score: a.epa?.score      ?? 0,   wt:10 },
-                    simulation:      { score: a.simulation?.score ?? 0, wt:15 },
-                };
-                const finalGrade = Object.values(comp).reduce((sum,c)=>sum+(c.score*c.wt/100),0);
+                const comp = {};
+                INSTR.forEach(ins => {
+                    const score = ins.key==='professionalism' ? profScore : (a[ins.key]?.score ?? 0);
+                    comp[ins.key] = { score, wt: ins.wt };
+                });
+                const finalGrade = INSTR.reduce((sum,ins)=>sum+(comp[ins.key].score*ins.wt/100),0);
                 grading = { finalGrade: Math.round(finalGrade*10)/10, components: comp };
             }
             return { s, grading, final: grading?.finalGrade ?? 0 };
         });
+    }
+
+    // ── Student score editor modal ───────────────────────────────────────────
+    _showIPPEScoreEditor(level, label) {
+        const gc       = this._loadIPPEGradingConfig();
+        const INSTR    = gc.instruments;
+        const PASS     = gc.passingScore;
+        const students = this._ippeGetStudents(level);
+        const saved    = (() => { try { const s=localStorage.getItem(`ippe_scores_${level}`); return s?JSON.parse(s):{}; } catch(e){return{};} })();
+
+        const existing = document.getElementById('ippeScoreModal');
+        if (existing) existing.remove();
+
+        const headerCols = INSTR.map(ins=>`<th style="padding:0.35rem 0.4rem;text-align:center;white-space:nowrap;font-size:0.65rem;color:#888;font-weight:600;min-width:72px;">${ins.label}<br><span style="color:#bbb;">${ins.wt}%</span></th>`).join('');
+
+        const studentRows = students.map(s => {
+            const sc = saved[s.id] || {};
+            const inputs = INSTR.map(ins => {
+                const val = sc[ins.key] ?? '';
+                return `<td style="padding:0.25rem 0.3rem;text-align:center;">
+                    <input data-sid="${s.id}" data-key="${ins.key}" data-wt="${ins.wt}"
+                        type="number" min="0" max="100" step="0.1" value="${val}" placeholder="—"
+                        oninput="window.app._updateIPPEScoreRow(this)"
+                        style="width:62px;padding:0.2rem 0.3rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.78rem;text-align:center;">
+                </td>`;
+            }).join('');
+            const final = INSTR.reduce((sum,ins)=>{
+                const v = parseFloat(sc[ins.key]);
+                return sum + (isNaN(v)?0:v*ins.wt/100);
+            },0);
+            const fc = final>=PASS?'#2e7d32':final>0?'#e53935':'#bbb';
+            return `<tr data-sid="${s.id}" style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:0.3rem 0.5rem;font-size:0.78rem;font-weight:500;white-space:nowrap;">${s.name}</td>
+                ${inputs}
+                <td style="padding:0.3rem 0.5rem;text-align:center;font-weight:700;color:${fc};" id="final_${s.id}">${final>0?final.toFixed(1)+'%':'—'}</td>
+            </tr>`;
+        }).join('');
+
+        const modal = document.createElement('div');
+        modal.id = 'ippeScoreModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+        <div style="background:#fff;border-radius:14px;width:95vw;max-width:1100px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <div>
+                    <h3 style="margin:0;font-size:1rem;">&#128221; Student Scores &mdash; ${label}</h3>
+                    <p style="margin:0.2rem 0 0;font-size:0.72rem;color:#888;">Enter scores (0–100) per instrument. Final grade calculates automatically. Saves to browser.</p>
+                </div>
+                <button onclick="document.getElementById('ippeScoreModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            </div>
+            <div style="overflow:auto;flex:1;padding:0 1rem;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                    <thead style="position:sticky;top:0;background:#fff;z-index:1;">
+                        <tr style="border-bottom:2px solid #e0e0e0;">
+                            <th style="padding:0.5rem;text-align:left;font-size:0.75rem;min-width:160px;">Student</th>
+                            ${headerCols}
+                            <th style="padding:0.35rem 0.5rem;text-align:center;font-size:0.65rem;color:#1565c0;min-width:80px;">Final Grade</th>
+                        </tr>
+                    </thead>
+                    <tbody>${studentRows}</tbody>
+                </table>
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <button onclick="window.app._clearIPPEScores('${level}')" style="padding:0.4rem 1rem;border-radius:20px;border:1px solid #e53935;background:#fff;color:#e53935;font-size:0.8rem;cursor:pointer;">Clear All Scores</button>
+                <div style="display:flex;gap:0.5rem;">
+                    <button onclick="document.getElementById('ippeScoreModal').remove()" class="btn btn-outline" style="font-size:0.85rem;">Cancel</button>
+                    <button onclick="window.app._saveIPPEScores('${level}')" class="btn btn-primary" style="background:#1565c0;border-color:#1565c0;font-size:0.85rem;">&#128190; Save &amp; Apply</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+    }
+
+    _updateIPPEScoreRow(inp) {
+        const sid   = inp.dataset.sid;
+        const row   = inp.closest('tr');
+        const inputs = row.querySelectorAll('input[data-wt]');
+        const gc    = this._loadIPPEGradingConfig();
+        const PASS  = gc.passingScore;
+        let final = 0;
+        inputs.forEach(el => {
+            const v = parseFloat(el.value);
+            if (!isNaN(v)) final += v * parseFloat(el.dataset.wt) / 100;
+        });
+        const cell = document.getElementById(`final_${sid}`);
+        if (cell) {
+            cell.textContent = final > 0 ? final.toFixed(1) + '%' : '—';
+            cell.style.color = final >= PASS ? '#2e7d32' : final > 0 ? '#e53935' : '#bbb';
+        }
+    }
+
+    _saveIPPEScores(level) {
+        const modal = document.getElementById('ippeScoreModal');
+        const scores = {};
+        modal.querySelectorAll('input[data-sid]').forEach(inp => {
+            const v = parseFloat(inp.value);
+            if (isNaN(v)) return;
+            if (!scores[inp.dataset.sid]) scores[inp.dataset.sid] = {};
+            scores[inp.dataset.sid][inp.dataset.key] = v;
+        });
+        try { localStorage.setItem(`ippe_scores_${level}`, JSON.stringify(scores)); } catch(e) {}
+        modal.remove();
+        // Re-render whichever sub-tab is active (distribution or tracking)
+        const activeSubMatch = document.querySelector('[data-subtab]');
+        const sub = activeSubMatch?.dataset?.subtab || 'tracking';
+        this.renderHomePage(level, sub, 'all');
+    }
+
+    _clearIPPEScores(level) {
+        if (!confirm('Clear all manually entered scores for this rotation?')) return;
+        try { localStorage.removeItem(`ippe_scores_${level}`); } catch(e) {}
+        document.getElementById('ippeScoreModal').remove();
+        this.renderHomePage(level, 'tracking', 'all');
     }
 
     // ── 1. Performance Metrics ──────────────────────────────────────────────
@@ -7897,7 +8021,10 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             </div>
         </div>
         <div class="card fade-in-up" style="margin-top:1.25rem;">
-            <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128101; Individual Student Grades</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#128101; Individual Student Grades</h3>
+                <button onclick="window.app._showIPPEScoreEditor('${level}','${cfg.label}')" style="padding:0.3rem 0.8rem;border-radius:20px;border:1px solid #1565c0;background:#fff;color:#1565c0;font-size:0.72rem;cursor:pointer;">&#128221; Enter Scores</button>
+            </div>
             <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
                 <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
                     <th style="padding:0.45rem 0.6rem;text-align:center;">#</th><th style="padding:0.45rem 0.6rem;text-align:left;">Student</th>
@@ -8201,6 +8328,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
                 <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#128101; Student Roster &mdash; ${cfg.label} (${students.length} students)</h3>
                 <div style="display:flex;gap:0.5rem;">
+                    <button onclick="window.app._showIPPEScoreEditor('${level}','${cfg.label}')"
+                        style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid #1565c0;background:#fff;color:#1565c0;font-size:0.75rem;cursor:pointer;">
+                        &#128221; Enter Scores</button>
                     <button onclick="window.app._exportIPPERoster('${level}')"
                         style="padding:0.3rem 0.8rem;border-radius:15px;border:1.5px solid ${cfg.color};background:#fff;color:${cfg.color};font-size:0.75rem;cursor:pointer;">
                         &#8659; Export CSV</button>
