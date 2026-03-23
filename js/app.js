@@ -3729,7 +3729,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 this.renderStatsDashboard();
                 break;
             case 'preceptors':
-                this.renderPreceptorDirectory();
+                this.renderRotationSchedule();
                 break;
             case 'outcome-mapping':
                 this.renderOutcomeMapping();
@@ -12786,6 +12786,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     <td style="padding:10px 12px;"><strong id="site-name-view-${s.id}">${s.site_name}</strong><input id="site-name-edit-${s.id}" value="${(s.site_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;"><span id="site-spec-view-${s.id}">${_specBadge(s.specialty)}</span><input id="site-spec-edit-${s.id}" value="${(s.specialty||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-prec-view-${s.id}">${s.preceptor_name || '—'}</span><input id="site-prec-edit-${s.id}" value="${(s.preceptor_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-email-view-${s.id}">${s.preceptor_email ? `<a href="mailto:${s.preceptor_email}" style="color:#1565c0;text-decoration:none;">${s.preceptor_email}</a>` : '—'}</span><input type="email" id="site-email-edit-${s.id}" value="${(s.preceptor_email||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-loc-view-${s.id}">${s.location || '—'}</span><input id="site-loc-edit-${s.id}" value="${(s.location||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;text-align:center;"><span id="site-slots-view-${s.id}" style="background:#e3f2fd;color:#1565C0;padding:3px 12px;border-radius:12px;font-weight:700;">${s.available_slots}</span><input id="site-slots-edit-${s.id}" type="number" min="1" value="${s.available_slots||1}" style="display:none;width:60px;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;text-align:center;"></td>
                     <td style="padding:10px 12px;text-align:center;"><span id="site-status-view-${s.id}">${s.is_active ? '<span style="color:#2e7d32;font-size:0.85rem;">● Active</span>' : '<span style="color:#bbb;font-size:0.85rem;">○ Inactive</span>'}</span><select id="site-status-edit-${s.id}" style="display:none;padding:5px 6px;border:1px solid #ccc;border-radius:5px;font-size:0.85rem;"><option value="true" ${s.is_active?'selected':''}>Active</option><option value="false" ${!s.is_active?'selected':''}>Inactive</option></select></td>
@@ -12802,7 +12803,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </td>
                 </tr>
                 <tr id="site-blocks-row-${s.id}" style="display:none;background:#fafafa;border-bottom:2px solid #e8f5e9;">
-                    <td colspan="7" style="padding:14px 20px;">
+                    <td colspan="8" style="padding:14px 20px;">
                         <div style="margin-bottom:10px;font-size:0.82rem;font-weight:700;color:#555;">📅 Block Availability — click a block to toggle. Green = available. Set slots per block.</div>
                         <div id="block-chips-${s.id}" style="display:flex;flex-wrap:wrap;gap:8px;">
                             ${window.rotAdmin._renderBlockChips(s.id, availMap[s.id] || {})}
@@ -12905,6 +12906,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Site Name</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Specialty</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Preceptor</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Email</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Location</th>
                                 <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Slots</th>
                                 <th style="text-align:center;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Status</th>
@@ -17817,7 +17819,7 @@ window.rotAdmin = {
     },
 
     startEditSite(id) {
-        ['name','spec','prec','loc','slots','status'].forEach(f => {
+        ['name','spec','prec','email','loc','slots','status'].forEach(f => {
             const v = document.getElementById(`site-${f}-view-${id}`);
             const e = document.getElementById(`site-${f}-edit-${id}`);
             if (v) v.style.display = 'none';
@@ -17828,7 +17830,7 @@ window.rotAdmin = {
     },
 
     cancelEditSite(id) {
-        ['name','spec','prec','loc','slots','status'].forEach(f => {
+        ['name','spec','prec','email','loc','slots','status'].forEach(f => {
             const v = document.getElementById(`site-${f}-view-${id}`);
             const e = document.getElementById(`site-${f}-edit-${id}`);
             if (v) v.style.display = '';
@@ -17842,6 +17844,7 @@ window.rotAdmin = {
         const name = document.getElementById(`site-name-edit-${id}`)?.value?.trim();
         const specialty = document.getElementById(`site-spec-edit-${id}`)?.value?.trim();
         const preceptor_name = document.getElementById(`site-prec-edit-${id}`)?.value?.trim();
+        const preceptor_email = document.getElementById(`site-email-edit-${id}`)?.value?.trim();
         const location = document.getElementById(`site-loc-edit-${id}`)?.value?.trim();
         const available_slots = parseInt(document.getElementById(`site-slots-edit-${id}`)?.value) || 1;
         const is_active = document.getElementById(`site-status-edit-${id}`)?.value === 'true';
@@ -17849,7 +17852,7 @@ window.rotAdmin = {
         try {
             const sb = window.SupabaseAuth?.supabase;
             if (!sb) return;
-            const { error } = await sb.from('rotation_sites').update({ site_name: name, specialty, preceptor_name: preceptor_name || null, location: location || null, available_slots, is_active }).eq('id', id);
+            const { error } = await sb.from('rotation_sites').update({ site_name: name, specialty, preceptor_name: preceptor_name || null, preceptor_email: preceptor_email || null, location: location || null, available_slots, is_active }).eq('id', id);
             if (error) throw error;
             window.app.renderRotationSchedule();
         } catch (e) { alert('Error saving: ' + e.message); }
