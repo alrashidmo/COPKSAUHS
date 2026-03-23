@@ -7736,10 +7736,11 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     // ── 1. Performance Metrics ──────────────────────────────────────────────
     renderIPPE_PerformanceMetrics(students, level, cfg) {
-        const INSTR    = IPPE_GRADING_CONFIG.instruments;
-        const PASS     = IPPE_GRADING_CONFIG.passingScore;
-        const EXCEL    = IPPE_GRADING_CONFIG.excellentScore;
-        const ATT_BM   = IPPE_GRADING_CONFIG.attendanceBenchmark;
+        const gc       = this._loadIPPEGradingConfig();
+        const INSTR    = gc.instruments;
+        const PASS     = gc.passingScore;
+        const EXCEL    = gc.excellentScore;
+        const ATT_BM   = gc.attendanceBenchmark;
         const graded   = this._ippe_computeGrades(students);
         const n        = graded.length || 1;
         const avgFinal = graded.reduce((s,g)=>s+g.final,0)/n;
@@ -7798,7 +7799,10 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         </div>
         <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;">
             <div class="card fade-in-up">
-                <h3 style="margin:0 0 1rem;font-size:0.9rem;color:${cfg.color};">&#128202; Grading Instrument Breakdown</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                    <h3 style="margin:0;font-size:0.9rem;color:${cfg.color};">&#128202; Grading Instrument Breakdown</h3>
+                    <button onclick="window.app._showIPPEGradingConfigEditor('${level}')" style="padding:0.3rem 0.8rem;border-radius:20px;border:1px solid #546e7a;background:#fff;color:#546e7a;font-size:0.72rem;cursor:pointer;display:flex;align-items:center;gap:0.3rem;">&#9998; Edit Config</button>
+                </div>
                 <table style="width:100%;border-collapse:collapse;">
                     <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;font-size:0.72rem;text-transform:uppercase;color:#888;">
                         <th style="padding:0.5rem 0.75rem;text-align:left;">Instrument</th>
@@ -7831,10 +7835,11 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     // ── 2. Grade Distribution ───────────────────────────────────────────────
     renderIPPE_GradeDistribution(students, level, cfg) {
         const graded  = this._ippe_computeGrades(students);
-        const INSTR   = IPPE_GRADING_CONFIG.instruments;
-        const PASS    = IPPE_GRADING_CONFIG.passingScore;
-        const EXCEL   = IPPE_GRADING_CONFIG.excellentScore;
-        const buckets = IPPE_GRADING_CONFIG.gradeBuckets;
+        const gc      = this._loadIPPEGradingConfig();
+        const INSTR   = gc.instruments;
+        const PASS    = gc.passingScore;
+        const EXCEL   = gc.excellentScore;
+        const buckets = gc.gradeBuckets;
         const counts = buckets.map(b => graded.filter(g=>g.final>=b.min&&g.final<b.max).length);
         const maxCnt = Math.max(...counts, 1);
 
@@ -7968,6 +7973,139 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 </tr>`).join('')}</tbody>
             </table></div>
         </div>`;
+    }
+
+    // ── IPPE Grading Config: load (localStorage overrides default) ────────────
+    _loadIPPEGradingConfig() {
+        try {
+            const stored = localStorage.getItem('ippe_grading_config');
+            if (stored) return JSON.parse(stored);
+        } catch(e) {}
+        return IPPE_GRADING_CONFIG;
+    }
+
+    // ── IPPE Grading Config: inline editor modal ──────────────────────────────
+    _showIPPEGradingConfigEditor(level) {
+        const gc = this._loadIPPEGradingConfig();
+        const existing = document.getElementById('ippeGradingConfigModal');
+        if (existing) existing.remove();
+
+        const instrRows = gc.instruments.map((ins, i) => `
+            <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:0.4rem 0.5rem;">
+                    <input data-i="${i}" data-field="label" value="${ins.label}"
+                        style="width:100%;padding:0.3rem 0.5rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.8rem;">
+                </td>
+                <td style="padding:0.4rem 0.5rem;width:80px;">
+                    <input data-i="${i}" data-field="wt" type="number" min="0" max="100" value="${ins.wt}"
+                        style="width:100%;padding:0.3rem 0.5rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.8rem;text-align:center;">
+                </td>
+                <td style="padding:0.4rem 0.5rem;width:80px;">
+                    <input data-i="${i}" data-field="key" value="${ins.key}"
+                        style="width:100%;padding:0.3rem 0.5rem;border:1px solid #ddd;border-radius:4px;font-size:0.72rem;color:#888;">
+                </td>
+            </tr>`).join('');
+
+        const modal = document.createElement('div');
+        modal.id = 'ippeGradingConfigModal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9999;display:flex;align-items:center;justify-content:center;';
+        modal.innerHTML = `
+        <div style="background:#fff;border-radius:14px;width:600px;max-width:96vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+            <div style="padding:1rem 1.5rem;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <h3 style="margin:0;font-size:1rem;">&#9998; Edit Grading Config</h3>
+                <button onclick="document.getElementById('ippeGradingConfigModal').remove()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#aaa;">&times;</button>
+            </div>
+            <div style="padding:1rem 1.5rem;overflow-y:auto;flex:1;">
+
+                <p style="font-size:0.78rem;color:#888;margin:0 0 1rem;">Changes apply immediately and are saved in the browser. No code editing needed.</p>
+
+                <h4 style="margin:0 0 0.5rem;font-size:0.85rem;color:#37474f;">Grading Instruments</h4>
+                <p style="font-size:0.72rem;color:#aaa;margin:0 0 0.6rem;">Weights must sum to 100%.</p>
+                <table style="width:100%;border-collapse:collapse;font-size:0.8rem;margin-bottom:1.25rem;">
+                    <thead><tr style="background:#f8f9fa;font-size:0.72rem;color:#888;text-transform:uppercase;">
+                        <th style="padding:0.4rem 0.5rem;text-align:left;">Instrument Name</th>
+                        <th style="padding:0.4rem 0.5rem;text-align:center;">Weight %</th>
+                        <th style="padding:0.4rem 0.5rem;text-align:left;color:#bbb;">Key (advanced)</th>
+                    </tr></thead>
+                    <tbody id="ippeInstrRows">${instrRows}</tbody>
+                </table>
+
+                <h4 style="margin:0 0 0.75rem;font-size:0.85rem;color:#37474f;">Thresholds</h4>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;">
+                    <div>
+                        <label style="font-size:0.75rem;color:#555;display:block;margin-bottom:0.25rem;">Passing Score (%)</label>
+                        <input id="cfg_pass" type="number" min="0" max="100" value="${gc.passingScore}"
+                            style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.9rem;text-align:center;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem;color:#555;display:block;margin-bottom:0.25rem;">Excellent Score (%)</label>
+                        <input id="cfg_excel" type="number" min="0" max="100" value="${gc.excellentScore}"
+                            style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.9rem;text-align:center;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.75rem;color:#555;display:block;margin-bottom:0.25rem;">Attendance Benchmark (%)</label>
+                        <input id="cfg_att" type="number" min="0" max="100" value="${gc.attendanceBenchmark}"
+                            style="width:100%;padding:0.4rem 0.6rem;border:1px solid #e0e0e0;border-radius:6px;font-size:0.9rem;text-align:center;">
+                    </div>
+                </div>
+                <div id="cfg_weight_warn" style="display:none;margin-top:0.75rem;padding:0.5rem 0.75rem;background:#fff3e0;border-left:3px solid #ff9800;border-radius:4px;font-size:0.78rem;color:#e65100;">
+                    &#9888; Weights do not sum to 100%. Please adjust before saving.
+                </div>
+            </div>
+            <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                <button onclick="window.app._resetIPPEGradingConfig('${level}')" style="padding:0.4rem 1rem;border-radius:20px;border:1px solid #e53935;background:#fff;color:#e53935;font-size:0.8rem;cursor:pointer;">Reset to Defaults</button>
+                <div style="display:flex;gap:0.5rem;">
+                    <button onclick="document.getElementById('ippeGradingConfigModal').remove()" class="btn btn-outline" style="font-size:0.85rem;">Cancel</button>
+                    <button onclick="window.app._saveIPPEGradingConfig('${level}')" class="btn btn-primary" style="background:#1565c0;border-color:#1565c0;font-size:0.85rem;">Save &amp; Apply</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.appendChild(modal);
+
+        // Live weight-sum warning
+        modal.querySelectorAll('input[data-field="wt"]').forEach(inp => {
+            inp.addEventListener('input', () => {
+                const total = [...modal.querySelectorAll('input[data-field="wt"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0);
+                document.getElementById('cfg_weight_warn').style.display = Math.round(total)!==100 ? 'block' : 'none';
+            });
+        });
+    }
+
+    _saveIPPEGradingConfig(level) {
+        const modal = document.getElementById('ippeGradingConfigModal');
+        const gc    = this._loadIPPEGradingConfig();
+
+        // Collect instruments
+        const instruments = gc.instruments.map((ins, i) => ({
+            key:   modal.querySelector(`input[data-i="${i}"][data-field="key"]`).value.trim()   || ins.key,
+            label: modal.querySelector(`input[data-i="${i}"][data-field="label"]`).value.trim() || ins.label,
+            wt:    parseFloat(modal.querySelector(`input[data-i="${i}"][data-field="wt"]`).value) || ins.wt,
+        }));
+
+        // Validate weight sum
+        const total = instruments.reduce((s,ins)=>s+ins.wt,0);
+        if (Math.round(total) !== 100) {
+            document.getElementById('cfg_weight_warn').style.display = 'block';
+            return;
+        }
+
+        const newCfg = {
+            instruments,
+            gradeBuckets:        gc.gradeBuckets,
+            passingScore:        parseFloat(document.getElementById('cfg_pass').value)  || gc.passingScore,
+            excellentScore:      parseFloat(document.getElementById('cfg_excel').value) || gc.excellentScore,
+            attendanceBenchmark: parseFloat(document.getElementById('cfg_att').value)   || gc.attendanceBenchmark,
+        };
+
+        try { localStorage.setItem('ippe_grading_config', JSON.stringify(newCfg)); } catch(e) {}
+        modal.remove();
+        this.renderHomePage(level, 'performance', 'all');
+    }
+
+    _resetIPPEGradingConfig(level) {
+        try { localStorage.removeItem('ippe_grading_config'); } catch(e) {}
+        document.getElementById('ippeGradingConfigModal').remove();
+        this.renderHomePage(level, 'performance', 'all');
     }
 
     // ── Centralised Supabase-aware student getter for IPPE renderers ──────────
