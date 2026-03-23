@@ -1110,11 +1110,87 @@ window.StudentManagement = {
         html += '<div style="border-top: 1px solid #e0e0e0; padding-top: 15px;">';
         html += '<h4 style="margin: 0 0 10px 0; color: #333;">📞 Contact Information</h4>';
         html += '<p style="margin: 5px 0;"><strong>Email:</strong> ' + student.email + '</p>';
-        
+
         html += '<h4 style="margin: 15px 0 10px 0; color: #333;">🎓 Academic Details</h4>';
         html += '<p style="margin: 5px 0;"><strong>Attendance:</strong> ' + (student.attendance || 'N/A') + '%</p>';
         html += '<p style="margin: 5px 0;"><strong>Status:</strong> Active</p>';
-        
+
+        // ── APPE / SPLE Progress (P4 only) ──────────────────────────────
+        if (level === 'P4') {
+            const appeData    = window._appeData || {};
+            const assignments = appeData.assignments || [];
+            const sites       = appeData.sites       || [];
+            const evaluations = appeData.evaluations || [];
+            const sid         = String(student.id);
+
+            // SPLE from localStorage
+            const acYear = appeData.settings?.academic_year || '2025-2026';
+            const yk     = acYear.split('-')[0];
+            let spleData = {};
+            try { spleData = JSON.parse(localStorage.getItem(`appe_sple_${yk}`) || '{}')[sid] || {}; } catch(e) {}
+            const spleVals = [1,2,3,4,5,6].map(n => ({ n, v: parseFloat(spleData[`exam${n}`]) }));
+
+            // Rotation evals
+            const stAssigns  = assignments.filter(a => String(a.student_id) === sid && a.site_id);
+            const stEvals    = evaluations.filter(e => String(e.student_id) === sid);
+
+            const evalRows = stAssigns.map((a, idx) => {
+                const site  = sites.find(s => s.id === a.site_id) || {};
+                const ev    = stEvals.find(e => e.rotation_name === site.site_name);
+                const score = ev ? parseFloat(ev.overall_score || ev.score || ev.rating) : null;
+                const isClin = (site.rotation_type || 'clinical') !== 'non-clinical';
+                const col   = score === null ? '#bbb' : score >= 4 ? '#15803d' : score >= 3 ? '#b45309' : '#c62828';
+                const barW  = score !== null ? Math.round(score / 5 * 100) : 0;
+                return `
+                    <div style="margin-bottom:10px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                            <span style="font-size:0.78rem;font-weight:600;color:#333;">R${idx+1} — ${site.site_name || '—'}
+                                <span style="font-weight:400;color:#888;font-size:0.72rem;"> (${isClin?'Clinical':'Non-clinical'})</span>
+                            </span>
+                            <span style="font-size:0.78rem;font-weight:700;color:${col};">${score !== null ? score+'/5' : 'Pending'}</span>
+                        </div>
+                        <div style="background:#f1f5f9;border-radius:50px;height:7px;overflow:hidden;">
+                            <div style="width:${barW}%;background:${col};height:100%;border-radius:50px;transition:width 0.5s;"></div>
+                        </div>
+                    </div>`;
+            }).join('') || '<p style="color:#bbb;font-size:0.82rem;margin:4px 0;">No rotations assigned yet.</p>';
+
+            const spleRow = (n, v) => {
+                const hasVal = !isNaN(v);
+                const col    = !hasVal ? '#bbb' : v >= 85 ? '#15803d' : v >= 70 ? '#1d4ed8' : v >= 60 ? '#b45309' : '#c62828';
+                const barW   = hasVal ? v : 0;
+                return `
+                    <div style="margin-bottom:8px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">
+                            <span style="font-size:0.77rem;font-weight:600;color:#555;">Mock ${n}</span>
+                            <span style="font-size:0.77rem;font-weight:700;color:${col};">${hasVal ? v+'/100' : '—'}</span>
+                        </div>
+                        <div style="background:#f1f5f9;border-radius:50px;height:6px;overflow:hidden;">
+                            <div style="width:${barW}%;background:${col};height:100%;border-radius:50px;"></div>
+                        </div>
+                    </div>`;
+            };
+            const spleRows = spleVals.map(({n,v}) => spleRow(n,v)).join('');
+            const spleDone = spleVals.filter(x => !isNaN(x.v)).length;
+            const spleAvg  = spleDone ? (spleVals.filter(x=>!isNaN(x.v)).reduce((a,b)=>a+b.v,0)/spleDone).toFixed(0) : null;
+
+            html += `
+            <h4 style="margin: 18px 0 12px 0; color: #1B5E20; font-size:0.92rem;">📊 APPE Progress</h4>
+            <div style="background:#f8fafb;border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid #e8f5e9;">
+                <div style="font-size:0.8rem;font-weight:700;color:#1B5E20;margin-bottom:10px;">Rotation Evaluations (1–5)</div>
+                ${evalRows}
+            </div>
+            <div style="background:#f8f0ff;border-radius:10px;padding:14px;border:1px solid #e9d8fd;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <span style="font-size:0.8rem;font-weight:700;color:#6b21a8;">SPLE Mock Exams (0–100)</span>
+                    ${spleAvg !== null ? `<span style="font-size:0.85rem;font-weight:800;color:#6b21a8;">Avg: ${spleAvg}</span>` : ''}
+                </div>
+                ${spleRows}
+                ${spleDone === 0 ? '<p style="color:#bbb;font-size:0.82rem;margin:4px 0;">No SPLE scores entered yet.</p>' : ''}
+            </div>`;
+        }
+        // ────────────────────────────────────────────────────────────────
+
         html += '<h4 style="margin: 15px 0 10px 0; color: #333;">⚙️ Actions</h4>';
         html += '<div style="display: flex; gap: 10px; flex-wrap: wrap;">';
         html += '<button onclick="window.StudentManagement.enableEdit(' + idx + '); document.getElementById(\'studentInfoModal\').style.display=\'none\';" style="background: #2196F3; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-weight: bold;">✏️ Edit Student</button>';
@@ -5918,9 +5994,19 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     ${cohortTab('P2', cohortGroups.P2)}
                     ${cohortTab('P3', cohortGroups.P3)}
                 </div>
-                <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:0.75rem;flex-shrink:0;">
-                    <button onclick="document.getElementById('studentScoreModal').remove()" class="btn btn-outline">Cancel</button>
-                    <button onclick="window.app._saveStudentScores('${acadYear}')" class="btn btn-primary" style="background:#d32f2f;border-color:#d32f2f;">Save Scores</button>
+                <div style="padding:1rem 1.5rem;border-top:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+                    <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <input type="file" id="sseCSVInput" accept=".csv" style="display:none;" onchange="window.app._importSurveyCSV(this)">
+                        <button onclick="document.getElementById('sseCSVInput').click()"
+                            style="padding:0.4rem 1rem;border-radius:7px;border:1.5px solid #1976d2;background:#fff;color:#1976d2;font-size:0.82rem;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:0.35rem;">
+                            &#8659; Import CSV
+                        </button>
+                        <span id="sseCSVStatus" style="font-size:0.73rem;color:#555;"></span>
+                    </div>
+                    <div style="display:flex;gap:0.75rem;">
+                        <button onclick="document.getElementById('studentScoreModal').remove()" class="btn btn-outline">Cancel</button>
+                        <button onclick="window.app._saveStudentScores('${acadYear}')" class="btn btn-primary" style="background:#d32f2f;border-color:#d32f2f;">Save Scores</button>
+                    </div>
                 </div>
             </div>`;
         document.body.appendChild(modal);
@@ -5943,6 +6029,79 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         try { localStorage.setItem(`clinical_year_${yk}`, JSON.stringify(existing)); } catch(e) {}
         modal.remove();
         this.renderClinicalDashboard(acadYear);
+    }
+
+    _importSurveyCSV(inputEl) {
+        const file = inputEl.files[0];
+        if (!file) return;
+        const statusEl = document.getElementById('sseCSVStatus');
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const lines = e.target.result.replace(/\r/g, '').split('\n').filter(l => l.trim());
+                if (lines.length < 2) { statusEl.textContent = 'CSV is empty.'; statusEl.style.color = '#c62828'; return; }
+
+                // Parse header — case-insensitive, trim whitespace/quotes
+                const clean = s => s.trim().replace(/^["']|["']$/g, '').toLowerCase().replace(/\s+/g, '_');
+                const headers = lines[0].split(',').map(clean);
+
+                const idCol         = headers.findIndex(h => h === 'student_id' || h === 'id');
+                const nameCol       = headers.findIndex(h => h === 'student_name' || h === 'name');
+                const researchCol   = headers.findIndex(h => h === 'research');
+                const communityCol  = headers.findIndex(h => h === 'community' || h === 'community_service');
+                const confCol       = headers.findIndex(h => h === 'conferences' || h === 'conference');
+
+                if (researchCol < 0 && communityCol < 0 && confCol < 0) {
+                    statusEl.textContent = 'No score columns found (need: research, community, conferences).';
+                    statusEl.style.color = '#c62828'; return;
+                }
+
+                // Build lookup: { "studentId" -> {research, community, conferences} }
+                const csvMap = {};   // keyed by student_id string
+                const csvNameMap = {}; // keyed by lowercase name
+                lines.slice(1).forEach(line => {
+                    if (!line.trim()) return;
+                    const cols = line.split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+                    const entry = {};
+                    if (researchCol   >= 0 && cols[researchCol]  !== '') entry.research   = parseFloat(cols[researchCol]);
+                    if (communityCol  >= 0 && cols[communityCol] !== '') entry.community  = parseFloat(cols[communityCol]);
+                    if (confCol       >= 0 && cols[confCol]      !== '') entry.conferences = parseFloat(cols[confCol]);
+
+                    if (idCol >= 0 && cols[idCol]) csvMap[String(cols[idCol]).trim()] = entry;
+                    if (nameCol >= 0 && cols[nameCol]) csvNameMap[cols[nameCol].toLowerCase().trim()] = entry;
+                });
+
+                // Populate inputs in modal
+                const modal = document.getElementById('studentScoreModal');
+                let matched = 0, missed = 0;
+                modal.querySelectorAll('input[data-student]').forEach(inp => {
+                    const sid   = inp.dataset.student;
+                    const field = inp.dataset.field;
+                    const entry = csvMap[sid] || (() => {
+                        // fallback: try name match from the table row
+                        const row = inp.closest('tr');
+                        const nameTd = row?.querySelector('td:first-child');
+                        return nameTd ? csvNameMap[nameTd.textContent.toLowerCase().trim()] : undefined;
+                    })();
+                    if (entry && entry[field] !== undefined && !isNaN(entry[field])) {
+                        inp.value = entry[field];
+                        inp.style.background = '#e8f5e9';
+                        matched++;
+                    } else {
+                        missed++;
+                    }
+                });
+
+                const uniqueStudents = matched / Math.max(1, [researchCol, communityCol, confCol].filter(c => c >= 0).length);
+                statusEl.textContent = `Imported: ~${Math.round(uniqueStudents)} students matched.`;
+                statusEl.style.color = '#2e7d32';
+            } catch(err) {
+                statusEl.textContent = 'Error reading CSV: ' + err.message;
+                statusEl.style.color = '#c62828';
+            }
+            inputEl.value = ''; // reset so same file can be re-imported
+        };
+        reader.readAsText(file);
     }
 
     async _renderHomePageFull(activeTab = 'overview', subTab = 'overview', filterId = 'all') {
@@ -12779,12 +12938,19 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         };
 
         // ---- SITES TAB ----
+        const _typeBadge = (t) => {
+            const isClin = !t || t === 'clinical';
+            return isClin
+                ? '<span style="display:inline-block;padding:3px 10px;background:#e3f2fd;color:#1565c0;border-radius:12px;font-size:0.8rem;font-weight:600;">Clinical</span>'
+                : '<span style="display:inline-block;padding:3px 10px;background:#e0f7fa;color:#00695c;border-radius:12px;font-size:0.8rem;font-weight:600;">Non-clinical</span>';
+        };
         const sitesRows = sites.length === 0
-            ? '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#bbb;font-size:0.95rem;">No rotation sites yet. Add your first site above.</td></tr>'
+            ? '<tr><td colspan="9" style="text-align:center;padding:2.5rem;color:#bbb;font-size:0.95rem;">No rotation sites yet. Add your first site above.</td></tr>'
             : sites.map(s => `
                 <tr id="site-row-${s.id}" style="border-bottom:1px solid #f0f0f0;">
                     <td style="padding:10px 12px;"><strong id="site-name-view-${s.id}">${s.site_name}</strong><input id="site-name-edit-${s.id}" value="${(s.site_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;"><span id="site-spec-view-${s.id}">${_specBadge(s.specialty)}</span><input id="site-spec-edit-${s.id}" value="${(s.specialty||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;"><span id="site-type-view-${s.id}">${_typeBadge(s.rotation_type)}</span><select id="site-type-edit-${s.id}" style="display:none;padding:5px 6px;border:1px solid #ccc;border-radius:5px;font-size:0.85rem;"><option value="clinical" ${(!s.rotation_type||s.rotation_type==='clinical')?'selected':''}>Clinical</option><option value="non-clinical" ${s.rotation_type==='non-clinical'?'selected':''}>Non-clinical</option></select></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-prec-view-${s.id}">${s.preceptor_name || '—'}</span><input id="site-prec-edit-${s.id}" value="${(s.preceptor_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-email-view-${s.id}">${s.preceptor_email ? `<a href="mailto:${s.preceptor_email}" style="color:#1565c0;text-decoration:none;">${s.preceptor_email}</a>` : '—'}</span><input type="email" id="site-email-edit-${s.id}" value="${(s.preceptor_email||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-loc-view-${s.id}">${s.location || '—'}</span><input id="site-loc-edit-${s.id}" value="${(s.location||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
@@ -12803,7 +12969,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </td>
                 </tr>
                 <tr id="site-blocks-row-${s.id}" style="display:none;background:#fafafa;border-bottom:2px solid #e8f5e9;">
-                    <td colspan="8" style="padding:14px 20px;">
+                    <td colspan="9" style="padding:14px 20px;">
                         <div style="margin-bottom:10px;font-size:0.82rem;font-weight:700;color:#555;">📅 Block Availability — click a block to toggle. Green = available. Set slots per block.</div>
                         <div id="block-chips-${s.id}" style="display:flex;flex-wrap:wrap;gap:8px;">
                             ${window.rotAdmin._renderBlockChips(s.id, availMap[s.id] || {})}
@@ -12905,6 +13071,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                             <thead><tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Site Name</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Specialty</th>
+                                <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Type</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Preceptor</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Email</th>
                                 <th style="text-align:left;padding:10px 12px;font-size:0.82rem;color:#666;font-weight:700;">Location</th>
@@ -17819,7 +17986,7 @@ window.rotAdmin = {
     },
 
     startEditSite(id) {
-        ['name','spec','prec','email','loc','slots','status'].forEach(f => {
+        ['name','spec','type','prec','email','loc','slots','status'].forEach(f => {
             const v = document.getElementById(`site-${f}-view-${id}`);
             const e = document.getElementById(`site-${f}-edit-${id}`);
             if (v) v.style.display = 'none';
@@ -17830,7 +17997,7 @@ window.rotAdmin = {
     },
 
     cancelEditSite(id) {
-        ['name','spec','prec','email','loc','slots','status'].forEach(f => {
+        ['name','spec','type','prec','email','loc','slots','status'].forEach(f => {
             const v = document.getElementById(`site-${f}-view-${id}`);
             const e = document.getElementById(`site-${f}-edit-${id}`);
             if (v) v.style.display = '';
@@ -17847,12 +18014,13 @@ window.rotAdmin = {
         const preceptor_email = document.getElementById(`site-email-edit-${id}`)?.value?.trim();
         const location = document.getElementById(`site-loc-edit-${id}`)?.value?.trim();
         const available_slots = parseInt(document.getElementById(`site-slots-edit-${id}`)?.value) || 1;
+        const rotation_type = document.getElementById(`site-type-edit-${id}`)?.value || 'clinical';
         const is_active = document.getElementById(`site-status-edit-${id}`)?.value === 'true';
         if (!name || !specialty) { alert('Site Name and Specialty are required.'); return; }
         try {
             const sb = window.SupabaseAuth?.supabase;
             if (!sb) return;
-            const { error } = await sb.from('rotation_sites').update({ site_name: name, specialty, preceptor_name: preceptor_name || null, preceptor_email: preceptor_email || null, location: location || null, available_slots, is_active }).eq('id', id);
+            const { error } = await sb.from('rotation_sites').update({ site_name: name, specialty, rotation_type, preceptor_name: preceptor_name || null, preceptor_email: preceptor_email || null, location: location || null, available_slots, is_active }).eq('id', id);
             if (error) throw error;
             window.app.renderRotationSchedule();
         } catch (e) { alert('Error saving: ' + e.message); }
