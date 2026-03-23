@@ -12760,13 +12760,31 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const studentList = Object.values(assignMap).sort((a, b) => (b.student_score || 0) - (a.student_score || 0));
         const assignedCount = assignments.filter(a => a.site_id).length;
 
+        // ---- SHARED SPECIALTY COLOUR MAP (used in Sites + Preceptors tabs) ----
+        const _SPEC_PALETTE = [
+            { bg:'#e8f5e9', fg:'#2e7d32' }, { bg:'#e3f2fd', fg:'#1565c0' },
+            { bg:'#fce4ec', fg:'#c62828' }, { bg:'#fff3e0', fg:'#e65100' },
+            { bg:'#f3e5f5', fg:'#6a1b9a' }, { bg:'#e0f7fa', fg:'#00695c' },
+            { bg:'#fff8e1', fg:'#f57f17' }, { bg:'#fbe9e7', fg:'#bf360c' },
+            { bg:'#e8eaf6', fg:'#283593' }, { bg:'#f9fbe7', fg:'#558b2f' },
+            { bg:'#e0f2f1', fg:'#004d40' }, { bg:'#fdf6ec', fg:'#795548' },
+        ];
+        const _allSpecs = [...new Set(sites.map(s=>s.specialty).filter(Boolean))].sort();
+        const _specColor = {};
+        _allSpecs.forEach((sp,i) => { _specColor[sp] = _SPEC_PALETTE[i % _SPEC_PALETTE.length]; });
+        const _specBadge = (sp, extraStyle='') => {
+            if (!sp) return '<span style="color:#bbb;">—</span>';
+            const c = _specColor[sp] || _SPEC_PALETTE[0];
+            return `<span style="display:inline-block;padding:3px 10px;background:${c.bg};color:${c.fg};border-radius:12px;font-size:0.82rem;font-weight:600;${extraStyle}">${sp}</span>`;
+        };
+
         // ---- SITES TAB ----
         const sitesRows = sites.length === 0
             ? '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:#bbb;font-size:0.95rem;">No rotation sites yet. Add your first site above.</td></tr>'
             : sites.map(s => `
                 <tr id="site-row-${s.id}" style="border-bottom:1px solid #f0f0f0;">
                     <td style="padding:10px 12px;"><strong id="site-name-view-${s.id}">${s.site_name}</strong><input id="site-name-edit-${s.id}" value="${(s.site_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
-                    <td style="padding:10px 12px;"><span id="site-spec-view-${s.id}" style="background:#e8f5e9;color:#1B5E20;padding:3px 10px;border-radius:12px;font-size:0.82rem;">${s.specialty || '—'}</span><input id="site-spec-edit-${s.id}" value="${(s.specialty||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
+                    <td style="padding:10px 12px;"><span id="site-spec-view-${s.id}">${_specBadge(s.specialty)}</span><input id="site-spec-edit-${s.id}" value="${(s.specialty||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-prec-view-${s.id}">${s.preceptor_name || '—'}</span><input id="site-prec-edit-${s.id}" value="${(s.preceptor_name||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;color:#666;font-size:0.88rem;"><span id="site-loc-view-${s.id}">${s.location || '—'}</span><input id="site-loc-edit-${s.id}" value="${(s.location||'').replace(/"/g,'&quot;')}" style="display:none;width:100%;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;box-sizing:border-box;"></td>
                     <td style="padding:10px 12px;text-align:center;"><span id="site-slots-view-${s.id}" style="background:#e3f2fd;color:#1565C0;padding:3px 12px;border-radius:12px;font-weight:700;">${s.available_slots}</span><input id="site-slots-edit-${s.id}" type="number" min="1" value="${s.available_slots||1}" style="display:none;width:60px;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:0.88rem;text-align:center;"></td>
