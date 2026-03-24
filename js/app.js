@@ -12061,11 +12061,24 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 else if (label.includes('i10'))  i10Index  = val;
             });
 
-            // Count publications per year from visible list
+            // Parse full publication list: title, journal, year, citations
             const pubYears = {};
+            const scholarPubList = [];
             doc.querySelectorAll('#gsc_a_b .gsc_a_tr').forEach(row => {
+                const title = row.querySelector('.gsc_a_at')?.textContent.trim();
+                const grayItems = row.querySelectorAll('.gsc_a_gray');
+                // Second gray item = "Journal, Vol, Pages - Publisher" (first = authors on some layouts)
+                const journalRaw = (grayItems[1] || grayItems[0])?.textContent.trim() || '';
+                // Strip volume/page numbers — take everything before the first ", YYYY" or ", Vol"
+                const journalClean = journalRaw.split(/,\s*(?:\d{4}|\d+\s*\()/)[0].trim();
+                const citEl = row.querySelector('.gsc_a_c a') || row.querySelector('.gsc_a_c');
+                const citCount = parseInt((citEl?.textContent || '').replace(/\D/g, '')) || 0;
                 const y = row.querySelector('.gsc_a_y span')?.textContent.trim();
+                const year = (y && /^\d{4}$/.test(y)) ? parseInt(y) : null;
                 if (y && /^\d{4}$/.test(y)) pubYears[y] = (pubYears[y] || 0) + 1;
+                if (title && title.length > 3) {
+                    scholarPubList.push({ title, journal: journalClean || 'Unknown', year, citations: citCount });
+                }
             });
 
             if (hIndex === null && i10Index === null && citations === null && !Object.keys(pubYears).length) {
@@ -12094,6 +12107,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             const _sbScholar = window.SupabaseAuth?.supabase;
             if (_sbScholar) {
                 const _totalPubsScholar = Object.values(pubYears).reduce((s, v) => s + v, 0);
+
+                // 1. Upsert aggregate stats
                 _sbScholar.from('faculty_scholar_sync').upsert({
                     faculty_email: email,
                     faculty_name: profile.name || email,
@@ -12105,8 +12120,51 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     synced_at: new Date().toISOString()
                 }, { onConflict: 'faculty_email' }).then(({ error }) => {
                     if (error) console.warn('Scholar → Supabase sync failed:', error.message);
-                    else window._researchCache = null; // invalidate so Research Overview refreshes
+                    else window._researchCache = null;
                 });
+
+                // 2. Upsert individual publications into research_publications
+                if (scholarPubList.length) {
+                    (async () => {
+                        // Fetch existing titles for this faculty to avoid duplicates
+                        const { data: existing } = await _sbScholar
+                            .from('research_publications')
+                            .select('title, year')
+                            .eq('faculty_email', email);
+                        const existingKeys = new Set(
+                            (existing || []).map(r => `${(r.title||'').toLowerCase()}|${r.year}`)
+                        );
+                        const newPubs = scholarPubList.filter(p =>
+                            !existingKeys.has(`${p.title.toLowerCase()}|${p.year}`)
+                        );
+                        if (!newPubs.length) { window._researchCache = null; return; }
+
+                        const toInsert = newPubs.map(p => ({
+                            title: p.title,
+                            authors: profile.name || email,
+                            journal: p.journal,
+                            quartile: null,
+                            year: p.year,
+                            doi: null,
+                            citations: p.citations,
+                            type: 'Faculty-led',
+                            department: profile.dept || null,
+                            source: 'scholar',
+                            faculty_email: email,
+                        }));
+
+                        // Insert in batches of 20
+                        const BATCH = 20;
+                        for (let i = 0; i < toInsert.length; i += BATCH) {
+                            const { error: bErr } = await _sbScholar
+                                .from('research_publications')
+                                .insert(toInsert.slice(i, i + BATCH));
+                            if (bErr) console.warn('Scholar pubs insert error:', bErr.message);
+                        }
+                        window._researchCache = null;
+                        console.log(`Scholar sync: inserted ${toInsert.length} new publications for ${email}`);
+                    })();
+                }
             }
 
             const summary = [
