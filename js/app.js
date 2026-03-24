@@ -15097,253 +15097,296 @@ App.prototype.exportAlumniDataCSV = function(tab) {
 // Alumni Unit Methods
 // ======================
 
-App.prototype.renderAlumniOverview = function() {
-    this.title.textContent = '🎓 Alumni Overview';
-    const db = ALUMNI_DATABASE;
-    const currentYear = document.getElementById('alumniYearFilter')?.value || '';
-    const currentProgram = document.getElementById('alumniProgramFilter')?.value || '';
+App.prototype.renderAlumniOverview = async function() {
+    this.title.textContent = 'Alumni Overview';
+    this.root.innerHTML = '<div class="card"><p style="padding:1rem;">Loading alumni data...</p></div>';
+    const { alumni, events, achievements, mentorshipPairs, engagementLog, db } = await this._loadAlumniData();
 
-    const totalAlumni = db.alumni.length + 235;
-    const activeAlumni = db.mentorship.total_mentors + db.preceptorship.total_preceptors + 156;
-    const mentorCount = db.mentorship.total_mentors;
-    const postgraduateCount = db.postgraduate.length + 123;
-    const boardCertCount = db.postgraduate.filter(p => p.type === 'Board Certification').length + 335;
+    const total         = alumni.length;
+    const employed      = alumni.filter(a => a.status === 'employed').length;
+    const postgrad      = alumni.filter(a => a.status === 'postgraduate').length;
+    const boardCert     = alumni.filter(a => a.board_cert || a.boardCert).length;
+    const mentors       = alumni.filter(a => a.mentor_willing || a.mentorWilling).length;
+    const preceptors    = alumni.filter(a => a.preceptor_willing || a.preceptorWilling).length;
+    const empRate       = total ? Math.round((employed + postgrad) / total * 100) : db.employment_outcomes?.employment_rate_12m || 97;
+    const engRate       = total ? Math.round(alumni.filter(a => (a.engagement || '') === 'active').length / total * 100) : 78;
+    const pharmD        = alumni.filter(a => (a.program||'') === 'PharmD').length;
+    const bpharm        = alumni.filter(a => (a.program||'') === 'BPharm').length;
+    const activePairs   = mentorshipPairs.filter(p => p.status === 'active').length;
 
-    const pharmacdCount = db.alumni.filter(a => a.program === 'PharmD').length + 445;
-    const bpharmCount = db.alumni.filter(a => a.program === 'BPharm').length + 645;
-    const engagementRate = 78;
-    const employmentRate = db.employment_outcomes.employment_rate_12m || 94;
+    // Sector breakdown
+    const sectors = {};
+    alumni.forEach(a => { const s = a.sector || a.specialty || 'Other'; sectors[s] = (sectors[s]||0)+1; });
+    const topSectors = Object.entries(sectors).sort((a,b)=>b[1]-a[1]).slice(0,5);
+
+    // Year breakdown
+    const byYear = {};
+    alumni.forEach(a => { const y = a.graduation_year || a.graduationYear; if(y) byYear[y]=(byYear[y]||0)+1; });
+    const sortedYears = Object.entries(byYear).sort((a,b)=>b[0]-a[0]).slice(0,6);
+
+    const kpi = (icon, label, value, color, sub) => `
+        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);border-left:4px solid ${color};position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-10px;right:-10px;font-size:3.5rem;opacity:0.07;">${icon}</div>
+            <div style="font-size:0.78rem;color:#999;text-transform:uppercase;font-weight:600;letter-spacing:0.5px;margin-bottom:0.4rem;">${label}</div>
+            <div style="font-size:2.4rem;font-weight:700;color:${color};">${value}</div>
+            <div style="font-size:0.78rem;color:#888;margin-top:0.3rem;">${sub}</div>
+        </div>`;
 
     this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <label style="font-size: 0.9rem; color: #666; margin-right: 1rem;">Filter by Year:</label>
-            <select id="alumniYearFilter" onchange="window.updateAlumniOverview()" style="padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                <option value="" ${currentYear === '' ? 'selected' : ''}>All Years</option>
-                <option value="2019" ${currentYear === '2019' ? 'selected' : ''}>2019</option>
-                <option value="2020" ${currentYear === '2020' ? 'selected' : ''}>2020</option>
-                <option value="2021" ${currentYear === '2021' ? 'selected' : ''}>2021</option>
-                <option value="2022" ${currentYear === '2022' ? 'selected' : ''}>2022</option>
-            </select>
-            <label style="font-size: 0.9rem; color: #666; margin-left: 1.5rem; margin-right: 1rem;">Program:</label>
-            <select id="alumniProgramFilter" onchange="window.updateAlumniOverview()" style="padding: 0.5rem 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                <option value="" ${currentProgram === '' ? 'selected' : ''}>All Programs</option>
-                <option value="PharmD" ${currentProgram === 'PharmD' ? 'selected' : ''}>PharmD</option>
-                <option value="BPharm" ${currentProgram === 'BPharm' ? 'selected' : ''}>BPharm</option>
-                <option value="Technician" ${currentProgram === 'Technician' ? 'selected' : ''}>Technician</option>
-            </select>
-        </div>
-
-        <!-- Top 3 Main Metrics -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <!-- Total Alumni Card -->
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Total Alumni</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalAlumni.toLocaleString()}</div>
-                </div>
-                <div style="background: #f0f0f0; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #1B5E20; height: 100%; width: 92%; border-radius: 3px;"></div>
-                </div>
-                <div style="margin-top: 0.75rem; font-size: 0.8rem; color: #666;">
-                    <span style="font-weight: 600; color: #1B5E20;">92%</span> Active Rate
-                </div>
+    <div class="fade-in-up">
+        <!-- Hero Banner -->
+        <div style="background:linear-gradient(135deg,#1B5E20 0%,#2e7d32 50%,#388e3c 100%);border-radius:16px;padding:2rem 2.5rem;margin-bottom:1.5rem;color:white;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+            <div>
+                <div style="font-size:0.85rem;opacity:0.8;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">College of Pharmacy · KSAU-HS</div>
+                <div style="font-size:2.2rem;font-weight:700;margin-bottom:0.3rem;">Alumni Network</div>
+                <div style="font-size:1rem;opacity:0.85;">${total} graduates · ${empRate}% employment rate · ${engRate}% active engagement</div>
             </div>
-
-            <!-- Employment Rate Card -->
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">💼</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Employment Rate</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${employmentRate}%</div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">
-                    <div>✅ <strong>${db.employment_outcomes.total_employed || 345}</strong> Employed</div>
-                    <div style="margin-top: 0.3rem;">🎓 <strong>${activeAlumni - (db.employment_outcomes.total_employed || 345)}</strong> Postgrad/Other</div>
-                </div>
-                <div style="background: #e3f2fd; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #2196F3; height: 100%; width: ${employmentRate}%; border-radius: 3px;"></div>
-                </div>
-                <div style="margin-top: 0.75rem; font-size: 0.8rem; color: #666;">
-                    <span style="font-weight: 600; color: #2196F3;">+${Math.floor(activeAlumni * 0.15)}</span> This Month
-                </div>
-            </div>
-
-            <!-- Mentors & Preceptors Card -->
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🤝</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 0.5rem;">Active Contributors</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #ff6b6b;">${mentorCount + db.preceptorship.total_preceptors}</div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666; margin-bottom: 1rem;">
-                    <div>🌟 <strong>${mentorCount}</strong> Mentors</div>
-                    <div style="margin-top: 0.3rem;">🏥 <strong>${db.preceptorship.total_preceptors}</strong> Preceptors</div>
-                </div>
-                <div style="background: #ffebee; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #ff6b6b; height: 100%; width: 85%; border-radius: 3px;"></div>
-                </div>
-                <div style="margin-top: 0.75rem; font-size: 0.8rem; color: #666;">
-                    <span style="font-weight: 600; color: #ff6b6b;">85%</span> Engagement Goal
-                </div>
+            <div style="display:flex;gap:2rem;text-align:center;">
+                <div><div style="font-size:2rem;font-weight:700;">${mentors}</div><div style="font-size:0.8rem;opacity:0.8;">Mentors</div></div>
+                <div><div style="font-size:2rem;font-weight:700;">${preceptors}</div><div style="font-size:0.8rem;opacity:0.8;">Preceptors</div></div>
+                <div><div style="font-size:2rem;font-weight:700;">${activePairs}</div><div style="font-size:0.8rem;opacity:0.8;">Mentor Pairs</div></div>
             </div>
         </div>
 
-        <!-- Secondary Stats -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="background: #f9f9f9; border-radius: 12px; padding: 1.5rem; border-left: 4px solid #1B5E20;">
-                <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Board Certified</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20;">${boardCertCount}</div>
-                <div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">Specialty Certification</div>
+        <!-- KPI Grid -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem;">
+            ${kpi('🎓','Total Alumni',        total,        '#1B5E20', `${pharmD} PharmD · ${bpharm} BPharm`)}
+            ${kpi('💼','Employment Rate',     empRate+'%',  '#2196F3', `${employed} employed · ${postgrad} postgrad`)}
+            ${kpi('🏅','Board Certified',     boardCert,    '#9C27B0', `${total ? Math.round(boardCert/total*100) : 0}% of graduates`)}
+            ${kpi('🤝','Mentors & Preceptors',mentors+preceptors,'#FF9800', `${mentors} mentors · ${preceptors} preceptors`)}
+            ${kpi('📊','Active Engagement',   engRate+'%',  '#00BCD4', `${alumni.filter(a=>(a.engagement||'')==='active').length} actively engaged`)}
+            ${kpi('🏆','Achievements',        achievements.length, '#E91E63', `${achievements.filter(a=>a.type==='Award').length} awards · ${achievements.filter(a=>a.type==='Publication').length} publications`)}
+        </div>
+
+        <!-- Two column: Sector + Class breakdown -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <h3 style="margin:0 0 1rem;font-size:1rem;color:#333;">Employment by Sector</h3>
+                ${topSectors.map(([s,c])=>`
+                    <div style="margin-bottom:0.75rem;">
+                        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.3rem;">
+                            <span style="color:#444;">${s}</span><span style="font-weight:600;color:#1B5E20;">${c}</span>
+                        </div>
+                        <div style="background:#f0f0f0;height:6px;border-radius:3px;overflow:hidden;">
+                            <div style="background:#1B5E20;height:100%;width:${Math.round(c/total*100)}%;border-radius:3px;"></div>
+                        </div>
+                    </div>`).join('')}
             </div>
 
-            <div style="background: #f9f9f9; border-radius: 12px; padding: 1.5rem; border-left: 4px solid #4CAF50;">
-                <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Postgraduate Training</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #4CAF50;">${postgraduateCount}</div>
-                <div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">Residency/Fellowship</div>
-            </div>
-
-            <div style="background: #f9f9f9; border-radius: 12px; padding: 1.5rem; border-left: 4px solid #2196F3;">
-                <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Engagement Rate</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3;">${engagementRate}%</div>
-                <div style="font-size: 0.8rem; color: #999; margin-top: 0.5rem;">Active Participation</div>
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <h3 style="margin:0 0 1rem;font-size:1rem;color:#333;">Graduates by Class Year</h3>
+                ${sortedYears.map(([y,c])=>`
+                    <div style="margin-bottom:0.75rem;">
+                        <div style="display:flex;justify-content:space-between;font-size:0.85rem;margin-bottom:0.3rem;">
+                            <span style="color:#444;">Class of ${y}</span><span style="font-weight:600;color:#2196F3;">${c}</span>
+                        </div>
+                        <div style="background:#f0f0f0;height:6px;border-radius:3px;overflow:hidden;">
+                            <div style="background:#2196F3;height:100%;width:${Math.round(c/(sortedYears[0]?.[1]||1)*100)}%;border-radius:3px;"></div>
+                        </div>
+                    </div>`).join('')}
             </div>
         </div>
 
-        <!-- Program Distribution Section -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Program Distribution</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                <div style="padding: 1.5rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; text-align: center; color: white;">
-                    <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">PharmD Graduates</div>
-                    <div style="font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem;">${pharmacdCount}</div>
-                    <div style="font-size: 0.8rem; opacity: 0.85;">${Math.round((pharmacdCount / totalAlumni) * 100)}% of Total</div>
-                </div>
-
-                <div style="padding: 1.5rem; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); border-radius: 10px; text-align: center; color: white;">
-                    <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 600;">BPharm Graduates</div>
-                    <div style="font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem;">${bpharmCount}</div>
-                    <div style="font-size: 0.8rem; opacity: 0.85;">${Math.round((bpharmCount / totalAlumni) * 100)}% of Total</div>
-                </div>
+        <!-- Upcoming Events -->
+        ${events.filter(e=>(e.status||'upcoming')==='upcoming').length ? `
+        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:1.5rem;">
+            <h3 style="margin:0 0 1rem;font-size:1rem;color:#333;">Upcoming Events</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+                ${events.filter(e=>(e.status||'upcoming')==='upcoming').slice(0,3).map(e=>`
+                    <div style="border:1px solid #e0e0e0;border-radius:10px;padding:1rem;border-left:4px solid #FF9800;">
+                        <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.25rem;">${e.title}</div>
+                        <div style="font-size:0.8rem;color:#666;">${e.event_date||e.date||''} · ${e.location||''}</div>
+                        <div style="margin-top:0.5rem;font-size:0.8rem;color:#FF9800;font-weight:600;">${e.registered||0} registered</div>
+                    </div>`).join('')}
             </div>
-        </div>
+        </div>` : ''}
 
-        <!-- Engagement Activities -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1.5rem;">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Engagement Activities</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
-                <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🎤</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${db.engagement.guest_lectures}</div>
-                    <div style="font-size: 0.85rem; color: #666;">Guest Lectures</div>
-                </div>
-
-                <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💼</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${db.engagement.career_days}</div>
-                    <div style="font-size: 0.85rem; color: #666;">Career Days</div>
-                </div>
-
-                <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">🛠️</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #ff6b6b; margin-bottom: 0.3rem;">${db.engagement.workshops}</div>
-                    <div style="font-size: 0.85rem; color: #666;">Workshops</div>
-                </div>
-
-                <div style="text-align: center; padding: 1.5rem; background: #f5f5f5; border-radius: 10px;">
-                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #FFA500; margin-bottom: 0.3rem;">${db.engagement.panels}</div>
-                    <div style="font-size: 0.85rem; color: #666;">Panel Discussions</div>
-                </div>
+        <!-- Recent Achievements -->
+        ${achievements.length ? `
+        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <h3 style="margin:0;font-size:1rem;color:#333;">Recent Achievements</h3>
+                <button onclick="app.renderAlumniAchievements()" style="font-size:0.8rem;color:#2196F3;background:none;border:none;cursor:pointer;">View All →</button>
             </div>
-        </div>
-    `;
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0.75rem;">
+                ${achievements.slice(0,4).map(a=>{
+                    const typeColor = {Award:'#FF9800',Publication:'#2196F3',Leadership:'#9C27B0',Training:'#1B5E20'}[a.type]||'#607D8B';
+                    return `<div style="padding:0.9rem;background:#fafafa;border-radius:8px;border-left:3px solid ${typeColor};">
+                        <div style="font-weight:600;font-size:0.88rem;">${a.alumni_name||a.name}</div>
+                        <div style="font-size:0.8rem;color:#666;margin-top:0.2rem;">${a.achievement}</div>
+                        <div style="margin-top:0.4rem;"><span style="background:${typeColor}20;color:${typeColor};padding:0.15rem 0.5rem;border-radius:4px;font-size:0.72rem;font-weight:600;">${a.type}</span> <span style="font-size:0.72rem;color:#999;">${a.year||''}</span></div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>` : ''}
+    </div>`;
 };
 
-App.prototype.renderAlumniDirectory = function() {
-    this.title.textContent = '\ud83d\dc64 Alumni Directory';
-    const db = ALUMNI_DATABASE;
-    const alumni = db.alumni;
+App.prototype.renderAlumniDirectory = async function() {
+    this.title.textContent = 'Alumni Directory';
+    this.root.innerHTML = '<div class="card"><p style="padding:1rem;">Loading...</p></div>';
+    const { alumni } = await this._loadAlumniData();
 
-    const searchTerm = (document.getElementById('alumniSearch')?.value || '').toLowerCase();
-    const programFilter = document.getElementById('programFilter')?.value || '';
-    const mentorFilter = document.getElementById('mentorFilter')?.value || '';
+    const f   = window._alumniDirFilter || {};
+    const search   = (f.search||'').toLowerCase();
+    const progF    = f.program || '';
+    const engF     = f.engagement || '';
+    const mentorF  = f.mentor || '';
 
-    const filteredAlumni = alumni.filter(a => {
-        const matchesSearch = !searchTerm || a.name.toLowerCase().includes(searchTerm) || a.jobTitle.toLowerCase().includes(searchTerm);
-        const matchesProgram = !programFilter || a.program.toLowerCase() === programFilter.toLowerCase();
-        const matchesMentor = mentorFilter === 'mentor' ? a.mentorWilling : mentorFilter === 'preceptor' ? a.preceptorWilling : true;
-        return matchesSearch && matchesProgram && matchesMentor;
-    });
+    let filtered = alumni;
+    if (search)  filtered = filtered.filter(a => (a.name||'').toLowerCase().includes(search) || (a.job_title||a.jobTitle||'').toLowerCase().includes(search) || (a.current_employer||a.currentEmployer||'').toLowerCase().includes(search));
+    if (progF)   filtered = filtered.filter(a => (a.program||'')=== progF);
+    if (engF)    filtered = filtered.filter(a => (a.engagement||'')=== engF);
+    if (mentorF === 'mentor')    filtered = filtered.filter(a => a.mentor_willing||a.mentorWilling);
+    if (mentorF === 'preceptor') filtered = filtered.filter(a => a.preceptor_willing||a.preceptorWilling);
 
-    let alumniTable = '<table style="width: 100%; border-collapse: collapse;">';
-    alumniTable += '<thead><tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Name</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Program</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Graduation</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Status</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Current Role</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Employer</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Board Cert</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left; border-right: 1px solid #ddd;">Mentor</th>';
-    alumniTable += '<th style="padding: 0.75rem; text-align: left;">Preceptor</th>';
-    alumniTable += '</tr></thead><tbody>';
+    const statusBadge = s => {
+        const map = { employed:{bg:'#e8f5e9',color:'#1B5E20',label:'Employed'}, postgraduate:{bg:'#e3f2fd',color:'#1565c0',label:'Postgrad'}, other:{bg:'#f5f5f5',color:'#666',label:'Other'} };
+        const m = map[s] || map.other;
+        return `<span style="background:${m.bg};color:${m.color};padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">${m.label}</span>`;
+    };
+    const engBadge = e => {
+        const map = { active:{bg:'#e8f5e9',color:'#1B5E20'}, moderate:{bg:'#fff3e0',color:'#E65100'}, low:{bg:'#fce4ec',color:'#c62828'} };
+        const m = map[e] || {bg:'#f5f5f5',color:'#666'};
+        return `<span style="background:${m.bg};color:${m.color};padding:0.15rem 0.5rem;border-radius:4px;font-size:0.72rem;font-weight:600;">${e||'—'}</span>`;
+    };
 
-    filteredAlumni.forEach((a, idx) => {
-        const bgColor = idx % 2 === 0 ? 'white' : '#fafafa';
-        alumniTable += `<tr data-alumni-row="${a.id}" style="background: ${bgColor}; border-bottom: 1px solid #ddd;">`;
-        alumniTable += `<td data-field="name" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; font-weight:600;">${a.name}</td>`;
-        alumniTable += `<td data-field="program" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;"><span style="background: #e3f2fd; padding: 0.25rem 0.5rem; border-radius: 3px;">${a.program}</span></td>`;
-        alumniTable += `<td data-field="graduationYear" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${a.graduationYear}</td>`;
-        const statusLabel = window.alumniEditMode ? a.status : `<span style="background: ${a.status === 'employed' ? '#E8F5E9' : '#E3F2FD'}; color: ${a.status === 'employed' ? '#2E7D32' : '#1565C0'}; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${a.status === 'employed' ? '✅ Employed' : '🎓 Postgrad'}</span>`;
-        alumniTable += `<td data-field="status" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${statusLabel}</td>`;
-        alumniTable += `<td data-field="jobTitle" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;">${a.jobTitle}</td>`;
-        alumniTable += `<td data-field="currentEmployer" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd;"><small>${a.currentEmployer}</small></td>`;
-        const boardCertLabel = window.alumniEditMode ? (a.boardCert ? 'true' : 'false') : (a.boardCert ? '?' : '?');
-        alumniTable += `<td data-field="boardCert" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; text-align: center;">${boardCertLabel}</td>`;
-        const mentorLabel = window.alumniEditMode ? (a.mentorWilling ? 'true' : 'false') : (a.mentorWilling ? '?' : '?');
-        alumniTable += `<td data-field="mentorWilling" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; border-right: 1px solid #ddd; text-align: center;">${mentorLabel}</td>`;
-        const preceptorLabel = window.alumniEditMode ? (a.preceptorWilling ? 'true' : 'false') : (a.preceptorWilling ? '?' : '?');
-        alumniTable += `<td data-field="preceptorWilling" contenteditable="${window.alumniEditMode ? 'true' : 'false'}" style="padding: 0.75rem; text-align: center;">${preceptorLabel}</td>`;
-        alumniTable += '</tr>';
-    });
+    window._alumniSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const name    = document.getElementById('an-name')?.value?.trim();
+        const email   = document.getElementById('an-email')?.value?.trim();
+        const program = document.getElementById('an-program')?.value;
+        const year    = parseInt(document.getElementById('an-year')?.value) || null;
+        const employer= document.getElementById('an-employer')?.value?.trim();
+        const jobTitle= document.getElementById('an-job')?.value?.trim();
+        const specialty=document.getElementById('an-specialty')?.value?.trim();
+        const status  = document.getElementById('an-status')?.value;
+        const mentor  = document.getElementById('an-mentor')?.checked || false;
+        const precep  = document.getElementById('an-preceptor')?.checked || false;
+        if (!name||!email) { alert('Name and email are required.'); return; }
+        const { error } = await sb.from('alumni_profiles').insert({ name, email, program, graduation_year:year, current_employer:employer, job_title:jobTitle, specialty, status, mentor_willing:mentor, preceptor_willing:precep });
+        if (error) { alert('Error: '+error.message); return; }
+        window._alumniCache = null;
+        app.renderAlumniDirectory();
+    };
 
-    alumniTable += '</tbody></table>';
-
-    const escapedSearch = searchTerm.replace(/"/g, '&quot;');
+    window._alumniDelete = async (id) => {
+        if (!confirm('Remove this alumni record?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('alumni_profiles').delete().eq('id', id);
+        if (error) { alert('Error: '+error.message); return; }
+        window._alumniCache = null;
+        app.renderAlumniDirectory();
+    };
 
     this.root.innerHTML = `
-        <div style="margin-bottom: 1.5rem; display:flex; flex-wrap: wrap; gap: 0.75rem; align-items: center;">
-            <div style="display: grid; grid-template-columns: repeat(3, minmax(200px, 1fr)); gap: 0.75rem; flex: 1 1 600px; min-width: 300px;">
-                <input type="text" id="alumniSearch" placeholder="Search by name..." value="${escapedSearch}" onkeyup="window.filterAlumniTable()" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                <select id="programFilter" onchange="window.filterAlumniTable()" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="" ${programFilter === '' ? 'selected' : ''}>All Programs</option>
-                    <option value="PharmD" ${programFilter === 'PharmD' ? 'selected' : ''}>PharmD</option>
-                    <option value="BPharm" ${programFilter === 'BPharm' ? 'selected' : ''}>BPharm</option>
-                    <option value="Technician" ${programFilter === 'Technician' ? 'selected' : ''}>Technician</option>
+    <div class="fade-in-up">
+        <!-- Filter Bar -->
+        <div style="background:white;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <div style="display:grid;grid-template-columns:2fr repeat(3,1fr) auto;gap:0.75rem;align-items:center;">
+                <input type="text" placeholder="Search name, employer, job title..." value="${f.search||''}"
+                    oninput="window._alumniDirFilter=Object.assign(window._alumniDirFilter||{},{search:this.value});app.renderAlumniDirectory();"
+                    style="padding:0.6rem 0.9rem;border:1px solid #ddd;border-radius:8px;font-size:0.88rem;" />
+                <select onchange="window._alumniDirFilter=Object.assign(window._alumniDirFilter||{},{program:this.value});app.renderAlumniDirectory();" style="padding:0.6rem;border:1px solid #ddd;border-radius:8px;">
+                    <option value="">All Programs</option>
+                    <option value="PharmD" ${progF==='PharmD'?'selected':''}>PharmD</option>
+                    <option value="BPharm" ${progF==='BPharm'?'selected':''}>BPharm</option>
+                    <option value="MSc"    ${progF==='MSc'?'selected':''}>MSc</option>
                 </select>
-                <select id="mentorFilter" onchange="window.filterAlumniTable()" style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                    <option value="" ${mentorFilter === '' ? 'selected' : ''}>All Mentor Status</option>
-                    <option value="mentor" ${mentorFilter === 'mentor' ? 'selected' : ''}>Willing Mentors</option>
-                    <option value="preceptor" ${mentorFilter === 'preceptor' ? 'selected' : ''}>Willing Preceptors</option>
+                <select onchange="window._alumniDirFilter=Object.assign(window._alumniDirFilter||{},{engagement:this.value});app.renderAlumniDirectory();" style="padding:0.6rem;border:1px solid #ddd;border-radius:8px;">
+                    <option value="">All Engagement</option>
+                    <option value="active"   ${engF==='active'?'selected':''}>Active</option>
+                    <option value="moderate" ${engF==='moderate'?'selected':''}>Moderate</option>
+                    <option value="low"      ${engF==='low'?'selected':''}>Low</option>
                 </select>
-            </div>
-            <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
-                <button class="btn btn-primary" onclick="window.addAlumniRow()" title="Add a new alumni entry">? Add Alumni</button>
-                <button class="btn btn-outline" onclick="window.toggleAlumniEditMode()">${window.alumniEditMode ? 'Exit Edit Mode' : 'Edit Inline'}</button>
-                <button class="btn btn-primary" onclick="window.saveAlumniEdits()" ${window.alumniEditMode ? '' : 'disabled'}>Save Changes</button>
-                <button class="btn btn-outline" onclick="window.exportAlumniCSV()">Export CSV</button>
-                <button class="btn btn-outline" onclick="document.getElementById('alumni-import-input').click()">Import CSV</button>
-                <input id="alumni-import-input" type="file" accept=".csv" style="display:none" onchange="window.handleAlumniCSVUpload(event)">
+                <select onchange="window._alumniDirFilter=Object.assign(window._alumniDirFilter||{},{mentor:this.value});app.renderAlumniDirectory();" style="padding:0.6rem;border:1px solid #ddd;border-radius:8px;">
+                    <option value="">All Roles</option>
+                    <option value="mentor"    ${mentorF==='mentor'?'selected':''}>Willing Mentors</option>
+                    <option value="preceptor" ${mentorF==='preceptor'?'selected':''}>Willing Preceptors</option>
+                </select>
+                <span style="font-size:0.82rem;color:#888;white-space:nowrap;">${filtered.length} of ${alumni.length}</span>
             </div>
         </div>
-        <div style="overflow-x: auto; background: white; border-radius: 8px; padding: 1rem;">
-            ${alumniTable}
+
+        <!-- Add New Alumni -->
+        <details style="background:white;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <summary style="font-weight:700;cursor:pointer;color:#1B5E20;font-size:0.95rem;">+ Add New Alumni</summary>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0.75rem;margin-top:1rem;">
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Full Name *</label>
+                    <input id="an-name"     type="text" placeholder="Dr. Full Name" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Email *</label>
+                    <input id="an-email"    type="email" placeholder="email@example.com" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Program</label>
+                    <select id="an-program" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="PharmD">PharmD</option><option value="BPharm">BPharm</option><option value="MSc">MSc</option>
+                    </select></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Graduation Year</label>
+                    <input id="an-year"     type="number" placeholder="${new Date().getFullYear()}" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Employer</label>
+                    <input id="an-employer" type="text" placeholder="Current employer" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Job Title</label>
+                    <input id="an-job"      type="text" placeholder="Current job title" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Specialty</label>
+                    <input id="an-specialty" type="text" placeholder="e.g. Oncology, Critical Care" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Status</label>
+                    <select id="an-status" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="employed">Employed</option><option value="postgraduate">Postgraduate</option><option value="other">Other</option>
+                    </select></div>
+                <div style="display:flex;gap:1.5rem;align-items:flex-end;padding-bottom:0.2rem;">
+                    <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;">
+                        <input id="an-mentor"    type="checkbox"> Willing Mentor</label>
+                    <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.82rem;cursor:pointer;">
+                        <input id="an-preceptor" type="checkbox"> Willing Preceptor</label>
+                </div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button onclick="window._alumniSave()" style="background:#1B5E20;color:white;padding:0.6rem 1.5rem;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%;">Add Alumni</button>
+                </div>
+            </div>
+        </details>
+
+        <!-- Directory Table -->
+        <div style="background:white;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.07);overflow:hidden;">
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:#f8f9fa;border-bottom:2px solid #e0e0e0;">
+                            <th style="text-align:left;padding:0.9rem 1rem;color:#555;font-weight:600;">Name</th>
+                            <th style="text-align:left;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Program · Year</th>
+                            <th style="text-align:left;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Current Role</th>
+                            <th style="text-align:left;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Employer</th>
+                            <th style="text-align:center;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Status</th>
+                            <th style="text-align:center;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Engagement</th>
+                            <th style="text-align:center;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Mentor</th>
+                            <th style="text-align:center;padding:0.9rem 0.75rem;color:#555;font-weight:600;">Precept</th>
+                            <th style="padding:0.9rem 0.75rem;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filtered.length === 0 ? `<tr><td colspan="9" style="text-align:center;padding:2rem;color:#999;">No alumni match the current filters.</td></tr>` :
+                        filtered.map(a => `
+                            <tr style="border-bottom:1px solid #f0f0f0;transition:background 0.15s;" onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background=''">
+                                <td style="padding:0.85rem 1rem;">
+                                    <div style="font-weight:600;color:#222;">${a.name}</div>
+                                    <div style="font-size:0.75rem;color:#888;">${a.specialty||a.specialty||''}</div>
+                                </td>
+                                <td style="padding:0.85rem 0.75rem;color:#555;">${a.program||''} <span style="color:#999;">·</span> ${a.graduation_year||a.graduationYear||'—'}</td>
+                                <td style="padding:0.85rem 0.75rem;color:#444;">${a.job_title||a.jobTitle||'—'}</td>
+                                <td style="padding:0.85rem 0.75rem;color:#555;">${a.current_employer||a.currentEmployer||'—'}</td>
+                                <td style="padding:0.85rem 0.75rem;text-align:center;">${statusBadge(a.status)}</td>
+                                <td style="padding:0.85rem 0.75rem;text-align:center;">${engBadge(a.engagement)}</td>
+                                <td style="padding:0.85rem 0.75rem;text-align:center;">${(a.mentor_willing||a.mentorWilling)?'<span style="color:#1B5E20;font-size:1.1rem;">✓</span>':'<span style="color:#ddd;">—</span>'}</td>
+                                <td style="padding:0.85rem 0.75rem;text-align:center;">${(a.preceptor_willing||a.preceptorWilling)?'<span style="color:#2196F3;font-size:1.1rem;">✓</span>':'<span style="color:#ddd;">—</span>'}</td>
+                                <td style="padding:0.85rem 0.75rem;text-align:center;">
+                                    ${a.id ? `<button onclick="window._alumniDelete('${a.id}')" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:0.85rem;padding:0.2rem 0.4rem;" title="Remove">✕</button>` : ''}
+                                </td>
+                            </tr>`).join('')}
+                    </tbody>
+                </table>
+            </div>
         </div>
-        <div style="margin-top: 1.5rem; padding: 1rem; background: #e8f5e9; border-radius: 6px;">
-            <strong>📋 Directory Statistics:</strong> ${filteredAlumni.length} of ${alumni.length} shown | ${alumni.filter(a => a.mentorWilling).length} mentors | ${alumni.filter(a => a.preceptorWilling).length} preceptors
-        </div>
-    `;
+    </div>`;
 };
 
 App.prototype.renderAlumniOutcomes = function() {
@@ -15979,178 +16022,210 @@ App.prototype.renderPreceptorPipeline = function() {
     `;
 };
 
-App.prototype.renderAlumniEvents = function() {
-    const tabTitle = '📅 Events & Communication';
-    this.title.textContent = this.getAlumniTabTitle('alumni-events', tabTitle);
-    const db = ALUMNI_DATABASE;
-    const events = db.events;
+App.prototype.renderAlumniEvents = async function() {
+    this.title.textContent = 'Events & Communication';
+    this.root.innerHTML = '<div class="card"><p style="padding:1rem;">Loading...</p></div>';
+    const { events } = await this._loadAlumniData();
 
-    const defaultUpcomingCount = events.filter(e => e.status === 'Upcoming').length;
-    const defaultCompletedCount = events.filter(e => e.status === 'Completed').length;
-    const defaultRegistrations = events.reduce((sum, e) => sum + e.registered, 0);
+    window._eventSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            title:      document.getElementById('ev-title')?.value?.trim(),
+            event_date: document.getElementById('ev-date')?.value || null,
+            location:   document.getElementById('ev-location')?.value?.trim() || null,
+            type:       document.getElementById('ev-type')?.value,
+            capacity:   parseInt(document.getElementById('ev-capacity')?.value) || null,
+            description:document.getElementById('ev-desc')?.value?.trim() || null,
+            status:     'upcoming',
+        };
+        if (!payload.title) { alert('Event title required.'); return; }
+        const { error } = await sb.from('alumni_events').insert(payload);
+        if (error) { alert('Error: '+error.message); return; }
+        window._alumniCache = null;
+        app.renderAlumniEvents();
+    };
 
-    const upcomingCount = this.createEditableMetric('alumni-events', 'upcoming', defaultUpcomingCount, '#fff3e0', '#FF9800');
-    const completedCount = this.createEditableMetric('alumni-events', 'completed', defaultCompletedCount, '#e8f5e9', '#1B5E20');
-    const totalRegistrations = this.createEditableMetric('alumni-events', 'registrations', defaultRegistrations, '#e3f2fd', '#2196F3');
+    window._eventDelete = async (id) => {
+        if (!confirm('Delete this event?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        await sb.from('alumni_events').delete().eq('id', id);
+        window._alumniCache = null;
+        app.renderAlumniEvents();
+    };
 
-    const editButton = `
-        <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
-            <button onclick="app.toggleAlumniEditMode('alumni-events')" style="background: ${this.alumniEditMode === 'alumni-events' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-events' ? '✏️ Editing' : '✏️ Edit Tab'}
-            </button>
-        </div>
-    `;
+    const upcoming  = events.filter(e => (e.status||'upcoming') === 'upcoming');
+    const completed = events.filter(e => (e.status||'') === 'completed');
+    const typeColors = { celebration:'#FF9800', workshop:'#2196F3', academic:'#9C27B0', networking:'#1B5E20' };
 
-    const editPanel = this.alumniEditMode === 'alumni-events' ? this.renderAlumniEditPanel('alumni-events', tabTitle) : '';
-
-    this.root.innerHTML = editButton + editPanel + `
-        <div style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-            <button class="btn btn-primary" onclick="alert('Add new event - Coming soon!')">➕ Add Event</button>
-            <button class="btn btn-outline" onclick="alert('Send communications - Coming soon!')">📢 Send Communication</button>
-        </div>
-
-        <!-- Event Stats -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📅</div>
-                <div style="font-size: 2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${upcomingCount}</div>
-                <div style="font-size: 0.9rem; color: #666;">Upcoming Events</div>
+    this.root.innerHTML = `
+    <div class="fade-in-up">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+            <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #FF9800;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <div style="font-size:1.8rem;font-weight:700;color:#FF9800;">${upcoming.length}</div>
+                <div style="font-size:0.82rem;color:#888;">Upcoming Events</div>
             </div>
-
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">✅</div>
-                <div style="font-size: 2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${completedCount}</div>
-                <div style="font-size: 0.9rem; color: #666;">Completed Events</div>
+            <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #1B5E20;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <div style="font-size:1.8rem;font-weight:700;color:#1B5E20;">${completed.length}</div>
+                <div style="font-size:0.82rem;color:#888;">Completed</div>
             </div>
-
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥</div>
-                <div style="font-size: 2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${totalRegistrations}</div>
-                <div style="font-size: 0.9rem; color: #666;">Total Registrations</div>
+            <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #2196F3;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                <div style="font-size:1.8rem;font-weight:700;color:#2196F3;">${events.reduce((s,e)=>s+(parseInt(e.registered)||0),0)}</div>
+                <div style="font-size:0.82rem;color:#888;">Total Registrations</div>
             </div>
         </div>
+
+        <!-- Add Event -->
+        <details style="background:white;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <summary style="font-weight:700;cursor:pointer;color:#1B5E20;">+ Add New Event</summary>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-top:1rem;">
+                <div style="grid-column:1/-1;"><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Event Title *</label>
+                    <input id="ev-title"    type="text" placeholder="Event name" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Date</label>
+                    <input id="ev-date"     type="date" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Location</label>
+                    <input id="ev-location" type="text" placeholder="Campus / Virtual" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Type</label>
+                    <select id="ev-type" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="networking">Networking</option><option value="workshop">Workshop</option>
+                        <option value="academic">Academic</option><option value="celebration">Celebration</option>
+                    </select></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Capacity</label>
+                    <input id="ev-capacity" type="number" placeholder="Max attendees" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div style="grid-column:1/-1;"><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Description</label>
+                    <input id="ev-desc" type="text" placeholder="Brief description" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div style="grid-column:1/-1;">
+                    <button onclick="window._eventSave()" style="background:#1B5E20;color:white;padding:0.6rem 1.5rem;border:none;border-radius:8px;cursor:pointer;font-weight:600;">Add Event</button>
+                </div>
+            </div>
+        </details>
 
         <!-- Events List -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Upcoming & Past Events</h3>
-            <div style="display: grid; gap: 1rem;">
-                ${events.map(evt => {
-                    const bgColor = evt.status === 'Upcoming' ? '#fff3e0' : '#e8f5e9';
-                    const borderColor = evt.status === 'Upcoming' ? '#FF9800' : '#1B5E20';
-                    const statusColor = evt.status === 'Upcoming' ? '#FF9800' : '#1B5E20';
-                    const icon = evt.status === 'Upcoming' ? '📅' : '✅';
-                    return `
-                        <div style="padding: 1.5rem; background: ${bgColor}; border-left: 4px solid ${borderColor}; border-radius: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: start;">
-                                <div style="flex: 1;">
-                                    <strong style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">${icon} ${evt.title}</strong>
-                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">📍 ${evt.location}</small>
-                                    <small style="color: #666;">📅 ${evt.date}</small>
-                                </div>
-                                <div style="text-align: right;">
-                                    <span style="background: ${statusColor}; color: white; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; display: inline-block; margin-bottom: 0.5rem;">${evt.type}</span><br>
-                                    <small style="color: #666; font-weight: 600;">👥 ${evt.registered} registered</small>
-                                </div>
-                            </div>
+        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <h3 style="margin:0 0 1rem;font-size:1rem;">All Events</h3>
+            ${events.length === 0 ? '<p style="color:#999;text-align:center;padding:2rem;">No events yet.</p>' :
+            `<div style="display:grid;gap:0.75rem;">
+                ${events.map(e => {
+                    const tc = typeColors[e.type]||'#607D8B';
+                    const cap = e.capacity ? Math.min(100,Math.round((parseInt(e.registered)||0)/e.capacity*100)) : null;
+                    return `<div style="padding:1.25rem;background:#fafafa;border-radius:10px;border-left:4px solid ${tc};display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+                        <div style="flex:1;min-width:200px;">
+                            <div style="font-weight:700;font-size:0.95rem;">${e.title}</div>
+                            <div style="font-size:0.8rem;color:#666;margin-top:0.25rem;">${e.event_date||e.date||''} · ${e.location||''}</div>
+                            ${e.description ? `<div style="font-size:0.78rem;color:#888;margin-top:0.2rem;">${e.description}</div>` : ''}
                         </div>
-                    `;
+                        <div style="display:flex;gap:1rem;align-items:center;flex-shrink:0;">
+                            <div style="text-align:center;">
+                                <div style="font-size:1.1rem;font-weight:700;color:${tc};">${e.registered||0}</div>
+                                <div style="font-size:0.72rem;color:#999;">registered${e.capacity?'/'+e.capacity:''}</div>
+                                ${cap !== null ? `<div style="width:60px;height:4px;background:#e0e0e0;border-radius:2px;margin-top:4px;overflow:hidden;"><div style="background:${tc};height:100%;width:${cap}%;border-radius:2px;"></div></div>` : ''}
+                            </div>
+                            <span style="background:${(e.status||'upcoming')==='upcoming'?'#fff3e0':'#e8f5e9'};color:${(e.status||'upcoming')==='upcoming'?'#E65100':'#1B5E20'};padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">${e.status||'upcoming'}</span>
+                            ${e.id ? `<button onclick="window._eventDelete('${e.id}')" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:0.85rem;" title="Delete">✕</button>` : ''}
+                        </div>
+                    </div>`;
                 }).join('')}
-            </div>
+            </div>`}
         </div>
-    `;
+    </div>`;
 };
 
-App.prototype.renderAlumniAchievements = function() {
-    const tabTitle = '🏆 Achievements & Recognition';
-    this.title.textContent = this.getAlumniTabTitle('alumni-achievements', tabTitle);
-    const db = ALUMNI_DATABASE;
-    const achievements = db.achievements;
+App.prototype.renderAlumniAchievements = async function() {
+    this.title.textContent = 'Achievements & Recognition';
+    this.root.innerHTML = '<div class="card"><p style="padding:1rem;">Loading...</p></div>';
+    const { achievements, alumni } = await this._loadAlumniData();
 
-    const defaultAwards = achievements.filter(a => a.type === 'Award').length + 34;
-    const defaultPublications = achievements.filter(a => a.type === 'Publication').length + 151;
-    const defaultLeadership = achievements.filter(a => a.type === 'Leadership').length + 44;
-    const defaultMedia = achievements.filter(a => a.type === 'Media').length + 22;
+    window._achievementSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            alumni_name:  document.getElementById('ach-name')?.value?.trim(),
+            achievement:  document.getElementById('ach-title')?.value?.trim(),
+            type:         document.getElementById('ach-type')?.value,
+            year:         parseInt(document.getElementById('ach-year')?.value) || new Date().getFullYear(),
+            institution:  document.getElementById('ach-inst')?.value?.trim() || null,
+            verified:     true,
+        };
+        if (!payload.alumni_name || !payload.achievement) { alert('Name and achievement are required.'); return; }
+        const { error } = await sb.from('alumni_achievements').insert(payload);
+        if (error) { alert('Error: '+error.message); return; }
+        window._alumniCache = null;
+        app.renderAlumniAchievements();
+    };
 
-    const awards = this.createEditableMetric('alumni-achievements', 'awards', defaultAwards, '#e8f5e9', '#1B5E20');
-    const publications = this.createEditableMetric('alumni-achievements', 'publications', defaultPublications, '#e3f2fd', '#2196F3');
-    const leadership = this.createEditableMetric('alumni-achievements', 'leadership', defaultLeadership, '#fff3e0', '#FF9800');
-    const media = this.createEditableMetric('alumni-achievements', 'media', defaultMedia, '#f3e5f5', '#9C27B0');
+    window._achievementDelete = async (id) => {
+        if (!confirm('Delete this achievement?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        await sb.from('alumni_achievements').delete().eq('id', id);
+        window._alumniCache = null;
+        app.renderAlumniAchievements();
+    };
 
-    const editButton = `
-        <div style="margin-bottom: 1.5rem; display: flex; justify-content: flex-end;">
-            <button onclick="app.toggleAlumniEditMode('alumni-achievements')" style="background: ${this.alumniEditMode === 'alumni-achievements' ? '#FF9800' : '#1B5E20'}; color: white; padding: 0.6rem 1.2rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.9rem;">
-                ${this.alumniEditMode === 'alumni-achievements' ? '✏️ Editing' : '✏️ Edit Tab'}
-            </button>
-        </div>
-    `;
+    const typeColors = { Award:'#FF9800', Publication:'#2196F3', Leadership:'#9C27B0', Training:'#1B5E20', Media:'#E91E63' };
+    const byType = {};
+    achievements.forEach(a => { byType[a.type]=(byType[a.type]||0)+1; });
 
-    const editPanel = this.alumniEditMode === 'alumni-achievements' ? this.renderAlumniEditPanel('alumni-achievements', tabTitle) : '';
-
-    this.root.innerHTML = editButton + editPanel + `
-        <!-- Top Achievement Stats -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏆</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #1B5E20; margin-bottom: 0.3rem;">${awards}</div>
-                <div style="font-size: 0.9rem; color: #666;">Awards & Recognition</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📚</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #2196F3; margin-bottom: 0.3rem;">${publications}</div>
-                <div style="font-size: 0.9rem; color: #666;">Publications</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👔</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #FF9800; margin-bottom: 0.3rem;">${leadership}</div>
-                <div style="font-size: 0.9rem; color: #666;">Leadership Roles</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center;">
-                <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📰</div>
-                <div style="font-size: 2.2rem; font-weight: 700; color: #9C27B0; margin-bottom: 0.3rem;">${media}</div>
-                <div style="font-size: 0.9rem; color: #666;">Media Features</div>
-            </div>
+    this.root.innerHTML = `
+    <div class="fade-in-up">
+        <!-- KPI strip -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1rem;margin-bottom:1.5rem;">
+            ${Object.entries({Award:'🏆',Publication:'📄',Leadership:'👑',Training:'🎓',Media:'📺'}).map(([type,icon])=>`
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid ${typeColors[type]||'#607D8B'};box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+                    <div style="font-size:1.5rem;">${icon}</div>
+                    <div style="font-size:1.8rem;font-weight:700;color:${typeColors[type]||'#607D8B'};">${byType[type]||0}</div>
+                    <div style="font-size:0.78rem;color:#888;">${type}s</div>
+                </div>`).join('')}
         </div>
 
-        <!-- Achievements Table -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Recent Achievements</h3>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead>
-                        <tr style="background: #f5f5f5; border-bottom: 2px solid #ddd;">
-                            <th style="padding: 1rem; text-align: left; color: #333; font-weight: 600;">Alumni Name</th>
-                            <th style="padding: 1rem; text-align: left; color: #333; font-weight: 600;">Achievement</th>
-                            <th style="padding: 1rem; text-align: center; color: #333; font-weight: 600;">Type</th>
-                            <th style="padding: 1rem; text-align: center; color: #333; font-weight: 600;">Year</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${achievements.map((ach, idx) => {
-                            const bgColor = idx % 2 === 0 ? 'white' : '#f9f9f9';
-                            const typeColors = {
-                                'Award': '#c8e6c9',
-                                'Publication': '#bbdefb',
-                                'Leadership': '#fff9c4',
-                                'Media': '#f8bbd0'
-                            };
-                            const typeColorBg = typeColors[ach.type] || '#e0e0e0';
-                            return `
-                                <tr style="background: ${bgColor}; border-bottom: 1px solid #eee;">
-                                    <td style="padding: 1rem; font-weight: 600;">${ach.name}</td>
-                                    <td style="padding: 1rem;">${ach.achievement}</td>
-                                    <td style="padding: 1rem; text-align: center;"><span style="background: ${typeColorBg}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600;">${ach.type}</span></td>
-                                    <td style="padding: 1rem; text-align: center; font-weight: 600;">${ach.year}</td>
-                                </tr>
-                            `;
-                        }).join('')}
-                    </tbody>
-                </table>
+        <!-- Add New Achievement -->
+        <details style="background:white;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <summary style="font-weight:700;cursor:pointer;color:#1B5E20;">+ Add Achievement</summary>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-top:1rem;">
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Alumni Name *</label>
+                    <input id="ach-name"  type="text" placeholder="Dr. Name" list="alumni-names-list" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    <datalist id="alumni-names-list">${alumni.map(a=>`<option value="${a.name||a.alumni_name||''}">`).join('')}</datalist></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Achievement *</label>
+                    <input id="ach-title" type="text" placeholder="Description of achievement" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Type</label>
+                    <select id="ach-type" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="Award">Award</option><option value="Publication">Publication</option>
+                        <option value="Leadership">Leadership</option><option value="Training">Training</option><option value="Media">Media</option>
+                    </select></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Year</label>
+                    <input id="ach-year"  type="number" value="${new Date().getFullYear()}" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div><label style="font-size:0.8rem;font-weight:600;display:block;margin-bottom:0.25rem;">Institution (optional)</label>
+                    <input id="ach-inst"  type="text" placeholder="Awarding body" style="width:100%;padding:0.55rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;"></div>
+                <div style="display:flex;align-items:flex-end;">
+                    <button onclick="window._achievementSave()" style="background:#1B5E20;color:white;padding:0.6rem 1.5rem;border:none;border-radius:8px;cursor:pointer;font-weight:600;width:100%;">Add</button>
+                </div>
             </div>
+        </details>
+
+        <!-- Achievements List -->
+        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.07);">
+            <h3 style="margin:0 0 1rem;font-size:1rem;color:#333;">All Achievements (${achievements.length})</h3>
+            ${achievements.length === 0 ? '<p style="color:#999;text-align:center;padding:2rem;">No achievements recorded yet.</p>' :
+            `<div style="display:grid;gap:0.75rem;">
+                ${achievements.map(a => {
+                    const tc = typeColors[a.type]||'#607D8B';
+                    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;background:#fafafa;border-radius:10px;border-left:4px solid ${tc};gap:1rem;">
+                        <div style="flex:1;">
+                            <div style="font-weight:700;font-size:0.92rem;">${a.alumni_name||a.name||'—'}</div>
+                            <div style="font-size:0.84rem;color:#555;margin-top:0.2rem;">${a.achievement}</div>
+                            ${a.institution ? `<div style="font-size:0.77rem;color:#888;margin-top:0.15rem;">${a.institution}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:0.75rem;align-items:center;flex-shrink:0;">
+                            <span style="background:${tc}20;color:${tc};padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">${a.type}</span>
+                            <span style="font-size:0.8rem;color:#999;">${a.year||''}</span>
+                            ${a.id ? `<button onclick="window._achievementDelete('${a.id}')" style="background:none;border:none;color:#f44336;cursor:pointer;font-size:0.85rem;" title="Delete">✕</button>` : ''}
+                        </div>
+                    </div>`;
+                }).join('')}
+            </div>`}
         </div>
-    `;
+    </div>`;
 };
 
 App.prototype.renderAlumniFeedback = function() {
@@ -16603,6 +16678,36 @@ App.prototype.renderAlumniEcosystem = function() {
             </div>
         </div>
     `;
+};
+
+// =====================
+// ALUMNI UNIT METHODS
+// =====================
+
+App.prototype._loadAlumniData = async function(force) {
+    const now = Date.now();
+    if (!force && window._alumniCache && (now - (window._alumniCacheTime||0)) < 300000) return window._alumniCache;
+    const sb = window.SupabaseAuth?.supabase;
+    const db = ALUMNI_DATABASE;
+    let alumni = db.alumni, events = db.events || [], achievements = db.achievements || [];
+    let engagementLog = [], mentorshipPairs = [];
+    if (sb) {
+        const [aR, evR, acR, enR, mpR] = await Promise.all([
+            sb.from('alumni_profiles').select('*').order('graduation_year', {ascending:false}),
+            sb.from('alumni_events').select('*').order('event_date', {ascending:true}),
+            sb.from('alumni_achievements').select('*').order('year', {ascending:false}),
+            sb.from('alumni_engagement_log').select('*').order('activity_date', {ascending:false}),
+            sb.from('alumni_mentorship_pairs').select('*').order('created_at', {ascending:false}),
+        ]);
+        if (aR.data?.length)  alumni          = aR.data;
+        if (evR.data?.length) events          = evR.data;
+        if (acR.data?.length) achievements    = acR.data;
+        engagementLog   = enR.data || [];
+        mentorshipPairs = mpR.data || [];
+    }
+    window._alumniCache     = { alumni, events, achievements, engagementLog, mentorshipPairs, db };
+    window._alumniCacheTime = now;
+    return window._alumniCache;
 };
 
 // =====================
