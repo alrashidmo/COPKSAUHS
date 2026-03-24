@@ -11692,6 +11692,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             q3: metrics.research.q3,
             publications: metrics.research.q1.map((v, i) => v + metrics.research.q2[i] + metrics.research.q3[i])
         };
+        const _fpCurrentYear = new Date().getFullYear().toString();
+        const _fpYearIdx = researchData.years.indexOf(_fpCurrentYear);
+        const _fpCurrentYearPubs = _fpYearIdx >= 0 ? researchData.publications[_fpYearIdx] : (researchData.publications[researchData.publications.length - 1] || 0);
 
         const grantData = {
             funnelLabels: ['Submitted', 'Review', 'Awarded'],
@@ -11715,8 +11718,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 <!--Personal Stats-->
                 <div class="dashboard-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 2rem;">
                     <div class="card stat-card">
-                        <span class="stat-label">Publications (2024)</span>
-                        <span class="stat-value">${researchData.publications[4]}</span>
+                        <span class="stat-label">Publications (${_fpCurrentYear})</span>
+                        <span class="stat-value">${_fpCurrentYearPubs}</span>
                         <span class="stat-trend trend-up">Impact Factor Avg: ${(2.5 + Math.random()).toFixed(1)}</span>
                     </div>
                     <div class="card stat-card">
@@ -16618,7 +16621,9 @@ App.prototype.renderResearchOverview = async function() {
     this.title.textContent = 'Research Overview';
     this.root.innerHTML = '<div class="card"><p>Loading research data...</p></div>';
     const data = await this._loadResearchData();
-    const { publications, projects, irb, grants, faculty, students, studentLogs, scholarSync } = data;
+    const { publications, projects, irb, grants, studentLogs, scholarSync } = data;
+    // Use real faculty from pharma dashboard if loaded; fall back to demo data
+    const faculty = (this.pharmaData?.faculty?.length ? this.pharmaData.faculty : data.faculty) || [];
     const today = new Date();
     const thisYear = today.getFullYear();
 
