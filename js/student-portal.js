@@ -1033,7 +1033,7 @@ function renderDashboard() {
         const currentStudentId = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : StudentPortalManager.currentStudent.studentId;
         
         // ONLY show current student's tickets
-        const tickets = this.tickets.filter(t => t.studentId === currentStudentId);
+        const tickets = (StudentPortalManager.tickets || []).filter(t => t.studentId === currentStudentId);
         const depts = StudentPortalManager.departments;
 
         // Calculate KPI metrics
