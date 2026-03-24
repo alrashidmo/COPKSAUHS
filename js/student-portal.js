@@ -1663,6 +1663,133 @@ window.StudentPortal = {
         if (pageTitle) pageTitle.textContent = 'My APPE Rotation';
         renderRotationPreferences();
     },
+    showAwards: () => {
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = 'My Awards';
+        StudentPortal._renderAwardsTab();
+    },
+    _renderAwardsTab: async () => {
+        const root = document.getElementById('app-root');
+        if (!root) return;
+        const studentId   = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : null;
+        const studentName = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUserName) ? AuthSystem.currentUserName : studentId;
+        const sb = window.SupabaseAuth?.supabase;
+
+        root.innerHTML = `<div style="padding:2rem;text-align:center;color:#888;">Loading...</div>`;
+
+        let myAwards = [];
+        if (sb && studentId) {
+            const { data } = await sb.from('student_awards').select('*').eq('student_id', studentId).order('submitted_at', { ascending: false });
+            myAwards = data || [];
+        }
+
+        const C = { green:'#1B5E20', border:'#e2e8f0', text:'#1a202c', muted:'#718096', card:'#fff' };
+
+        const statusBadge = s =>
+            s === 'approved' ? `<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">✓ Approved</span>`
+          : s === 'rejected' ? `<span style="background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">✗ Rejected</span>`
+          : `<span style="background:#fef9c3;color:#854d0e;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">⏳ Pending Review</span>`;
+
+        const awardRows = myAwards.length ? myAwards.map(a => `
+            <div style="background:#f8fafc;border-radius:12px;padding:1rem 1.25rem;border:1px solid ${C.border};margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap;">
+                    <div>
+                        <div style="font-size:0.9rem;font-weight:700;color:${C.text};">${a.award_name}</div>
+                        <div style="font-size:0.8rem;color:${C.muted};margin-top:2px;">${a.issuing_organization || ''} ${a.date_received ? '· ' + a.date_received : ''}</div>
+                        ${a.description ? `<div style="font-size:0.78rem;color:${C.muted};margin-top:4px;">${a.description}</div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+                        <span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;">${a.level || ''}</span>
+                        <span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;">${a.category || ''}</span>
+                        ${statusBadge(a.status)}
+                    </div>
+                </div>
+            </div>`).join('')
+        : `<p style="color:${C.muted};text-align:center;padding:2rem 0;font-size:0.9rem;">You haven't submitted any awards yet.</p>`;
+
+        root.innerHTML = `
+        <div style="display:grid;gap:1.25rem;max-width:800px;margin:0 auto;">
+
+            <!-- Submit Form -->
+            <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+                        border:1px solid ${C.border};">
+                <h3 style="margin:0 0 1.25rem;font-size:1rem;font-weight:700;color:${C.text};">🏆 Submit a New Award</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:0.8rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">Award Name *</label>
+                        <input id="aw-name" placeholder="e.g. Best Research Poster" style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">Issuing Organization *</label>
+                        <input id="aw-org" placeholder="e.g. Saudi Pharmaceutical Society" style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">Date Received</label>
+                        <input id="aw-date" type="date" style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">Category *</label>
+                        <select id="aw-cat" style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                            <option value="">Select category</option>
+                            <option>Academic</option><option>Clinical</option>
+                            <option>Research</option><option>Community</option><option>Leadership</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">Level *</label>
+                        <select id="aw-level" style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                            <option value="">Select level</option>
+                            <option>Institutional</option><option>National</option><option>International</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.8rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">Description (optional)</label>
+                        <input id="aw-desc" placeholder="Brief description" style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;font-size:0.88rem;box-sizing:border-box;">
+                    </div>
+                </div>
+                <button onclick="StudentPortal._submitAward('${studentId}','${studentName}')"
+                    style="margin-top:1rem;width:100%;padding:11px;background:#1B5E20;color:#fff;border:none;
+                           border-radius:8px;cursor:pointer;font-weight:700;font-size:0.95rem;">
+                    Submit Award for Review
+                </button>
+                <div id="aw-msg" style="margin-top:8px;font-size:0.83rem;text-align:center;"></div>
+            </div>
+
+            <!-- My Submitted Awards -->
+            <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+                        border:1px solid ${C.border};">
+                <h3 style="margin:0 0 1rem;font-size:1rem;font-weight:700;color:${C.text};">📋 My Submitted Awards</h3>
+                ${awardRows}
+            </div>
+        </div>`;
+    },
+    _submitAward: async (studentId, studentName) => {
+        const get = id => document.getElementById(id)?.value?.trim() || '';
+        const name = get('aw-name'), org = get('aw-org'), cat = get('aw-cat'), level = get('aw-level');
+        if (!name || !org || !cat || !level) { alert('Please fill in all required fields.'); return; }
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const msg = document.getElementById('aw-msg');
+        if (msg) { msg.style.color = '#718096'; msg.textContent = 'Submitting...'; }
+        const { error } = await sb.from('student_awards').insert({
+            student_id: studentId, student_name: studentName,
+            award_name: name, issuing_organization: org,
+            category: cat, level,
+            date_received: get('aw-date') || null,
+            description: get('aw-desc') || null,
+            status: 'pending',
+            submitted_at: new Date().toISOString()
+        });
+        if (error) {
+            if (msg) { msg.style.color = '#c62828'; msg.textContent = 'Error: ' + error.message; }
+            return;
+        }
+        if (msg) { msg.style.color = '#166534'; msg.textContent = '✓ Award submitted! Pending admin review.'; }
+        ['aw-name','aw-org','aw-cat','aw-level','aw-date','aw-desc'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        setTimeout(() => StudentPortal._renderAwardsTab(), 1200);
+    },
     switchUserRole: (role) => {
         currentUserRole = role;
         alert(`Switched to ${role === 'admin' ? 'Admin' : 'Student'} mode`);

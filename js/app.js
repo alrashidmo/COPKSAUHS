@@ -1758,6 +1758,9 @@ class App {
                     } else if (unit === 'student-portal') {
                         app.render('student-home', { title: 'Student Portal' });
                         app.setActiveNav('student-dashboard');
+                    } else if (unit === 'student-awards') {
+                        app.render('awards-dashboard', { title: 'Student Awards' });
+                        app.setActiveNav('awards-dashboard');
                     } else if (unit === 'clinical') {
                         app.render('home');
                         app.setActiveNav('home');
@@ -3879,11 +3882,14 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 this.renderStudentPortal();
                 break;
             case 'student-awards':
-                if (typeof window.getAPPEContent === 'function') {
-                    this.root.innerHTML = window.getAPPEContent('awards');
-                } else {
-                    this.root.innerHTML = '<h2>Student Awards</h2><p>Loading awards data...</p>';
-                }
+            case 'awards-dashboard':
+                this.renderAwardsDashboard();
+                break;
+            case 'awards-pending':
+                this.renderAwardsDashboard('pending');
+                break;
+            case 'awards-all':
+                this.renderAwardsDashboard('all');
                 break;
             case 'appe-experience-hub':
                 if (typeof window.renderAPPEExperienceHub === 'function') {
@@ -13388,6 +13394,178 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     renderStudentTracker() {
         this.renderStudentList(); // Re-use student list for now
+    }
+
+    async renderAwardsDashboard(filter = 'dashboard') {
+        this.title.textContent = 'Student Awards';
+        this.root.innerHTML = `<div style="padding:2rem;text-align:center;color:#888;">Loading awards...</div>`;
+
+        const sb = window.SupabaseAuth?.supabase;
+        let awards = [];
+        if (sb) {
+            const { data } = await sb.from('student_awards').select('*').order('submitted_at', { ascending: false });
+            awards = data || [];
+        }
+
+        const approved = awards.filter(a => a.status === 'approved');
+        const pending  = awards.filter(a => a.status === 'pending');
+        const rejected = awards.filter(a => a.status === 'rejected');
+
+        // KPI counts
+        const byLevel    = { Institutional: 0, National: 0, International: 0 };
+        const byCategory = {};
+        const byStudent  = {};
+        approved.forEach(a => {
+            if (a.level && byLevel[a.level] !== undefined) byLevel[a.level]++;
+            if (a.category) byCategory[a.category] = (byCategory[a.category] || 0) + 1;
+            const key = a.student_id || a.student_name || 'Unknown';
+            byStudent[key] = { name: a.student_name || a.student_id || 'Unknown', count: (byStudent[key]?.count || 0) + 1 };
+        });
+        const topStudents = Object.values(byStudent).sort((a,b) => b.count - a.count).slice(0, 5);
+        const uniqueAwardees = Object.keys(byStudent).length;
+        const totalStudents = (window.appStore?.students || []).filter(s => s.level === 'P4').length || uniqueAwardees;
+        const awardedPct = totalStudents ? Math.round(uniqueAwardees / totalStudents * 100) : 0;
+
+        const C = { green:'#1B5E20', greenPl:'#e8f5e9', blue:'#1565c0', bluePl:'#e3f2fd',
+                    amber:'#b45309', amberPl:'#fffbeb', red:'#c62828', redPl:'#fff5f5',
+                    purple:'#6b21a8', purplePl:'#f5f3ff', card:'#fff', border:'#e2e8f0',
+                    text:'#1a202c', muted:'#718096' };
+
+        const kpiCard = (icon, val, label, sub, bg, ac) => `
+            <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+                        border:1px solid ${C.border};position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-12px;right:-12px;width:70px;height:70px;
+                            border-radius:50%;background:${bg};opacity:0.6;"></div>
+                <div style="font-size:1.6rem;margin-bottom:0.5rem;">${icon}</div>
+                <div style="font-size:2rem;font-weight:800;color:${ac};line-height:1;">${val}</div>
+                <div style="font-size:0.82rem;font-weight:600;color:${C.text};margin-top:4px;">${label}</div>
+                <div style="font-size:0.72rem;color:${C.muted};margin-top:2px;">${sub}</div>
+            </div>`;
+
+        const statusBadge = s =>
+            s === 'approved' ? `<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">✓ Approved</span>`
+          : s === 'rejected' ? `<span style="background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">✗ Rejected</span>`
+          : `<span style="background:#fef9c3;color:#854d0e;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:600;">⏳ Pending</span>`;
+
+        const levelBadge = l =>
+            l === 'International' ? `<span style="background:#ede9fe;color:#6d28d9;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;">🌐 International</span>`
+          : l === 'National'      ? `<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;">🇸🇦 National</span>`
+          : `<span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:12px;font-size:0.72rem;font-weight:600;">🏫 Institutional</span>`;
+
+        const displayAwards = filter === 'pending' ? pending : filter === 'all' ? awards : awards;
+
+        const tableRows = displayAwards.length ? displayAwards.map(a => `
+            <tr style="border-bottom:1px solid ${C.border};">
+                <td style="padding:12px 14px;font-weight:600;color:${C.text};font-size:0.85rem;">${a.student_name || a.student_id || '—'}</td>
+                <td style="padding:12px 14px;font-size:0.85rem;color:${C.text};">${a.award_name || '—'}</td>
+                <td style="padding:12px 14px;font-size:0.85rem;color:${C.muted};">${a.issuing_organization || '—'}</td>
+                <td style="padding:12px 14px;">${a.level ? levelBadge(a.level) : '—'}</td>
+                <td style="padding:12px 14px;font-size:0.82rem;color:${C.muted};">${a.category || '—'}</td>
+                <td style="padding:12px 14px;font-size:0.82rem;color:${C.muted};">${a.date_received || '—'}</td>
+                <td style="padding:12px 14px;">${statusBadge(a.status)}</td>
+                <td style="padding:12px 14px;">
+                    ${a.status === 'pending' ? `
+                    <button onclick="window.app.reviewAward(${a.id},'approved')"
+                        style="background:#dcfce7;color:#166534;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:600;margin-right:4px;">Approve</button>
+                    <button onclick="window.app.reviewAward(${a.id},'rejected')"
+                        style="background:#fee2e2;color:#991b1b;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:600;">Reject</button>` : '—'}
+                </td>
+            </tr>`).join('')
+        : `<tr><td colspan="8" style="padding:2.5rem;text-align:center;color:${C.muted};font-size:0.9rem;">
+                ${filter === 'pending' ? 'No pending awards to review' : 'No awards found'}</td></tr>`;
+
+        const topStudentRows = topStudents.length ? topStudents.map((s,i) => `
+            <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid ${C.border};">
+                <span style="font-size:1.1rem;">${i===0?'🥇':i===1?'🥈':'🥉'}</span>
+                <div style="flex:1;font-size:0.85rem;font-weight:600;color:${C.text};">${s.name}</div>
+                <span style="background:${C.greenPl};color:${C.green};padding:3px 10px;border-radius:20px;font-size:0.78rem;font-weight:700;">${s.count} award${s.count!==1?'s':''}</span>
+            </div>`).join('')
+        : `<p style="color:${C.muted};font-size:0.85rem;text-align:center;padding:1rem 0;">No approved awards yet</p>`;
+
+        const catRows = Object.entries(byCategory).sort((a,b)=>b[1]-a[1]).map(([cat, n]) => {
+            const max = Math.max(...Object.values(byCategory));
+            return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="flex:0 0 110px;font-size:0.8rem;color:${C.text};">${cat}</span>
+                <div style="flex:1;background:#f1f5f9;border-radius:50px;height:7px;overflow:hidden;">
+                    <div style="width:${Math.round(n/max*100)}%;background:#1B5E20;height:100%;border-radius:50px;"></div>
+                </div>
+                <span style="flex:0 0 20px;font-size:0.8rem;font-weight:700;color:${C.green};">${n}</span>
+            </div>`;
+        }).join('');
+
+        this.root.innerHTML = `
+        <div style="display:grid;gap:1.25rem;padding:0.25rem 0;">
+
+            <!-- KPI Cards -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;">
+                ${kpiCard('🏆', approved.length, 'Approved Awards', 'all time', C.greenPl, C.green)}
+                ${kpiCard('⏳', pending.length,  'Pending Review',  'awaiting action', C.amberPl, C.amber)}
+                ${kpiCard('🌐', byLevel.International, 'International', 'highest prestige', C.purplePl, C.purple)}
+                ${kpiCard('🇸🇦', byLevel.National, 'National', 'across Saudi Arabia', C.bluePl, C.blue)}
+                ${kpiCard('👥', `${awardedPct}%`, 'Awarded Students', `${uniqueAwardees} unique students`, C.greenPl, C.green)}
+            </div>
+
+            <!-- Top Students + Category Breakdown -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+                <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid ${C.border};">
+                    <h3 style="margin:0 0 1rem;font-size:0.95rem;font-weight:700;color:${C.text};">🏅 Highly Awarded Students</h3>
+                    ${topStudentRows}
+                </div>
+                <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid ${C.border};">
+                    <h3 style="margin:0 0 1rem;font-size:0.95rem;font-weight:700;color:${C.text};">📂 Awards by Category</h3>
+                    ${catRows || `<p style="color:${C.muted};font-size:0.85rem;text-align:center;padding:1rem 0;">No data yet</p>`}
+                    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid ${C.border};
+                                display:flex;justify-content:space-around;text-align:center;">
+                        ${['Institutional','National','International'].map(l => `
+                        <div>
+                            <div style="font-size:1.4rem;font-weight:800;color:${l==='International'?C.purple:l==='National'?C.blue:C.green};">${byLevel[l]||0}</div>
+                            <div style="font-size:0.72rem;color:${C.muted};">${l}</div>
+                        </div>`).join('')}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Awards Table -->
+            <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid ${C.border};">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                    <h3 style="margin:0;font-size:0.95rem;font-weight:700;color:${C.text};">
+                        ${filter === 'pending' ? '⏳ Pending Review' : '📋 All Awards'}
+                        <span style="font-size:0.8rem;font-weight:400;color:${C.muted};margin-left:8px;">${displayAwards.length} records</span>
+                    </h3>
+                </div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                        <thead>
+                            <tr style="background:#f8fafc;border-bottom:2px solid ${C.border};">
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Student</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Award</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Organization</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Level</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Category</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Date</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Status</th>
+                                <th style="padding:10px 14px;text-align:left;font-size:0.75rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>${tableRows}</tbody>
+                    </table>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    async reviewAward(id, status) {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('student_awards')
+            .update({ status, reviewed_at: new Date().toISOString() })
+            .eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        this.renderAwardsDashboard('pending');
     }
 
     renderComingSoon(title) {

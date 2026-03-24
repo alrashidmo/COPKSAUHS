@@ -739,23 +739,26 @@
                 <li class="global-nav-item">
                     <a href="#" class="global-nav-link" data-unit="student-portal">👨‍🎓 Student Portal</a>
                 </li>
-                <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="academic">Academic Affairs</a>
+                <li class="global-nav-item" id="student-awards-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="student-awards">🏆 Student Awards</a>
                 </li>
                 <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="clinical">Clinical Affairs</a>
+                    <a href="#" class="global-nav-link" data-unit="academic">📚 Academic Affairs</a>
                 </li>
                 <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="qa">Quality Assurance Unit</a>
+                    <a href="#" class="global-nav-link" data-unit="clinical">🏥 Clinical Affairs</a>
                 </li>
                 <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="research">Research Unit</a>
+                    <a href="#" class="global-nav-link" data-unit="qa">✅ Quality Assurance</a>
                 </li>
                 <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="alumni">Alumni Unit</a>
+                    <a href="#" class="global-nav-link" data-unit="research">🔬 Research Unit</a>
                 </li>
                 <li class="global-nav-item">
-                    <a href="#" class="global-nav-link" data-unit="community">Community Service</a>
+                    <a href="#" class="global-nav-link" data-unit="alumni">🎓 Alumni Unit</a>
+                </li>
+                <li class="global-nav-item">
+                    <a href="#" class="global-nav-link" data-unit="community">🤝 Community Service</a>
                 </li>
             </ul>
         </nav>
@@ -777,6 +780,31 @@
                     </li>
                     <li class="nav-item">
                         <a href="#" class="nav-link" data-view="student-rotation" onclick="StudentPortal.showRotation(); return false;"><span class="nav-icon">🏥</span> My Rotation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="student-awards-submit" onclick="StudentPortal.showAwards(); return false;"><span class="nav-icon">🏆</span> My Awards</a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Student Awards Nav -->
+            <aside class="sidebar unit-nav hidden" id="nav-student-awards">
+                <div class="brand">🏆 Student Awards</div>
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link active" data-view="awards-dashboard" onclick="window.app?.render('awards-dashboard'); return false;">
+                            <span class="nav-icon">📊</span> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="awards-pending" onclick="window.app?.render('awards-pending'); return false;">
+                            <span class="nav-icon">🕐</span> Pending Review
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" data-view="awards-all" onclick="window.app?.render('awards-all'); return false;">
+                            <span class="nav-icon">📋</span> All Awards
+                        </a>
                     </li>
                 </ul>
             </aside>
@@ -1098,11 +1126,6 @@
                             <span class="nav-icon">📅</span> Rotations &amp; Preceptors
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link" onclick="event.preventDefault(); AdminSignupManager.refreshPanel();">
-                            <span class="nav-icon">✅</span> Pending Signups
-                        </a>
-                    </li>
                 </ul>
                 <div class="user-profile-mini"
                     style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
@@ -1143,8 +1166,8 @@
     <script src="js/appe-hub_backup_20260119_220628.js?v=20260124001" onerror="console.error('Failed to load: appe-hub backup')"></script>
     <script src="js/appe-hub.js?v=20260324001" onerror="console.error('Failed to load: appe-hub.js')"></script>
     <script src="js/admin-hub-model.js?v=20260317003" onerror="console.error('Failed to load: admin-hub-model.js')"></script>
-    <script src="js/app.js?v=20260323008" onerror="console.error('Failed to load: app.js')"></script>
-    <script src="js/student-portal.js?v=20260318004" onerror="console.error('Failed to load: student-portal.js')"></script>
+    <script src="js/app.js?v=20260324002" onerror="console.error('Failed to load: app.js')"></script>
+    <script src="js/student-portal.js?v=20260324001" onerror="console.error('Failed to load: student-portal.js')"></script>
     <script src="js/program-switcher.js?v=1" onerror="console.error('Failed to load: program-switcher.js')"></script>
     <script src="js/outcomes-dashboard.js?v=1" onerror="console.error('Failed to load: outcomes-dashboard.js')"></script>
     <script src="js/evaluation-system.js?v=1" onerror="console.error('Failed to load: evaluation-system.js')"></script>
@@ -1408,11 +1431,11 @@
                 const navLinks = globalNav.querySelectorAll('.global-nav-link');
 
                 if (this.currentUserRole === 'student') {
-                    // Hide all tabs except Student Portal
+                    // Hide all tabs except Student Portal and Student Awards
                     navLinks.forEach(tab => {
                         const unit = tab.getAttribute('data-unit');
                         const parent = tab.closest('.global-nav-item');
-                        if (unit === 'student-portal') {
+                        if (unit === 'student-portal' || unit === 'student-awards') {
                             parent.style.display = 'block';
                         } else {
                             parent.style.display = 'none';
