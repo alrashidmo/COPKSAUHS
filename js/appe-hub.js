@@ -126,6 +126,7 @@
             { id:'matching',    icon:'\uD83D\uDD00', label:'Auto-Match'   },
             { id:'evaluations', icon:'\uD83D\uDCDD', label:'Evaluations'  },
             { id:'reports',     icon:'\uD83D\uDCC8', label:'Reports'      },
+            { id:'outcomes',    icon:'\uD83C\uDFAF', label:'Outcomes'     },
             { id:'settings',    icon:'\u2699\uFE0F',  label:'Settings'     },
         ];
         const tabBtns = TABS.map(t => `
@@ -216,6 +217,7 @@
             case 'matching':    return _tabMatching();
             case 'evaluations': return _tabEvaluations();
             case 'reports':     return _tabReports();
+            case 'outcomes':    return _tabOutcomes();
             case 'settings':    return _tabSettings();
             default:            return _tabDashboard();
         }
@@ -1752,7 +1754,222 @@
     };
 
     /* ═══════════════════════════════════════════════════════════
-       TAB 8 - SETTINGS
+       TAB 9 - OUTCOMES
+    ═══════════════════════════════════════════════════════════ */
+    function _tabOutcomes() {
+        const { evaluations: ev, students: st, sites: si, assignments: as, settings } = _data;
+        const year = settings?.academic_year || '2025-2026';
+
+        /* ── Student Satisfaction (from real eval ratings) ── */
+        const ratingFields = [
+            { key: 'rating_learning',  label: 'Learning Experience' },
+            { key: 'rating_preceptor', label: 'Preceptor Support'   },
+            { key: 'rating_career',    label: 'Career Relevance'    },
+        ];
+        const overallScores = ev.map(e => parseFloat(e.overall_score ?? e.rating_overall ?? e.score ?? e.rating)).filter(v => !isNaN(v));
+        const avgOverall = overallScores.length ? (overallScores.reduce((a,b)=>a+b,0)/overallScores.length).toFixed(1) : null;
+        const stars = n => {
+            const full  = Math.floor(n);
+            const half  = n - full >= 0.5;
+            return '\u2605'.repeat(full) + (half ? '\u00BD' : '') + '\u2606'.repeat(5 - full - (half?1:0));
+        };
+
+        const satisfactionCard = `
+            <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                        border:1px solid ${C.border};">
+                <h3 style="margin:0 0 1.25rem;font-size:0.95rem;font-weight:700;color:${C.text};">\uD83D\uDE0A Student Satisfaction</h3>
+                ${avgOverall ? `
+                <div style="text-align:center;margin-bottom:1.25rem;">
+                    <div style="font-size:3rem;font-weight:800;color:${C.green};line-height:1;">${avgOverall}</div>
+                    <div style="font-size:1.1rem;color:#f6ad55;margin:4px 0;">${stars(parseFloat(avgOverall))}</div>
+                    <div style="font-size:0.78rem;color:${C.muted};">Out of 5.0 &nbsp;&middot;&nbsp; ${overallScores.length} responses</div>
+                </div>
+                ${ratingFields.map(f => {
+                    const vals = ev.map(e => parseFloat(e[f.key])).filter(v => !isNaN(v));
+                    const avg  = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : null;
+                    if (!avg) return '';
+                    return `
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <span style="flex:0 0 150px;font-size:0.8rem;color:${C.text};">${f.label}</span>
+                        <div style="flex:1;background:#f1f5f9;border-radius:50px;height:7px;overflow:hidden;">
+                            <div style="width:${parseFloat(avg)/5*100}%;background:${C.primaryMd};height:100%;border-radius:50px;"></div>
+                        </div>
+                        <span style="flex:0 0 28px;font-size:0.8rem;font-weight:700;color:${C.green};text-align:right;">${avg}</span>
+                    </div>`;
+                }).join('')}` : `<p style="color:${C.muted};text-align:center;padding:1.5rem 0;font-size:0.85rem;">No evaluation data yet</p>`}
+            </div>`;
+
+        /* ── Red Flags (at-risk students) ── */
+        const compStore  = _getComplianceStore();
+        const spleStore  = _getSPLEStore();
+        const redFlags   = [];
+        st.forEach(s => {
+            const comp = compStore[s.id] || {};
+            const missing = COMPLIANCE_ITEMS.filter(it => comp[it.key] !== 'ok');
+            if (missing.length >= 2) redFlags.push({ student: s.name || s.id, issue: `${missing.length} compliance items missing`, severity: 'critical' });
+            else if (missing.length === 1) redFlags.push({ student: s.name || s.id, issue: `${missing[0].label} missing`, severity: 'moderate' });
+            const exams = spleStore[s.id] || {};
+            const spleVals = [1,2,3,4,5,6].map(n => parseFloat(exams[`exam${n}`])).filter(v => !isNaN(v));
+            if (spleVals.length && spleVals[spleVals.length-1] < 60) {
+                redFlags.push({ student: s.name || s.id, issue: `SPLE score ${spleVals[spleVals.length-1]} — below 60`, severity: 'critical' });
+            }
+        });
+        const critical = redFlags.filter(f => f.severity === 'critical');
+        const moderate = redFlags.filter(f => f.severity === 'moderate');
+
+        const redFlagsCard = `
+            <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                        border:1px solid ${C.border};">
+                <h3 style="margin:0 0 1.25rem;font-size:0.95rem;font-weight:700;color:${C.text};">\uD83D\uDEA9 Red Flags</h3>
+                <div style="display:flex;gap:1.5rem;margin-bottom:1.25rem;">
+                    <div style="text-align:center;flex:1;">
+                        <div style="font-size:2rem;font-weight:800;color:#e53e3e;">${critical.length}</div>
+                        <div style="font-size:0.75rem;color:${C.muted};">Critical</div>
+                    </div>
+                    <div style="text-align:center;flex:1;">
+                        <div style="font-size:2rem;font-weight:800;color:#d97706;">${moderate.length}</div>
+                        <div style="font-size:0.75rem;color:${C.muted};">Moderate</div>
+                    </div>
+                    <div style="text-align:center;flex:1;">
+                        <div style="font-size:2rem;font-weight:800;color:${C.text};">${redFlags.length}</div>
+                        <div style="font-size:0.75rem;color:${C.muted};">Total</div>
+                    </div>
+                </div>
+                <div style="max-height:200px;overflow-y:auto;display:flex;flex-direction:column;gap:6px;">
+                    ${redFlags.length ? redFlags.map(f => `
+                        <div style="padding:8px 12px;border-radius:8px;border-left:3px solid ${f.severity==='critical'?'#e53e3e':'#d97706'};
+                                    background:${f.severity==='critical'?'#fff5f5':'#fffbeb'};">
+                            <div style="font-size:0.83rem;font-weight:600;color:${C.text};">${f.student}</div>
+                            <div style="font-size:0.75rem;color:${C.muted};margin-top:2px;">${f.issue}</div>
+                        </div>`).join('')
+                    : `<p style="color:${C.muted};text-align:center;padding:1rem 0;font-size:0.85rem;">\u2705 No red flags — great work!</p>`}
+                </div>
+            </div>`;
+
+        /* ── Preceptor Metrics ── */
+        const precMap = {};
+        ev.forEach(e => {
+            if (!e.preceptor_name) return;
+            if (!precMap[e.preceptor_name]) precMap[e.preceptor_name] = [];
+            const s = parseFloat(e.overall_score ?? e.rating_overall ?? e.score ?? e.rating);
+            if (!isNaN(s)) precMap[e.preceptor_name].push(s);
+        });
+        const precList = Object.entries(precMap)
+            .map(([name, scores]) => ({ name, avg: (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1), n: scores.length }))
+            .sort((a,b) => b.avg - a.avg).slice(0,3);
+        const totalPreceptors = [...new Set(si.map(s => s.preceptor_name).filter(Boolean))].length;
+
+        const preceptorCard = `
+            <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                        border:1px solid ${C.border};">
+                <h3 style="margin:0 0 1.25rem;font-size:0.95rem;font-weight:700;color:${C.text};">\uD83D\uDC68\u200D\u2695\uFE0F Preceptor Metrics</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.25rem;">
+                    <div style="text-align:center;padding:12px;background:#f0fdf4;border-radius:12px;">
+                        <div style="font-size:1.8rem;font-weight:800;color:${C.green};">${totalPreceptors}</div>
+                        <div style="font-size:0.72rem;color:${C.muted};">Total Preceptors</div>
+                    </div>
+                    <div style="text-align:center;padding:12px;background:#eff6ff;border-radius:12px;">
+                        <div style="font-size:1.8rem;font-weight:800;color:${C.blue};">${avgOverall || '\u2014'}</div>
+                        <div style="font-size:0.72rem;color:${C.muted};">Avg Rating</div>
+                    </div>
+                </div>
+                ${precList.length ? `
+                <div style="font-size:0.8rem;font-weight:700;color:${C.muted};margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Top Performers</div>
+                ${precList.map((p,i) => `
+                    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid ${C.border};">
+                        <span style="font-size:1rem;">${i===0?'\uD83E\uDD47':i===1?'\uD83E\uDD48':'\uD83E\uDD49'}</span>
+                        <div style="flex:1;">
+                            <div style="font-size:0.83rem;font-weight:600;color:${C.text};">${p.name}</div>
+                            <div style="font-size:0.7rem;color:${C.muted};">${p.n} student${p.n!==1?'s':''}</div>
+                        </div>
+                        <span style="font-size:1rem;font-weight:800;color:${C.primary};">\u2605 ${p.avg}</span>
+                    </div>`).join('')}` : `<p style="color:${C.muted};font-size:0.82rem;text-align:center;padding:1rem 0;">No evaluation data yet</p>`}
+            </div>`;
+
+        /* ── Site Metrics ── */
+        const activeSites  = si.filter(s => s.is_active !== false);
+        const totalSlots   = activeSites.reduce((n,s) => n + (s.available_slots||0), 0);
+        const placed       = as.filter(a => a.site_id).length;
+        const utilPct      = totalSlots ? Math.round(placed/totalSlots*100) : 0;
+        const siteEvals    = {};
+        ev.forEach(e => {
+            const a = as.find(x => String(x.student_id)===String(e.student_id));
+            if (!a?.site_id) return;
+            const site = si.find(s => s.id===a.site_id);
+            if (!site) return;
+            if (!siteEvals[site.id]) siteEvals[site.id] = { name: site.site_name, scores: [] };
+            const sc = parseFloat(e.overall_score ?? e.rating_overall ?? e.score ?? e.rating);
+            if (!isNaN(sc)) siteEvals[site.id].scores.push(sc);
+        });
+        const topSites = Object.values(siteEvals)
+            .filter(s => s.scores.length)
+            .map(s => ({ name: s.name, avg: (s.scores.reduce((a,b)=>a+b,0)/s.scores.length).toFixed(1), n: s.scores.length }))
+            .sort((a,b) => b.avg - a.avg).slice(0,3);
+
+        const siteCard = `
+            <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                        border:1px solid ${C.border};">
+                <h3 style="margin:0 0 1.25rem;font-size:0.95rem;font-weight:700;color:${C.text};">\uD83C\uDFE5 Site Metrics</h3>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <span style="font-size:0.83rem;color:${C.text};">Utilization</span>
+                    <span style="font-size:1rem;font-weight:800;color:${utilPct>=80?C.green:utilPct>=50?C.amber:C.red};">${utilPct}%</span>
+                </div>
+                <div style="background:#f1f5f9;border-radius:50px;height:10px;overflow:hidden;margin-bottom:6px;">
+                    <div style="width:${utilPct}%;background:linear-gradient(90deg,${C.primaryMd},${C.primaryLt});height:100%;border-radius:50px;"></div>
+                </div>
+                <div style="font-size:0.75rem;color:${C.muted};margin-bottom:1.25rem;">${placed} / ${totalSlots} students placed</div>
+                ${topSites.length ? `
+                <div style="font-size:0.8rem;font-weight:700;color:${C.muted};margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;">Top Sites</div>
+                ${topSites.map((s,i) => `
+                    <div style="padding:10px 12px;background:#f8fafc;border-radius:10px;margin-bottom:6px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;">
+                            <span style="font-size:0.83rem;font-weight:600;color:${C.text};">${i+1}. ${s.name}</span>
+                            <span style="font-size:0.85rem;font-weight:800;color:${C.primary};">\u2605 ${s.avg}</span>
+                        </div>
+                        <div style="background:#e2e8f0;border-radius:50px;height:6px;overflow:hidden;">
+                            <div style="width:${parseFloat(s.avg)/5*100}%;background:${C.primaryMd};height:100%;border-radius:50px;"></div>
+                        </div>
+                        <div style="font-size:0.7rem;color:${C.muted};margin-top:4px;">${s.n} eval${s.n!==1?'s':''}</div>
+                    </div>`).join('')}` : `<p style="color:${C.muted};font-size:0.82rem;text-align:center;padding:1rem 0;">No evaluation data yet</p>`}
+            </div>`;
+
+        /* ── CLO-PLO-NQF & Outcome Domains (placeholder until data model is built) ── */
+        const placeholderCard = (icon, title, msg) => `
+            <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                        border:2px dashed ${C.border};text-align:center;">
+                <div style="font-size:2rem;margin-bottom:8px;">${icon}</div>
+                <div style="font-size:0.92rem;font-weight:700;color:${C.text};margin-bottom:6px;">${title}</div>
+                <div style="font-size:0.78rem;color:${C.muted};">${msg}</div>
+            </div>`;
+
+        return `
+        <div style="display:grid;gap:1.25rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">Outcomes — ${year}</h2>
+                <span style="font-size:0.78rem;color:${C.muted};">Live data from Supabase &nbsp;&middot;&nbsp; ${ev.length} evaluations on record</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;">
+                ${satisfactionCard}
+                ${redFlagsCard}
+                ${preceptorCard}
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+                ${siteCard}
+                <div style="display:grid;gap:1.25rem;">
+                    ${placeholderCard('\uD83D\uDCDA','CLO \u2013 PLO \u2013 NQF Alignment','Curriculum mapping data coming soon. Will show coverage rate across CLOs, PLOs, and NQF levels.')}
+                    ${placeholderCard('\uD83C\uDFC6','Outcome Domains','Knowledge \u00B7 Skills \u00B7 Values achievement tracking — requires assessment data entry.')}
+                </div>
+            </div>
+        </div>`;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       TAB 8 - SETTINGS (now tab 10 in display order)
     ═══════════════════════════════════════════════════════════ */
     function _tabSettings() {
         const { settings } = _data;
