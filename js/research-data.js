@@ -46,6 +46,7 @@ const RESEARCH_DATABASE = {
         { id: 3, type: 'Presentation', title: 'Invited Talk - International Conference', recipient: 'Dr. Noor Al-Harbi', date: '2024-09-05', details: 'Patient Education in Digital Health' },
         { id: 4, type: 'Award', title: 'Student Research Excellence', recipient: 'Sarah Al-Otaibi', date: '2024-06-30', details: 'Outstanding Student Publication' },
     ],
+    grants: [],
     analytics: {
         publicationsByYear: [
             { year: 2021, publications: 12, q1: 4, q2: 5, q3: 2, q4: 1 },

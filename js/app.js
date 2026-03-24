@@ -3943,6 +3943,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             case 'research-irb':
                 this.renderResearchIRB();
                 break;
+            case 'research-grants':
+                this.renderResearchGrants();
+                break;
             case 'research-students':
                 this.renderResearchStudents();
                 break;
@@ -6595,8 +6598,91 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             `;
     }
 
-    renderQualityUnit(activeTab = 'strategic') {
+    async renderQualityUnit(activeTab = 'strategic') {
         this.title.textContent = 'Quality Assurance Unit';
+
+        // --- Supabase Live Data ---
+        const _qaYear = '2025-2026';
+        const _qaSb = window.SupabaseAuth?.supabase;
+        if (_qaSb) {
+            const [kRes, sRes] = await Promise.all([
+                _qaSb.from('qa_kpis').select('*').eq('academic_year', _qaYear),
+                _qaSb.from('qa_surveys').select('*').eq('academic_year', _qaYear)
+            ]);
+            window._qaKpiLookup = {};
+            (kRes.data || []).forEach(r => { window._qaKpiLookup[`${r.tab}|${r.goal_id}|${r.kpi_name}`] = r; });
+            window._qaSurveyLookup = {};
+            (sRes.data || []).forEach(r => { window._qaSurveyLookup[`${r.survey_group}|${r.survey_name}`] = r; });
+        } else {
+            window._qaKpiLookup = window._qaKpiLookup || {};
+            window._qaSurveyLookup = window._qaSurveyLookup || {};
+        }
+
+        window.qaKpiSave = async (input, tab, goalId, kpiName, target) => {
+            const actual = input.value.trim();
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb || !actual) return;
+            input.style.backgroundColor = '#fff9c4';
+            const { error } = await sb.from('qa_kpis').upsert(
+                { tab, goal_id: goalId, kpi_name: kpiName, target, actual, academic_year: _qaYear },
+                { onConflict: 'tab,goal_id,kpi_name,academic_year' }
+            );
+            input.style.backgroundColor = error ? '#ffebee' : '#e8f5e9';
+            setTimeout(() => input.style.backgroundColor = '', 1500);
+            if (!error) {
+                window._qaKpiLookup = window._qaKpiLookup || {};
+                window._qaKpiLookup[`${tab}|${goalId}|${kpiName}`] = { actual, target };
+            }
+        };
+
+        window.qaSurveySave = async (input, surveyGroup, surveyName, field) => {
+            const val = input.value.trim();
+            const sb = window.SupabaseAuth?.supabase;
+            if (!sb || !val) return;
+            const key = `${surveyGroup}|${surveyName}`;
+            const existing = window._qaSurveyLookup?.[key] || {};
+            const payload = {
+                survey_group: surveyGroup, survey_name: surveyName, academic_year: _qaYear,
+                year1_score: existing.year1_score ?? null,
+                year2_score: existing.year2_score ?? null,
+                year3_score: existing.year3_score ?? null,
+                target: existing.target ?? null,
+            };
+            if (field === 'y1') payload.year1_score = parseFloat(val) || null;
+            if (field === 'y2') payload.year2_score = parseFloat(val) || null;
+            if (field === 'y3') payload.year3_score = parseFloat(val) || null;
+            if (field === 'target') payload.target = parseFloat(val) || null;
+            input.style.backgroundColor = '#fff9c4';
+            const { error } = await sb.from('qa_surveys').upsert(payload, { onConflict: 'survey_group,survey_name,academic_year' });
+            input.style.backgroundColor = error ? '#ffebee' : '#e8f5e9';
+            setTimeout(() => input.style.backgroundColor = '', 1500);
+            if (!error) {
+                window._qaSurveyLookup = window._qaSurveyLookup || {};
+                window._qaSurveyLookup[key] = { ...existing, ...payload };
+            }
+        };
+
+        window.qaSaveGroup = async (groupId, btn) => {
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
+            const tbl = document.getElementById('table-' + groupId);
+            if (!tbl) { if (btn) { btn.disabled = false; btn.textContent = '💾 Save Data'; } return; }
+            const saves = [...tbl.querySelectorAll('tbody tr')].flatMap(r => {
+                const name = r.querySelector('.input-field')?.value;
+                const y1 = r.querySelector('.kpi-y1');
+                const y2 = r.querySelector('.kpi-y2');
+                const y3 = r.querySelector('.kpi-y3');
+                const tgt = r.querySelector('.kpi-target');
+                if (!name) return [];
+                return [
+                    y1 && window.qaSurveySave(y1, groupId, name, 'y1'),
+                    y2 && window.qaSurveySave(y2, groupId, name, 'y2'),
+                    y3 && window.qaSurveySave(y3, groupId, name, 'y3'),
+                    tgt && window.qaSurveySave(tgt, groupId, name, 'target'),
+                ].filter(Boolean);
+            });
+            await Promise.all(saves);
+            if (btn) { btn.disabled = false; btn.textContent = '✅ Saved!'; setTimeout(() => btn.textContent = '💾 Save Data', 2000); }
+        };
 
         // --- Shared Data ---
         const strategicGoals = [
@@ -6776,7 +6862,34 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             }
         ];
 
-
+        // --- Override array values with live DB data ---
+        strategicGoals.forEach(g => {
+            g.branches.forEach(b => {
+                b.kpis.forEach(k => {
+                    const db = window._qaKpiLookup?.['strategic|' + g.id + '|' + k.name];
+                    if (db?.actual) k.actual = db.actual;
+                });
+            });
+        });
+        pharmdGoals.forEach(g => {
+            g.branches.forEach(b => {
+                b.kpis.forEach(k => {
+                    const db = window._qaKpiLookup?.['pharmd|' + g.id + '|' + k.name];
+                    if (db?.actual) k.actual = db.actual;
+                });
+            });
+        });
+        qualitySurveysData.forEach(g => {
+            g.kpis.forEach(k => {
+                const db = window._qaSurveyLookup?.[g.id + '|' + k.name];
+                if (db) {
+                    if (db.year1_score != null) k.y1 = String(db.year1_score);
+                    if (db.year2_score != null) k.y2 = String(db.year2_score);
+                    if (db.year3_score != null) k.y3 = String(db.year3_score);
+                    if (db.target != null) k.target = String(db.target);
+                }
+            });
+        });
 
         // --- PLO DATA & MAPPING LOGIC (Global State for Persistence) ---
         if (!window.ploData) {
@@ -7197,8 +7310,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                                                 ${kIndex === 0 ? `<td rowspan="${b.kpis.length}" style="vertical-align: top; font-weight: 500;"><input type="text" class="input-field" value="${b.name}" style="width:100%; font-weight:500;"></td>` : ''}
                                                                 <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
                                                                 <td><input type="text" class="input-field kpi-target" value="${k.target}" style="padding:4px; font-size:0.9rem;"></td>
-                                                                <td><input type="text" class="input-field kpi-actual" value="${k.actual}" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
-                                                                <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🔄' : (parseFloat(k.actual) >= parseFloat(k.target) ? '✅' : '❌')}</td>
+                                                                <td><input type="text" class="input-field kpi-actual" data-kpi-name="${k.name}" value="${k.actual}" onblur="window.qaKpiSave(this,'strategic','${g.id}','${k.name}','${k.target}')" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
+                                                                <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🔄' : (k.actual === 'Done' ? '✅' : (parseFloat(k.actual) >= parseFloat(k.target) ? '✅' : '❌'))}</td>
                                                             </tr>
                                                         `).join('')
             ).join('')}
@@ -7349,8 +7462,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                                             ${kIndex === 0 ? `<td rowspan="${b.kpis.length}" style="vertical-align: top; font-weight: 500;"><input type="text" class="input-field" value="${b.name}" style="width:100%; font-weight:500;"></td>` : ''}
                                                             <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
                                                             <td><input type="text" class="input-field kpi-target" value="${k.target}" style="padding:4px; font-size:0.9rem;"></td>
-                                                            <td><input type="text" class="input-field kpi-actual" value="${k.actual}" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
-                                                            <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🔄' : (parseFloat(k.actual) >= parseFloat(k.target) ? '✅' : '❌')}</td>
+                                                            <td><input type="text" class="input-field kpi-actual" data-kpi-name="${k.name}" value="${k.actual}" onblur="window.qaKpiSave(this,'pharmd','${g.id}','${k.name}','${k.target}')" style="padding:4px; font-size:0.9rem; font-weight:bold;"></td>
+                                                            <td class="kpi-status">${k.actual.includes('Prog') || k.actual.includes('Pending') ? '🔄' : (k.actual === 'Done' ? '✅' : (parseFloat(k.actual) >= parseFloat(k.target) ? '✅' : '❌'))}</td>
                                                         </tr>
                                                     `).join('')
             ).join('')}
@@ -7477,10 +7590,10 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                                 ${g.kpis.map(k => `
                                                     <tr>
                                                         <td><input type="text" class="input-field" value="${k.name}" style="width:100%;"></td>
-                                                        <td><input type="text" class="input-field kpi-y1" value="${k.y1}" style="text-align:center;"></td>
-                                                        <td><input type="text" class="input-field kpi-y2" value="${k.y2}" style="text-align:center;"></td>
-                                                        <td><input type="text" class="input-field kpi-y3" value="${k.y3}" style="text-align:center; font-weight:bold;"></td>
-                                                        <td><input type="text" class="input-field kpi-target" value="${k.target}" style="text-align:center;"></td>
+                                                        <td><input type="text" class="input-field kpi-y1" value="${k.y1}" onblur="window.qaSurveySave(this,'${g.id}','${k.name}','y1')" style="text-align:center;"></td>
+                                                        <td><input type="text" class="input-field kpi-y2" value="${k.y2}" onblur="window.qaSurveySave(this,'${g.id}','${k.name}','y2')" style="text-align:center;"></td>
+                                                        <td><input type="text" class="input-field kpi-y3" value="${k.y3}" onblur="window.qaSurveySave(this,'${g.id}','${k.name}','y3')" style="text-align:center; font-weight:bold;"></td>
+                                                        <td><input type="text" class="input-field kpi-target" value="${k.target}" onblur="window.qaSurveySave(this,'${g.id}','${k.name}','target')" style="text-align:center;"></td>
                                                         <td class="kpi-status">${(parseFloat(k.y3) >= parseFloat(k.target)) ? '✅' : '❌'}</td>
                                                     </tr>
                                                 `).join('')}
@@ -7488,7 +7601,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                                         </table>
                                     </div>
                                     <div style="margin-top: 1rem; text-align: right;">
-                                         <button class="btn btn-primary btn-sm" onclick="alert('? Changes Saved (Demo)!')">💾 Save Data</button>
+                                         <button class="btn btn-primary btn-sm" onclick="window.qaSaveGroup('${g.id}', this)">💾 Save Data</button>
                                     </div>
                                 </div>
                             `).join('')}
@@ -7757,12 +7870,13 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         this.root.innerHTML = tabNav + `<div class="fade-in-up">${content}</div>`;
         if (initCharts) setTimeout(initCharts, 50);
     }
-    updateGoalStatus(goalId) {
+    async updateGoalStatus(goalId) {
         const table = document.getElementById(`table-${goalId}`);
         if (!table) return;
 
+        const tab = goalId.startsWith('ph') ? 'pharmd' : 'strategic';
         const rows = table.querySelectorAll('tbody tr');
-        let successCount = 0;
+        const savePromises = [];
 
         rows.forEach(row => {
             const targetInput = row.querySelector('.kpi-target');
@@ -7770,30 +7884,34 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             const statusCell = row.querySelector('.kpi-status');
 
             if (targetInput && actualInput && statusCell) {
-                const target = parseFloat(targetInput.value) || 0; // Simple parsing
                 const actualVal = actualInput.value.trim();
                 const actual = parseFloat(actualVal) || 0;
+                const target = parseFloat(targetInput.value) || 0;
 
-                // Simple logic: If text contains 'Prog' or 'Pending', it's yellow.
-                // Otherwise compare numbers.
                 let status = '❌';
-                if (actualVal.includes('Prog') || actualVal.includes('Pending') || actualVal.includes('Done')) {
+                if (actualVal.includes('Prog') || actualVal.includes('Pending')) {
                     status = '🔄';
-                    if (actualVal.includes('Done')) status = '✅';
-                } else {
-                    if (actual >= target) status = '✅';
-                    else status = '❌';
+                } else if (actualVal === 'Done' || actual >= target) {
+                    status = '✅';
                 }
 
                 statusCell.textContent = status;
-
-                // visual feedback
                 actualInput.style.backgroundColor = '#e8f5e9';
-                setTimeout(() => actualInput.style.backgroundColor = '', 500);
+                setTimeout(() => actualInput.style.backgroundColor = '', 800);
+
+                // Persist to Supabase
+                const kpiName = actualInput.dataset.kpiName;
+                if (window.qaKpiSave && kpiName) {
+                    savePromises.push(window.qaKpiSave(actualInput, tab, goalId, kpiName, targetInput.value));
+                }
             }
         });
 
-        alert('? KPI Status Recalculated & Saved!');
+        await Promise.all(savePromises);
+
+        // Flash button instead of alert
+        const btn = table.closest('.qa-modal-content')?.querySelector('.btn-primary');
+        if (btn) { const orig = btn.textContent; btn.textContent = '✅ Saved!'; setTimeout(() => btn.textContent = orig, 2000); }
     }
     getIPPEDashboardContent(activeTab, subTab, filterId) {
         try {
@@ -16379,624 +16497,893 @@ App.prototype.renderAlumniEcosystem = function() {
 // RESEARCH UNIT METHODS
 // =====================
 
-App.prototype.renderResearchEditPanel = function(tab, tabTitle) {
-    const editHtml = `
-        <div style="background: #f5f5f5; border: 1px solid #ddd; border-radius: 12px; padding: 2rem; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin: 0; color: #333;">✏️ Edit Research Data</h3>
-                <button onclick="app.render('${tab}')" style="background: #f0f0f0; border: 1px solid #ddd; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500;">Exit Edit Mode</button>
-            </div>
-
-            <!-- Data Editing Section -->
-            <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #2196F3;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📊 Edit Research Metrics & Numbers</h4>
-                <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
-                    All research section numbers are editable. Click any metric in the main view to edit it directly, or use the controls below.
-                </p>
-                <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <h5 style="margin-top: 0; margin-bottom: 1rem; color: #333;">Quick Edit Shortcuts</h5>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.9rem;">
-                        <div>👆 Click any number to edit</div>
-                        <div>💾 Changes save automatically</div>
-                        <div>🔄 Use reset button below to restore</div>
-                        <div>🖥️ Data persists in browser</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Import/Export Section -->
-            <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #F57C00; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">📤📥 Import / Export Data</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
-                    <div>
-                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #333;">Import CSV/JSON</label>
-                        <input type="file" id="research_data_file_${tab}" accept=".csv,.json,.xlsx" style="width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem;" />
-                    </div>
-                    <div style="display: flex; align-items: flex-end;">
-                        <button onclick="app.importResearchData('${tab}')" style="background: #4CAF50; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">📥 Import Data</button>
-                    </div>
-                </div>
-                <button onclick="app.exportResearchDataCSV('${tab}')" style="background: #F57C00; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; margin-bottom: 1rem;">📊 Download Data as CSV</button>
-            </div>
-
-            <!-- Reset Section -->
-            <div style="background: white; border-radius: 10px; padding: 1.5rem; border-left: 4px solid #E91E63; margin-top: 1.5rem;">
-                <h4 style="margin-top: 0; margin-bottom: 1rem; color: #333;">🔄 Reset to Database</h4>
-                <p style="margin: 0 0 1rem 0; color: #666; font-size: 0.95rem;">
-                    Clear all manual edits and refresh numbers to show latest database values
-                </p>
-                <button onclick="app.resetResearchMetrics('${tab}')" style="background: #E91E63; color: white; padding: 0.75rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%;">🔄 Reset All Numbers to Database</button>
-            </div>
-        </div>
-    `;
-    return editHtml;
-};
-
-App.prototype.resetResearchMetrics = function(tab) {
-    if (confirm('⚠️ Clear all manual edits and restore database values for this section?\n\nThis action cannot be undone.')) {
-        localStorage.removeItem(`researchMetrics_${tab}`);
-        localStorage.removeItem(`researchEdits_${tab}`);
-        this.render(tab);
+App.prototype._loadResearchData = async function(force) {
+    const now = Date.now();
+    if (!force && window._researchCache && (now - (window._researchCacheTime||0)) < 300000) {
+        return window._researchCache;
     }
-};
-
-App.prototype.importResearchData = function(tab) {
-    const fileInput = document.getElementById(`research_data_file_${tab}`);
-    if (!fileInput || !fileInput.files.length) {
-        alert('Please select a file to import');
-        return;
+    const sb = window.SupabaseAuth?.supabase;
+    const db = RESEARCH_DATABASE;
+    let publications = db.publications, projects = db.projects, irb = db.irb;
+    let grants = [], collaborations = db.collaborations, recognition = db.recognition;
+    let studentLogs = [];
+    if (sb) {
+        const [pR, prR, iR, gR, cR, rR, slR] = await Promise.all([
+            sb.from('research_publications').select('*').order('year', {ascending:false}),
+            sb.from('research_projects').select('*').order('created_at',{ascending:false}),
+            sb.from('research_irb').select('*'),
+            sb.from('research_grants').select('*').order('submitted_date',{ascending:false}),
+            sb.from('research_collaborations').select('*'),
+            sb.from('research_recognition').select('*').order('date',{ascending:false}),
+            sb.from('student_research_log').select('*').order('created_at',{ascending:false}),
+        ]);
+        if (pR.data?.length) publications = pR.data;
+        if (prR.data?.length) projects = prR.data;
+        if (iR.data?.length) irb = iR.data;
+        grants = gR.data || [];
+        if (cR.data?.length) collaborations = cR.data;
+        if (rR.data?.length) recognition = rR.data;
+        studentLogs = slR.data || [];
     }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        try {
-            const content = e.target.result;
-            const data = JSON.parse(content);
-            localStorage.setItem(`researchMetrics_${tab}`, JSON.stringify(data));
-            alert('✅ Data imported successfully!');
-            this.render(tab);
-        } catch {
-            alert('❌ Error importing file. Please ensure it is valid JSON.');
-        }
-    };
-    reader.readAsText(file);
+    window._researchCache = { publications, projects, irb, grants, collaborations, recognition, studentLogs, faculty: db.faculty, students: db.students };
+    window._researchCacheTime = now;
+    return window._researchCache;
 };
 
-App.prototype.exportResearchDataCSV = function(tab) {
-    const metrics = JSON.parse(localStorage.getItem(`researchMetrics_${tab}`) || '{}');
-    const csv = 'metric,value\n' + Object.entries(metrics).map(([k, v]) => `"${k}","${v}"`).join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `research-${tab}-${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-};
+App.prototype.renderResearchOverview = async function() {
+    this.title.textContent = 'Research Overview';
+    this.root.innerHTML = '<div class="card"><p>Loading research data...</p></div>';
+    const data = await this._loadResearchData();
+    const { publications, projects, irb, grants, faculty, students, studentLogs } = data;
+    const today = new Date();
+    const thisYear = today.getFullYear();
 
-App.prototype.renderResearchOverview = function() {
-    const tabTitle = '📊 Research Overview';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-    const stats = db.stats;
+    const totalPubs = publications.length;
+    const currentYearPubs = publications.filter(p => Number(p.year) === thisYear).length;
+    const q1q2Count = publications.filter(p => p.quartile === 'Q1' || p.quartile === 'Q2').length;
+    const q1q2Rate = totalPubs ? Math.round(q1q2Count / totalPubs * 100) : 0;
+    const totalCitations = publications.reduce((s, p) => s + (Number(p.citations) || 0), 0);
+    const activeProjects = projects.filter(p => p.status !== 'Published' && p.status !== 'Completed').length;
+    const daysLeft = (rec) => { const exp = new Date(rec.expiry_date || rec.expiry); return Math.round((exp - today) / 86400000); };
+    const activeIRBs = irb.filter(i => i.status === 'Active' || ((i.expiry_date || i.expiry) && daysLeft(i) > 0)).length;
+    const irbExpiring30 = irb.filter(i => { const d = daysLeft(i); return d >= 0 && d <= 30; });
+    const activeGrants = grants.filter(g => g.status === 'awarded' || g.status === 'active').length;
+    const totalFunding = grants.filter(g => g.status === 'awarded').reduce((s, g) => s + (Number(g.amount_sar) || 0), 0);
+    const awardedCount = grants.filter(g => g.status === 'awarded').length;
+    const rejectedCount = grants.filter(g => g.status === 'rejected').length;
+    const grantSuccessRate = (awardedCount + rejectedCount) > 0 ? Math.round(awardedCount / (awardedCount + rejectedCount) * 100) : 0;
+    const pubsPerFaculty = faculty.length ? (totalPubs / faculty.length).toFixed(1) : 0;
+    const twoYearsAgo = thisYear - 2;
+    const recentAuthors = new Set(publications.filter(p => Number(p.year) >= twoYearsAgo).flatMap(p => (p.authors || '').split(',').map(a => a.trim())));
+    const activeResearchFacPct = faculty.length ? Math.round(faculty.filter(f => recentAuthors.has(f.name)).length / faculty.length * 100) : 0;
+    const studentLedPubs = publications.filter(p => (p.type || '').toLowerCase().includes('student')).length;
+    const pendingVerif = studentLogs.filter(l => l.status === 'pending').length;
 
-    const totalPubs = this.createEditableMetric('research-overview', 'total_publications', stats.totalPublications, '#e8f5e9', '#1B5E20');
-    const currentYearPubs = this.createEditableMetric('research-overview', 'current_year_pubs', stats.currentYearPublications, '#e3f2fd', '#2196F3');
-    const activeProjects = this.createEditableMetric('research-overview', 'active_projects', stats.activeProjects, '#fff3e0', '#FF9800');
-    const activeIRBs = this.createEditableMetric('research-overview', 'active_irbs', stats.activeIRBs, '#fce4ec', '#E91E63');
-    const facultyCount = this.createEditableMetric('research-overview', 'faculty_involved', stats.facultyInvolved, '#f3e5f5', '#9C27B0');
-    const studentCount = this.createEditableMetric('research-overview', 'students_involved', stats.studentsInvolved, '#e0f2f1', '#009688');
+    const kpi = (label, value, color, bg, icon) => `
+        <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid ${color};position:relative;overflow:hidden;">
+            <div style="position:absolute;top:-10px;right:-10px;font-size:3rem;opacity:0.08;">${icon}</div>
+            <div style="font-size:0.78rem;color:#999;text-transform:uppercase;font-weight:600;margin-bottom:0.4rem;">${label}</div>
+            <div style="font-size:2.2rem;font-weight:700;color:${color};">${value}</div>
+            <div style="background:${bg};height:4px;border-radius:2px;margin-top:0.75rem;overflow:hidden;"><div style="background:${color};height:100%;width:70%;border-radius:2px;"></div></div>
+        </div>`;
+
+    const alertHtml = irbExpiring30.length ? `
+        <div style="background:#ffebee;border:1px solid #f44336;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
+            <strong style="color:#f44336;">IRBs Expiring Within 30 Days</strong>
+            <ul style="margin:0.5rem 0 0 1.2rem;color:#c62828;">
+                ${irbExpiring30.map(i => `<li>${i.id || i.irb_id} - ${i.title} (${daysLeft(i)} days left)</li>`).join('')}
+            </ul>
+        </div>` : '';
+
+    const latestPubs = publications.slice(0, 3);
 
     this.root.innerHTML = `
-        <!-- Edit Panel Button -->
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-overview', '${tabTitle}') + document.getElementById('research-overview-content').innerHTML; document.getElementById('research-overview-content').remove();" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-
-        <div id="research-overview-content" style="display: none;"></div>
-
-        <!-- Quick KPIs -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Total Publications</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${totalPubs}</div>
-                </div>
-                <div style="background: #e8f5e9; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #1B5E20; height: 100%; width: 92%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">All-time publications</div>
+        <div class="fade-in-up">
+            ${alertHtml}
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                ${kpi('Total Publications', totalPubs, '#1B5E20', '#e8f5e9', 'book')}
+                ${kpi('Current Year Pubs', currentYearPubs, '#2196F3', '#e3f2fd', 'cal')}
+                ${kpi('Q1+Q2 Rate', q1q2Rate + '%', '#1B5E20', '#e8f5e9', 'star')}
+                ${kpi('Total Citations', totalCitations, '#2196F3', '#e3f2fd', 'chart')}
+                ${kpi('Active Projects', activeProjects, '#FF9800', '#fff3e0', 'lab')}
+                ${kpi('Grant Success Rate', grantSuccessRate + '%', '#FF9800', '#fff3e0', 'trophy')}
+                ${kpi('Active Grants', activeGrants, '#f44336', '#ffebee', 'money')}
+                ${kpi('Total Funding (SAR)', totalFunding.toLocaleString(), '#9C27B0', '#f3e5f5', 'fund')}
+                ${kpi('Active IRBs', activeIRBs, '#9C27B0', '#f3e5f5', 'shield')}
+                ${kpi('IRBs Expiring 30d', irbExpiring30.length, irbExpiring30.length > 0 ? '#f44336' : '#1B5E20', irbExpiring30.length > 0 ? '#ffebee' : '#e8f5e9', 'clock')}
+                ${kpi('Pubs per Faculty', pubsPerFaculty, '#1B5E20', '#e8f5e9', 'teach')}
+                ${kpi('Pending Verifications', pendingVerif, pendingVerif > 0 ? '#f44336' : '#1B5E20', pendingVerif > 0 ? '#ffebee' : '#e8f5e9', 'check')}
             </div>
-
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📅</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Current Year</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${currentYearPubs}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                    <h3 style="margin-top:0;color:#333;">Latest Publications</h3>
+                    ${latestPubs.map(pub => `
+                        <div style="padding:1rem;background:#f9f9f9;border-left:3px solid #1B5E20;border-radius:8px;margin-bottom:0.75rem;">
+                            <strong style="color:#333;display:block;font-size:0.95rem;">${pub.title}</strong>
+                            <small style="color:#666;">${pub.journal} (${pub.quartile}) -- ${pub.year}</small>
+                        </div>`).join('')}
                 </div>
-                <div style="background: #e3f2fd; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #2196F3; height: 100%; width: 45%; border-radius: 3px;"></div>
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                    <h3 style="margin-top:0;color:#333;">Quick Stats</h3>
+                    <div style="display:grid;gap:0.75rem;">
+                        <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
+                            <span>Faculty Members</span><strong>${faculty.length}</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
+                            <span>Students Involved</span><strong>${students.length}</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
+                            <span>Research-Active Faculty</span><strong>${activeResearchFacPct}%</strong>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
+                            <span>Student-Led Publications</span><strong>${studentLedPubs}</strong>
+                        </div>
+                    </div>
                 </div>
-                <div style="font-size: 0.8rem; color: #666;">2025 publications</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🔬</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active Projects</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #FF9800;">${activeProjects}</div>
-                </div>
-                <div style="background: #fff3e0; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #FF9800; height: 100%; width: 80%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Ongoing research</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🛡️</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Active IRBs</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #E91E63;">${activeIRBs}</div>
-                </div>
-                <div style="background: #fce4ec; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #E91E63; height: 100%; width: 75%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Active IRB approvals</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">👨‍🏫</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Faculty Involved</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #9C27B0;">${facultyCount}</div>
-                </div>
-                <div style="background: #f3e5f5; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #9C27B0; height: 100%; width: 85%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Active faculty researchers</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Students Involved</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #009688;">${studentCount}</div>
-                </div>
-                <div style="background: #e0f2f1; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #009688; height: 100%; width: 78%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Student researchers</div>
             </div>
         </div>
+    `;
+};
 
-        <!-- Filters -->
-        <div style="background: white; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1rem; color: #333;">Filters</h3>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #666;">Year</label>
-                    <select style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                        <option>All Years</option>
-                        <option>2025</option>
-                        <option>2024</option>
-                        <option>2023</option>
-                        <option>2022</option>
+App.prototype.renderResearchPublications = async function() {
+    this.title.textContent = 'Publications';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    let pubs = data.publications;
+    const f = window._researchPubFilter || {};
+
+    const allYears = [...new Set(pubs.map(p => p.year).filter(Boolean))].sort((a,b) => b-a);
+
+    if (f.year) pubs = pubs.filter(p => String(p.year) === String(f.year));
+    if (f.type && f.type !== 'All') pubs = pubs.filter(p => (p.type || '').toLowerCase().includes(f.type.toLowerCase()));
+    if (f.quartile && f.quartile !== 'All') pubs = pubs.filter(p => p.quartile === f.quartile);
+    if (f.search) { const s = f.search.toLowerCase(); pubs = pubs.filter(p => (p.title||'').toLowerCase().includes(s) || (p.authors||'').toLowerCase().includes(s) || (p.journal||'').toLowerCase().includes(s)); }
+
+    const qColor = { Q1:'#1B5E20', Q2:'#2196F3', Q3:'#FF9800', Q4:'#f44336' };
+    const qBg   = { Q1:'#e8f5e9', Q2:'#e3f2fd', Q3:'#fff3e0', Q4:'#ffebee' };
+
+    const totalShown = pubs.length;
+    const q1cnt = pubs.filter(p => p.quartile === 'Q1').length;
+    const totalCit = pubs.reduce((s, p) => s + (Number(p.citations)||0), 0);
+    const stuLed = pubs.filter(p => (p.type||'').toLowerCase().includes('student')).length;
+
+    window._researchPubSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected to database.'); return; }
+        const payload = {
+            title: document.getElementById('rpub-title')?.value?.trim(),
+            authors: document.getElementById('rpub-authors')?.value?.trim(),
+            journal: document.getElementById('rpub-journal')?.value?.trim(),
+            quartile: document.getElementById('rpub-quartile')?.value,
+            year: Number(document.getElementById('rpub-year')?.value),
+            doi: document.getElementById('rpub-doi')?.value?.trim(),
+            citations: Number(document.getElementById('rpub-citations')?.value) || 0,
+            type: document.getElementById('rpub-type')?.value,
+            department: document.getElementById('rpub-dept')?.value?.trim(),
+        };
+        if (!payload.title) { alert('Title is required.'); return; }
+        const { error } = await sb.from('research_publications').insert(payload);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchPublications();
+    };
+
+    window._researchPubDelete = async (id) => {
+        if (!confirm('Delete this publication?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const { error } = await sb.from('research_publications').delete().eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchPublications();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="background:white;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem;">
+                    <select id="rpub-f-year" onchange="window._researchPubFilter = Object.assign(window._researchPubFilter||{},{year:this.value}); app.renderResearchPublications();" style="padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="">All Years</option>
+                        ${allYears.map(y => `<option value="${y}" ${f.year == y ? 'selected' : ''}>${y}</option>`).join('')}
                     </select>
-                </div>
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #666;">Department</label>
-                    <select style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                        <option>All Departments</option>
-                        <option>Pharmacy Practice</option>
-                        <option>Pharmaceutical Sciences</option>
+                    <select id="rpub-f-type" onchange="window._researchPubFilter = Object.assign(window._researchPubFilter||{},{type:this.value}); app.renderResearchPublications();" style="padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="All">All Types</option>
+                        <option value="Faculty" ${f.type==='Faculty'?'selected':''}>Faculty-led</option>
+                        <option value="Student" ${f.type==='Student'?'selected':''}>Student-led</option>
+                        <option value="Collaborative" ${f.type==='Collaborative'?'selected':''}>Collaborative</option>
                     </select>
-                </div>
-                <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #666;">Research Type</label>
-                    <select style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;">
-                        <option>All Types</option>
-                        <option>Faculty-led</option>
-                        <option>Student-led</option>
-                        <option>Collaborative</option>
+                    <select id="rpub-f-q" onchange="window._researchPubFilter = Object.assign(window._researchPubFilter||{},{quartile:this.value}); app.renderResearchPublications();" style="padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                        <option value="All">All Quartiles</option>
+                        <option value="Q1" ${f.quartile==='Q1'?'selected':''}>Q1</option>
+                        <option value="Q2" ${f.quartile==='Q2'?'selected':''}>Q2</option>
+                        <option value="Q3" ${f.quartile==='Q3'?'selected':''}>Q3</option>
+                        <option value="Q4" ${f.quartile==='Q4'?'selected':''}>Q4</option>
                     </select>
+                    <input id="rpub-f-search" type="text" placeholder="Search title/authors/journal..." value="${f.search||''}"
+                        onkeyup="window._researchPubFilter = Object.assign(window._researchPubFilter||{},{search:this.value}); app.renderResearchPublications();"
+                        style="padding:0.6rem;border:1px solid #ddd;border-radius:6px;" />
+                </div>
+                <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+                    <span style="background:#e8f5e9;color:#1B5E20;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.85rem;font-weight:600;">Shown: ${totalShown}</span>
+                    <span style="background:#e8f5e9;color:#1B5E20;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.85rem;font-weight:600;">Q1: ${q1cnt}</span>
+                    <span style="background:#e3f2fd;color:#2196F3;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.85rem;font-weight:600;">Citations: ${totalCit}</span>
+                    <span style="background:#fff3e0;color:#FF9800;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.85rem;font-weight:600;">Student-led: ${stuLed}</span>
                 </div>
             </div>
-        </div>
 
-        <!-- Recent Activity -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Latest Activity</h3>
-            <div style="display: grid; gap: 1rem;">
-                ${db.publications.slice(0, 3).map(pub => `
-                    <div style="padding: 1.5rem; background: #f9f9f9; border-left: 4px solid #1B5E20; border-radius: 10px;">
-                        <strong style="color: #333; display: block; margin-bottom: 0.3rem;">${pub.title}</strong>
-                        <small style="color: #666; display: block; margin-bottom: 0.5rem;">📖 ${pub.journal} (${pub.quartile}) - ${pub.year}</small>
-                        <small style="color: #999;">By: ${pub.authors}</small>
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:#1B5E20;padding:0.5rem 0;">+ Add New Publication</summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div style="grid-column:1/-1;"><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title *</label><input id="rpub-title" type="text" placeholder="Publication title" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Authors</label><input id="rpub-authors" type="text" placeholder="Authors" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Journal</label><input id="rpub-journal" type="text" placeholder="Journal name" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Quartile</label><select id="rpub-quartile" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option value="Q1">Q1</option><option value="Q2">Q2</option><option value="Q3">Q3</option><option value="Q4">Q4</option></select></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Year</label><input id="rpub-year" type="number" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">DOI</label><input id="rpub-doi" type="text" placeholder="10.xxx/..." style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Citations</label><input id="rpub-citations" type="number" value="0" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Type</label><select id="rpub-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option value="Faculty-led">Faculty-led</option><option value="Student-led">Student-led</option><option value="Collaborative">Collaborative</option></select></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Department</label><input id="rpub-dept" type="text" placeholder="Department" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div style="grid-column:1/-1;"><button onclick="window._researchPubSave()" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Save Publication</button></div>
                     </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchPublications = function() {
-    const tabTitle = '📚 Publications';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-publications', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-
-        <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem;">
-            <input type="text" placeholder="Search publications..." style="flex: 1; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px;" />
-            <button style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">🔍 Search</button>
-        </div>
-
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">All Publications (${db.publications.length})</h3>
-            <div style="display: grid; gap: 1.5rem;">
-                ${db.publications.map(pub => {
-                    let tagColor = '#1B5E20', tagBg = '#e8f5e9';
-                    if (pub.type === 'Student-led') { tagColor = '#2196F3'; tagBg = '#e3f2fd'; }
-                    else if (pub.type === 'Collaborative') { tagColor = '#FF9800'; tagBg = '#fff3e0'; }
-                    return `
-                        <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${tagColor};">
-                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
-                                <div style="flex: 1;">
-                                    <strong style="font-size: 1.1rem; color: #333; display: block; margin-bottom: 0.5rem;">${pub.title}</strong>
-                                    <small style="color: #666; display: block; margin-bottom: 0.3rem;">👤 ${pub.authors}</small>
-                                    <small style="color: #666; display: block; margin-bottom: 0.5rem;">📖 ${pub.journal} | ${pub.quartile} Quartile | ${pub.year}</small>
-                                    <small style="color: #999;">🔗 DOI: ${pub.doi} | 📊 ${pub.citations} citations</small>
-                                </div>
-                                <span style="background: ${tagBg}; color: ${tagColor}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${pub.type}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchProjects = function() {
-    const tabTitle = '🔬 Research Projects';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-projects', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-    `;
-
-    const stageColors = {
-        'Proposal': '#FF9800',
-        'IRB submitted': '#FF6F00',
-        'IRB approved': '#4CAF50',
-        'Data collection': '#2196F3',
-        'Analysis': '#9C27B0',
-        'Manuscript submitted': '#F57C00',
-        'Published': '#1B5E20'
-    };
-
-    this.root.innerHTML = `
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Research Projects (${db.projects.length})</h3>
-            <div style="display: grid; gap: 1.5rem;">
-                ${db.projects.map(proj => {
-                    const latestStage = proj.stages[proj.stages.length - 1];
-                    return `
-                        <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${stageColors[latestStage] || '#999'};">
-                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem; margin-bottom: 1rem;">
-                                <div>
-                                    <strong style="font-size: 1.1rem; color: #333; display: block; margin-bottom: 0.3rem;">${proj.title}</strong>
-                                    <small style="color: #666;">PI: ${proj.pi} | Type: ${proj.type}</small>
-                                </div>
-                                <span style="background: ${stageColors[latestStage] || '#999'}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; white-space: nowrap;">${proj.status}</span>
-                            </div>
-                            <div style="margin-bottom: 1rem;">
-                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">👥 ${proj.students} students involved | Duration: ${proj.startDate} to ${proj.endDate}</small>
-                            </div>
-                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.75rem;">
-                                ${proj.stages.map(stage => `
-                                    <span style="background: ${stageColors[stage] || '#ccc'}; color: white; padding: 0.3rem 0.6rem; border-radius: 4px;">${stage}</span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchIRB = function() {
-    const tabTitle = '🛡️ IRB & Ethics';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-irb', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">IRB Approvals & Ethics Compliance</h3>
-            <div style="display: grid; gap: 1rem;">
-                ${db.irb.map(irb => {
-                    let statusColor = '#1B5E20', statusBg = '#e8f5e9';
-                    if (irb.status === 'Expired') { statusColor = '#f44336'; statusBg = '#ffebee'; }
-                    return `
-                        <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${statusColor};">
-                            <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
-                                <div style="flex: 1;">
-                                    <strong style="color: #333; display: block; margin-bottom: 0.3rem;">📋 ${irb.id}</strong>
-                                    <div style="color: #666; margin-bottom: 0.5rem;">${irb.title}</div>
-                                    <small style="color: #666;">Approval: ${irb.approval} | Expires: ${irb.expiry}</small>
-                                </div>
-                                <div style="text-align: right;">
-                                    <span style="background: ${statusBg}; color: ${statusColor}; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; display: block; margin-bottom: 0.5rem;">${irb.status}</span>
-                                    <small style="color: ${irb.daysToRenewal > 0 ? '#666' : '#f44336'}; font-weight: 600;">${irb.daysToRenewal > 0 ? '⏳ ' + irb.daysToRenewal + ' days' : 'Expired ' + Math.abs(irb.daysToRenewal) + ' days ago'}</small>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchStudents = function() {
-    const tabTitle = '🎓 Student Research';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-    const stats = db.stats;
-
-    const studentInvolvement = this.createEditableMetric('research-students', 'student_involvement', stats.studentInvolvementRate + '%', '#e0f2f1', '#009688');
-    const studentPres = this.createEditableMetric('research-students', 'student_presentations', stats.studentPresentations, '#e3f2fd', '#2196F3');
-    const studentPubs = this.createEditableMetric('research-students', 'student_publications', stats.studentPublications, '#e8f5e9', '#1B5E20');
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-students', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-        <!-- Key Metrics -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎓</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Student Involvement</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #009688;">${studentInvolvement}</div>
-                </div>
-                <div style="background: #e0f2f1; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #009688; height: 100%; width: 85%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Students in research</div>
+                </details>
             </div>
 
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">🎤</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Presentations</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #2196F3;">${studentPres}</div>
-                </div>
-                <div style="background: #e3f2fd; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #2196F3; height: 100%; width: 78%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Conference presentations</div>
-            </div>
-
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: relative; overflow: hidden;">
-                <div style="position: absolute; top: -20px; right: -20px; font-size: 4rem; opacity: 0.1;">📚</div>
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.85rem; color: #999; text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Publications</div>
-                    <div style="font-size: 3rem; font-weight: 700; color: #1B5E20;">${studentPubs}</div>
-                </div>
-                <div style="background: #e8f5e9; height: 6px; border-radius: 3px; overflow: hidden;">
-                    <div style="background: #1B5E20; height: 100%; width: 42%; border-radius: 3px;"></div>
-                </div>
-                <div style="font-size: 0.8rem; color: #666;">Peer-reviewed publications</div>
-            </div>
-        </div>
-
-        <!-- Student List -->
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Active Student Researchers</h3>
-            <div style="display: grid; gap: 1rem;">
-                ${db.students.map(student => `
-                    <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid #009688;">
-                        <div style="display: flex; justify-content: space-between; align-items: start;">
-                            <div>
-                                <strong style="color: #333; font-size: 1.05rem;">${student.name}</strong>
-                                <small style="display: block; color: #666; margin-top: 0.5rem;">📚 ${student.publications} publication(s) | 🎤 ${student.presentations} presentation(s) | 🔬 ${student.projects} project(s)</small>
-                            </div>
-                            <span style="background: ${student.status === 'Active' ? '#e8f5e9' : '#f5f5f5'}; color: ${student.status === 'Active' ? '#1B5E20' : '#666'}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${student.status}</span>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchFaculty = function() {
-    const tabTitle = '👨‍🏫 Faculty Research';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-faculty', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Faculty Researchers</h3>
-            <div style="display: grid; gap: 1.5rem;">
-                ${db.faculty.map(faculty => `
-                    <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid #1B5E20;">
-                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
-                            <div style="flex: 1;">
-                                <strong style="color: #333; font-size: 1.1rem; display: block; margin-bottom: 0.3rem;">${faculty.name}</strong>
-                                <small style="color: #666; display: block; margin-bottom: 0.5rem;">🔬 ${faculty.interests}</small>
-                                <small style="color: #666;">📚 ${faculty.publications} publications | 👥 ${faculty.students} students supervised | 🔬 ${faculty.projects} active projects</small>
-                            </div>
-                            <div style="text-align: right;">
-                                <small style="display: block; color: #999; margin-bottom: 0.5rem;">ORCID</small>
-                                <code style="font-size: 0.75rem; color: #666;">${faculty.orcid}</code>
-                            </div>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchCollaboration = function() {
-    const tabTitle = '🤝 Collaboration & Partnerships';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-collaboration', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-    `;
-
-    const typeIcons = {
-        'Internal': '🏫',
-        'External': '🌐',
-        'Industry': '🏭',
-        'Hospital': '🏥'
-    };
-
-    this.root.innerHTML = `
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Research Collaborations</h3>
-            <div style="display: grid; gap: 1rem;">
-                ${db.collaborations.map(collab => {
-                    let color = '#1B5E20', bg = '#e8f5e9';
-                    if (collab.type === 'External') { color = '#2196F3'; bg = '#e3f2fd'; }
-                    else if (collab.type === 'Industry') { color = '#FF9800'; bg = '#fff3e0'; }
-                    else if (collab.type === 'Hospital') { color = '#9C27B0'; bg = '#f3e5f5'; }
-                    return `
-                        <div style="padding: 1.5rem; background: ${bg}; border-radius: 10px; border-left: 4px solid ${color};">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <strong style="color: #333; font-size: 1.05rem; display: block;">${typeIcons[collab.type]} ${collab.partner}</strong>
-                                    <small style="color: #666; display: block; margin-top: 0.3rem;">🔬 ${collab.projects} active project(s)</small>
-                                </div>
-                                <span style="background: white; color: ${color}; padding: 0.5rem 1rem; border: 2px solid ${color}; border-radius: 6px; font-weight: 600;">${collab.status}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchRecognition = function() {
-    const tabTitle = '🏆 Recognition & Output';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-recognition', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-    `;
-
-    const typeIcons = {
-        'Award': '🏆',
-        'Citation': '📊',
-        'Presentation': '🎤'
-    };
-
-    const typeColors = {
-        'Award': '#FF9800',
-        'Citation': '#2196F3',
-        'Presentation': '#1B5E20'
-    };
-
-    this.root.innerHTML = `
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Awards, Recognition & Output</h3>
-            <div style="display: grid; gap: 1.5rem;">
-                ${db.recognition.map(item => `
-                    <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${typeColors[item.type]};">
-                        <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem;">
-                            <div style="flex: 1;">
-                                <strong style="color: #333; font-size: 1.05rem; display: block; margin-bottom: 0.3rem;">${typeIcons[item.type]} ${item.title}</strong>
-                                <small style="color: #666; display: block; margin-bottom: 0.3rem;">Recipient: <strong>${item.recipient}</strong></small>
-                                <small style="color: #999;">📅 ${item.date} | ${item.details}</small>
-                            </div>
-                            <span style="background: ${typeColors[item.type]}; color: white; padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; white-space: nowrap;">${item.type}</span>
-                        </div>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-};
-
-App.prototype.renderResearchAnalytics = function() {
-    const tabTitle = '📈 Analytics & Trends';
-    this.title.textContent = tabTitle;
-    const db = RESEARCH_DATABASE;
-
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-analytics', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem;">
-            <!-- Publications by Year -->
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Publications by Year</h3>
-                <div style="display: grid; gap: 1rem;">
-                    ${db.analytics.publicationsByYear.map(item => {
-                        const percentage = (item.publications / 28) * 100;
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Publications (${totalShown})</h3>
+                <div style="display:grid;gap:1rem;">
+                    ${pubs.map(pub => {
+                        const tc = qColor[pub.quartile] || '#666';
+                        const tb = qBg[pub.quartile] || '#f5f5f5';
+                        let typeColor = '#1B5E20';
+                        if ((pub.type||'').includes('Student')) typeColor = '#2196F3';
+                        else if ((pub.type||'').includes('Collab')) typeColor = '#FF9800';
                         return `
-                            <div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                    <strong>${item.year}</strong>
-                                    <span style="color: #666;">${item.publications} pubs</span>
+                            <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${tc};">
+                                <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
+                                    <div style="flex:1;">
+                                        <strong style="color:#333;display:block;margin-bottom:0.3rem;">${pub.title}</strong>
+                                        <small style="color:#666;display:block;">By: ${pub.authors}</small>
+                                        <small style="color:#666;display:block;">${pub.journal} | ${pub.year} | ${pub.citations||0} citations</small>
+                                        ${pub.doi ? `<small style="color:#999;">DOI: ${pub.doi}</small>` : ''}
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
+                                        <span style="background:${tb};color:${tc};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:700;">${pub.quartile||''}</span>
+                                        <span style="background:#f0f0f0;color:${typeColor};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${pub.type||''}</span>
+                                        <button onclick="window._researchPubDelete(${pub.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                    </div>
                                 </div>
-                                <div style="background: #e0e0e0; height: 8px; border-radius: 4px; overflow: hidden;">
-                                    <div style="background: linear-gradient(90deg, #1B5E20, #4CAF50); height: 100%; width: ${percentage}%; border-radius: 4px;"></div>
-                                </div>
-                            </div>
-                        `;
+                            </div>`;
                     }).join('')}
                 </div>
             </div>
+        </div>
+    `;
+};
 
-            <!-- Faculty vs Student Output -->
-            <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Faculty vs Student Output</h3>
-                <div style="display: grid; gap: 1rem;">
-                    ${db.analytics.facultyVsStudent.map(item => `
-                        <div>
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                                <strong>${item.year}</strong>
-                            </div>
-                            <div style="display: flex; gap: 1rem; margin-bottom: 0.5rem;">
-                                <div style="flex: 1;">
-                                    <small style="color: #666;">Faculty: ${item.faculty}</small>
-                                    <div style="background: #e8f5e9; height: 6px; border-radius: 3px; margin-top: 0.3rem;">
-                                        <div style="background: #1B5E20; height: 100%; width: ${(item.faculty / 24) * 100}%; border-radius: 3px;"></div>
+App.prototype.renderResearchProjects = async function() {
+    this.title.textContent = 'Research Projects';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const projects = data.projects;
+
+    const stageOrder = ['Proposal','IRB submitted','IRB approved','Data collection','Analysis','Manuscript submitted','Published'];
+    const stageColors = { 'Proposal':'#FF9800','IRB submitted':'#FF6F00','IRB approved':'#4CAF50','Data collection':'#2196F3','Analysis':'#9C27B0','Manuscript submitted':'#F57C00','Published':'#1B5E20' };
+    const stageCounts = {};
+    stageOrder.forEach(s => { stageCounts[s] = projects.filter(p => p.status === s || (p.stages && p.stages[p.stages.length-1] === s)).length; });
+
+    window._researchProjSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            title: document.getElementById('rproj-title')?.value?.trim(),
+            pi: document.getElementById('rproj-pi')?.value?.trim(),
+            type: document.getElementById('rproj-type')?.value,
+            status: document.getElementById('rproj-status')?.value,
+            students: Number(document.getElementById('rproj-students')?.value) || 0,
+            start_date: document.getElementById('rproj-start')?.value || null,
+            end_date: document.getElementById('rproj-end')?.value || null,
+        };
+        if (!payload.title) { alert('Title required.'); return; }
+        const { error } = await sb.from('research_projects').insert(payload);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchProjects();
+    };
+
+    window._researchProjDelete = async (id) => {
+        if (!confirm('Delete this project?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('research_projects').delete().eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchProjects();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;overflow-x:auto;">
+                <h3 style="margin-top:0;color:#333;">Project Pipeline</h3>
+                <div style="display:flex;gap:0.5rem;min-width:600px;">
+                    ${stageOrder.map(s => `
+                        <div style="flex:1;text-align:center;padding:0.75rem 0.5rem;background:${stageColors[s]||'#ccc'};color:white;border-radius:8px;font-size:0.78rem;font-weight:600;">
+                            ${s}<br><span style="font-size:1.3rem;">${stageCounts[s]}</span>
+                        </div>`).join('<div style="display:flex;align-items:center;color:#999;">&#8594;</div>')}
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:#1B5E20;padding:0.5rem 0;">+ Add New Project</summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div style="grid-column:1/-1;"><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title *</label><input id="rproj-title" type="text" placeholder="Project title" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">PI</label><input id="rproj-pi" type="text" placeholder="Principal Investigator" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Type</label><select id="rproj-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option>Faculty-led</option><option>Joint</option><option>Student</option></select></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Stage/Status</label><select id="rproj-status" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option>Proposal</option><option>IRB submitted</option><option>IRB approved</option><option>Data collection</option><option>Analysis</option><option>Manuscript submitted</option><option>Published</option></select></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Students Count</label><input id="rproj-students" type="number" value="0" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Start Date</label><input id="rproj-start" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">End Date</label><input id="rproj-end" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" /></div>
+                        <div style="grid-column:1/-1;"><button onclick="window._researchProjSave()" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Save Project</button></div>
+                    </div>
+                </details>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Projects (${projects.length})</h3>
+                <div style="display:grid;gap:1rem;">
+                    ${projects.map(proj => {
+                        const stages = proj.stages || [];
+                        const latestStage = proj.status || stages[stages.length-1] || 'Proposal';
+                        const stageIdx = stageOrder.indexOf(latestStage);
+                        const pct = stageIdx >= 0 ? Math.round((stageIdx+1)/stageOrder.length*100) : 0;
+                        const color = stageColors[latestStage] || '#999';
+                        return `
+                            <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${color};">
+                                <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;margin-bottom:0.75rem;">
+                                    <div>
+                                        <strong style="color:#333;font-size:1rem;">${proj.title}</strong>
+                                        <small style="display:block;color:#666;margin-top:0.2rem;">PI: ${proj.pi} | Type: ${proj.type}</small>
+                                        <small style="color:#666;">Students: ${proj.students||proj.students_count||0} | ${proj.start_date||proj.startDate||''} to ${proj.end_date||proj.endDate||''}</small>
+                                    </div>
+                                    <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
+                                        <span style="background:${color};color:white;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${latestStage}</span>
+                                        <button onclick="window._researchProjDelete(${proj.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                     </div>
                                 </div>
-                                <div style="flex: 1;">
-                                    <small style="color: #666;">Students: ${item.student}</small>
-                                    <div style="background: #e3f2fd; height: 6px; border-radius: 3px; margin-top: 0.3rem;">
-                                        <div style="background: #2196F3; height: 100%; width: ${(item.student / 4) * 100}%; border-radius: 3px;"></div>
+                                <div style="background:#e0e0e0;height:6px;border-radius:3px;overflow:hidden;">
+                                    <div style="background:${color};height:100%;width:${pct}%;border-radius:3px;"></div>
+                                </div>
+                                <small style="color:#999;">Progress: ${pct}%</small>
+                            </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchIRB = async function() {
+    this.title.textContent = 'IRB & Ethics';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const irb = data.irb;
+    const today = new Date();
+    const daysLeft = (rec) => { const exp = new Date(rec.expiry_date || rec.expiry); return Math.round((exp - today) / 86400000); };
+
+    const expiring = irb.filter(i => { const d = daysLeft(i); return d >= 0 && d <= 30; });
+
+    window._researchIRBSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            irb_id: document.getElementById('rirb-id')?.value?.trim(),
+            title: document.getElementById('rirb-title')?.value?.trim(),
+            approval_date: document.getElementById('rirb-approval')?.value || null,
+            expiry_date: document.getElementById('rirb-expiry')?.value || null,
+            status: document.getElementById('rirb-status')?.value,
+        };
+        if (!payload.title) { alert('Title required.'); return; }
+        const { error } = await sb.from('research_irb').insert(payload);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchIRB();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            ${expiring.length ? `
+            <div style="background:#ffebee;border:1px solid #f44336;border-radius:12px;padding:1.25rem;margin-bottom:1.5rem;">
+                <strong style="color:#f44336;">IRBs Expiring Within 30 Days</strong>
+                <ul style="margin:0.5rem 0 0 1.2rem;color:#c62828;">
+                    ${expiring.map(i => `<li>${i.id||i.irb_id} -- ${i.title} (${daysLeft(i)} days)</li>`).join('')}
+                </ul>
+            </div>` : ''}
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:#1B5E20;padding:0.5rem 0;">+ Add New IRB Record</summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">IRB ID</label><input id="rirb-id" type="text" placeholder="IRB-2025-001" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div style="grid-column:1/-1;"><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title *</label><input id="rirb-title" type="text" placeholder="Study title" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Approval Date</label><input id="rirb-approval" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Expiry Date</label><input id="rirb-expiry" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Status</label><select id="rirb-status" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option value="Active">Active</option><option value="Expired">Expired</option><option value="Pending">Pending</option></select></div>
+                        <div style="grid-column:1/-1;"><button onclick="window._researchIRBSave()" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Save IRB</button></div>
+                    </div>
+                </details>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">IRB Approvals (${irb.length})</h3>
+                <div style="display:grid;gap:1rem;">
+                    ${irb.map(i => {
+                        const d = daysLeft(i);
+                        const color = d > 90 ? '#1B5E20' : d > 30 ? '#FF9800' : '#f44336';
+                        const bg = d > 90 ? '#e8f5e9' : d > 30 ? '#fff3e0' : '#ffebee';
+                        return `
+                            <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${color};">
+                                <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
+                                    <div style="flex:1;">
+                                        <strong style="color:#333;display:block;">${i.id||i.irb_id||''}</strong>
+                                        <div style="color:#666;margin:0.3rem 0;">${i.title}</div>
+                                        <small style="color:#999;">Approval: ${i.approval_date||i.approval||''} | Expiry: ${i.expiry_date||i.expiry||''}</small>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <span style="background:${bg};color:${color};padding:0.4rem 0.8rem;border-radius:6px;font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.3rem;">${i.status}</span>
+                                        <small style="color:${color};font-weight:600;">${d > 0 ? d + ' days left' : 'Expired ' + Math.abs(d) + 'd ago'}</small>
                                     </div>
                                 </div>
+                            </div>`;
+                    }).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchGrants = async function() {
+    this.title.textContent = 'Research Grants';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const grants = data.grants;
+    const today = new Date();
+    const thisYear = today.getFullYear();
+
+    const activeGrants = grants.filter(g => g.status === 'awarded' || g.status === 'active').length;
+    const totalFunding = grants.filter(g => g.status === 'awarded').reduce((s, g) => s + (Number(g.amount_sar)||0), 0);
+    const pendingGrants = grants.filter(g => g.status === 'submitted' || g.status === 'pending').length;
+    const awardedCount = grants.filter(g => g.status === 'awarded').length;
+    const rejectedCount = grants.filter(g => g.status === 'rejected').length;
+    const successRate = (awardedCount + rejectedCount) > 0 ? Math.round(awardedCount / (awardedCount + rejectedCount) * 100) : 0;
+    const newThisYear = grants.filter(g => g.submitted_date && new Date(g.submitted_date).getFullYear() === thisYear).length;
+
+    const statusColor = { submitted:'#2196F3', awarded:'#1B5E20', rejected:'#f44336', active:'#1B5E20', pending:'#FF9800' };
+    const statusBg   = { submitted:'#e3f2fd', awarded:'#e8f5e9', rejected:'#ffebee', active:'#e8f5e9', pending:'#fff3e0' };
+
+    window._researchGrantSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            title: document.getElementById('rgrant-title')?.value?.trim(),
+            pi: document.getElementById('rgrant-pi')?.value?.trim(),
+            funder: document.getElementById('rgrant-funder')?.value?.trim(),
+            amount_sar: Number(document.getElementById('rgrant-amount')?.value) || 0,
+            submitted_date: document.getElementById('rgrant-date')?.value || null,
+            status: document.getElementById('rgrant-status')?.value,
+        };
+        if (!payload.title) { alert('Title required.'); return; }
+        const { error } = await sb.from('research_grants').insert(payload);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchGrants();
+    };
+
+    window._researchGrantDelete = async (id) => {
+        if (!confirm('Delete this grant?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('research_grants').delete().eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchGrants();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #1B5E20;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#1B5E20;">${activeGrants}</div>
+                    <div style="font-size:0.82rem;color:#666;margin-top:0.3rem;">Active Grants</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #9C27B0;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#9C27B0;">${totalFunding.toLocaleString()}</div>
+                    <div style="font-size:0.82rem;color:#666;margin-top:0.3rem;">Total Funding (SAR)</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #2196F3;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#2196F3;">${pendingGrants}</div>
+                    <div style="font-size:0.82rem;color:#666;margin-top:0.3rem;">Submitted / Pending</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #FF9800;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#FF9800;">${successRate}%</div>
+                    <div style="font-size:0.82rem;color:#666;margin-top:0.3rem;">Success Rate</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #009688;text-align:center;">
+                    <div style="font-size:2rem;font-weight:700;color:#009688;">${newThisYear}</div>
+                    <div style="font-size:0.82rem;color:#666;margin-top:0.3rem;">New This Year</div>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:#1B5E20;padding:0.5rem 0;">+ Add New Grant</summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div style="grid-column:1/-1;"><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title *</label><input id="rgrant-title" type="text" placeholder="Grant title" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">PI</label><input id="rgrant-pi" type="text" placeholder="Principal Investigator" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Funder</label><input id="rgrant-funder" type="text" placeholder="Funding organization" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Amount (SAR)</label><input id="rgrant-amount" type="number" value="0" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Submitted Date</label><input id="rgrant-date" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Status</label><select id="rgrant-status" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option value="submitted">Submitted</option><option value="awarded">Awarded</option><option value="rejected">Rejected</option><option value="pending">Pending</option></select></div>
+                        <div style="grid-column:1/-1;"><button onclick="window._researchGrantSave()" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Save Grant</button></div>
+                    </div>
+                </details>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Grants (${grants.length})</h3>
+                ${grants.length === 0 ? '<p style="color:#999;text-align:center;padding:2rem;">No grants recorded yet. Add one above.</p>' : `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.9rem;">
+                        <thead><tr style="border-bottom:2px solid #e0e0e0;">
+                            <th style="text-align:left;padding:0.75rem 0.5rem;color:#666;">Title</th>
+                            <th style="text-align:left;padding:0.75rem 0.5rem;color:#666;">PI</th>
+                            <th style="text-align:left;padding:0.75rem 0.5rem;color:#666;">Funder</th>
+                            <th style="text-align:right;padding:0.75rem 0.5rem;color:#666;">Amount (SAR)</th>
+                            <th style="text-align:left;padding:0.75rem 0.5rem;color:#666;">Submitted</th>
+                            <th style="text-align:left;padding:0.75rem 0.5rem;color:#666;">Status</th>
+                            <th style="padding:0.75rem 0.5rem;"></th>
+                        </tr></thead>
+                        <tbody>
+                            ${grants.map(g => `
+                                <tr style="border-bottom:1px solid #f0f0f0;">
+                                    <td style="padding:0.75rem 0.5rem;font-weight:600;">${g.title}</td>
+                                    <td style="padding:0.75rem 0.5rem;color:#666;">${g.pi||''}</td>
+                                    <td style="padding:0.75rem 0.5rem;color:#666;">${g.funder||''}</td>
+                                    <td style="padding:0.75rem 0.5rem;text-align:right;">${(Number(g.amount_sar)||0).toLocaleString()}</td>
+                                    <td style="padding:0.75rem 0.5rem;color:#666;">${g.submitted_date||''}</td>
+                                    <td style="padding:0.75rem 0.5rem;"><span style="background:${statusBg[g.status]||'#f5f5f5'};color:${statusColor[g.status]||'#666'};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${g.status}</span></td>
+                                    <td style="padding:0.75rem 0.5rem;"><button onclick="window._researchGrantDelete(${g.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button></td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`}
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchStudents = async function() {
+    this.title.textContent = 'Student Research';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const { students, studentLogs } = data;
+
+    const totalStudents = students.length;
+    const studentsWithPubs = students.filter(s => s.publications > 0).length;
+    const involvementPct = totalStudents ? Math.round(studentsWithPubs / totalStudents * 100) : 0;
+    const totalPresentations = students.reduce((s, st) => s + (st.presentations||0), 0);
+    const totalPubs = students.reduce((s, st) => s + (st.publications||0), 0);
+    const pendingLogs = studentLogs.filter(l => l.status === 'pending').length;
+
+    window._researchVerifyLog = async (id) => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const { error } = await sb.from('student_research_log').update({ status: 'verified' }).eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchStudents();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #009688;text-align:center;">
+                    <div style="font-size:2.5rem;font-weight:700;color:#009688;">${involvementPct}%</div>
+                    <div style="font-size:0.85rem;color:#666;">Student Involvement Rate</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #2196F3;text-align:center;">
+                    <div style="font-size:2.5rem;font-weight:700;color:#2196F3;">${totalPresentations}</div>
+                    <div style="font-size:0.85rem;color:#666;">Presentations</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #1B5E20;text-align:center;">
+                    <div style="font-size:2.5rem;font-weight:700;color:#1B5E20;">${totalPubs}</div>
+                    <div style="font-size:0.85rem;color:#666;">Publications</div>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <h3 style="margin-top:0;color:#333;">Active Student Researchers</h3>
+                <div style="display:grid;gap:0.75rem;">
+                    ${students.map(s => `
+                        <div style="padding:1rem;background:#f9f9f9;border-radius:10px;border-left:3px solid #009688;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <strong style="color:#333;">${s.name}</strong>
+                                <small style="display:block;color:#666;margin-top:0.2rem;">${s.publications} pub(s) | ${s.presentations} presentation(s) | ${s.projects} project(s)</small>
                             </div>
-                        </div>
-                    `).join('')}
+                            <span style="background:${s.status==='Active'?'#e8f5e9':'#f5f5f5'};color:${s.status==='Active'?'#1B5E20':'#666'};padding:0.3rem 0.75rem;border-radius:6px;font-size:0.82rem;font-weight:600;">${s.status}</span>
+                        </div>`).join('')}
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Student Submission Log${pendingLogs > 0 ? ' <span style="background:#fff3e0;color:#FF9800;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;">' + pendingLogs + ' pending</span>' : ''}</h3>
+                ${studentLogs.length === 0 ? '<p style="color:#999;text-align:center;padding:2rem;">No submissions yet.</p>' : `
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+                        <thead><tr style="border-bottom:2px solid #e0e0e0;">
+                            <th style="text-align:left;padding:0.6rem;color:#666;">Student</th>
+                            <th style="text-align:left;padding:0.6rem;color:#666;">Type</th>
+                            <th style="text-align:left;padding:0.6rem;color:#666;">Title</th>
+                            <th style="text-align:left;padding:0.6rem;color:#666;">Date</th>
+                            <th style="text-align:left;padding:0.6rem;color:#666;">Status</th>
+                            <th style="padding:0.6rem;"></th>
+                        </tr></thead>
+                        <tbody>
+                            ${studentLogs.map(l => `
+                                <tr style="border-bottom:1px solid #f0f0f0;">
+                                    <td style="padding:0.6rem;">${l.student_name||''}</td>
+                                    <td style="padding:0.6rem;">${l.type||''}</td>
+                                    <td style="padding:0.6rem;">${l.title||''}</td>
+                                    <td style="padding:0.6rem;color:#666;">${l.date_submitted||''}</td>
+                                    <td style="padding:0.6rem;">${l.status === 'verified' ? '<span style="background:#e8f5e9;color:#1B5E20;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:600;">Verified</span>' : '<span style="background:#fff3e0;color:#FF9800;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:600;">Pending</span>'}</td>
+                                    <td style="padding:0.6rem;">${l.status !== 'verified' ? '<button onclick="window._researchVerifyLog(' + l.id + ')" style="background:#e8f5e9;color:#1B5E20;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">Verify</button>' : ''}</td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>`}
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchFaculty = async function() {
+    this.title.textContent = 'Faculty Research';
+    const data = await this._loadResearchData();
+    const faculty = data.faculty;
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Faculty Researchers (${faculty.length})</h3>
+                <div style="display:grid;gap:1.25rem;">
+                    ${faculty.map(f => `
+                        <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid #1B5E20;">
+                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
+                                <div style="flex:1;">
+                                    <strong style="color:#333;font-size:1rem;display:block;margin-bottom:0.3rem;">${f.name}</strong>
+                                    <small style="color:#666;display:block;margin-bottom:0.3rem;">Research: ${f.interests}</small>
+                                    <small style="color:#666;">${f.publications} pubs | ${f.students} students | ${f.projects} projects</small>
+                                </div>
+                                <div style="text-align:right;">
+                                    <small style="display:block;color:#999;margin-bottom:0.3rem;">ORCID</small>
+                                    <code style="font-size:0.75rem;color:#666;">${f.orcid}</code>
+                                </div>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchCollaboration = async function() {
+    this.title.textContent = 'Collaboration & Partnerships';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const collaborations = data.collaborations;
+
+    const typeIcons = { 'Internal':'I','External':'E','Industry':'Ind','Hospital':'H' };
+    const typeColors = { 'Internal':'#1B5E20','External':'#2196F3','Industry':'#FF9800','Hospital':'#9C27B0' };
+    const typeBg    = { 'Internal':'#e8f5e9','External':'#e3f2fd','Industry':'#fff3e0','Hospital':'#f3e5f5' };
+
+    window._researchCollabSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            type: document.getElementById('rcollab-type')?.value,
+            partner: document.getElementById('rcollab-partner')?.value?.trim(),
+            projects: Number(document.getElementById('rcollab-projects')?.value) || 0,
+            status: document.getElementById('rcollab-status')?.value,
+        };
+        if (!payload.partner) { alert('Partner name required.'); return; }
+        const { error } = await sb.from('research_collaborations').insert(payload);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchCollaboration();
+    };
+
+    window._researchCollabDelete = async (id) => {
+        if (!confirm('Delete this collaboration?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('research_collaborations').delete().eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchCollaboration();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:#1B5E20;padding:0.5rem 0;">+ Add New Collaboration</summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Type</label><select id="rcollab-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option>Internal</option><option>External</option><option>Industry</option><option>Hospital</option></select></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Partner *</label><input id="rcollab-partner" type="text" placeholder="Partner institution" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Projects</label><input id="rcollab-projects" type="number" value="1" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Status</label><select id="rcollab-status" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option>Active</option><option>Pending</option><option>Completed</option></select></div>
+                        <div style="grid-column:1/-1;"><button onclick="window._researchCollabSave()" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Save Collaboration</button></div>
+                    </div>
+                </details>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Research Collaborations (${collaborations.length})</h3>
+                <div style="display:grid;gap:0.75rem;">
+                    ${collaborations.map(c => `
+                        <div style="padding:1.25rem;background:${typeBg[c.type]||'#f9f9f9'};border-radius:10px;border-left:4px solid ${typeColors[c.type]||'#666'};display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <strong style="color:#333;">${c.partner}</strong>
+                                <small style="display:block;color:#666;margin-top:0.2rem;">${c.projects} project(s) | ${c.type}</small>
+                            </div>
+                            <div style="display:flex;gap:0.5rem;align-items:center;">
+                                <span style="background:white;color:${typeColors[c.type]||'#666'};border:2px solid ${typeColors[c.type]||'#ddd'};padding:0.3rem 0.75rem;border-radius:6px;font-weight:600;font-size:0.85rem;">${c.status}</span>
+                                <button onclick="window._researchCollabDelete(${c.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchRecognition = async function() {
+    this.title.textContent = 'Recognition & Output';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const recognition = data.recognition;
+
+    const typeColors = { 'Award':'#FF9800','Citation':'#2196F3','Presentation':'#1B5E20' };
+
+    window._researchRecogSave = async () => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const payload = {
+            type: document.getElementById('rrecog-type')?.value,
+            title: document.getElementById('rrecog-title')?.value?.trim(),
+            recipient: document.getElementById('rrecog-recipient')?.value?.trim(),
+            date: document.getElementById('rrecog-date')?.value || null,
+            details: document.getElementById('rrecog-details')?.value?.trim(),
+        };
+        if (!payload.title) { alert('Title required.'); return; }
+        const { error } = await sb.from('research_recognition').insert(payload);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchRecognition();
+    };
+
+    window._researchRecogDelete = async (id) => {
+        if (!confirm('Delete this recognition?')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('research_recognition').delete().eq('id', id);
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        app.renderResearchRecognition();
+    };
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <details>
+                    <summary style="cursor:pointer;font-weight:600;color:#1B5E20;padding:0.5rem 0;">+ Add New Recognition</summary>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:1rem;">
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Type</label><select id="rrecog-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;"><option value="Award">Award</option><option value="Citation">Citation</option><option value="Presentation">Presentation</option></select></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title *</label><input id="rrecog-title" type="text" placeholder="Award/citation title" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Recipient</label><input id="rrecog-recipient" type="text" placeholder="Name" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Date</label><input id="rrecog-date" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" /></div>
+                        <div style="grid-column:1/-1;"><label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Details</label><input id="rrecog-details" type="text" placeholder="Brief description" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" /></div>
+                        <div style="grid-column:1/-1;"><button onclick="window._researchRecogSave()" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Save Recognition</button></div>
+                    </div>
+                </details>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Awards & Recognition (${recognition.length})</h3>
+                <div style="display:grid;gap:1rem;">
+                    ${recognition.map(item => `
+                        <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${typeColors[item.type]||'#666'};">
+                            <div style="display:flex;justify-content:space-between;align-items:start;gap:1rem;">
+                                <div style="flex:1;">
+                                    <strong style="color:#333;display:block;margin-bottom:0.25rem;">${item.title}</strong>
+                                    <small style="color:#666;display:block;">Recipient: <strong>${item.recipient}</strong></small>
+                                    <small style="color:#999;">${item.date||''} | ${item.details||''}</small>
+                                </div>
+                                <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
+                                    <span style="background:${typeColors[item.type]||'#666'};color:white;padding:0.3rem 0.75rem;border-radius:6px;font-size:0.82rem;font-weight:600;">${item.type}</span>
+                                    <button onclick="window._researchRecogDelete(${item.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                </div>
+                            </div>
+                        </div>`).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+App.prototype.renderResearchAnalytics = async function() {
+    this.title.textContent = 'Analytics & Trends';
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
+    const data = await this._loadResearchData();
+    const publications = data.publications;
+
+    const byYear = {};
+    publications.forEach(p => {
+        const yr = p.year || 'Unknown';
+        if (!byYear[yr]) byYear[yr] = { total:0, Q1:0, Q2:0, Q3:0, Q4:0, faculty:0, student:0 };
+        byYear[yr].total++;
+        if (p.quartile) byYear[yr][p.quartile] = (byYear[yr][p.quartile]||0) + 1;
+        if ((p.type||'').toLowerCase().includes('student')) byYear[yr].student++;
+        else byYear[yr].faculty++;
+    });
+    const sortedYears = Object.keys(byYear).sort((a,b) => b - a);
+    const maxTotal = Math.max(...sortedYears.map(y => byYear[y].total), 1);
+
+    this.root.innerHTML = `
+        <div class="fade-in-up">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                    <h3 style="margin-top:0;color:#333;">Publications by Year</h3>
+                    ${sortedYears.length === 0 ? '<p style="color:#999;">No data yet.</p>' : sortedYears.map(yr => {
+                        const pct = Math.round(byYear[yr].total / maxTotal * 100);
+                        return `
+                            <div style="margin-bottom:1rem;">
+                                <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem;">
+                                    <strong>${yr}</strong><span style="color:#666;">${byYear[yr].total} pubs (Q1:${byYear[yr].Q1||0} Q2:${byYear[yr].Q2||0})</span>
+                                </div>
+                                <div style="background:#e0e0e0;height:8px;border-radius:4px;overflow:hidden;">
+                                    <div style="background:linear-gradient(90deg,#1B5E20,#4CAF50);height:100%;width:${pct}%;border-radius:4px;"></div>
+                                </div>
+                            </div>`;
+                    }).join('')}
+                </div>
+
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                    <h3 style="margin-top:0;color:#333;">Faculty vs Student Output</h3>
+                    ${sortedYears.length === 0 ? '<p style="color:#999;">No data yet.</p>' : sortedYears.map(yr => {
+                        const maxFac = Math.max(...sortedYears.map(y => byYear[y].faculty), 1);
+                        const maxStu = Math.max(...sortedYears.map(y => byYear[y].student), 1);
+                        const facPct = Math.round(byYear[yr].faculty / maxFac * 100);
+                        const stuPct = Math.round(byYear[yr].student / maxStu * 100);
+                        return `
+                            <div style="margin-bottom:1rem;">
+                                <strong style="display:block;margin-bottom:0.4rem;">${yr}</strong>
+                                <div style="display:grid;gap:0.4rem;">
+                                    <div>
+                                        <small style="color:#666;">Faculty: ${byYear[yr].faculty}</small>
+                                        <div style="background:#e8f5e9;height:6px;border-radius:3px;margin-top:0.2rem;overflow:hidden;">
+                                            <div style="background:#1B5E20;height:100%;width:${facPct}%;border-radius:3px;"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <small style="color:#666;">Students: ${byYear[yr].student}</small>
+                                        <div style="background:#e3f2fd;height:6px;border-radius:3px;margin-top:0.2rem;overflow:hidden;">
+                                            <div style="background:#2196F3;height:100%;width:${stuPct}%;border-radius:3px;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>`;
+                    }).join('')}
                 </div>
             </div>
         </div>
@@ -17004,47 +17391,31 @@ App.prototype.renderResearchAnalytics = function() {
 };
 
 App.prototype.renderResearchDocuments = function() {
-    const tabTitle = '📄 Documents & Templates';
-    this.title.textContent = tabTitle;
+    this.title.textContent = 'Documents & Templates';
     const db = RESEARCH_DATABASE;
 
-    this.root.innerHTML = `
-        <div style="margin-bottom: 2rem;">
-            <button onclick="app.root.innerHTML = app.renderResearchEditPanel('research-documents', '${tabTitle}') + (app.root.innerHTML || '');" style="background: #1B5E20; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">⚙️ Edit Data Control Center</button>
-        </div>
-    `;
-
-    const typeIcons = {
-        'Template': '📋',
-        'Form': '📝',
-        'Guideline': '📖'
-    };
-
-    const typeColors = {
-        'Template': '#2196F3',
-        'Form': '#FF9800',
-        'Guideline': '#1B5E20'
-    };
+    const typeIcons  = { 'Template':'Template','Form':'Form','Guideline':'Guide' };
+    const typeColors = { 'Template':'#2196F3','Form':'#FF9800','Guideline':'#1B5E20' };
 
     this.root.innerHTML = `
-        <div style="background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-            <h3 style="margin-top: 0; margin-bottom: 1.5rem; color: #333;">Research Documents & Templates</h3>
-            <div style="display: grid; gap: 1rem;">
-                ${db.documents.map(doc => `
-                    <div style="padding: 1.5rem; background: #f9f9f9; border-radius: 10px; border-left: 4px solid ${typeColors[doc.type]};">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="flex: 1;">
-                                <strong style="color: #333; font-size: 1.05rem; display: block; margin-bottom: 0.3rem;">${typeIcons[doc.type]} ${doc.name}</strong>
-                                <small style="color: #666;">Last updated: ${doc.updated}</small>
+        <div class="fade-in-up">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Research Documents & Templates</h3>
+                <div style="display:grid;gap:0.75rem;">
+                    ${(db.documents||[]).map(doc => `
+                        <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${typeColors[doc.type]||'#666'};display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <strong style="color:#333;">${doc.name}</strong>
+                                <small style="display:block;color:#666;margin-top:0.2rem;">Last updated: ${doc.updated}</small>
                             </div>
-                            <button style="background: ${typeColors[doc.type]}; color: white; padding: 0.6rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">📥 Download</button>
-                        </div>
-                    </div>
-                `).join('')}
+                            <button style="background:${typeColors[doc.type]||'#666'};color:white;padding:0.5rem 1rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Download</button>
+                        </div>`).join('')}
+                </div>
             </div>
         </div>
     `;
 };
+
 
 window.addAlumniRow = function() {
     const now = Date.now();

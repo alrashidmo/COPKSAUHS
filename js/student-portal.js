@@ -1794,6 +1794,158 @@ window.StudentPortal = {
         currentUserRole = role;
         alert(`Switched to ${role === 'admin' ? 'Admin' : 'Student'} mode`);
         StudentPortal.renderHome();
+    },
+    showResearch: () => {
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = 'My Research';
+        StudentPortal._renderResearchTab();
+    },
+    _renderResearchTab: async () => {
+        const root = document.getElementById('app-root');
+        if (!root) return;
+        const studentId   = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : null;
+        const studentName = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUserName) ? AuthSystem.currentUserName : (studentId || 'Student');
+        if (!studentId) { root.innerHTML = '<div style="padding:2rem;"><p>Please log in to view research.</p></div>'; return; }
+        root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;">Loading...</div>';
+        const sb = window.SupabaseAuth?.supabase;
+        let myLogs = [], projects = [];
+        if (sb) {
+            const [logsRes, projRes] = await Promise.all([
+                sb.from('student_research_log').select('*').eq('student_id', studentId).order('created_at', {ascending:false}),
+                sb.from('research_projects').select('id,title,pi,type,status').in('status', ['Proposal','IRB submitted','IRB approved','Data collection'])
+            ]);
+            myLogs = logsRes.data || [];
+            projects = projRes.data || [];
+        }
+        const pending  = myLogs.filter(l => l.status === 'pending').length;
+        const verified = myLogs.filter(l => l.status === 'verified').length;
+        const safeStudentName = studentName.replace(/'/g, "\\'");
+        root.innerHTML = `
+            <div class="fade-in-up" style="padding:1.5rem;">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+                    <div style="background:white;border-radius:12px;padding:1.5rem;text-align:center;border-left:4px solid #1B5E20;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                        <div style="font-size:2rem;font-weight:700;color:#1B5E20;">${verified}</div>
+                        <div style="font-size:0.85rem;color:#666;">Verified Contributions</div>
+                    </div>
+                    <div style="background:white;border-radius:12px;padding:1.5rem;text-align:center;border-left:4px solid #FF9800;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                        <div style="font-size:2rem;font-weight:700;color:#FF9800;">${pending}</div>
+                        <div style="font-size:0.85rem;color:#666;">Pending Verification</div>
+                    </div>
+                    <div style="background:white;border-radius:12px;padding:1.5rem;text-align:center;border-left:4px solid #2196F3;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                        <div style="font-size:2rem;font-weight:700;color:#2196F3;">${myLogs.length}</div>
+                        <div style="font-size:0.85rem;color:#666;">Total Submissions</div>
+                    </div>
+                </div>
+
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
+                    <h3 style="margin-top:0;">Log a Research Contribution</h3>
+                    <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;">Submit publications, posters, or presentations for admin verification.</p>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                        <div>
+                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Type</label>
+                            <select id="rlog-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                                <option value="publication">Publication</option>
+                                <option value="poster">Poster Presentation</option>
+                                <option value="oral">Oral Presentation</option>
+                                <option value="project">Research Project</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title</label>
+                            <input id="rlog-title" type="text" placeholder="Title of contribution" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Journal / Event</label>
+                            <input id="rlog-event" type="text" placeholder="Journal name or conference" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Date</label>
+                            <input id="rlog-date" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" />
+                        </div>
+                        <div>
+                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Supervisor / Co-author</label>
+                            <input id="rlog-supervisor" type="text" placeholder="Faculty supervisor name" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
+                        </div>
+                        <div style="display:flex;align-items:flex-end;">
+                            <button onclick="StudentPortal._submitResearchLog('${studentId}','${safeStudentName}')" style="width:100%;background:#1B5E20;color:white;padding:0.75rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Submit for Verification</button>
+                        </div>
+                    </div>
+                </div>
+
+                ${projects.length ? `
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
+                    <h3 style="margin-top:0;">Open Research Opportunities</h3>
+                    <div style="display:grid;gap:0.75rem;">
+                        ${projects.map(p => {
+                            const safeTitle = p.title.replace(/'/g, "\\'");
+                            return `
+                            <div style="padding:1rem;background:#f9f9f9;border-radius:8px;border-left:3px solid #1B5E20;display:flex;justify-content:space-between;align-items:center;">
+                                <div>
+                                    <strong>${p.title}</strong>
+                                    <small style="display:block;color:#666;">PI: ${p.pi} | ${p.type} | Stage: ${p.status}</small>
+                                </div>
+                                <button onclick="StudentPortal._expressInterest('${p.id}','${safeTitle}','${studentId}','${safeStudentName}')" style="background:#e8f5e9;color:#1B5E20;border:1px solid #1B5E20;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;">Express Interest</button>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>` : ''}
+
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <h3 style="margin-top:0;">My Submissions</h3>
+                    ${myLogs.length === 0 ? '<p style="color:#999;text-align:center;padding:1.5rem;">No submissions yet. Log your first contribution above!</p>' : `
+                    <div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
+                            <thead><tr style="border-bottom:2px solid #e0e0e0;">
+                                <th style="text-align:left;padding:0.6rem;color:#666;">Type</th>
+                                <th style="text-align:left;padding:0.6rem;color:#666;">Title</th>
+                                <th style="text-align:left;padding:0.6rem;color:#666;">Journal/Event</th>
+                                <th style="text-align:left;padding:0.6rem;color:#666;">Date</th>
+                                <th style="text-align:left;padding:0.6rem;color:#666;">Status</th>
+                            </tr></thead>
+                            <tbody>
+                                ${myLogs.map(l => `
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:0.6rem;">${l.type||''}</td>
+                                        <td style="padding:0.6rem;">${l.title||''}</td>
+                                        <td style="padding:0.6rem;color:#666;">${l.journal_event||''}</td>
+                                        <td style="padding:0.6rem;color:#666;">${l.date_submitted||''}</td>
+                                        <td style="padding:0.6rem;">${l.status === 'verified' ? '<span style="background:#e8f5e9;color:#1B5E20;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:600;">Verified</span>' : '<span style="background:#fff3e0;color:#FF9800;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:600;">Pending</span>'}</td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`}
+                </div>
+            </div>
+        `;
+    },
+    _submitResearchLog: async (studentId, studentName) => {
+        const type       = document.getElementById('rlog-type')?.value;
+        const title      = document.getElementById('rlog-title')?.value?.trim();
+        const event      = document.getElementById('rlog-event')?.value?.trim();
+        const date       = document.getElementById('rlog-date')?.value;
+        const supervisor = document.getElementById('rlog-supervisor')?.value?.trim();
+        if (!title) { alert('Please enter a title.'); return; }
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const { error } = await sb.from('student_research_log').insert({
+            student_id: studentId, student_name: studentName,
+            type, title, journal_event: event, date_submitted: date || null,
+            supervisor, status: 'pending'
+        });
+        if (error) { alert('Error: ' + error.message); return; }
+        window._researchCache = null;
+        setTimeout(() => StudentPortal._renderResearchTab(), 800);
+    },
+    _expressInterest: async (projectId, projectTitle, studentId, studentName) => {
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Not connected.'); return; }
+        const { error } = await sb.from('student_research_log').insert({
+            student_id: studentId, student_name: studentName,
+            type: 'project', title: 'Interest: ' + projectTitle,
+            journal_event: 'Project ID: ' + projectId, status: 'pending'
+        });
+        if (error) { alert('Error: ' + error.message); return; }
+        alert('Interest expressed! The research coordinator will be in touch.');
     }
 };
 
