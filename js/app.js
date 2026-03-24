@@ -11050,7 +11050,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     // Aggregate Scholar publication data from all synced faculty in this dept
     _aggregateScholarData(deptLabel) {
         const faculty = this.pharmaData.faculty || [];
-        const years   = ['2020', '2021', '2022', '2023', '2024'];
+        const _nowY2 = new Date().getFullYear();
+        const years = [];
+        for (let _y = 2020; _y <= _nowY2 + 2; _y++) years.push(String(_y));
         const aggQ1   = new Array(years.length).fill(0);
         const aggQ2   = new Array(years.length).fill(0);
         const aggQ3   = new Array(years.length).fill(0);
@@ -12093,7 +12095,10 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             if (citations !== null)   profile.scholar_total_citations = citations;
 
             if (Object.keys(pubYears).length > 0) {
-                const allYears = ['2020', '2021', '2022', '2023', '2024'];
+                // Dynamic range: 2020 → current year + 2 (tracks ahead)
+                const _nowY = new Date().getFullYear();
+                const allYears = [];
+                for (let _y = 2020; _y <= _nowY + 2; _y++) allYears.push(String(_y));
                 profile.research.years      = allYears;
                 profile.research.q1         = allYears.map(y => pubYears[y] || 0);
                 profile.research.q2         = allYears.map(() => 0);
@@ -16617,6 +16622,11 @@ App.prototype.renderResearchOverview = async function() {
     const today = new Date();
     const thisYear = today.getFullYear();
 
+    // --- Academic year helper (Sep–Aug cycle) ---
+    const acadStartYear = (today.getMonth() + 1) >= 9 ? thisYear : thisYear - 1;
+    const acadYearLabel = `${acadStartYear}–${acadStartYear + 1}`;
+    const acadCalYears = new Set([acadStartYear, acadStartYear + 1]);
+
     // --- Publications table KPIs ---
     const totalPubsManual = publications.length;
     const q1q2Count = publications.filter(p => p.quartile === 'Q1' || p.quartile === 'Q2').length;
@@ -16630,9 +16640,10 @@ App.prototype.renderResearchOverview = async function() {
     const scholarAvgHIndex = syncedCount
         ? (scholarSync.reduce((s, f) => s + (Number(f.h_index) || 0), 0) / syncedCount).toFixed(1)
         : 0;
-    const scholarCurrentYearPubs = scholarSync.reduce((s, f) => {
+    // Academic year pubs from Scholar (sum both calendar years in the academic year)
+    const scholarAcadYearPubs = scholarSync.reduce((s, f) => {
         const py = f.pub_years || {};
-        return s + (Number(py[String(thisYear)]) || 0);
+        return s + [...acadCalYears].reduce((sum, y) => sum + (Number(py[String(y)]) || 0), 0);
     }, 0);
     const syncCoveragePct = faculty.length ? Math.round(syncedCount / faculty.length * 100) : 0;
     const lastSyncDate = scholarSync.length
@@ -16642,10 +16653,9 @@ App.prototype.renderResearchOverview = async function() {
     // Use Scholar aggregated values when they exceed manual entries (Scholar = source of truth)
     const totalPubs = Math.max(totalPubsManual, scholarTotalPubs);
     const totalCitations = Math.max(citationsManual, scholarTotalCitations);
-    const currentYearPubs = Math.max(
-        publications.filter(p => Number(p.year) === thisYear).length,
-        scholarCurrentYearPubs
-    );
+    // Academic year pubs: publications table filtered by academic calendar years
+    const acadPubsManual = publications.filter(p => acadCalYears.has(Number(p.year))).length;
+    const currentYearPubs = Math.max(acadPubsManual, scholarAcadYearPubs);
 
     const activeProjects = projects.filter(p => p.status !== 'Published' && p.status !== 'Completed').length;
     const daysLeft = (rec) => { const exp = new Date(rec.expiry_date || rec.expiry); return Math.round((exp - today) / 86400000); };
@@ -16683,7 +16693,7 @@ App.prototype.renderResearchOverview = async function() {
             ${alertHtml}
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
                 ${kpi('Total Publications', totalPubs, '#1B5E20', '#e8f5e9', '📚')}
-                ${kpi('Current Year Pubs', currentYearPubs, '#2196F3', '#e3f2fd', '📅')}
+                ${kpi('Pubs (' + acadYearLabel + ')', currentYearPubs, '#2196F3', '#e3f2fd', '📅')}
                 ${kpi('Q1+Q2 Rate', q1q2Rate + '%', '#1B5E20', '#e8f5e9', '⭐')}
                 ${kpi('Total Citations', totalCitations.toLocaleString(), '#2196F3', '#e3f2fd', '📊')}
                 ${kpi('Avg H-Index', scholarAvgHIndex, '#9C27B0', '#f3e5f5', '🎯')}
@@ -16781,7 +16791,15 @@ App.prototype.renderResearchPublications = async function() {
 
     const allYears = [...new Set(pubs.map(p => p.year).filter(Boolean))].sort((a,b) => b-a);
 
-    if (f.year) pubs = pubs.filter(p => String(p.year) === String(f.year));
+    // Academic year logic
+    const _rpToday = new Date();
+    const _rpThisYear = _rpToday.getFullYear();
+    const _rpAcadStart = (_rpToday.getMonth() + 1) >= 9 ? _rpThisYear : _rpThisYear - 1;
+    const _rpAcadLabel = `${_rpAcadStart}\u2013${_rpAcadStart + 1}`;
+    const _rpAcadYears = new Set([_rpAcadStart, _rpAcadStart + 1]);
+
+    if (f.year === 'academic') pubs = pubs.filter(p => _rpAcadYears.has(Number(p.year)));
+    else if (f.year) pubs = pubs.filter(p => String(p.year) === String(f.year));
     if (f.type && f.type !== 'All') pubs = pubs.filter(p => (p.type || '').toLowerCase().includes(f.type.toLowerCase()));
     if (f.quartile && f.quartile !== 'All') pubs = pubs.filter(p => p.quartile === f.quartile);
     if (f.search) { const s = f.search.toLowerCase(); pubs = pubs.filter(p => (p.title||'').toLowerCase().includes(s) || (p.authors||'').toLowerCase().includes(s) || (p.journal||'').toLowerCase().includes(s)); }
@@ -16831,6 +16849,7 @@ App.prototype.renderResearchPublications = async function() {
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1rem;">
                     <select id="rpub-f-year" onchange="window._researchPubFilter = Object.assign(window._researchPubFilter||{},{year:this.value}); app.renderResearchPublications();" style="padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
                         <option value="">All Years</option>
+                        <option value="academic" ${f.year === 'academic' ? 'selected' : ''}>Academic Year (${_rpAcadLabel})</option>
                         ${allYears.map(y => `<option value="${y}" ${f.year == y ? 'selected' : ''}>${y}</option>`).join('')}
                     </select>
                     <select id="rpub-f-type" onchange="window._researchPubFilter = Object.assign(window._researchPubFilter||{},{type:this.value}); app.renderResearchPublications();" style="padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
