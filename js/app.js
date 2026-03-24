@@ -12090,6 +12090,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             this.pharmaData.facultyProfiles[email] = profile;
             try { localStorage.setItem(`faculty_profile_${email}`, JSON.stringify(profile)); } catch(e) {}
 
+            // Persist to Supabase so Research Unit can aggregate cumulatively
+            const _sbScholar = window.SupabaseAuth?.supabase;
+            if (_sbScholar) {
+                const _totalPubsScholar = Object.values(pubYears).reduce((s, v) => s + v, 0);
+                _sbScholar.from('faculty_scholar_sync').upsert({
+                    faculty_email: email,
+                    faculty_name: profile.name || email,
+                    h_index: hIndex ?? null,
+                    i10_index: i10Index ?? null,
+                    total_citations: citations ?? null,
+                    total_pubs: _totalPubsScholar || null,
+                    pub_years: Object.keys(pubYears).length ? pubYears : null,
+                    synced_at: new Date().toISOString()
+                }, { onConflict: 'faculty_email' }).then(({ error }) => {
+                    if (error) console.warn('Scholar → Supabase sync failed:', error.message);
+                    else window._researchCache = null; // invalidate so Research Overview refreshes
+                });
+            }
+
             const summary = [
                 hIndex    !== null ? `H-index: ${hIndex}` : null,
                 i10Index  !== null ? `i10-index: ${i10Index}` : null,
@@ -16506,9 +16525,9 @@ App.prototype._loadResearchData = async function(force) {
     const db = RESEARCH_DATABASE;
     let publications = db.publications, projects = db.projects, irb = db.irb;
     let grants = [], collaborations = db.collaborations, recognition = db.recognition;
-    let studentLogs = [];
+    let studentLogs = [], scholarSync = [];
     if (sb) {
-        const [pR, prR, iR, gR, cR, rR, slR] = await Promise.all([
+        const [pR, prR, iR, gR, cR, rR, slR, ssR] = await Promise.all([
             sb.from('research_publications').select('*').order('year', {ascending:false}),
             sb.from('research_projects').select('*').order('created_at',{ascending:false}),
             sb.from('research_irb').select('*'),
@@ -16516,6 +16535,7 @@ App.prototype._loadResearchData = async function(force) {
             sb.from('research_collaborations').select('*'),
             sb.from('research_recognition').select('*').order('date',{ascending:false}),
             sb.from('student_research_log').select('*').order('created_at',{ascending:false}),
+            sb.from('faculty_scholar_sync').select('*').order('synced_at',{ascending:false}),
         ]);
         if (pR.data?.length) publications = pR.data;
         if (prR.data?.length) projects = prR.data;
@@ -16524,8 +16544,9 @@ App.prototype._loadResearchData = async function(force) {
         if (cR.data?.length) collaborations = cR.data;
         if (rR.data?.length) recognition = rR.data;
         studentLogs = slR.data || [];
+        scholarSync = ssR.data || [];
     }
-    window._researchCache = { publications, projects, irb, grants, collaborations, recognition, studentLogs, faculty: db.faculty, students: db.students };
+    window._researchCache = { publications, projects, irb, grants, collaborations, recognition, studentLogs, scholarSync, faculty: db.faculty, students: db.students };
     window._researchCacheTime = now;
     return window._researchCache;
 };
@@ -16534,15 +16555,40 @@ App.prototype.renderResearchOverview = async function() {
     this.title.textContent = 'Research Overview';
     this.root.innerHTML = '<div class="card"><p>Loading research data...</p></div>';
     const data = await this._loadResearchData();
-    const { publications, projects, irb, grants, faculty, students, studentLogs } = data;
+    const { publications, projects, irb, grants, faculty, students, studentLogs, scholarSync } = data;
     const today = new Date();
     const thisYear = today.getFullYear();
 
-    const totalPubs = publications.length;
-    const currentYearPubs = publications.filter(p => Number(p.year) === thisYear).length;
+    // --- Publications table KPIs ---
+    const totalPubsManual = publications.length;
     const q1q2Count = publications.filter(p => p.quartile === 'Q1' || p.quartile === 'Q2').length;
-    const q1q2Rate = totalPubs ? Math.round(q1q2Count / totalPubs * 100) : 0;
-    const totalCitations = publications.reduce((s, p) => s + (Number(p.citations) || 0), 0);
+    const q1q2Rate = totalPubsManual ? Math.round(q1q2Count / totalPubsManual * 100) : 0;
+    const citationsManual = publications.reduce((s, p) => s + (Number(p.citations) || 0), 0);
+
+    // --- Scholar Sync cumulative KPIs ---
+    const syncedCount = scholarSync.length;
+    const scholarTotalCitations = scholarSync.reduce((s, f) => s + (Number(f.total_citations) || 0), 0);
+    const scholarTotalPubs = scholarSync.reduce((s, f) => s + (Number(f.total_pubs) || 0), 0);
+    const scholarAvgHIndex = syncedCount
+        ? (scholarSync.reduce((s, f) => s + (Number(f.h_index) || 0), 0) / syncedCount).toFixed(1)
+        : 0;
+    const scholarCurrentYearPubs = scholarSync.reduce((s, f) => {
+        const py = f.pub_years || {};
+        return s + (Number(py[String(thisYear)]) || 0);
+    }, 0);
+    const syncCoveragePct = faculty.length ? Math.round(syncedCount / faculty.length * 100) : 0;
+    const lastSyncDate = scholarSync.length
+        ? new Date(scholarSync[0].synced_at).toLocaleDateString()
+        : 'Never';
+
+    // Use Scholar aggregated values when they exceed manual entries (Scholar = source of truth)
+    const totalPubs = Math.max(totalPubsManual, scholarTotalPubs);
+    const totalCitations = Math.max(citationsManual, scholarTotalCitations);
+    const currentYearPubs = Math.max(
+        publications.filter(p => Number(p.year) === thisYear).length,
+        scholarCurrentYearPubs
+    );
+
     const activeProjects = projects.filter(p => p.status !== 'Published' && p.status !== 'Completed').length;
     const daysLeft = (rec) => { const exp = new Date(rec.expiry_date || rec.expiry); return Math.round((exp - today) / 86400000); };
     const activeIRBs = irb.filter(i => i.status === 'Active' || ((i.expiry_date || i.expiry) && daysLeft(i) > 0)).length;
@@ -16553,9 +16599,6 @@ App.prototype.renderResearchOverview = async function() {
     const rejectedCount = grants.filter(g => g.status === 'rejected').length;
     const grantSuccessRate = (awardedCount + rejectedCount) > 0 ? Math.round(awardedCount / (awardedCount + rejectedCount) * 100) : 0;
     const pubsPerFaculty = faculty.length ? (totalPubs / faculty.length).toFixed(1) : 0;
-    const twoYearsAgo = thisYear - 2;
-    const recentAuthors = new Set(publications.filter(p => Number(p.year) >= twoYearsAgo).flatMap(p => (p.authors || '').split(',').map(a => a.trim())));
-    const activeResearchFacPct = faculty.length ? Math.round(faculty.filter(f => recentAuthors.has(f.name)).length / faculty.length * 100) : 0;
     const studentLedPubs = publications.filter(p => (p.type || '').toLowerCase().includes('student')).length;
     const pendingVerif = studentLogs.filter(l => l.status === 'pending').length;
 
@@ -16581,26 +16624,72 @@ App.prototype.renderResearchOverview = async function() {
         <div class="fade-in-up">
             ${alertHtml}
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
-                ${kpi('Total Publications', totalPubs, '#1B5E20', '#e8f5e9', 'book')}
-                ${kpi('Current Year Pubs', currentYearPubs, '#2196F3', '#e3f2fd', 'cal')}
-                ${kpi('Q1+Q2 Rate', q1q2Rate + '%', '#1B5E20', '#e8f5e9', 'star')}
-                ${kpi('Total Citations', totalCitations, '#2196F3', '#e3f2fd', 'chart')}
-                ${kpi('Active Projects', activeProjects, '#FF9800', '#fff3e0', 'lab')}
-                ${kpi('Grant Success Rate', grantSuccessRate + '%', '#FF9800', '#fff3e0', 'trophy')}
-                ${kpi('Active Grants', activeGrants, '#f44336', '#ffebee', 'money')}
-                ${kpi('Total Funding (SAR)', totalFunding.toLocaleString(), '#9C27B0', '#f3e5f5', 'fund')}
-                ${kpi('Active IRBs', activeIRBs, '#9C27B0', '#f3e5f5', 'shield')}
-                ${kpi('IRBs Expiring 30d', irbExpiring30.length, irbExpiring30.length > 0 ? '#f44336' : '#1B5E20', irbExpiring30.length > 0 ? '#ffebee' : '#e8f5e9', 'clock')}
-                ${kpi('Pubs per Faculty', pubsPerFaculty, '#1B5E20', '#e8f5e9', 'teach')}
-                ${kpi('Pending Verifications', pendingVerif, pendingVerif > 0 ? '#f44336' : '#1B5E20', pendingVerif > 0 ? '#ffebee' : '#e8f5e9', 'check')}
+                ${kpi('Total Publications', totalPubs, '#1B5E20', '#e8f5e9', '📚')}
+                ${kpi('Current Year Pubs', currentYearPubs, '#2196F3', '#e3f2fd', '📅')}
+                ${kpi('Q1+Q2 Rate', q1q2Rate + '%', '#1B5E20', '#e8f5e9', '⭐')}
+                ${kpi('Total Citations', totalCitations.toLocaleString(), '#2196F3', '#e3f2fd', '📊')}
+                ${kpi('Avg H-Index', scholarAvgHIndex, '#9C27B0', '#f3e5f5', '🎯')}
+                ${kpi('Active Projects', activeProjects, '#FF9800', '#fff3e0', '🔬')}
+                ${kpi('Grant Success Rate', grantSuccessRate + '%', '#FF9800', '#fff3e0', '🏆')}
+                ${kpi('Active Grants', activeGrants, '#f44336', '#ffebee', '💰')}
+                ${kpi('Total Funding (SAR)', totalFunding.toLocaleString(), '#9C27B0', '#f3e5f5', '💎')}
+                ${kpi('Active IRBs', activeIRBs, '#9C27B0', '#f3e5f5', '🛡️')}
+                ${kpi('IRBs Expiring 30d', irbExpiring30.length, irbExpiring30.length > 0 ? '#f44336' : '#1B5E20', irbExpiring30.length > 0 ? '#ffebee' : '#e8f5e9', '⏰')}
+                ${kpi('Pending Verifications', pendingVerif, pendingVerif > 0 ? '#f44336' : '#1B5E20', pendingVerif > 0 ? '#ffebee' : '#e8f5e9', '✅')}
             </div>
+
+            <!-- Scholar Sync Coverage Banner -->
+            <div style="background:${syncedCount > 0 ? '#e8f5e9' : '#fff8e1'};border:1px solid ${syncedCount > 0 ? '#a5d6a7' : '#ffe082'};border-radius:12px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+                <div style="font-size:2rem;">🔗</div>
+                <div style="flex:1;min-width:180px;">
+                    <div style="font-weight:700;color:#333;margin-bottom:0.25rem;">Google Scholar Sync Coverage</div>
+                    <div style="font-size:0.85rem;color:#666;">
+                        <strong style="color:${syncedCount > 0 ? '#1B5E20' : '#FF9800'};">${syncedCount} of ${faculty.length} faculty</strong> synced
+                        ${lastSyncDate !== 'Never' ? ` · Last sync: ${lastSyncDate}` : ' · No syncs yet'}
+                        ${scholarAvgHIndex > 0 ? ` · Avg H-index: <strong>${scholarAvgHIndex}</strong>` : ''}
+                        ${scholarTotalCitations > 0 ? ` · Scholar citations: <strong>${scholarTotalCitations.toLocaleString()}</strong>` : ''}
+                    </div>
+                    <div style="background:#ddd;height:6px;border-radius:3px;margin-top:0.5rem;overflow:hidden;">
+                        <div style="background:#1B5E20;height:100%;width:${syncCoveragePct}%;border-radius:3px;transition:width 0.5s;"></div>
+                    </div>
+                </div>
+                <div style="text-align:right;">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1B5E20;">${syncCoveragePct}%</div>
+                    <div style="font-size:0.75rem;color:#666;">coverage</div>
+                </div>
+                ${syncedCount > 0 ? `
+                <div style="width:100%;margin-top:0.5rem;overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                        <thead><tr style="color:#666;text-align:left;">
+                            <th style="padding:0.3rem 0.5rem;">Faculty</th>
+                            <th style="padding:0.3rem 0.5rem;text-align:center;">H-index</th>
+                            <th style="padding:0.3rem 0.5rem;text-align:center;">Citations</th>
+                            <th style="padding:0.3rem 0.5rem;text-align:center;">Total Pubs</th>
+                            <th style="padding:0.3rem 0.5rem;text-align:center;">Last Sync</th>
+                        </tr></thead>
+                        <tbody>
+                            ${scholarSync.map(f => `
+                                <tr style="border-top:1px solid #ddd;">
+                                    <td style="padding:0.35rem 0.5rem;font-weight:500;">${f.faculty_name || f.faculty_email}</td>
+                                    <td style="padding:0.35rem 0.5rem;text-align:center;">${f.h_index ?? '—'}</td>
+                                    <td style="padding:0.35rem 0.5rem;text-align:center;">${f.total_citations != null ? Number(f.total_citations).toLocaleString() : '—'}</td>
+                                    <td style="padding:0.35rem 0.5rem;text-align:center;">${f.total_pubs ?? '—'}</td>
+                                    <td style="padding:0.35rem 0.5rem;text-align:center;color:#999;">${f.synced_at ? new Date(f.synced_at).toLocaleDateString() : '—'}</td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>` : `<div style="width:100%;text-align:center;color:#999;font-size:0.85rem;margin-top:0.25rem;">
+                    Go to <strong>QA → Faculty</strong> and click <strong>🔄 Sync Scholar</strong> on each faculty member to auto-populate these stats.
+                </div>`}
+            </div>
+
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem;">
                 <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                     <h3 style="margin-top:0;color:#333;">Latest Publications</h3>
                     ${latestPubs.map(pub => `
                         <div style="padding:1rem;background:#f9f9f9;border-left:3px solid #1B5E20;border-radius:8px;margin-bottom:0.75rem;">
                             <strong style="color:#333;display:block;font-size:0.95rem;">${pub.title}</strong>
-                            <small style="color:#666;">${pub.journal} (${pub.quartile}) -- ${pub.year}</small>
+                            <small style="color:#666;">${pub.journal} (${pub.quartile}) — ${pub.year}</small>
                         </div>`).join('')}
                 </div>
                 <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
@@ -16610,10 +16699,10 @@ App.prototype.renderResearchOverview = async function() {
                             <span>Faculty Members</span><strong>${faculty.length}</strong>
                         </div>
                         <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
-                            <span>Students Involved</span><strong>${students.length}</strong>
+                            <span>Scholar-Synced Faculty</span><strong style="color:#1B5E20;">${syncedCount} (${syncCoveragePct}%)</strong>
                         </div>
                         <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
-                            <span>Research-Active Faculty</span><strong>${activeResearchFacPct}%</strong>
+                            <span>Pubs per Faculty</span><strong>${pubsPerFaculty}</strong>
                         </div>
                         <div style="display:flex;justify-content:space-between;padding:0.75rem;background:#f9f9f9;border-radius:8px;">
                             <span>Student-Led Publications</span><strong>${studentLedPubs}</strong>
