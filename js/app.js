@@ -10941,7 +10941,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     _saveFacultyList(deptLabel, list) {
         const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
         try { localStorage.setItem(`dept_faculty_${deptId}`, JSON.stringify(list)); } catch(e) {}
-        this.pharmaData.faculty = list;
+        if (deptId === 'practice') this.pharmaData.facultyPractice = list;
+        else this.pharmaData.faculty = list;
+        window._researchCache = null; // Invalidate Research Unit cache so new count is reflected
     }
 
     // ── Export Data button ───────────────────────────────────────────────────
@@ -16612,7 +16614,18 @@ App.prototype._loadResearchData = async function(force) {
         studentLogs = slR.data || [];
         scholarSync = ssR.data || [];
     }
-    window._researchCache = { publications, projects, irb, grants, collaborations, recognition, studentLogs, scholarSync, faculty: db.faculty, students: db.students };
+    // Build combined faculty list from BOTH departments, respecting localStorage edits
+    const _sciencesFaculty = (() => {
+        try { const s = localStorage.getItem('dept_faculty_sciences'); if (s) return JSON.parse(s); } catch(e) {}
+        return this.pharmaData?.faculty || db.faculty;
+    })();
+    const _practiceFaculty = (() => {
+        try { const s = localStorage.getItem('dept_faculty_practice'); if (s) return JSON.parse(s); } catch(e) {}
+        return this.pharmaData?.facultyPractice || [];
+    })();
+    const allFaculty = [..._sciencesFaculty, ..._practiceFaculty];
+
+    window._researchCache = { publications, projects, irb, grants, collaborations, recognition, studentLogs, scholarSync, faculty: allFaculty, students: db.students };
     window._researchCacheTime = now;
     return window._researchCache;
 };
@@ -16621,9 +16634,7 @@ App.prototype.renderResearchOverview = async function() {
     this.title.textContent = 'Research Overview';
     this.root.innerHTML = '<div class="card"><p>Loading research data...</p></div>';
     const data = await this._loadResearchData();
-    const { publications, projects, irb, grants, studentLogs, scholarSync } = data;
-    // Use real faculty from pharma dashboard if loaded; fall back to demo data
-    const faculty = (this.pharmaData?.faculty?.length ? this.pharmaData.faculty : data.faculty) || [];
+    const { publications, projects, irb, grants, faculty, studentLogs, scholarSync } = data;
     const today = new Date();
     const thisYear = today.getFullYear();
 
