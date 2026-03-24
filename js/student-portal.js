@@ -1800,152 +1800,190 @@ window.StudentPortal = {
         if (pageTitle) pageTitle.textContent = 'My Research';
         StudentPortal._renderResearchTab();
     },
+
     _renderResearchTab: async () => {
         const root = document.getElementById('app-root');
         if (!root) return;
-        const studentId   = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : null;
+        const studentId   = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser)     ? AuthSystem.currentUser     : null;
         const studentName = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUserName) ? AuthSystem.currentUserName : (studentId || 'Student');
         if (!studentId) { root.innerHTML = '<div style="padding:2rem;"><p>Please log in to view research.</p></div>'; return; }
         root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;">Loading...</div>';
+
         const sb = window.SupabaseAuth?.supabase;
-        let myLogs = [], projects = [];
+        let myProjects = [];
         if (sb) {
-            const [logsRes, projRes] = await Promise.all([
-                sb.from('student_research_log').select('*').eq('student_id', studentId).order('created_at', {ascending:false}),
-                sb.from('research_projects').select('id,title,pi,type,status').in('status', ['Proposal','IRB submitted','IRB approved','Data collection'])
-            ]);
-            myLogs = logsRes.data || [];
-            projects = projRes.data || [];
+            const res = await sb.from('student_research_log')
+                .select('*').eq('student_id', studentId).eq('type', 'research_project')
+                .order('created_at', {ascending: false});
+            myProjects = res.data || [];
         }
-        const pending  = myLogs.filter(l => l.status === 'pending').length;
-        const verified = myLogs.filter(l => l.status === 'verified').length;
+
+        const STAGES = [
+            { key: 'irb_submit',      label: 'IRB Submit',      icon: '📋' },
+            { key: 'data_collection', label: 'Data Collection', icon: '📊' },
+            { key: 'data_analysis',   label: 'Analysis',        icon: '🔬' },
+            { key: 'manuscript',      label: 'Manuscript',      icon: '✍️' },
+            { key: 'published',       label: 'Published',       icon: '🏆' },
+        ];
+        const stageIndex = s => STAGES.findIndex(st => st.key === s);
+
+        const active    = myProjects.filter(p => p.status !== 'completed').length;
+        const completed = myProjects.filter(p => p.status === 'completed').length;
+        const pharmD    = myProjects.filter(p => p.degree_level === 'pharmd').length;
+        const msc       = myProjects.filter(p => p.degree_level === 'msc').length;
+
         const safeStudentName = studentName.replace(/'/g, "\\'");
+        const degreeLabel = { pharmd: 'PharmD', msc: 'MSc', other: 'Other' };
+
+        const practiceFaculty  = (window.app?.pharmaData?.facultyPractice || []).filter(f => f.email);
+        const sciencesFaculty  = (window.app?.pharmaData?.faculty || []).filter(f => f.email);
+
+        const renderPipeline = (proj) => {
+            const curIdx = stageIndex(proj.stage || 'irb_submit');
+            return STAGES.map((st, i) => {
+                const done   = i < curIdx;
+                const active = i === curIdx;
+                const future = i > curIdx;
+                const bg     = done ? '#1B5E20' : active ? '#2196F3' : '#e0e0e0';
+                const color  = (done || active) ? 'white' : '#999';
+                const isLast = i === STAGES.length - 1;
+                return `<div style="display:flex;align-items:center;flex:1;min-width:0;">
+                    <div style="display:flex;flex-direction:column;align-items:center;flex:1;">
+                        <div onclick="StudentPortal._updateResearchStage('${proj.id}','${st.key}')"
+                             title="${active ? 'Current stage' : (done ? 'Completed' : 'Click to advance to this stage')}"
+                             style="width:36px;height:36px;border-radius:50%;background:${bg};color:${color};display:flex;align-items:center;justify-content:center;font-size:1rem;cursor:${future ? 'pointer' : 'default'};border:2px solid ${active ? '#1565c0' : 'transparent'};">
+                            ${done ? '✓' : st.icon}
+                        </div>
+                        <div style="font-size:0.65rem;color:${active ? '#1565c0' : (done ? '#1B5E20' : '#999')};text-align:center;margin-top:0.25rem;font-weight:${active ? '700' : '400'};white-space:nowrap;">${st.label}</div>
+                    </div>
+                    ${!isLast ? `<div style="height:2px;background:${done ? '#1B5E20' : '#e0e0e0'};flex:0.5;min-width:8px;margin-bottom:1.3rem;"></div>` : ''}
+                </div>`;
+            }).join('');
+        };
+
         root.innerHTML = `
-            <div class="fade-in-up" style="padding:1.5rem;">
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
-                    <div style="background:white;border-radius:12px;padding:1.5rem;text-align:center;border-left:4px solid #1B5E20;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="font-size:2rem;font-weight:700;color:#1B5E20;">${verified}</div>
-                        <div style="font-size:0.85rem;color:#666;">Verified Contributions</div>
-                    </div>
-                    <div style="background:white;border-radius:12px;padding:1.5rem;text-align:center;border-left:4px solid #FF9800;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="font-size:2rem;font-weight:700;color:#FF9800;">${pending}</div>
-                        <div style="font-size:0.85rem;color:#666;">Pending Verification</div>
-                    </div>
-                    <div style="background:white;border-radius:12px;padding:1.5rem;text-align:center;border-left:4px solid #2196F3;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                        <div style="font-size:2rem;font-weight:700;color:#2196F3;">${myLogs.length}</div>
-                        <div style="font-size:0.85rem;color:#666;">Total Submissions</div>
-                    </div>
+        <div class="fade-in-up" style="padding:1.5rem;">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #1B5E20;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1B5E20;">${active}</div>
+                    <div style="font-size:0.8rem;color:#666;">Active Projects</div>
                 </div>
-
-                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
-                    <h3 style="margin-top:0;">Log a Research Contribution</h3>
-                    <p style="color:#666;font-size:0.9rem;margin-bottom:1rem;">Submit publications, posters, or presentations for admin verification.</p>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                        <div>
-                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Type</label>
-                            <select id="rlog-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
-                                <option value="publication">Publication</option>
-                                <option value="poster">Poster Presentation</option>
-                                <option value="oral">Oral Presentation</option>
-                                <option value="project">Research Project</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Title</label>
-                            <input id="rlog-title" type="text" placeholder="Title of contribution" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Journal / Event</label>
-                            <input id="rlog-event" type="text" placeholder="Journal name or conference" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Date</label>
-                            <input id="rlog-date" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;" />
-                        </div>
-                        <div>
-                            <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Supervisor / Co-author</label>
-                            <input id="rlog-supervisor" type="text" placeholder="Faculty supervisor name" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
-                        </div>
-                        <div style="display:flex;align-items:flex-end;">
-                            <button onclick="StudentPortal._submitResearchLog('${studentId}','${safeStudentName}')" style="width:100%;background:#1B5E20;color:white;padding:0.75rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Submit for Verification</button>
-                        </div>
-                    </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #9C27B0;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#9C27B0;">${completed}</div>
+                    <div style="font-size:0.8rem;color:#666;">Published</div>
                 </div>
-
-                ${projects.length ? `
-                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
-                    <h3 style="margin-top:0;">Open Research Opportunities</h3>
-                    <div style="display:grid;gap:0.75rem;">
-                        ${projects.map(p => {
-                            const safeTitle = p.title.replace(/'/g, "\\'");
-                            return `
-                            <div style="padding:1rem;background:#f9f9f9;border-radius:8px;border-left:3px solid #1B5E20;display:flex;justify-content:space-between;align-items:center;">
-                                <div>
-                                    <strong>${p.title}</strong>
-                                    <small style="display:block;color:#666;">PI: ${p.pi} | ${p.type} | Stage: ${p.status}</small>
-                                </div>
-                                <button onclick="StudentPortal._expressInterest('${p.id}','${safeTitle}','${studentId}','${safeStudentName}')" style="background:#e8f5e9;color:#1B5E20;border:1px solid #1B5E20;padding:0.4rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;">Express Interest</button>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>` : ''}
-
-                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-                    <h3 style="margin-top:0;">My Submissions</h3>
-                    ${myLogs.length === 0 ? '<p style="color:#999;text-align:center;padding:1.5rem;">No submissions yet. Log your first contribution above!</p>' : `
-                    <div style="overflow-x:auto;">
-                        <table style="width:100%;border-collapse:collapse;font-size:0.88rem;">
-                            <thead><tr style="border-bottom:2px solid #e0e0e0;">
-                                <th style="text-align:left;padding:0.6rem;color:#666;">Type</th>
-                                <th style="text-align:left;padding:0.6rem;color:#666;">Title</th>
-                                <th style="text-align:left;padding:0.6rem;color:#666;">Journal/Event</th>
-                                <th style="text-align:left;padding:0.6rem;color:#666;">Date</th>
-                                <th style="text-align:left;padding:0.6rem;color:#666;">Status</th>
-                            </tr></thead>
-                            <tbody>
-                                ${myLogs.map(l => `
-                                    <tr style="border-bottom:1px solid #f0f0f0;">
-                                        <td style="padding:0.6rem;">${l.type||''}</td>
-                                        <td style="padding:0.6rem;">${l.title||''}</td>
-                                        <td style="padding:0.6rem;color:#666;">${l.journal_event||''}</td>
-                                        <td style="padding:0.6rem;color:#666;">${l.date_submitted||''}</td>
-                                        <td style="padding:0.6rem;">${l.status === 'verified' ? '<span style="background:#e8f5e9;color:#1B5E20;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:600;">Verified</span>' : '<span style="background:#fff3e0;color:#FF9800;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.8rem;font-weight:600;">Pending</span>'}</td>
-                                    </tr>`).join('')}
-                            </tbody>
-                        </table>
-                    </div>`}
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #2196F3;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#2196F3;">${pharmD}</div>
+                    <div style="font-size:0.8rem;color:#666;">PharmD Projects</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #FF9800;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#FF9800;">${msc}</div>
+                    <div style="font-size:0.8rem;color:#666;">MSc Projects</div>
                 </div>
             </div>
-        `;
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
+                <h3 style="margin:0 0 0.25rem 0;">Start New Research Project</h3>
+                <p style="color:#666;font-size:0.85rem;margin:0 0 1rem 0;">Link your research to your supervisor — it will appear in their faculty profile under Students Supervised.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="grid-column:1/-1;">
+                        <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Research Title</label>
+                        <input id="rp-title" type="text" placeholder="Enter your research project title" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Faculty Supervisor</label>
+                        <select id="rp-faculty" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                            <option value="">-- Select Supervisor --</option>
+                            <optgroup label="Pharmaceutical Practice">
+                                ${practiceFaculty.map(f => `<option value="${f.email}" data-name="${f.name.replace(/"/g,'&quot;')}">${f.name}${f.role ? ' · ' + f.role.split('/')[0].trim() : ''}</option>`).join('')}
+                            </optgroup>
+                            <optgroup label="Pharmaceutical Sciences">
+                                ${sciencesFaculty.map(f => `<option value="${f.email}" data-name="${f.name.replace(/"/g,'&quot;')}">${f.name}${f.role ? ' · ' + f.role.split('/')[0].trim() : ''}</option>`).join('')}
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Degree Level</label>
+                        <select id="rp-degree" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                            <option value="pharmd">PharmD</option>
+                            <option value="msc">MSc</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Current Stage</label>
+                        <select id="rp-stage" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                            ${STAGES.map(s => `<option value="${s.key}">${s.icon} ${s.label}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Notes (optional)</label>
+                        <input id="rp-notes" type="text" placeholder="Any additional notes" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;" />
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <button onclick="StudentPortal._startResearchProject('${studentId}','${safeStudentName}')" style="background:#1B5E20;color:white;padding:0.75rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;font-size:0.95rem;">+ Add Research Project</button>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <h3 style="margin:0 0 1rem 0;">My Research Projects</h3>
+                ${myProjects.length === 0
+                    ? '<p style="color:#999;text-align:center;padding:2rem 0;">No research projects yet. Add your first one above!</p>'
+                    : myProjects.map(proj => `
+                        <div style="border:1px solid #e0e0e0;border-radius:10px;padding:1.25rem;margin-bottom:1rem;border-left:4px solid ${proj.status === 'completed' ? '#9C27B0' : '#2196F3'};">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;gap:1rem;">
+                                <div>
+                                    <div style="font-weight:700;font-size:1rem;">${proj.title || 'Untitled'}</div>
+                                    <div style="font-size:0.82rem;color:#666;margin-top:0.25rem;">
+                                        Supervisor: <strong>${proj.faculty_name || '—'}</strong>
+                                        &nbsp;|&nbsp; ${degreeLabel[proj.degree_level] || 'PharmD'}
+                                        ${proj.notes ? ` &nbsp;|&nbsp; <em>${proj.notes}</em>` : ''}
+                                    </div>
+                                </div>
+                                <span style="background:${proj.status === 'completed' ? '#f3e5f5' : '#e3f2fd'};color:${proj.status === 'completed' ? '#9C27B0' : '#1565c0'};padding:0.2rem 0.7rem;border-radius:6px;font-size:0.78rem;font-weight:600;white-space:nowrap;">${proj.status === 'completed' ? 'Published' : 'Active'}</span>
+                            </div>
+                            <div style="display:flex;align-items:center;">${renderPipeline(proj)}</div>
+                        </div>`).join('')
+                }
+            </div>
+        </div>`;
     },
-    _submitResearchLog: async (studentId, studentName) => {
-        const type       = document.getElementById('rlog-type')?.value;
-        const title      = document.getElementById('rlog-title')?.value?.trim();
-        const event      = document.getElementById('rlog-event')?.value?.trim();
-        const date       = document.getElementById('rlog-date')?.value;
-        const supervisor = document.getElementById('rlog-supervisor')?.value?.trim();
-        if (!title) { alert('Please enter a title.'); return; }
+
+    _startResearchProject: async (studentId, studentName) => {
+        const title        = document.getElementById('rp-title')?.value?.trim();
+        const facultyEl    = document.getElementById('rp-faculty');
+        const facultyEmail = facultyEl?.value;
+        const facultyName  = facultyEl?.options[facultyEl?.selectedIndex]?.getAttribute('data-name') || '';
+        const degree       = document.getElementById('rp-degree')?.value || 'pharmd';
+        const stage        = document.getElementById('rp-stage')?.value  || 'irb_submit';
+        const notes        = document.getElementById('rp-notes')?.value?.trim();
+        if (!title)        { alert('Please enter a research title.'); return; }
+        if (!facultyEmail) { alert('Please select a faculty supervisor.'); return; }
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) { alert('Not connected.'); return; }
+        if (!sb) { alert('Not connected to database.'); return; }
         const { error } = await sb.from('student_research_log').insert({
             student_id: studentId, student_name: studentName,
-            type, title, journal_event: event, date_submitted: date || null,
-            supervisor, status: 'pending'
+            type: 'research_project', title,
+            faculty_email: facultyEmail, faculty_name: facultyName,
+            degree_level: degree, stage,
+            notes: notes || null,
+            status: stage === 'published' ? 'completed' : 'active'
         });
         if (error) { alert('Error: ' + error.message); return; }
         window._researchCache = null;
-        setTimeout(() => StudentPortal._renderResearchTab(), 800);
+        StudentPortal._renderResearchTab();
     },
-    _expressInterest: async (projectId, projectTitle, studentId, studentName) => {
+
+    _updateResearchStage: async (projectId, newStage) => {
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) { alert('Not connected.'); return; }
-        const { error } = await sb.from('student_research_log').insert({
-            student_id: studentId, student_name: studentName,
-            type: 'project', title: 'Interest: ' + projectTitle,
-            journal_event: 'Project ID: ' + projectId, status: 'pending'
-        });
-        if (error) { alert('Error: ' + error.message); return; }
-        alert('Interest expressed! The research coordinator will be in touch.');
+        if (!sb) return;
+        const { error } = await sb.from('student_research_log')
+            .update({ stage: newStage, status: newStage === 'published' ? 'completed' : 'active' })
+            .eq('id', projectId);
+        if (error) { alert('Error updating stage: ' + error.message); return; }
+        window._researchCache = null;
+        StudentPortal._renderResearchTab();
     }
 };
 

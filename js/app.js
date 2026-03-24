@@ -11654,7 +11654,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     // --- NEW: Individual Faculty Profile View ---
-    renderFacultyProfile(email) {
+    async renderFacultyProfile(email) {
         const metrics = this._getFacultyMetrics(email);
 
         this.title.innerHTML = `
@@ -11698,6 +11698,25 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const _fpYearIdx = researchData.years.indexOf(_fpCurrentYear);
         const _fpCurrentYearPubs = _fpYearIdx >= 0 ? researchData.publications[_fpYearIdx] : (researchData.publications[researchData.publications.length - 1] || 0);
 
+        // Fetch live supervision count from student_research_log
+        let _liveSupervised = { total: 0, pharmd: 0, msc: 0, other: 0 };
+        try {
+            const _sb = window.SupabaseAuth?.supabase;
+            if (_sb) {
+                const { data: _supData } = await _sb.from('student_research_log')
+                    .select('degree_level, status')
+                    .eq('faculty_email', email)
+                    .eq('type', 'research_project')
+                    .neq('status', 'completed');
+                if (_supData?.length) {
+                    _liveSupervised.total  = _supData.length;
+                    _liveSupervised.pharmd = _supData.filter(r => r.degree_level === 'pharmd').length;
+                    _liveSupervised.msc    = _supData.filter(r => r.degree_level === 'msc').length;
+                    _liveSupervised.other  = _supData.filter(r => !r.degree_level || r.degree_level === 'other').length;
+                }
+            }
+        } catch(_e) {}
+
         const grantData = {
             funnelLabels: ['Submitted', 'Review', 'Awarded'],
             funnelValues: metrics.grants.funnelValues,
@@ -11708,6 +11727,12 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             labels: ['Undergrad', 'Masters', 'PhD'],
             values: metrics.supervision.values
         };
+
+        // Use live count if available, otherwise fall back to metrics
+        const _supervisedTotal = _liveSupervised.total || supervisionData.values.reduce((a, b) => a + b, 0);
+        const _supervisedSubtitle = _liveSupervised.total
+            ? `${_liveSupervised.pharmd ? _liveSupervised.pharmd + ' PharmD' : ''}${_liveSupervised.pharmd && (_liveSupervised.msc || _liveSupervised.other) ? ' · ' : ''}${_liveSupervised.msc ? _liveSupervised.msc + ' MSc' : ''}${(_liveSupervised.pharmd || _liveSupervised.msc) && _liveSupervised.other ? ' · ' : ''}${_liveSupervised.other ? _liveSupervised.other + ' Other' : ''}`
+            : 'Active';
 
         const devData = {
             labels: metrics.development.labels,
@@ -11731,8 +11756,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     </div>
                     <div class="card stat-card">
                         <span class="stat-label">Students Supervised</span>
-                        <span class="stat-value">${supervisionData.values.reduce((a, b) => a + b, 0)}</span>
-                        <span class="stat-trend">Active</span>
+                        <span class="stat-value">${_supervisedTotal}</span>
+                        <span class="stat-trend">${_supervisedSubtitle}</span>
                     </div>
                     <div class="card stat-card">
                         <span class="stat-label">H-Index</span>
