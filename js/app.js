@@ -3881,6 +3881,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             case 'student-portal':
                 this.renderStudentPortal();
                 break;
+            case 'mous':
+                this.renderMOUs();
+                break;
             case 'student-awards':
             case 'awards-dashboard':
                 this.renderAwardsDashboard();
@@ -13394,6 +13397,319 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
     renderStudentTracker() {
         this.renderStudentList(); // Re-use student list for now
+    }
+
+    async renderMOUs() {
+        this.title.textContent = 'MOU Tracker';
+        this.root.innerHTML = `<div style="padding:2rem;text-align:center;color:#888;">Loading MOUs...</div>`;
+
+        const sb = window.SupabaseAuth?.supabase;
+        let mous = [];
+        if (sb) {
+            const { data } = await sb.from('mous').select('*').order('expiry_date', { ascending: true });
+            mous = data || [];
+        }
+
+        const today    = new Date();
+        const in90     = new Date(); in90.setDate(today.getDate() + 90);
+        const thisYear = today.getFullYear();
+
+        const active      = mous.filter(m => m.status !== 'expired' && (!m.expiry_date || new Date(m.expiry_date) > today));
+        const expiringSoon= mous.filter(m => m.expiry_date && new Date(m.expiry_date) > today && new Date(m.expiry_date) <= in90);
+        const expired     = mous.filter(m => m.expiry_date && new Date(m.expiry_date) <= today);
+        const newThisYear = mous.filter(m => m.signed_date && new Date(m.signed_date).getFullYear() === thisYear);
+        const international = mous.filter(m => m.institution_type === 'International');
+        const cities      = [...new Set(mous.filter(m=>m.city).map(m=>m.city))].length;
+        const totalCap    = active.reduce((n,m) => n + (m.student_capacity||0), 0);
+        const usedSlots   = (window.appStore?.students||[]).filter(s=>s.level==='P4').length;
+        const utilPct     = totalCap ? Math.round(Math.min(usedSlots/totalCap,1)*100) : 0;
+
+        const C = {
+            green:'#1B5E20', greenPl:'#e8f5e9', greenMd:'#2e7d32',
+            blue:'#1565c0',  bluePl:'#e3f2fd',
+            amber:'#b45309', amberPl:'#fffbeb',
+            red:'#c62828',   redPl:'#fff5f5',
+            purple:'#6b21a8',purplePl:'#f5f3ff',
+            teal:'#00695c',  tealPl:'#e0f2f1',
+            card:'#fff', border:'#e2e8f0', text:'#1a202c', muted:'#718096',
+        };
+
+        const kpi = (icon,val,label,sub,bg,ac) => `
+            <div style="background:${C.card};border-radius:16px;padding:1.4rem 1.25rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+                        border:1px solid ${C.border};position:relative;overflow:hidden;">
+                <div style="position:absolute;top:-14px;right:-14px;width:72px;height:72px;
+                            border-radius:50%;background:${bg};opacity:0.55;"></div>
+                <div style="font-size:1.5rem;margin-bottom:6px;position:relative;">${icon}</div>
+                <div style="font-size:1.9rem;font-weight:800;color:${ac};line-height:1;position:relative;">${val}</div>
+                <div style="font-size:0.8rem;font-weight:600;color:${C.text};margin-top:5px;">${label}</div>
+                <div style="font-size:0.7rem;color:${C.muted};margin-top:2px;">${sub}</div>
+            </div>`;
+
+        /* ── Status badge ── */
+        const statusBadge = m => {
+            if (m.expiry_date && new Date(m.expiry_date) <= today)
+                return `<span style="background:${C.redPl};color:${C.red};padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;">🔴 Expired</span>`;
+            if (m.expiry_date && new Date(m.expiry_date) <= in90)
+                return `<span style="background:${C.amberPl};color:${C.amber};padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;">🟡 Expiring Soon</span>`;
+            return `<span style="background:${C.greenPl};color:${C.green};padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700;">🟢 Active</span>`;
+        };
+
+        const typeBadge = t => {
+            const map = { International:`background:#ede9fe;color:#6d28d9`, Government:`background:#dbeafe;color:#1e40af`,
+                          Private:`background:#fef9c3;color:#854d0e`, Academic:`background:#f0fdf4;color:#166534` };
+            const style = map[t] || `background:#f1f5f9;color:#334155`;
+            return t ? `<span style="${style};padding:2px 9px;border-radius:12px;font-size:0.72rem;font-weight:600;">${t}</span>` : '—';
+        };
+
+        const daysLeft = m => {
+            if (!m.expiry_date) return '—';
+            const diff = Math.ceil((new Date(m.expiry_date) - today) / 86400000);
+            if (diff < 0)  return `<span style="color:${C.red};font-weight:700;">${Math.abs(diff)}d overdue</span>`;
+            if (diff <= 90) return `<span style="color:${C.amber};font-weight:700;">${diff}d left</span>`;
+            return `<span style="color:${C.muted};">${diff}d left</span>`;
+        };
+
+        /* ── Alerts panel ── */
+        const alertItems = [
+            ...expired.map(m => ({ col:C.red, bg:C.redPl, msg:`🔴 ${m.institution_name} — MOU expired${m.expiry_date?' on '+m.expiry_date:''}` })),
+            ...expiringSoon.filter(m => !expired.includes(m)).map(m => ({ col:C.amber, bg:C.amberPl, msg:`🟡 ${m.institution_name} — expires ${m.expiry_date}` })),
+        ];
+        const alertsPanel = alertItems.length ? `
+            <div style="background:${C.card};border-radius:16px;padding:1.25rem 1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid #fca5a5;">
+                <div style="font-size:0.88rem;font-weight:700;color:${C.red};margin-bottom:10px;">⚠️ Action Required (${alertItems.length})</div>
+                ${alertItems.map(a=>`
+                    <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:${a.bg};
+                                border-radius:8px;margin-bottom:5px;border-left:3px solid ${a.col};">
+                        <span style="font-size:0.82rem;color:${a.col};font-weight:600;">${a.msg}</span>
+                    </div>`).join('')}
+            </div>` : '';
+
+        /* ── Type breakdown ── */
+        const typeMap = {};
+        mous.forEach(m => { const t=m.institution_type||'Other'; typeMap[t]=(typeMap[t]||0)+1; });
+        const typeRows = Object.entries(typeMap).sort((a,b)=>b[1]-a[1]).map(([t,n])=>{
+            const max = Math.max(...Object.values(typeMap));
+            return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="flex:0 0 95px;font-size:0.8rem;color:${C.text};">${t}</span>
+                <div style="flex:1;background:#f1f5f9;border-radius:50px;height:7px;overflow:hidden;">
+                    <div style="width:${Math.round(n/max*100)}%;background:${C.greenMd};height:100%;border-radius:50px;"></div>
+                </div>
+                <span style="flex:0 0 18px;font-size:0.8rem;font-weight:700;color:${C.green};text-align:right;">${n}</span>
+            </div>`;
+        }).join('');
+
+        /* ── Edit Center ── */
+        window._mouEditId = null;
+        window._mouSave = async () => {
+            const g = id => document.getElementById(id)?.value?.trim()||'';
+            const payload = {
+                institution_name:  g('mou-name'),
+                institution_type:  g('mou-type'),
+                city:              g('mou-city'),
+                contact_person:    g('mou-contact'),
+                contact_email:     g('mou-email'),
+                signed_date:       g('mou-signed')  || null,
+                expiry_date:       g('mou-expiry')  || null,
+                student_capacity:  parseInt(g('mou-cap'))||null,
+                notes:             g('mou-notes'),
+                status:            'active',
+            };
+            if (!payload.institution_name) { alert('Institution name is required.'); return; }
+            if (!sb) { alert('Not connected.'); return; }
+            const btn = document.getElementById('mou-save-btn');
+            if (btn) btn.textContent = 'Saving…';
+            let error;
+            if (window._mouEditId) {
+                ({ error } = await sb.from('mous').update(payload).eq('id', window._mouEditId));
+            } else {
+                ({ error } = await sb.from('mous').insert({ ...payload, created_at: new Date().toISOString() }));
+            }
+            if (error) { alert('Error: ' + error.message); if(btn) btn.textContent='Save'; return; }
+            window._mouEditId = null;
+            this.renderMOUs();
+        };
+        window._mouDelete = async (id, name) => {
+            if (!confirm(`Delete MOU with "${name}"? This cannot be undone.`)) return;
+            await sb.from('mous').delete().eq('id', id);
+            this.renderMOUs();
+        };
+        window._mouEdit = (id) => {
+            const m = mous.find(x=>x.id===id); if (!m) return;
+            window._mouEditId = id;
+            const set = (elId, val) => { const el=document.getElementById(elId); if(el) el.value=val||''; };
+            set('mou-name',    m.institution_name);
+            set('mou-type',    m.institution_type);
+            set('mou-city',    m.city);
+            set('mou-contact', m.contact_person);
+            set('mou-email',   m.contact_email);
+            set('mou-signed',  m.signed_date);
+            set('mou-expiry',  m.expiry_date);
+            set('mou-cap',     m.student_capacity);
+            set('mou-notes',   m.notes);
+            const title = document.getElementById('mou-form-title');
+            if (title) title.textContent = `Edit MOU — ${m.institution_name}`;
+            const btn = document.getElementById('mou-save-btn');
+            if (btn) btn.textContent = 'Update MOU';
+            document.getElementById('mou-edit-center')?.scrollIntoView({ behavior:'smooth' });
+        };
+        window._mouClear = () => {
+            window._mouEditId = null;
+            ['mou-name','mou-type','mou-city','mou-contact','mou-email','mou-signed','mou-expiry','mou-cap','mou-notes']
+                .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+            const title = document.getElementById('mou-form-title');
+            if (title) title.textContent = '➕ Add New MOU';
+            const btn = document.getElementById('mou-save-btn');
+            if (btn) btn.textContent = 'Save MOU';
+        };
+
+        const inp = (id, placeholder, type='text', extraStyle='') =>
+            `<input id="${id}" type="${type}" placeholder="${placeholder}"
+                style="width:100%;padding:9px 12px;border:1px solid ${C.border};border-radius:8px;
+                       font-size:0.85rem;box-sizing:border-box;${extraStyle}">`;
+        const sel = (id, opts) =>
+            `<select id="${id}" style="width:100%;padding:9px 12px;border:1px solid ${C.border};
+                     border-radius:8px;font-size:0.85rem;box-sizing:border-box;">
+                <option value="">Select type</option>
+                ${opts.map(o=>`<option>${o}</option>`).join('')}
+            </select>`;
+        const lbl = (text, required='') =>
+            `<label style="font-size:0.78rem;font-weight:600;color:${C.text};display:block;margin-bottom:4px;">${text}${required?'<span style="color:red"> *</span>':''}</label>`;
+
+        const editCenter = `
+            <div id="mou-edit-center" style="background:${C.card};border-radius:16px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06),0 4px 16px rgba(0,0,0,0.04);
+                        border:2px solid ${C.greenPl};">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+                    <h3 id="mou-form-title" style="margin:0;font-size:0.95rem;font-weight:700;color:${C.text};">➕ Add New MOU</h3>
+                    <button onclick="window._mouClear()"
+                        style="background:#f1f5f9;color:${C.muted};border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-size:0.8rem;">
+                        Clear
+                    </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+                    <div style="grid-column:1/3;">
+                        ${lbl('Institution Name',true)}
+                        ${inp('mou-name','e.g. King Abdulaziz Medical City')}
+                    </div>
+                    <div>
+                        ${lbl('Type')}
+                        ${sel('mou-type',['Government','Private','Academic','International'])}
+                    </div>
+                    <div>
+                        ${lbl('City')}
+                        ${inp('mou-city','e.g. Riyadh')}
+                    </div>
+                    <div>
+                        ${lbl('Contact Person')}
+                        ${inp('mou-contact','Full name')}
+                    </div>
+                    <div>
+                        ${lbl('Contact Email')}
+                        ${inp('mou-email','email@institution.sa','email')}
+                    </div>
+                    <div>
+                        ${lbl('Signed Date')}
+                        ${inp('mou-signed','','date')}
+                    </div>
+                    <div>
+                        ${lbl('Expiry Date')}
+                        ${inp('mou-expiry','','date')}
+                    </div>
+                    <div>
+                        ${lbl('Student Capacity')}
+                        ${inp('mou-cap','e.g. 20','number')}
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        ${lbl('Notes')}
+                        ${inp('mou-notes','Any additional notes or conditions')}
+                    </div>
+                </div>
+                <button id="mou-save-btn" onclick="window._mouSave()"
+                    style="margin-top:1.25rem;padding:11px 32px;background:${C.green};color:#fff;
+                           border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;">
+                    Save MOU
+                </button>
+            </div>`;
+
+        /* ── MOU Table ── */
+        const tableRows = mous.length ? mous.map(m => `
+            <tr style="border-bottom:1px solid ${C.border};">
+                <td style="padding:11px 14px;font-weight:600;color:${C.text};font-size:0.85rem;">${m.institution_name}</td>
+                <td style="padding:11px 14px;">${typeBadge(m.institution_type)}</td>
+                <td style="padding:11px 14px;font-size:0.82rem;color:${C.muted};">${m.city||'—'}</td>
+                <td style="padding:11px 14px;font-size:0.82rem;color:${C.muted};">${m.contact_person||'—'}</td>
+                <td style="padding:11px 14px;font-size:0.82rem;color:${C.muted};">${m.signed_date||'—'}</td>
+                <td style="padding:11px 14px;font-size:0.82rem;color:${C.muted};">${m.expiry_date||'—'}</td>
+                <td style="padding:11px 14px;font-size:0.82rem;text-align:center;">${daysLeft(m)}</td>
+                <td style="padding:11px 14px;text-align:center;font-size:0.82rem;font-weight:600;color:${C.green};">${m.student_capacity||'—'}</td>
+                <td style="padding:11px 14px;">${statusBadge(m)}</td>
+                <td style="padding:11px 14px;white-space:nowrap;">
+                    <button onclick="window._mouEdit(${m.id})"
+                        style="background:${C.bluePl};color:${C.blue};border:none;padding:5px 12px;
+                               border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:600;margin-right:4px;">Edit</button>
+                    <button onclick="window._mouDelete(${m.id},'${(m.institution_name||'').replace(/'/g,"\\'")}') "
+                        style="background:${C.redPl};color:${C.red};border:none;padding:5px 12px;
+                               border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:600;">Delete</button>
+                </td>
+            </tr>`).join('')
+        : `<tr><td colspan="10" style="padding:3rem;text-align:center;color:${C.muted};font-size:0.9rem;">
+               No MOUs yet. Use the Edit Center above to add your first agreement.</td></tr>`;
+
+        this.root.innerHTML = `
+        <div style="display:grid;gap:1.25rem;padding:0.25rem 0;">
+
+            <!-- KPI Cards -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:1rem;">
+                ${kpi('🤝', active.length,          'Active MOUs',           'currently in force',       C.greenPl,  C.green)}
+                ${kpi('⏰', expiringSoon.length,     'Expiring in 90 Days',   'needs renewal action',     C.amberPl,  C.amber)}
+                ${kpi('🔴', expired.length,          'Expired',               'renewal overdue',          C.redPl,    C.red)}
+                ${kpi('👥', totalCap||'—',           'Total Capacity',        'student slots in MOUs',    C.bluePl,   C.blue)}
+                ${kpi('📊', totalCap?utilPct+'%':'—','Utilization Rate',      `${usedSlots} of ${totalCap} slots`,C.tealPl,C.teal)}
+                ${kpi('🆕', newThisYear.length,      'New This Year',         `signed in ${thisYear}`,    C.purplePl, C.purple)}
+                ${kpi('🌐', international.length,    'International',         'cross-border MOUs',        C.purplePl, C.purple)}
+                ${kpi('📍', cities,                  'Cities Covered',        'geographic reach',         C.greenPl,  C.greenMd)}
+            </div>
+
+            ${alertsPanel}
+
+            <!-- Edit Center + Type Breakdown -->
+            <div style="display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;align-items:start;">
+                ${editCenter}
+                <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                            box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid ${C.border};">
+                    <h3 style="margin:0 0 1.25rem;font-size:0.9rem;font-weight:700;color:${C.text};">By Institution Type</h3>
+                    ${typeRows||`<p style="color:${C.muted};font-size:0.83rem;text-align:center;padding:1rem 0;">No data yet</p>`}
+                    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid ${C.border};
+                                display:flex;justify-content:space-between;font-size:0.78rem;color:${C.muted};">
+                        <span>Total: <strong style="color:${C.text};">${mous.length}</strong></span>
+                        <span>Active: <strong style="color:${C.green};">${active.length}</strong></span>
+                        <span>Issues: <strong style="color:${C.red};">${expired.length + expiringSoon.length}</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MOU Table -->
+            <div style="background:${C.card};border-radius:16px;padding:1.5rem;
+                        box-shadow:0 1px 3px rgba(0,0,0,0.06);border:1px solid ${C.border};overflow-x:auto;">
+                <h3 style="margin:0 0 1rem;font-size:0.95rem;font-weight:700;color:${C.text};">
+                    All MOUs
+                    <span style="font-size:0.8rem;font-weight:400;color:${C.muted};margin-left:8px;">${mous.length} records</span>
+                </h3>
+                <table style="width:100%;border-collapse:collapse;font-size:0.85rem;min-width:900px;">
+                    <thead>
+                        <tr style="background:#f8fafc;border-bottom:2px solid ${C.border};">
+                            ${['Institution','Type','City','Contact','Signed','Expires','Days Left','Capacity','Status','Actions']
+                                .map(h=>`<th style="padding:10px 14px;text-align:left;font-size:0.73rem;
+                                                    color:${C.muted};font-weight:700;text-transform:uppercase;
+                                                    white-space:nowrap;">${h}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>
+            </div>
+        </div>`;
     }
 
     async renderAwardsDashboard(filter = 'dashboard') {
