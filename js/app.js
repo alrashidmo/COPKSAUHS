@@ -1415,7 +1415,7 @@ window.StudentManagement = {
         reader.readAsText(file);
     },
 
-    sendToAlumni(idx) {
+    async sendToAlumni(idx) {
         const students = APPE_DATABASE.students || [];
         if (idx >= students.length) return;
 
@@ -1423,34 +1423,71 @@ window.StudentManagement = {
         const level = this.getCohortLevel(student.cohort);
 
         if (level !== 'P4') {
-            alert('📤 Only P4 (APPE) students can be transferred to Alumni');
+            alert('Only P4 (APPE) students can be transferred to Alumni.');
             return;
         }
 
-        if (!this.alumniData) {
-            this.alumniData = [];
+        if (!confirm(`Graduate ${student.name} and add to the Alumni Unit?\n\nThis will create a permanent alumni record.`)) return;
+
+        const gradYear = new Date().getFullYear();
+        const sb = window.SupabaseAuth?.supabase;
+
+        // --- Supabase insert ---
+        if (sb) {
+            // Check for duplicate by email
+            const { data: existing } = await sb.from('alumni_profiles').select('id').eq('email', student.email).maybeSingle();
+            if (existing) {
+                const update = confirm(`${student.name} already has an alumni record. Update it with fresh data?`);
+                if (!update) return;
+                const { error } = await sb.from('alumni_profiles').update({
+                    name:             student.name,
+                    graduation_year:  gradYear,
+                    program:          'PharmD',
+                    student_id:       student.id || null,
+                    profile_updated_at: new Date().toISOString()
+                }).eq('email', student.email);
+                if (error) { alert('Supabase error: ' + error.message); return; }
+            } else {
+                const { error } = await sb.from('alumni_profiles').insert({
+                    alumni_id:        'GRAD-' + (student.id || Date.now()),
+                    name:             student.name,
+                    email:            student.email,
+                    program:          'PharmD',
+                    graduation_year:  gradYear,
+                    student_id:       student.id || null,
+                    status:           'employed',
+                    engagement:       'moderate',
+                    mentor_willing:   false,
+                    preceptor_willing:false,
+                    country:          'Saudi Arabia',
+                });
+                if (error) { alert('Supabase error: ' + error.message); return; }
+            }
+            window._alumniCache = null; // Invalidate alumni cache
         }
 
-        // Check for duplicates
-        const exists = this.alumniData.some(a => a.id === student.id);
-        if (exists) {
-            const update = confirm('This student already exists in Alumni database. Update record?');
-            if (!update) return;
-            this.alumniData = this.alumniData.filter(a => a.id !== student.id);
-        }
-
-        // Create alumni record
-        const alumniRecord = {
+        // --- Keep local copy for backward compat ---
+        if (!this.alumniData) this.alumniData = [];
+        this.alumniData = this.alumniData.filter(a => a.id !== student.id);
+        this.alumniData.push({
             ...student,
             graduation: new Date().toLocaleDateString('en-US'),
             alumniStatus: 'Active',
-            linkedAccount: student.email.split('@')[0],
-            program: 'P4'
-        };
+            program: 'PharmD',
+            graduation_year: gradYear,
+        });
 
-        this.alumniData.push(alumniRecord);
-
-        alert('🎓 Student ' + student.name + ' has been successfully transferred to Alumni database!\n\n📋 Details:\nGraduation Date: ' + alumniRecord.graduation + '\n🆔 Alumni ID: ' + alumniRecord.id);
+        // Confirm and offer navigation to Alumni Unit
+        const goNow = confirm(
+            `Graduated! ${student.name} has been added to the Alumni Unit.\n\nGraduation Year: ${gradYear}\nEmail: ${student.email}\n\nGo to Alumni Directory now?`
+        );
+        if (goNow && window.app) {
+            window.app.renderAlumniDirectory();
+            // Navigate to Alumni Unit tab
+            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+            const alumniTab = document.querySelector('[data-tab="alumni"]') || document.querySelector('.tab-btn[onclick*="alumni"]');
+            if (alumniTab) alumniTab.classList.add('active');
+        }
         this.renderStudentDatabase();
     },
 
@@ -1480,12 +1517,30 @@ window.StudentManagement = {
         alert('? Exported ' + students.length + ' students to Excel');
     },
 
-    viewAlumniDatabase() {
-        const alumni = this.alumniData || [];
-        let html = '<div style="padding: 20px; background: white; border-radius: 8px;">';
+    async viewAlumniDatabase() {
+        // Show loading modal immediately
+        let modal = document.getElementById('alumniModal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'alumniModal';
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;justify-content:center;align-items:center;z-index:10000;';
+            document.body.appendChild(modal);
+        }
+        modal.innerHTML = '<div style="background:white;padding:2rem;border-radius:12px;color:#555;">Loading alumni data...</div>';
+        modal.style.display = 'flex';
+
+        // Fetch from Supabase if available
+        let alumni = this.alumniData || [];
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb) {
+            const { data } = await sb.from('alumni_profiles').select('*').order('graduation_year', {ascending:false});
+            if (data?.length) alumni = data;
+        }
+
+        let html = '<div style="padding: 20px; background: white; border-radius: 8px; min-width: 600px;">';
         html += '<h3 style="color: #1B5E20; margin-top: 0; display: flex; justify-content: space-between; align-items: center;">';
         html += '<span>🎓 Alumni Database (' + alumni.length + ' graduates)</span>';
-        html += '<button onclick="document.getElementById(\'alumniModal\').style.display=\'none\'" style="background: #F44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">? Close</button>';
+        html += '<button onclick="document.getElementById(\'alumniModal\').style.display=\'none\'" style="background: #F44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">✕ Close</button>';
         html += '</h3>';
 
         if (alumni.length === 0) {
@@ -1495,21 +1550,25 @@ window.StudentManagement = {
             html += '<table style="width: 100%; border-collapse: collapse;">';
             html += '<thead style="background: #FF9800; color: white;">';
             html += '<tr>';
-            html += '<th style="padding: 12px; text-align: left;">Student No</th>';
+            html += '<th style="padding: 12px; text-align: left;">Alumni ID</th>';
             html += '<th style="padding: 12px; text-align: left;">Name</th>';
             html += '<th style="padding: 12px; text-align: left;">Email</th>';
-            html += '<th style="padding: 12px; text-align: left;">Graduation Date</th>';
+            html += '<th style="padding: 12px; text-align: left;">Grad Year</th>';
+            html += '<th style="padding: 12px; text-align: left;">Current Role</th>';
             html += '<th style="padding: 12px; text-align: left;">Status</th>';
             html += '</tr>';
             html += '</thead>';
             html += '<tbody>';
             alumni.forEach(a => {
+                const statusColor = (a.status||'employed') === 'postgraduate' ? '#2196F3' : '#4CAF50';
+                const statusLabel = (a.status||'employed') === 'postgraduate' ? 'Postgrad' : (a.alumniStatus || 'Active');
                 html += '<tr style="border-bottom: 1px solid #e0e0e0;">';
-                html += '<td style="padding: 12px;">' + a.id + '</td>';
-                html += '<td style="padding: 12px;">' + a.name + '</td>';
-                html += '<td style="padding: 12px;">' + a.email + '</td>';
-                html += '<td style="padding: 12px;">' + a.graduation + '</td>';
-                html += '<td style="padding: 12px;"><span style="background: #4CAF50; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: bold;">' + (a.alumniStatus || 'Active') + '</span></td>';
+                html += '<td style="padding: 12px; font-size:0.85rem; color:#666;">' + (a.alumni_id || a.id || '—') + '</td>';
+                html += '<td style="padding: 12px; font-weight:600;">' + (a.name || '—') + '</td>';
+                html += '<td style="padding: 12px; font-size:0.85rem;">' + (a.email || '—') + '</td>';
+                html += '<td style="padding: 12px;">' + (a.graduation_year || a.graduation || '—') + '</td>';
+                html += '<td style="padding: 12px; font-size:0.82rem; color:#555;">' + (a.job_title || a.jobTitle || '—') + '</td>';
+                html += '<td style="padding: 12px;"><span style="background: ' + statusColor + '; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.82rem; font-weight: bold;">' + statusLabel + '</span></td>';
                 html += '</tr>';
             });
             html += '</tbody>';
@@ -1518,19 +1577,11 @@ window.StudentManagement = {
         }
         html += '</div>';
 
-        let modal = document.getElementById('alumniModal');
-        if (!modal) {
-            modal = document.createElement('div');
-            modal.id = 'alumniModal';
-            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 10000;';
-            document.body.appendChild(modal);
-        }
         const modalContent = document.createElement('div');
-        modalContent.style.cssText = 'background: white; padding: 20px; border-radius: 12px; max-width: 900px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);';
+        modalContent.style.cssText = 'background: white; padding: 20px; border-radius: 12px; max-width: 960px; width: 92%; max-height: 82vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);';
         modalContent.innerHTML = html;
         modal.innerHTML = '';
         modal.appendChild(modalContent);
-        modal.style.display = 'flex';
 
         console.log('🎓 Alumni Database displayed:', alumni.length, 'graduates');
     }
