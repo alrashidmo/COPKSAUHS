@@ -3186,6 +3186,10 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                         <h3>📋 Student Request System</h3>
                         <button id="newRequestBtn" class="btn" style="background:#4CAF50; color:white; padding:0.6rem 1.2rem; border-radius:4px; cursor:pointer;">+ New Request</button>
                     </div>
+                    <!-- Supabase-backed student submissions for review -->
+                    <div id="cs-submissions-panel" style="margin-top:0.5rem;">
+                        <div style="color:#888;font-size:0.85rem;padding:0.5rem 0;">Loading student submissions...</div>
+                    </div>
                 </div>
 
                 <!-- Request Tracking Table -->
@@ -3405,6 +3409,103 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 setTimeout(() => { target.style.boxShadow = originalShadow; }, 1200);
             }
         }
+
+        // Load Supabase community service submissions asynchronously
+        this._loadCSSubmissions(section);
+    }
+
+    async _loadCSSubmissions(section) {
+        const panel = document.getElementById('cs-submissions-panel');
+        if (!panel) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { panel.innerHTML = '<p style="color:#aaa;font-size:0.82rem;">Database not connected.</p>'; return; }
+
+        const { data, error } = await sb.from('community_service_log')
+            .select('*').order('created_at', { ascending: false }).limit(50);
+        if (error) { panel.innerHTML = `<p style="color:#c62828;font-size:0.82rem;">Error: ${error.message}</p>`; return; }
+        if (!data || data.length === 0) { panel.innerHTML = '<p style="color:#888;font-size:0.82rem;">No student submissions yet.</p>'; return; }
+
+        const pending  = data.filter(r => r.status === 'pending');
+        const reviewed = data.filter(r => r.status !== 'pending');
+
+        const typeLabel = v => ({
+            health_awareness:'Health Awareness', screening:'Screening', school_visit:'School/Community Visit',
+            ngo:'NGO Collaboration', event_conference:'Event/Conference', other:'Other'
+        }[v] || v || '—');
+
+        const badge = s => {
+            if (s === 'approved') return `<span style="background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">Approved</span>`;
+            if (s === 'rejected') return `<span style="background:#fee2e2;color:#991b1b;padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">Rejected</span>`;
+            return `<span style="background:#fef9c3;color:#854d0e;padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">Pending</span>`;
+        };
+
+        const rows = (list, showActions) => list.map(r => `
+            <tr style="border-bottom:1px solid #f0f0f0;">
+                <td style="padding:0.6rem 0.8rem;font-size:0.83rem;font-weight:600;">${r.student_name||r.student_id||'—'}</td>
+                <td style="padding:0.6rem 0.5rem;font-size:0.82rem;color:#555;">${typeLabel(r.activity_type)}</td>
+                <td style="padding:0.6rem 0.5rem;font-size:0.82rem;color:#666;">${r.organization||'—'}</td>
+                <td style="padding:0.6rem 0.5rem;text-align:center;font-size:0.82rem;">${r.activity_date||'—'}</td>
+                <td style="padding:0.6rem 0.5rem;text-align:center;font-weight:600;color:#1B5E20;">${r.hours||0}h</td>
+                <td style="padding:0.6rem 0.5rem;text-align:center;">${badge(r.status)}</td>
+                <td style="padding:0.6rem 0.5rem;font-size:0.8rem;color:#888;max-width:160px;">${r.description||'—'}</td>
+                ${showActions ? `<td style="padding:0.6rem 0.5rem;">
+                    <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+                        <button onclick="window._csApprove('${r.id}')" style="background:#4CAF50;color:white;border:none;padding:0.3rem 0.6rem;border-radius:4px;cursor:pointer;font-size:0.78rem;font-weight:600;">Approve</button>
+                        <button onclick="window._csReject('${r.id}')" style="background:#ef5350;color:white;border:none;padding:0.3rem 0.6rem;border-radius:4px;cursor:pointer;font-size:0.78rem;font-weight:600;">Reject</button>
+                    </div>
+                </td>` : `<td style="padding:0.6rem 0.5rem;font-size:0.8rem;color:#777;">${r.admin_notes||'—'}</td>`}
+            </tr>`).join('');
+
+        const thead = (showActions) => `<thead><tr style="border-bottom:2px solid #e0e0e0;background:#fafafa;">
+            <th style="text-align:left;padding:0.6rem 0.8rem;color:#555;font-size:0.82rem;">Student</th>
+            <th style="text-align:left;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">Type</th>
+            <th style="text-align:left;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">Organization</th>
+            <th style="text-align:center;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">Date</th>
+            <th style="text-align:center;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">Hours</th>
+            <th style="text-align:center;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">Status</th>
+            <th style="text-align:left;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">Description</th>
+            <th style="text-align:left;padding:0.6rem 0.5rem;color:#555;font-size:0.82rem;">${showActions ? 'Actions' : 'Notes'}</th>
+        </tr></thead>`;
+
+        panel.innerHTML = `
+            ${pending.length ? `
+            <div style="margin-bottom:1rem;">
+                <div style="font-weight:700;color:#854d0e;margin-bottom:0.5rem;">Pending Review (${pending.length})</div>
+                <div style="overflow-x:auto;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        ${thead(true)}<tbody>${rows(pending, true)}</tbody>
+                    </table>
+                </div>
+            </div>` : '<p style="color:#888;font-size:0.82rem;margin-bottom:0.75rem;">No pending submissions.</p>'}
+            ${reviewed.length ? `
+            <details style="margin-top:0.5rem;">
+                <summary style="cursor:pointer;font-weight:600;font-size:0.85rem;color:#555;">Reviewed Submissions (${reviewed.length})</summary>
+                <div style="overflow-x:auto;margin-top:0.5rem;">
+                    <table style="width:100%;border-collapse:collapse;">
+                        ${thead(false)}<tbody>${rows(reviewed, false)}</tbody>
+                    </table>
+                </div>
+            </details>` : ''}`;
+
+        const self = this;
+        window._csApprove = async (id) => {
+            const notes = prompt('Approval notes (optional):') || '';
+            const { error: e } = await sb.from('community_service_log').update({
+                status: 'approved', admin_notes: notes || null,
+                reviewed_at: new Date().toISOString()
+            }).eq('id', id);
+            if (e) { alert('Error: ' + e.message); return; }
+            self._loadCSSubmissions(section);
+        };
+        window._csReject = async (id) => {
+            const notes = prompt('Reason for rejection (optional):') || '';
+            const { error: e } = await sb.from('community_service_log').update({
+                status: 'rejected', admin_notes: notes || null,
+                reviewed_at: new Date().toISOString()
+            }).eq('id', id);
+            if (e) { alert('Error: ' + e.message); return; }
+            self._loadCSSubmissions(section);
+        };
     }
 
     _editCommunityRequest(requestId, section) {

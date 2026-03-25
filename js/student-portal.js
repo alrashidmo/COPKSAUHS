@@ -297,6 +297,14 @@ function renderStudentPortalHome() {
                     <span class="btn-icon">❓</span>
                     <span class="btn-text">FAQ & Help</span>
                 </button>
+                <button class="action-btn secondary" onclick="StudentPortal.showCommunityService()">
+                    <span class="btn-icon">🤝</span>
+                    <span class="btn-text">Community Service</span>
+                </button>
+                <button class="action-btn secondary" onclick="StudentPortal.showMentorship()">
+                    <span class="btn-icon">🎓</span>
+                    <span class="btn-text">Find a Mentor</span>
+                </button>
             </div>
         </section>
 
@@ -1795,6 +1803,272 @@ window.StudentPortal = {
         alert(`Switched to ${role === 'admin' ? 'Admin' : 'Student'} mode`);
         StudentPortal.renderHome();
     },
+    showCommunityService: () => {
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = 'Community Service';
+        StudentPortal._renderCommunityServiceTab();
+    },
+
+    _renderCommunityServiceTab: async () => {
+        const root = document.getElementById('app-root');
+        if (!root) return;
+        const studentId   = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser)     ? AuthSystem.currentUser     : null;
+        const studentName = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUserName) ? AuthSystem.currentUserName : (studentId || 'Student');
+        if (!studentId) { root.innerHTML = '<div style="padding:2rem;"><p>Please log in.</p></div>'; return; }
+        root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;">Loading...</div>';
+
+        const sb = window.SupabaseAuth?.supabase;
+        let myLogs = [];
+        if (sb) {
+            const { data } = await sb.from('community_service_log')
+                .select('*').eq('student_id', studentId).order('created_at', {ascending:false});
+            myLogs = data || [];
+        }
+
+        const approved = myLogs.filter(l => l.status === 'approved');
+        const pending  = myLogs.filter(l => l.status === 'pending');
+        const rejected = myLogs.filter(l => l.status === 'rejected');
+        const totalHours = approved.reduce((s, l) => s + (parseFloat(l.hours)||0), 0);
+
+        const safeId   = studentId;
+        const safeName = studentName.replace(/'/g, "\\'");
+
+        const TYPES = [
+            { value:'health_awareness',  label:'Health Awareness Campaign' },
+            { value:'screening',         label:'Screening Campaign' },
+            { value:'school_visit',      label:'School/Community Visit' },
+            { value:'ngo',               label:'NGO Collaboration' },
+            { value:'event_conference',  label:'Event / Conference' },
+            { value:'other',             label:'Other' },
+        ];
+
+        const statusBadge = s => {
+            if (s === 'approved') return `<span style="background:#dcfce7;color:#166534;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">Approved</span>`;
+            if (s === 'rejected') return `<span style="background:#fee2e2;color:#991b1b;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">Rejected</span>`;
+            return `<span style="background:#fef9c3;color:#854d0e;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">Pending</span>`;
+        };
+
+        window._csSubmit = async () => {
+            const type  = document.getElementById('cs-type')?.value;
+            const org   = document.getElementById('cs-org')?.value?.trim();
+            const date  = document.getElementById('cs-date')?.value;
+            const hours = parseFloat(document.getElementById('cs-hours')?.value) || 0;
+            const desc  = document.getElementById('cs-desc')?.value?.trim();
+            if (!org)   { alert('Please enter the organization name.'); return; }
+            if (!date)  { alert('Please enter the activity date.'); return; }
+            if (!hours) { alert('Please enter the number of hours.'); return; }
+            const sbInner = window.SupabaseAuth?.supabase;
+            if (!sbInner) { alert('Not connected to database.'); return; }
+            const { error } = await sbInner.from('community_service_log').insert({
+                student_id: studentId, student_name: studentName,
+                activity_type: type, organization: org,
+                activity_date: date, hours, description: desc || null,
+                status: 'pending'
+            });
+            if (error) { alert('Error: ' + error.message); return; }
+            StudentPortal._renderCommunityServiceTab();
+        };
+
+        root.innerHTML = `
+        <div class="fade-in-up" style="padding:1.5rem;">
+            <!-- KPI Strip -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #1B5E20;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1B5E20;">${totalHours.toFixed(0)}</div>
+                    <div style="font-size:0.8rem;color:#666;">Approved Hours</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #4CAF50;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#4CAF50;">${approved.length}</div>
+                    <div style="font-size:0.8rem;color:#666;">Approved Activities</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #FF9800;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#FF9800;">${pending.length}</div>
+                    <div style="font-size:0.8rem;color:#666;">Pending Review</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #2196F3;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#2196F3;">${myLogs.length}</div>
+                    <div style="font-size:0.8rem;color:#666;">Total Submissions</div>
+                </div>
+            </div>
+
+            <!-- Submit Form -->
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
+                <h3 style="margin:0 0 0.25rem;">Log Community Service Activity</h3>
+                <p style="color:#666;font-size:0.85rem;margin:0 0 1rem;">Submit for admin verification. Approved hours count toward your record.</p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;">
+                    <div>
+                        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:0.3rem;">Activity Type</label>
+                        <select id="cs-type" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                            ${TYPES.map(t => `<option value="${t.value}">${t.label}</option>`).join('')}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:0.3rem;">Organization / Location *</label>
+                        <input id="cs-org" type="text" placeholder="e.g. King Fahad Hospital, Riyadh" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:0.3rem;">Date *</label>
+                        <input id="cs-date" type="date" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:0.3rem;">Hours *</label>
+                        <input id="cs-hours" type="number" min="0.5" step="0.5" placeholder="e.g. 4" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:0.82rem;font-weight:600;display:block;margin-bottom:0.3rem;">Description (optional)</label>
+                        <textarea id="cs-desc" rows="2" placeholder="Briefly describe what you did..." style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+                    </div>
+                    <div style="grid-column:1/-1;">
+                        <button onclick="window._csSubmit()" style="background:#1B5E20;color:white;padding:0.7rem 2rem;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.95rem;">Submit for Approval</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Submissions -->
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <h3 style="margin:0 0 1rem;">My Submissions</h3>
+                ${myLogs.length === 0
+                    ? '<p style="color:#999;text-align:center;padding:2rem 0;">No submissions yet. Log your first activity above!</p>'
+                    : `<div style="overflow-x:auto;">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                            <thead><tr style="border-bottom:2px solid #e0e0e0;background:#fafafa;">
+                                <th style="text-align:left;padding:0.7rem 0.9rem;color:#555;">Activity</th>
+                                <th style="text-align:left;padding:0.7rem 0.6rem;color:#555;">Organization</th>
+                                <th style="text-align:center;padding:0.7rem 0.6rem;color:#555;">Date</th>
+                                <th style="text-align:center;padding:0.7rem 0.6rem;color:#555;">Hours</th>
+                                <th style="text-align:center;padding:0.7rem 0.6rem;color:#555;">Status</th>
+                                <th style="text-align:left;padding:0.7rem 0.6rem;color:#555;">Notes</th>
+                            </tr></thead>
+                            <tbody>
+                                ${myLogs.map(l => `
+                                    <tr style="border-bottom:1px solid #f0f0f0;">
+                                        <td style="padding:0.7rem 0.9rem;">${TYPES.find(t=>t.value===l.activity_type)?.label || l.activity_type || '—'}</td>
+                                        <td style="padding:0.7rem 0.6rem;color:#555;">${l.organization||'—'}</td>
+                                        <td style="padding:0.7rem 0.6rem;text-align:center;color:#666;">${l.activity_date||'—'}</td>
+                                        <td style="padding:0.7rem 0.6rem;text-align:center;font-weight:600;color:#1B5E20;">${l.hours||0}</td>
+                                        <td style="padding:0.7rem 0.6rem;text-align:center;">${statusBadge(l.status)}</td>
+                                        <td style="padding:0.7rem 0.6rem;font-size:0.8rem;color:#888;">${l.admin_notes||'—'}</td>
+                                    </tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>`}
+            </div>
+        </div>`;
+    },
+
+    showMentorship: () => {
+        const pageTitle = document.getElementById('page-title');
+        if (pageTitle) pageTitle.textContent = 'Find a Mentor';
+        StudentPortal._renderMentorshipTab();
+    },
+
+    _renderMentorshipTab: async () => {
+        const root = document.getElementById('app-root');
+        if (!root) return;
+        const studentId   = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser)     ? AuthSystem.currentUser     : null;
+        const studentName = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUserName) ? AuthSystem.currentUserName : (studentId || 'Student');
+        if (!studentId) { root.innerHTML = '<div style="padding:2rem;"><p>Please log in.</p></div>'; return; }
+        root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;">Loading mentors...</div>';
+
+        const sb = window.SupabaseAuth?.supabase;
+        let mentors = [], myRequests = [];
+        if (sb) {
+            const [mR, rqR] = await Promise.all([
+                sb.from('alumni_profiles').select('id,name,specialty,job_title,current_employer,graduation_year,program,engagement').eq('mentor_willing', true).order('graduation_year', {ascending:false}),
+                sb.from('alumni_mentorship_pairs').select('*').eq('mentee_student_id', studentId).order('created_at', {ascending:false}),
+            ]);
+            mentors    = mR.data  || [];
+            myRequests = rqR.data || [];
+        }
+
+        const safeName = studentName.replace(/'/g, "\\'");
+        const requestedIds = new Set(myRequests.map(r => r.mentor_alumni_id));
+
+        window._requestMentorship = async (mentorId, mentorName, mentorSpecialty) => {
+            const sbInner = window.SupabaseAuth?.supabase;
+            if (!sbInner) { alert('Not connected.'); return; }
+            const { error } = await sbInner.from('alumni_mentorship_pairs').insert({
+                mentor_alumni_id: mentorId,
+                mentor_name:      mentorName,
+                mentor_specialty: mentorSpecialty,
+                mentee_student_id: studentId,
+                mentee_name:       studentName,
+                status:            'pending',
+                start_date:        new Date().toISOString().slice(0,10),
+            });
+            if (error) { alert('Error: ' + error.message); return; }
+            window._alumniCache = null;
+            StudentPortal._renderMentorshipTab();
+        };
+
+        const specColors = {
+            'Oncology':'#E91E63','Critical Care':'#f44336','Pediatrics':'#2196F3',
+            'Administration':'#9C27B0','Industry':'#FF9800','Research':'#00BCD4',
+            'Cardiology':'#e53935','Transplant':'#43a047','Community':'#fb8c00',
+        };
+        const specColor = s => specColors[s] || '#607D8B';
+
+        const activePairs = myRequests.filter(r => r.status === 'active');
+        const pendingReqs = myRequests.filter(r => r.status === 'pending');
+
+        root.innerHTML = `
+        <div class="fade-in-up" style="padding:1.5rem;">
+            <!-- KPIs -->
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;">
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #1B5E20;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#1B5E20;">${mentors.length}</div>
+                    <div style="font-size:0.8rem;color:#666;">Available Mentors</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #2196F3;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#2196F3;">${activePairs.length}</div>
+                    <div style="font-size:0.8rem;color:#666;">Active Mentorships</div>
+                </div>
+                <div style="background:white;border-radius:12px;padding:1.25rem;text-align:center;border-left:4px solid #FF9800;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                    <div style="font-size:1.8rem;font-weight:700;color:#FF9800;">${pendingReqs.length}</div>
+                    <div style="font-size:0.8rem;color:#666;">Pending Requests</div>
+                </div>
+            </div>
+
+            ${activePairs.length ? `
+            <!-- Active Mentorships -->
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
+                <h3 style="margin:0 0 1rem;color:#1B5E20;">Your Active Mentorships</h3>
+                ${activePairs.map(p => `
+                    <div style="padding:1rem;background:#e8f5e9;border-radius:10px;border-left:4px solid #1B5E20;margin-bottom:0.75rem;">
+                        <div style="font-weight:700;">${p.mentor_name}</div>
+                        <div style="font-size:0.82rem;color:#555;margin-top:0.2rem;">${p.mentor_specialty||'—'} · Started ${p.start_date||''}</div>
+                    </div>`).join('')}
+            </div>` : ''}
+
+            <!-- Browse Mentors -->
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+                <h3 style="margin:0 0 1rem;">Browse Alumni Mentors</h3>
+                ${mentors.length === 0
+                    ? '<p style="color:#999;text-align:center;padding:2rem;">No mentors available at the moment.</p>'
+                    : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;">
+                        ${mentors.map(m => {
+                            const sc = specColor(m.specialty);
+                            const alreadyRequested = requestedIds.has(m.id);
+                            return `<div style="border:1px solid #e0e0e0;border-radius:12px;padding:1.25rem;border-top:4px solid ${sc};">
+                                <div style="font-weight:700;font-size:0.95rem;margin-bottom:0.25rem;">${m.name}</div>
+                                <div style="font-size:0.8rem;color:#666;margin-bottom:0.75rem;">
+                                    ${m.job_title||''} ${m.current_employer ? '· '+m.current_employer : ''}<br>
+                                    Class of ${m.graduation_year||'—'}
+                                </div>
+                                <div style="margin-bottom:0.75rem;">
+                                    <span style="background:${sc}20;color:${sc};padding:0.2rem 0.6rem;border-radius:6px;font-size:0.78rem;font-weight:600;">${m.specialty||'General'}</span>
+                                </div>
+                                ${alreadyRequested
+                                    ? `<button disabled style="width:100%;padding:0.55rem;border:none;border-radius:6px;background:#f0f0f0;color:#999;font-size:0.85rem;cursor:default;">Request Sent</button>`
+                                    : `<button onclick="window._requestMentorship('${m.id}','${(m.name||'').replace(/'/g,"\\'")}','${(m.specialty||'').replace(/'/g,"\\'")}'); this.disabled=true; this.textContent='Sending...';"
+                                         style="width:100%;padding:0.55rem;background:#1B5E20;color:white;border:none;border-radius:6px;cursor:pointer;font-size:0.85rem;font-weight:600;">Request Mentorship</button>`}
+                            </div>`;
+                        }).join('')}
+                    </div>`}
+            </div>
+        </div>`;
+    },
+
     showResearch: () => {
         const pageTitle = document.getElementById('page-title');
         if (pageTitle) pageTitle.textContent = 'My Research';

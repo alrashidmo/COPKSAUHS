@@ -3,14 +3,14 @@
 -- Run this BEFORE deploying the frontend changes
 -- ===================================
 
--- 1. Clear all tickets from database (if tickets table exists)
+-- 1. Clear all tickets from database (submitted_tickets table)
 DO $$
 BEGIN
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tickets') THEN
-        DELETE FROM tickets;
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'submitted_tickets') THEN
+        DELETE FROM submitted_tickets;
         RAISE NOTICE '✅ All tickets cleared from database';
     ELSE
-        RAISE NOTICE 'ℹ️ No tickets table found - skipping';
+        RAISE NOTICE 'ℹ️ No submitted_tickets table found - skipping';
     END IF;
 END $$;
 
@@ -24,10 +24,24 @@ WHERE approved_date IS NULL
 SELECT '✅ Demo students removed' AS status;
 
 -- 3. Show current counts
-SELECT
-    'Database Summary' as info,
-    (SELECT COUNT(*) FROM tickets) as total_tickets,
-    (SELECT COUNT(*) FROM students) as total_students,
-    (SELECT COUNT(*) FROM pending_signups WHERE status = 'pending') as pending_signups;
+DO $$
+DECLARE
+    ticket_count INTEGER := 0;
+    student_count INTEGER;
+    pending_count INTEGER;
+BEGIN
+    -- Check if submitted_tickets table exists before counting
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'submitted_tickets') THEN
+        SELECT COUNT(*) INTO ticket_count FROM submitted_tickets;
+    END IF;
+
+    SELECT COUNT(*) INTO student_count FROM students;
+    SELECT COUNT(*) INTO pending_count FROM pending_signups WHERE status = 'pending';
+
+    RAISE NOTICE 'Database Summary:';
+    RAISE NOTICE '  Submitted Tickets: %', ticket_count;
+    RAISE NOTICE '  Total Students: %', student_count;
+    RAISE NOTICE '  Pending Signups: %', pending_count;
+END $$;
 
 SELECT '🎯 Database cleared - ready for production!' AS status;
