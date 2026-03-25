@@ -16869,9 +16869,9 @@ App.prototype._loadAlumniData = async function(force) {
             sb.from('alumni_engagement_log').select('*').order('activity_date', {ascending:false}),
             sb.from('alumni_mentorship_pairs').select('*').order('created_at', {ascending:false}),
         ]);
-        if (aR.data?.length)  alumni          = aR.data;
-        if (evR.data?.length) events          = evR.data;
-        if (acR.data?.length) achievements    = acR.data;
+        if (aR.data)  alumni          = aR.data;
+        if (evR.data) events          = evR.data;
+        if (acR.data) achievements    = acR.data;
         engagementLog   = enR.data || [];
         mentorshipPairs = mpR.data || [];
     }
