@@ -2946,24 +2946,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             overview: {}
         };
 
-        // Sample requests array (including both community service and event-participation)
-        const requests = [
-            { id: 'CS001', title: 'Diabetes Awareness Campaign', type: 'Health awareness', status: 'submitted', date: '2026-01-15', year: '2026', students: 5, hours: 20, location: 'Community Center', responsible: 'Pending Review' },
-            { id: 'CS002', title: 'Blood Pressure Screening', type: 'Screening campaign', status: 'approved', date: '2026-02-01', year: '2026', students: 12, hours: 30, location: 'Mall', responsible: 'Dr. Fatima' },
-            { id: 'CS003', title: 'School Health Visit', type: 'School visit', status: 'scheduled', date: '2026-02-15', year: '2026', students: 8, hours: 16, location: 'Al-Noor School', responsible: 'Dr. Ahmed' },
-            { id: 'CS004', title: 'Medication Safety Workshop', type: 'Health awareness', status: 'completed', date: '2026-01-10', year: '2026', students: 15, hours: 25, location: 'University Hall', responsible: 'Dr. Lama' },
-            { id: 'CS005', title: 'Vaccination Drive', type: 'Screening campaign', status: 'approved', date: '2026-02-20', year: '2026', students: 20, hours: 40, location: 'Health Center', responsible: 'Dr. Omar' },
-            { id: 'CS006', title: 'NGO Collaboration - UNHCR', type: 'NGO collaboration', status: 'under-review', date: '2026-02-10', year: '2026', students: 10, hours: 35, location: 'UNHCR Office', responsible: 'Under Review' },
-            { id: 'EV001', title: 'Saudi Pharmaceutical Society Annual Conference', type: 'Event/Conference', status: 'submitted', date: '2026-01-20', year: '2026', students: 3, hours: 16, location: 'Riyadh Convention Center', responsible: 'Pending Review' },
-            { id: 'EV002', title: 'International Pharmacy Expo 2026', type: 'Event/Conference', status: 'approved', date: '2026-02-05', year: '2026', students: 5, hours: 24, location: 'Dubai Convention Center', responsible: 'Dr. Mohammed' },
-            { id: 'EV003', title: 'Clinical Pharmacy Workshop Series', type: 'Event/Conference', status: 'approved', date: '2026-02-28', year: '2026', students: 7, hours: 18, location: 'KSAU-HS Campus', responsible: 'Dr. Aisha' },
-            { id: 'CS007', title: 'Mental Health Awareness 2025', type: 'Health awareness', status: 'completed', date: '2025-11-20', year: '2025', students: 18, hours: 28, location: 'University Hall', responsible: 'Dr. Lama' },
-            { id: 'CS008', title: 'Nutrition Campaign 2025', type: 'Screening campaign', status: 'completed', date: '2025-10-15', year: '2025', students: 14, hours: 32, location: 'Community Center', responsible: 'Dr. Fatima' },
-            { id: 'EV004', title: 'Gulf Health Conference 2025', type: 'Event/Conference', status: 'completed', date: '2025-09-12', year: '2025', students: 4, hours: 20, location: 'Kuwait Convention Center', responsible: 'Dr. Hamad' },
-            { id: 'CS009', title: 'Health Fair 2024', type: 'Screening campaign', status: 'completed', date: '2024-09-10', year: '2024', students: 20, hours: 42, location: 'Mall', responsible: 'Dr. Ahmed' },
-            { id: 'CS010', title: 'School Visit 2024', type: 'School visit', status: 'completed', date: '2024-08-25', year: '2024', students: 8, hours: 16, location: 'Al-Noor School', responsible: 'Dr. Lama' },
-            { id: 'EV005', title: 'ACPE Annual Meeting 2024', type: 'Event/Conference', status: 'completed', date: '2024-06-22', year: '2024', students: 2, hours: 12, location: 'Chicago', responsible: 'Dr. Sara' }
-        ];
+        // Real requests come from Supabase (community_service_log) via _loadCSSubmissions
+        const requests = [];
 
         // Calculate yearlyOverview dynamically based on requests (including event-participation)
         const years = ['2024', '2025', '2026'];
