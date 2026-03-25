@@ -3929,6 +3929,12 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             case 'student-home':
                 StudentPortal.renderHome();
                 break;
+            case 'student-community-service':
+                StudentPortal.showCommunityService();
+                break;
+            case 'student-mentorship':
+                StudentPortal.showMentorship();
+                break;
             case 'student-evaluations':
                 this.renderComingSoon('My Evaluations');
                 break;
