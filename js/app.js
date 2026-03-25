@@ -17276,7 +17276,12 @@ App.prototype.renderResearchProjects = async function() {
     window._researchProjDelete = async (id) => {
         if (!confirm('Delete this project?')) return;
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) return;
+        if (!sb) { alert('Not connected to database.'); return; }
+        // Integer IDs mean demo/hardcoded data — not deletable from Supabase
+        if (!isNaN(Number(id))) {
+            alert('This is demo data. Run the research_projects SQL migration in Supabase first, then add your own projects.');
+            return;
+        }
         const { error } = await sb.from('research_projects').delete().eq('id', id);
         if (error) { alert('Error: ' + error.message); return; }
         window._researchCache = null;
