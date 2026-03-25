@@ -17570,14 +17570,11 @@ App.prototype.renderResearchStudents = async function() {
     this.title.textContent = 'Student Research';
     this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
     const data = await this._loadResearchData();
-    const { students, studentLogs } = data;
+    const { studentLogs } = data;
 
-    const totalStudents = students.length;
-    const studentsWithPubs = students.filter(s => s.publications > 0).length;
-    const involvementPct = totalStudents ? Math.round(studentsWithPubs / totalStudents * 100) : 0;
-    const totalPresentations = students.reduce((s, st) => s + (st.presentations||0), 0);
-    const totalPubs = students.reduce((s, st) => s + (st.publications||0), 0);
     const pendingLogs = studentLogs.filter(l => l.status === 'pending').length;
+    const verifiedLogs = studentLogs.filter(l => l.status === 'verified').length;
+    const totalLogs = studentLogs.length;
 
     window._researchVerifyLog = async (id) => {
         const sb = window.SupabaseAuth?.supabase;
@@ -17592,30 +17589,16 @@ App.prototype.renderResearchStudents = async function() {
         <div class="fade-in-up">
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
                 <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #009688;text-align:center;">
-                    <div style="font-size:2.5rem;font-weight:700;color:#009688;">${involvementPct}%</div>
-                    <div style="font-size:0.85rem;color:#666;">Student Involvement Rate</div>
-                </div>
-                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #2196F3;text-align:center;">
-                    <div style="font-size:2.5rem;font-weight:700;color:#2196F3;">${totalPresentations}</div>
-                    <div style="font-size:0.85rem;color:#666;">Presentations</div>
+                    <div style="font-size:2.5rem;font-weight:700;color:#009688;">${totalLogs}</div>
+                    <div style="font-size:0.85rem;color:#666;">Total Submissions</div>
                 </div>
                 <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #1B5E20;text-align:center;">
-                    <div style="font-size:2.5rem;font-weight:700;color:#1B5E20;">${totalPubs}</div>
-                    <div style="font-size:0.85rem;color:#666;">Publications</div>
+                    <div style="font-size:2.5rem;font-weight:700;color:#1B5E20;">${verifiedLogs}</div>
+                    <div style="font-size:0.85rem;color:#666;">Verified</div>
                 </div>
-            </div>
-
-            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
-                <h3 style="margin-top:0;color:#333;">Active Student Researchers</h3>
-                <div style="display:grid;gap:0.75rem;">
-                    ${students.map(s => `
-                        <div style="padding:1rem;background:#f9f9f9;border-radius:10px;border-left:3px solid #009688;display:flex;justify-content:space-between;align-items:center;">
-                            <div>
-                                <strong style="color:#333;">${s.name}</strong>
-                                <small style="display:block;color:#666;margin-top:0.2rem;">${s.publications} pub(s) | ${s.presentations} presentation(s) | ${s.projects} project(s)</small>
-                            </div>
-                            <span style="background:${s.status==='Active'?'#e8f5e9':'#f5f5f5'};color:${s.status==='Active'?'#1B5E20':'#666'};padding:0.3rem 0.75rem;border-radius:6px;font-size:0.82rem;font-weight:600;">${s.status}</span>
-                        </div>`).join('')}
+                <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);border-left:4px solid #FF9800;text-align:center;">
+                    <div style="font-size:2.5rem;font-weight:700;color:#FF9800;">${pendingLogs}</div>
+                    <div style="font-size:0.85rem;color:#666;">Pending Review</div>
                 </div>
             </div>
 
