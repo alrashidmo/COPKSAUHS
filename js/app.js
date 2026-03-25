@@ -16909,8 +16909,8 @@ App.prototype._loadResearchData = async function(force) {
         if (prR.data) projects = prR.data;
         if (iR.data?.length) irb = iR.data;
         grants = gR.data || [];
-        if (cR.data?.length) collaborations = cR.data;
-        if (rR.data?.length) recognition = rR.data;
+        if (cR.data) collaborations = cR.data;
+        if (rR.data) recognition = rR.data;
         studentLogs = slR.data || [];
         scholarSync = ssR.data || [];
     }
