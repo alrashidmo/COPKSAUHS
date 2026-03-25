@@ -17872,27 +17872,134 @@ App.prototype.renderResearchAnalytics = async function() {
     `;
 };
 
-App.prototype.renderResearchDocuments = function() {
+App.prototype.renderResearchDocuments = async function() {
     this.title.textContent = 'Documents & Templates';
-    const db = RESEARCH_DATABASE;
+    this.root.innerHTML = '<div class="card"><p>Loading...</p></div>';
 
-    const typeIcons  = { 'Template':'Template','Form':'Form','Guideline':'Guide' };
-    const typeColors = { 'Template':'#2196F3','Form':'#FF9800','Guideline':'#1B5E20' };
+    const sb = window.SupabaseAuth?.supabase;
+
+    // Load file list from research_documents table
+    let docs = [];
+    if (sb) {
+        const { data } = await sb.from('research_documents')
+            .select('*').order('uploaded_at', { ascending: false });
+        docs = data || [];
+    }
+
+    const catColors = { 'Template':'#2196F3', 'Form':'#FF9800', 'Guideline':'#1B5E20', 'Report':'#9C27B0', 'Other':'#607D8B' };
+    const catColor = c => catColors[c] || '#607D8B';
+    const fmt = s => s ? new Date(s).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+    const fmtSize = b => b > 1048576 ? (b/1048576).toFixed(1)+' MB' : b > 1024 ? (b/1024).toFixed(0)+' KB' : b+' B';
+
+    window._researchDocUpload = async () => {
+        const nameEl  = document.getElementById('rdoc-name');
+        const catEl   = document.getElementById('rdoc-cat');
+        const fileEl  = document.getElementById('rdoc-file');
+        const statusEl = document.getElementById('rdoc-status');
+
+        const name = nameEl?.value?.trim();
+        const cat  = catEl?.value;
+        const file = fileEl?.files?.[0];
+
+        if (!name) { statusEl.textContent = 'Please enter a document name.'; statusEl.style.color='#c62828'; return; }
+        if (!file) { statusEl.textContent = 'Please select a file.'; statusEl.style.color='#c62828'; return; }
+        if (!sb)   { statusEl.textContent = 'Not connected to database.'; statusEl.style.color='#c62828'; return; }
+
+        statusEl.textContent = 'Uploading...'; statusEl.style.color='#555';
+
+        // Upload file to Supabase Storage bucket 'research-docs'
+        const filePath = `${Date.now()}_${file.name.replace(/\s+/g,'_')}`;
+        const { data: storageData, error: storageError } = await sb.storage
+            .from('research-docs')
+            .upload(filePath, file, { upsert: false });
+
+        if (storageError) { statusEl.textContent = 'Upload error: ' + storageError.message; statusEl.style.color='#c62828'; return; }
+
+        // Get public URL
+        const { data: urlData } = sb.storage.from('research-docs').getPublicUrl(filePath);
+        const publicUrl = urlData?.publicUrl || '';
+
+        // Save metadata to research_documents table
+        const { error: dbError } = await sb.from('research_documents').insert({
+            name,
+            category: cat,
+            file_path: filePath,
+            file_url: publicUrl,
+            file_size: file.size,
+            file_type: file.type,
+            uploaded_by: (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) || 'admin',
+        });
+
+        if (dbError) { statusEl.textContent = 'DB error: ' + dbError.message; statusEl.style.color='#c62828'; return; }
+
+        statusEl.textContent = 'Uploaded successfully!'; statusEl.style.color='#166534';
+        nameEl.value = ''; fileEl.value = '';
+        setTimeout(() => app.renderResearchDocuments(), 1000);
+    };
+
+    window._researchDocDelete = async (id, filePath) => {
+        if (!confirm('Delete this document?')) return;
+        if (sb) {
+            await sb.storage.from('research-docs').remove([filePath]);
+            await sb.from('research_documents').delete().eq('id', id);
+        }
+        app.renderResearchDocuments();
+    };
 
     this.root.innerHTML = `
         <div class="fade-in-up">
-            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                <h3 style="margin-top:0;color:#333;">Research Documents & Templates</h3>
-                <div style="display:grid;gap:0.75rem;">
-                    ${(db.documents||[]).map(doc => `
-                        <div style="padding:1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${typeColors[doc.type]||'#666'};display:flex;justify-content:space-between;align-items:center;">
-                            <div>
-                                <strong style="color:#333;">${doc.name}</strong>
-                                <small style="display:block;color:#666;margin-top:0.2rem;">Last updated: ${doc.updated}</small>
-                            </div>
-                            <button style="background:${typeColors[doc.type]||'#666'};color:white;padding:0.5rem 1rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Download</button>
-                        </div>`).join('')}
+            <!-- Upload Panel -->
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+                <h3 style="margin-top:0;color:#333;">Upload Document</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="grid-column:1/-1;">
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.3rem;">Document Name *</label>
+                        <input id="rdoc-name" type="text" placeholder="e.g. IRB Application Form 2025" style="width:100%;padding:0.65rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.3rem;">Category</label>
+                        <select id="rdoc-cat" style="width:100%;padding:0.65rem;border:1px solid #ddd;border-radius:6px;">
+                            <option>Template</option>
+                            <option>Form</option>
+                            <option>Guideline</option>
+                            <option>Report</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem;font-weight:600;display:block;margin-bottom:0.3rem;">File *</label>
+                        <input id="rdoc-file" type="file" style="width:100%;padding:0.5rem;border:1px solid #ddd;border-radius:6px;box-sizing:border-box;">
+                    </div>
+                    <div style="grid-column:1/-1;display:flex;align-items:center;gap:1rem;">
+                        <button onclick="window._researchDocUpload()" style="background:#1B5E20;color:white;padding:0.7rem 2rem;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Upload</button>
+                        <span id="rdoc-status" style="font-size:0.85rem;"></span>
+                    </div>
                 </div>
+            </div>
+
+            <!-- File List -->
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                <h3 style="margin-top:0;color:#333;">Documents (${docs.length})</h3>
+                ${docs.length === 0
+                    ? '<p style="color:#999;text-align:center;padding:2rem 0;">No documents uploaded yet.</p>'
+                    : `<div style="display:grid;gap:0.75rem;">
+                        ${docs.map(doc => `
+                            <div style="padding:1.1rem 1.25rem;background:#f9f9f9;border-radius:10px;border-left:4px solid ${catColor(doc.category)};display:flex;justify-content:space-between;align-items:center;gap:1rem;">
+                                <div style="min-width:0;">
+                                    <strong style="color:#333;font-size:0.95rem;">${doc.name}</strong>
+                                    <div style="margin-top:0.25rem;display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;">
+                                        <span style="background:${catColor(doc.category)}20;color:${catColor(doc.category)};padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">${doc.category||'Other'}</span>
+                                        <small style="color:#888;">${doc.file_size ? fmtSize(doc.file_size) : ''}</small>
+                                        <small style="color:#aaa;">${fmt(doc.uploaded_at)}</small>
+                                        <small style="color:#aaa;">by ${doc.uploaded_by||'admin'}</small>
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:0.5rem;flex-shrink:0;">
+                                    ${doc.file_url ? `<a href="${doc.file_url}" target="_blank" style="background:#1B5E20;color:white;padding:0.4rem 0.9rem;border-radius:6px;text-decoration:none;font-size:0.85rem;font-weight:600;">Download</a>` : ''}
+                                    <button onclick="window._researchDocDelete('${doc.id}','${doc.file_path}')" style="background:#ffebee;color:#f44336;border:none;padding:0.4rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.85rem;">Delete</button>
+                                </div>
+                            </div>`).join('')}
+                    </div>`}
             </div>
         </div>
     `;
