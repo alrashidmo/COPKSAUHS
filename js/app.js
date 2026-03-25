@@ -16906,7 +16906,7 @@ App.prototype._loadResearchData = async function(force) {
             sb.from('faculty_scholar_sync').select('*').order('synced_at',{ascending:false}),
         ]);
         if (pR.data?.length) publications = pR.data;
-        if (prR.data?.length) projects = prR.data;
+        if (prR.data) projects = prR.data;
         if (iR.data?.length) irb = iR.data;
         grants = gR.data || [];
         if (cR.data?.length) collaborations = cR.data;
