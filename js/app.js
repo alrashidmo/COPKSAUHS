@@ -3260,22 +3260,22 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <div class="card" id="community-impact-section">
                     <h3>🌍 Community Impact</h3>
-                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:1rem;">
-                        <div style="background:#E3F2FD; padding:1rem; border-radius:6px;">
-                            <div style="font-size:1.8rem; font-weight:bold; color:#1976D2;">850+</div>
-                            <div style="color:#666; margin-top:0.5rem;">Beneficiaries</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1rem;">
+                        <div style="background:#E3F2FD;padding:1rem;border-radius:6px;">
+                            <div style="font-size:1.8rem;font-weight:bold;color:#1976D2;">—</div>
+                            <div style="color:#666;margin-top:0.5rem;">Students Participated</div>
                         </div>
-                        <div style="background:#E8F5E9; padding:1rem; border-radius:6px;">
-                            <div style="font-size:1.8rem; font-weight:bold; color:#388E3C;">12</div>
-                            <div style="color:#666; margin-top:0.5rem;">Regions Covered</div>
+                        <div style="background:#E8F5E9;padding:1rem;border-radius:6px;">
+                            <div style="font-size:1.8rem;font-weight:bold;color:#388E3C;">—</div>
+                            <div style="color:#666;margin-top:0.5rem;">Organizations Reached</div>
                         </div>
-                        <div style="background:#FFF3E0; padding:1rem; border-radius:6px;">
-                            <div style="font-size:1.8rem; font-weight:bold; color:#F57C00;">6</div>
-                            <div style="color:#666; margin-top:0.5rem;">Service Types</div>
+                        <div style="background:#FFF3E0;padding:1rem;border-radius:6px;">
+                            <div style="font-size:1.8rem;font-weight:bold;color:#F57C00;">—</div>
+                            <div style="color:#666;margin-top:0.5rem;">Service Types</div>
                         </div>
-                        <div style="background:#FCE4EC; padding:1rem; border-radius:6px;">
-                            <div style="font-size:1.8rem; font-weight:bold; color:#C2185B;">28</div>
-                            <div style="color:#666; margin-top:0.5rem;">Activities Completed</div>
+                        <div style="background:#FCE4EC;padding:1rem;border-radius:6px;">
+                            <div style="font-size:1.8rem;font-weight:bold;color:#C2185B;">—</div>
+                            <div style="color:#666;margin-top:0.5rem;">Total Approved Hours</div>
                         </div>
                     </div>
                 </div>
@@ -3407,6 +3407,37 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         const { data, error } = await sb.from('community_service_log')
             .select('*').order('created_at', { ascending: false }).limit(50);
         if (error) { panel.innerHTML = `<p style="color:#c62828;font-size:0.82rem;">Error: ${error.message}</p>`; return; }
+
+        // Update Community Impact section from approved/completed entries
+        const approved = (data || []).filter(r => r.status === 'approved' || r.status === 'completed');
+        const impactEl = document.getElementById('community-impact-section');
+        if (impactEl) {
+            const uniqueStudents = new Set(approved.map(r => r.student_id)).size;
+            const uniqueOrgs     = new Set(approved.map(r => r.organization).filter(Boolean)).size;
+            const uniqueTypes    = new Set(approved.map(r => r.activity_type).filter(Boolean)).size;
+            const totalHours     = approved.reduce((s, r) => s + (parseFloat(r.hours) || 0), 0);
+            impactEl.innerHTML = `
+                <h3>🌍 Community Impact</h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1rem;">
+                    <div style="background:#E3F2FD;padding:1rem;border-radius:6px;">
+                        <div style="font-size:1.8rem;font-weight:bold;color:#1976D2;">${uniqueStudents}</div>
+                        <div style="color:#666;margin-top:0.5rem;">Students Participated</div>
+                    </div>
+                    <div style="background:#E8F5E9;padding:1rem;border-radius:6px;">
+                        <div style="font-size:1.8rem;font-weight:bold;color:#388E3C;">${uniqueOrgs}</div>
+                        <div style="color:#666;margin-top:0.5rem;">Organizations Reached</div>
+                    </div>
+                    <div style="background:#FFF3E0;padding:1rem;border-radius:6px;">
+                        <div style="font-size:1.8rem;font-weight:bold;color:#F57C00;">${uniqueTypes}</div>
+                        <div style="color:#666;margin-top:0.5rem;">Service Types</div>
+                    </div>
+                    <div style="background:#FCE4EC;padding:1rem;border-radius:6px;">
+                        <div style="font-size:1.8rem;font-weight:bold;color:#C2185B;">${totalHours}h</div>
+                        <div style="color:#666;margin-top:0.5rem;">Total Approved Hours</div>
+                    </div>
+                </div>`;
+        }
+
         if (!data || data.length === 0) { panel.innerHTML = '<p style="color:#888;font-size:0.82rem;">No student submissions yet.</p>'; return; }
 
         const pending  = data.filter(r => r.status === 'pending');
