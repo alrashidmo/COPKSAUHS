@@ -17149,12 +17149,17 @@ App.prototype.renderResearchPublications = async function() {
         app.renderResearchPublications();
     };
 
-    window._researchPubDelete = async (id) => {
-        if (!confirm('Delete this publication?')) return;
+    window._researchPubDelete = async (id, btn) => {
+        if (btn.dataset.confirm !== '1') {
+            btn.dataset.confirm = '1'; btn.textContent = 'Sure?'; btn.style.background = '#f44336'; btn.style.color = 'white';
+            setTimeout(() => { if (btn.dataset.confirm) { btn.dataset.confirm = ''; btn.textContent = 'Delete'; btn.style.background = '#ffebee'; btn.style.color = '#f44336'; } }, 3000);
+            return;
+        }
+        btn.textContent = 'Deleting...'; btn.disabled = true;
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) { alert('Not connected.'); return; }
+        if (!sb) { btn.textContent = 'No DB'; return; }
         const { error } = await sb.from('research_publications').delete().eq('id', id);
-        if (error) { alert('Error: ' + error.message); return; }
+        if (error) { btn.textContent = error.message; btn.style.fontSize = '0.7rem'; return; }
         window._researchCache = null;
         app.renderResearchPublications();
     };
@@ -17232,7 +17237,7 @@ App.prototype.renderResearchPublications = async function() {
                                     <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
                                         <span style="background:${tb};color:${tc};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:700;">${pub.quartile||''}</span>
                                         <span style="background:#f0f0f0;color:${typeColor};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${pub.type||''}</span>
-                                        <button onclick="window._researchPubDelete('${pub.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                        <button onclick="window._researchPubDelete('${pub.id}',this)" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -17273,17 +17278,24 @@ App.prototype.renderResearchProjects = async function() {
         app.renderResearchProjects();
     };
 
-    window._researchProjDelete = async (id) => {
-        if (!confirm('Delete this project?')) return;
+    window._researchProjDelete = async (id, btn) => {
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) { alert('Not connected to database.'); return; }
-        // Integer IDs mean demo/hardcoded data — not deletable from Supabase
+        if (!sb) { btn.textContent = 'No DB'; btn.style.background = '#f44336'; btn.style.color = 'white'; return; }
         if (!isNaN(Number(id))) {
-            alert('This is demo data. Run the research_projects SQL migration in Supabase first, then add your own projects.');
+            btn.textContent = 'Demo data — not deletable'; btn.disabled = true; btn.style.background = '#f44336'; btn.style.color = 'white'; btn.style.width = 'auto';
             return;
         }
+        if (btn.dataset.confirm !== '1') {
+            btn.dataset.confirm = '1';
+            btn.textContent = 'Sure?';
+            btn.style.background = '#f44336';
+            btn.style.color = 'white';
+            setTimeout(() => { if (btn.dataset.confirm) { btn.dataset.confirm = ''; btn.textContent = 'Delete'; btn.style.background = '#ffebee'; btn.style.color = '#f44336'; } }, 3000);
+            return;
+        }
+        btn.textContent = 'Deleting...'; btn.disabled = true;
         const { error } = await sb.from('research_projects').delete().eq('id', id);
-        if (error) { alert('Error: ' + error.message); return; }
+        if (error) { btn.textContent = error.message; btn.style.fontSize = '0.7rem'; return; }
         window._researchCache = null;
         app.renderResearchProjects();
     };
@@ -17335,7 +17347,7 @@ App.prototype.renderResearchProjects = async function() {
                                     </div>
                                     <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
                                         <span style="background:${color};color:white;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${latestStage}</span>
-                                        <button onclick="window._researchProjDelete('${proj.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                        <button onclick="window._researchProjDelete('${proj.id}',this)" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                     </div>
                                 </div>
                                 <div style="background:#e0e0e0;height:6px;border-radius:3px;overflow:hidden;">
@@ -17466,12 +17478,17 @@ App.prototype.renderResearchGrants = async function() {
         app.renderResearchGrants();
     };
 
-    window._researchGrantDelete = async (id) => {
-        if (!confirm('Delete this grant?')) return;
+    window._researchGrantDelete = async (id, btn) => {
+        if (btn.dataset.confirm !== '1') {
+            btn.dataset.confirm = '1'; btn.textContent = 'Sure?'; btn.style.background = '#f44336'; btn.style.color = 'white';
+            setTimeout(() => { if (btn.dataset.confirm) { btn.dataset.confirm = ''; btn.textContent = 'Delete'; btn.style.background = '#ffebee'; btn.style.color = '#f44336'; } }, 3000);
+            return;
+        }
+        btn.textContent = 'Deleting...'; btn.disabled = true;
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) return;
+        if (!sb) { btn.textContent = 'No DB'; return; }
         const { error } = await sb.from('research_grants').delete().eq('id', id);
-        if (error) { alert('Error: ' + error.message); return; }
+        if (error) { btn.textContent = error.message; btn.style.fontSize = '0.7rem'; return; }
         window._researchCache = null;
         app.renderResearchGrants();
     };
@@ -17539,7 +17556,7 @@ App.prototype.renderResearchGrants = async function() {
                                     <td style="padding:0.75rem 0.5rem;text-align:right;">${(Number(g.amount_sar)||0).toLocaleString()}</td>
                                     <td style="padding:0.75rem 0.5rem;color:#666;">${g.submitted_date||''}</td>
                                     <td style="padding:0.75rem 0.5rem;"><span style="background:${statusBg[g.status]||'#f5f5f5'};color:${statusColor[g.status]||'#666'};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${g.status}</span></td>
-                                    <td style="padding:0.75rem 0.5rem;"><button onclick="window._researchGrantDelete('${g.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button></td>
+                                    <td style="padding:0.75rem 0.5rem;"><button onclick="window._researchGrantDelete('${g.id}',this)" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button></td>
                                 </tr>`).join('')}
                         </tbody>
                     </table>
@@ -17689,12 +17706,17 @@ App.prototype.renderResearchCollaboration = async function() {
         app.renderResearchCollaboration();
     };
 
-    window._researchCollabDelete = async (id) => {
-        if (!confirm('Delete this collaboration?')) return;
+    window._researchCollabDelete = async (id, btn) => {
+        if (btn.dataset.confirm !== '1') {
+            btn.dataset.confirm = '1'; btn.textContent = 'Sure?'; btn.style.background = '#f44336'; btn.style.color = 'white';
+            setTimeout(() => { if (btn.dataset.confirm) { btn.dataset.confirm = ''; btn.textContent = 'Delete'; btn.style.background = '#ffebee'; btn.style.color = '#f44336'; } }, 3000);
+            return;
+        }
+        btn.textContent = 'Deleting...'; btn.disabled = true;
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) return;
+        if (!sb) { btn.textContent = 'No DB'; return; }
         const { error } = await sb.from('research_collaborations').delete().eq('id', id);
-        if (error) { alert('Error: ' + error.message); return; }
+        if (error) { btn.textContent = error.message; btn.style.fontSize = '0.7rem'; return; }
         window._researchCache = null;
         app.renderResearchCollaboration();
     };
@@ -17725,7 +17747,7 @@ App.prototype.renderResearchCollaboration = async function() {
                             </div>
                             <div style="display:flex;gap:0.5rem;align-items:center;">
                                 <span style="background:white;color:${typeColors[c.type]||'#666'};border:2px solid ${typeColors[c.type]||'#ddd'};padding:0.3rem 0.75rem;border-radius:6px;font-weight:600;font-size:0.85rem;">${c.status}</span>
-                                <button onclick="window._researchCollabDelete('${c.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                <button onclick="window._researchCollabDelete('${c.id}',this)" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                             </div>
                         </div>`).join('')}
                 </div>
@@ -17759,12 +17781,17 @@ App.prototype.renderResearchRecognition = async function() {
         app.renderResearchRecognition();
     };
 
-    window._researchRecogDelete = async (id) => {
-        if (!confirm('Delete this recognition?')) return;
+    window._researchRecogDelete = async (id, btn) => {
+        if (btn.dataset.confirm !== '1') {
+            btn.dataset.confirm = '1'; btn.textContent = 'Sure?'; btn.style.background = '#f44336'; btn.style.color = 'white';
+            setTimeout(() => { if (btn.dataset.confirm) { btn.dataset.confirm = ''; btn.textContent = 'Delete'; btn.style.background = '#ffebee'; btn.style.color = '#f44336'; } }, 3000);
+            return;
+        }
+        btn.textContent = 'Deleting...'; btn.disabled = true;
         const sb = window.SupabaseAuth?.supabase;
-        if (!sb) return;
+        if (!sb) { btn.textContent = 'No DB'; return; }
         const { error } = await sb.from('research_recognition').delete().eq('id', id);
-        if (error) { alert('Error: ' + error.message); return; }
+        if (error) { btn.textContent = error.message; btn.style.fontSize = '0.7rem'; return; }
         window._researchCache = null;
         app.renderResearchRecognition();
     };
@@ -17798,7 +17825,7 @@ App.prototype.renderResearchRecognition = async function() {
                                 </div>
                                 <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
                                     <span style="background:${typeColors[item.type]||'#666'};color:white;padding:0.3rem 0.75rem;border-radius:6px;font-size:0.82rem;font-weight:600;">${item.type}</span>
-                                    <button onclick="window._researchRecogDelete('${item.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                    <button onclick="window._researchRecogDelete('${item.id}',this)" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                 </div>
                             </div>
                         </div>`).join('')}
