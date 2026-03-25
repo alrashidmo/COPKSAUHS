@@ -17232,7 +17232,7 @@ App.prototype.renderResearchPublications = async function() {
                                     <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
                                         <span style="background:${tb};color:${tc};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:700;">${pub.quartile||''}</span>
                                         <span style="background:#f0f0f0;color:${typeColor};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${pub.type||''}</span>
-                                        <button onclick="window._researchPubDelete(${pub.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                        <button onclick="window._researchPubDelete('${pub.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                     </div>
                                 </div>
                             </div>`;
@@ -17330,7 +17330,7 @@ App.prototype.renderResearchProjects = async function() {
                                     </div>
                                     <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
                                         <span style="background:${color};color:white;padding:0.4rem 0.8rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${latestStage}</span>
-                                        <button onclick="window._researchProjDelete(${proj.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                        <button onclick="window._researchProjDelete('${proj.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                     </div>
                                 </div>
                                 <div style="background:#e0e0e0;height:6px;border-radius:3px;overflow:hidden;">
@@ -17534,7 +17534,7 @@ App.prototype.renderResearchGrants = async function() {
                                     <td style="padding:0.75rem 0.5rem;text-align:right;">${(Number(g.amount_sar)||0).toLocaleString()}</td>
                                     <td style="padding:0.75rem 0.5rem;color:#666;">${g.submitted_date||''}</td>
                                     <td style="padding:0.75rem 0.5rem;"><span style="background:${statusBg[g.status]||'#f5f5f5'};color:${statusColor[g.status]||'#666'};padding:0.3rem 0.7rem;border-radius:6px;font-size:0.8rem;font-weight:600;">${g.status}</span></td>
-                                    <td style="padding:0.75rem 0.5rem;"><button onclick="window._researchGrantDelete(${g.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button></td>
+                                    <td style="padding:0.75rem 0.5rem;"><button onclick="window._researchGrantDelete('${g.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button></td>
                                 </tr>`).join('')}
                         </tbody>
                     </table>
@@ -17720,7 +17720,7 @@ App.prototype.renderResearchCollaboration = async function() {
                             </div>
                             <div style="display:flex;gap:0.5rem;align-items:center;">
                                 <span style="background:white;color:${typeColors[c.type]||'#666'};border:2px solid ${typeColors[c.type]||'#ddd'};padding:0.3rem 0.75rem;border-radius:6px;font-weight:600;font-size:0.85rem;">${c.status}</span>
-                                <button onclick="window._researchCollabDelete(${c.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                <button onclick="window._researchCollabDelete('${c.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                             </div>
                         </div>`).join('')}
                 </div>
@@ -17793,7 +17793,7 @@ App.prototype.renderResearchRecognition = async function() {
                                 </div>
                                 <div style="display:flex;flex-direction:column;gap:0.4rem;align-items:flex-end;">
                                     <span style="background:${typeColors[item.type]||'#666'};color:white;padding:0.3rem 0.75rem;border-radius:6px;font-size:0.82rem;font-weight:600;">${item.type}</span>
-                                    <button onclick="window._researchRecogDelete(${item.id})" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
+                                    <button onclick="window._researchRecogDelete('${item.id}')" style="background:#ffebee;color:#f44336;border:none;padding:0.3rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;">Delete</button>
                                 </div>
                             </div>
                         </div>`).join('')}
