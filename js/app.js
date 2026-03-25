@@ -3282,26 +3282,9 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                 <!-- Certificates & Recognition -->
                 <div class="card" id="community-certificates-section">
-                    <h3>🏆 Certificates & Recognition</h3>
-                    <div style="background:#f9f9f9; padding:1rem; border-radius:6px; border-left:4px solid #FFD700;">
-                        <div style="margin-bottom:1rem;">
-                            <strong>Available Certificates</strong>
-                            <ul style="margin:0.5rem 0; padding-left:1.5rem; color:#666;">
-                                ${certificates.map((c, idx) => `
-                                    <li style="display:flex; align-items:center; gap:0.5rem;">
-                                        <span>? ${c}</span>
-                                        ${editMode ? `<button class="delete-cert-btn" data-idx="${idx}" style="background:#f44336; color:white; border:none; padding:0.2rem 0.5rem; border-radius:3px; cursor:pointer; font-size:0.75rem;">Remove</button>` : ''}
-                                    </li>
-                                `).join('')}
-                            </ul>
-                            ${editMode ? `
-                                <div style="display:flex; gap:0.5rem; margin-top:0.5rem;">
-                                    <input id="newCertInput" type="text" placeholder="New certificate name" style="flex:1; padding:0.4rem; border:1px solid #ddd; border-radius:4px;">
-                                    <button id="addCertBtn" style="background:#4CAF50; color:white; border:none; padding:0.45rem 0.9rem; border-radius:4px; cursor:pointer; font-weight:600;">Add</button>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <button style="background:#FFD700; color:#333; border:none; padding:0.6rem 1rem; border-radius:4px; cursor:pointer; font-weight:bold;">📥 Download Certificates</button>
+                    <h3>🏅 Certificate Requests</h3>
+                    <div id="cs-cert-requests-panel">
+                        <p style="color:#aaa;font-size:0.85rem;">Loading requests...</p>
                     </div>
                 </div>
             </div>
@@ -3521,6 +3504,257 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
             if (e) { alert('Error: ' + e.message); return; }
             self._loadCSSubmissions(section);
         };
+
+        // Load certificate requests into the certificates panel
+        const certPanel = document.getElementById('cs-cert-requests-panel');
+        if (certPanel) {
+            const { data: certReqs } = await sb.from('certificate_requests')
+                .select('*').order('created_at', { ascending: false });
+            const reqs = certReqs || [];
+            if (reqs.length === 0) {
+                certPanel.innerHTML = '<p style="color:#888;font-size:0.85rem;">No certificate requests yet.</p>';
+            } else {
+                const statusBadge = s =>
+                    s === 'approved' ? `<span style="background:#dcfce7;color:#166534;padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">Approved</span>` :
+                    s === 'declined' ? `<span style="background:#fee2e2;color:#991b1b;padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">Declined</span>` :
+                    `<span style="background:#fef9c3;color:#854d0e;padding:0.15rem 0.5rem;border-radius:5px;font-size:0.75rem;font-weight:600;">Pending</span>`;
+                certPanel.innerHTML = `
+                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                        <thead><tr style="border-bottom:2px solid #e0e0e0;">
+                            <th style="text-align:left;padding:0.6rem;color:#666;">Student</th>
+                            <th style="text-align:left;padding:0.6rem;color:#666;">ID</th>
+                            <th style="text-align:center;padding:0.6rem;color:#666;">Hours</th>
+                            <th style="text-align:center;padding:0.6rem;color:#666;">Activities</th>
+                            <th style="text-align:center;padding:0.6rem;color:#666;">Status</th>
+                            <th style="padding:0.6rem;"></th>
+                        </tr></thead>
+                        <tbody>
+                            ${reqs.map(r => `
+                                <tr style="border-bottom:1px solid #f0f0f0;">
+                                    <td style="padding:0.6rem;font-weight:600;">${r.student_name||'—'}</td>
+                                    <td style="padding:0.6rem;color:#666;font-size:0.8rem;">${r.student_id||'—'}</td>
+                                    <td style="padding:0.6rem;text-align:center;font-weight:600;color:#1B5E20;">${r.total_hours||0}h</td>
+                                    <td style="padding:0.6rem;text-align:center;">${r.activities_count||0}</td>
+                                    <td style="padding:0.6rem;text-align:center;">${statusBadge(r.status)}</td>
+                                    <td style="padding:0.6rem;text-align:right;white-space:nowrap;">
+                                        ${r.status === 'pending' ? `
+                                            <button onclick="window._csGenCert('${r.id}','${(r.student_name||'').replace(/'/g,"\\'")}','${r.student_id||''}',${r.total_hours||0},${r.activities_count||0})"
+                                                style="background:#1B5E20;color:white;border:none;padding:0.35rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;margin-right:0.4rem;">
+                                                Generate & Approve</button>
+                                            <button onclick="window._csDenyCert('${r.id}')"
+                                                style="background:#fee2e2;color:#991b1b;border:none;padding:0.35rem 0.7rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
+                                                Decline</button>
+                                        ` : r.status === 'approved' ? `
+                                            <button onclick="window._csGenCert('${r.id}','${(r.student_name||'').replace(/'/g,"\\'")}','${r.student_id||''}',${r.total_hours||0},${r.activities_count||0})"
+                                                style="background:#e8f5e9;color:#1B5E20;border:none;padding:0.35rem 0.8rem;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
+                                                Reprint</button>
+                                        ` : '—'}
+                                    </td>
+                                </tr>`).join('')}
+                        </tbody>
+                    </table>`;
+
+                window._csGenCert = async (reqId, studentName, studentId, hours, activities) => {
+                    // Mark as approved in Supabase
+                    await sb.from('certificate_requests').update({ status: 'approved', generated_at: new Date().toISOString() }).eq('id', reqId);
+                    self._openCertificate(studentName, studentId, hours, activities);
+                    self._loadCSSubmissions(section);
+                };
+                window._csDenyCert = async (reqId) => {
+                    await sb.from('certificate_requests').update({ status: 'declined' }).eq('id', reqId);
+                    self._loadCSSubmissions(section);
+                };
+            }
+        }
+    }
+
+    _openCertificate(studentName, studentId, totalHours, activitiesCount) {
+        const today = new Date().toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+        const win = window.open('', '_blank', 'width=1100,height=800');
+        win.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+        <title>Certificate of Appreciation – ${studentName}</title>
+        <style>
+            * { margin:0; padding:0; box-sizing:border-box; }
+            body { font-family: 'Georgia', serif; background:#fff; }
+            @media print {
+                body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .no-print { display:none !important; }
+                @page { size: A4 landscape; margin: 0; }
+            }
+            .cert-wrap {
+                width: 297mm; min-height: 210mm;
+                margin: 0 auto;
+                background: white;
+                position: relative;
+                overflow: hidden;
+            }
+            /* Hexagonal background pattern */
+            .cert-wrap::before {
+                content:'';
+                position:absolute; top:0; left:0; right:0; bottom:0;
+                background-image: repeating-linear-gradient(60deg, rgba(200,200,200,0.08) 0, rgba(200,200,200,0.08) 1px, transparent 0, transparent 50%),
+                    repeating-linear-gradient(120deg, rgba(200,200,200,0.08) 0, rgba(200,200,200,0.08) 1px, transparent 0, transparent 50%);
+                background-size: 40px 40px;
+                pointer-events: none;
+            }
+            /* Side decorative bars */
+            .cert-wrap::after {
+                content:'';
+                position:absolute; top:0; bottom:0; left:0; width:18px;
+                background: linear-gradient(180deg, #C9A227 0%, #1B5E20 100%);
+            }
+            .right-bar {
+                position:absolute; top:0; bottom:0; right:0; width:18px;
+                background: linear-gradient(180deg, #1B5E20 0%, #C9A227 100%);
+            }
+            /* Top gold band */
+            .top-band {
+                background: linear-gradient(135deg, #C9A227 0%, #e8c84a 50%, #C9A227 100%);
+                padding: 0.6rem 2.5rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            /* Logos area */
+            .logos {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 1.5rem;
+                padding: 1.2rem 2.5rem 0.5rem;
+            }
+            .logo-ksau {
+                text-align: center;
+                font-family: Arial, sans-serif;
+            }
+            .logo-ksau .ar { font-size: 1.5rem; font-weight: 900; color: #1B5E20; letter-spacing:2px; }
+            .logo-ksau .en { font-size: 1.1rem; font-weight: 900; color: #1B5E20; letter-spacing:3px; }
+            .logo-ksau .sub { font-size: 0.6rem; color: #555; letter-spacing:1px; display:block; }
+            .logo-divider { width:2px; height:50px; background:linear-gradient(180deg,#C9A227,#1B5E20); border-radius:2px; }
+            .logo-seal {
+                width:60px; height:60px; border-radius:50%;
+                border:3px solid #1B5E20;
+                display:flex; align-items:center; justify-content:center;
+                font-size:0.55rem; color:#1B5E20; text-align:center;
+                font-weight:700; padding:5px; line-height:1.2;
+            }
+            /* Certificate title */
+            .cert-title {
+                text-align: center;
+                font-size: 2.2rem;
+                font-weight: 700;
+                color: #1B5E20;
+                padding: 1rem 3rem 0.5rem;
+                letter-spacing: 1px;
+            }
+            /* Divider line */
+            .divider {
+                width: 60%;
+                margin: 0.3rem auto;
+                height: 2px;
+                background: linear-gradient(90deg, transparent, #C9A227, transparent);
+            }
+            /* Body text */
+            .cert-body {
+                text-align: center;
+                padding: 1.2rem 4rem;
+                line-height: 1.8;
+            }
+            .cert-body .institution {
+                font-size: 1rem;
+                color: #333;
+                margin-bottom: 0.3rem;
+            }
+            .cert-body .given-to {
+                font-size: 1rem;
+                color: #C9A227;
+                margin-bottom: 0.2rem;
+            }
+            .cert-body .student-name {
+                font-size: 1.7rem;
+                font-weight: 700;
+                color: #C9A227;
+                font-style: italic;
+                margin-bottom: 0.8rem;
+            }
+            .cert-body .recognition {
+                font-size: 0.95rem;
+                color: #333;
+                line-height: 1.7;
+                max-width: 680px;
+                margin: 0 auto 0.8rem;
+            }
+            .cert-body .hours-badge {
+                display: inline-block;
+                background: #e8f5e9;
+                color: #1B5E20;
+                border: 2px solid #1B5E20;
+                border-radius: 8px;
+                padding: 0.3rem 1.2rem;
+                font-size: 0.9rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            /* Signature */
+            .signature-area {
+                text-align: center;
+                padding: 1rem 3rem 1.5rem;
+            }
+            .sig-line {
+                width: 220px;
+                height: 1px;
+                background: #555;
+                margin: 0 auto 0.4rem;
+            }
+            .sig-name { font-size: 0.85rem; font-weight: 700; color: #555; letter-spacing:1px; text-transform:uppercase; }
+            .sig-title { font-size: 0.78rem; color: #777; font-weight: 600; }
+            .cert-date { font-size: 0.78rem; color: #aaa; margin-top: 0.5rem; }
+            /* Print button */
+            .print-btn {
+                display:block; margin:1rem auto;
+                background:#1B5E20; color:white;
+                padding:0.7rem 2rem; border:none;
+                border-radius:8px; cursor:pointer;
+                font-size:1rem; font-weight:600;
+            }
+        </style>
+        </head><body>
+        <button class="print-btn no-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        <div class="cert-wrap">
+            <div class="right-bar"></div>
+            <div class="top-band"></div>
+            <div class="logos">
+                <div class="logo-ksau">
+                    <div class="ar">كساو</div>
+                    <div class="en">KSAU</div>
+                    <span class="sub">HEALTH SCIENCES<br>College of Pharmacy · كلية الصيدلة</span>
+                </div>
+                <div class="logo-divider"></div>
+                <div class="logo-seal">King Saud bin Abdulaziz University for Health Sciences</div>
+            </div>
+            <div class="cert-title">Certificate of Appreciation</div>
+            <div class="divider"></div>
+            <div class="cert-body">
+                <div class="institution">On behalf of the College of Pharmacy</div>
+                <div class="institution">King Saud bin Abdulaziz University for Health Sciences</div>
+                <div class="given-to" style="margin-top:0.6rem;">This certificate is given to</div>
+                <div class="student-name">${studentName}</div>
+                <div class="recognition">
+                    In recognition of your exceptional dedication and valuable contributions to
+                    community service. Your commitment to supporting and serving the community
+                    has made a meaningful impact on health awareness and societal well-being.
+                </div>
+                <div class="hours-badge">${totalHours} Approved Hours &nbsp;|&nbsp; ${activitiesCount} Activities</div>
+            </div>
+            <div class="signature-area">
+                <div class="sig-line"></div>
+                <div class="sig-name">Dr. Mohammed Alrashed</div>
+                <div class="sig-title">Associate Dean, College of Pharmacy, KSAU-HS</div>
+                <div class="cert-date">Issued: ${today}</div>
+            </div>
+        </div>
+        </body></html>`);
+        win.document.close();
     }
 
     _editCommunityRequest(requestId, section) {

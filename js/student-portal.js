@@ -1848,6 +1848,37 @@ window.StudentPortal = {
             return `<span style="background:#fef9c3;color:#854d0e;padding:0.2rem 0.6rem;border-radius:6px;font-size:0.75rem;font-weight:600;">Pending</span>`;
         };
 
+        window._csRequestCert = async () => {
+            const btn = document.getElementById('cs-cert-btn');
+            const statusEl = document.getElementById('cs-cert-status');
+            const sbInner = window.SupabaseAuth?.supabase;
+            if (!sbInner) { alert('Not connected to database.'); return; }
+            // Check for existing pending request
+            const { data: existing } = await sbInner.from('certificate_requests')
+                .select('id,status').eq('student_id', studentId).order('created_at',{ascending:false}).limit(1);
+            if (existing?.length) {
+                const last = existing[0];
+                statusEl.style.display = 'block';
+                statusEl.innerHTML = `<span style="color:${last.status==='approved'?'#166534':last.status==='pending'?'#854d0e':'#991b1b'};font-size:0.85rem;">
+                    ${last.status==='approved' ? '✅ Your certificate request has been approved. Check with admin.' :
+                      last.status==='pending'  ? '⏳ You already have a pending certificate request. Please wait for admin approval.' :
+                      '❌ Your previous request was declined. Contact admin for details.'}</span>`;
+                return;
+            }
+            if (btn) { btn.disabled = true; btn.textContent = 'Submitting...'; }
+            const { error } = await sbInner.from('certificate_requests').insert({
+                student_id: studentId,
+                student_name: studentName,
+                total_hours: totalHours,
+                activities_count: approved.length,
+                status: 'pending'
+            });
+            if (error) { alert('Error: ' + error.message); if (btn) { btn.disabled=false; btn.textContent='Request Certificate'; } return; }
+            statusEl.style.display = 'block';
+            statusEl.innerHTML = '<span style="color:#166534;font-size:0.85rem;">✅ Certificate request submitted! Admin will review and generate your certificate.</span>';
+            if (btn) { btn.disabled = true; btn.textContent = 'Request Submitted'; }
+        };
+
         window._csSubmit = async () => {
             const type  = document.getElementById('cs-type')?.value;
             const org   = document.getElementById('cs-org')?.value?.trim();
@@ -1925,7 +1956,7 @@ window.StudentPortal = {
             </div>
 
             <!-- My Submissions -->
-            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin-bottom:1.5rem;">
                 <h3 style="margin:0 0 1rem;">My Submissions</h3>
                 ${myLogs.length === 0
                     ? '<p style="color:#999;text-align:center;padding:2rem 0;">No submissions yet. Log your first activity above!</p>'
@@ -1953,6 +1984,19 @@ window.StudentPortal = {
                         </table>
                     </div>`}
             </div>
+
+            <!-- Certificate Request -->
+            ${totalHours >= 1 ? `
+            <div style="background:white;border-radius:12px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.06);border-left:4px solid #C9A227;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;">
+                    <div>
+                        <h3 style="margin:0 0 0.3rem;color:#1B5E20;">🏅 Certificate of Appreciation</h3>
+                        <p style="margin:0;color:#666;font-size:0.85rem;">You have <strong>${totalHours.toFixed(0)} approved hours</strong> across ${approved.length} activities. You are eligible to request an official certificate.</p>
+                    </div>
+                    <button id="cs-cert-btn" onclick="window._csRequestCert()" style="background:#1B5E20;color:white;padding:0.7rem 1.5rem;border:none;border-radius:8px;cursor:pointer;font-weight:600;white-space:nowrap;">Request Certificate</button>
+                </div>
+                <div id="cs-cert-status" style="margin-top:0.75rem;display:none;"></div>
+            </div>` : ''}
         </div>`;
     },
 
