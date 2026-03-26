@@ -2221,6 +2221,18 @@ window.StudentPortal = {
                         </select>
                     </div>
                     <div>
+                        <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Co-Author Faculty <span style="font-weight:400;color:#999;">(optional)</span></label>
+                        <select id="rp-cofaculty" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
+                            <option value="">-- None --</option>
+                            <optgroup label="Pharmaceutical Practice">
+                                ${practiceFaculty.map(f => `<option value="${f.email}" data-name="${f.name.replace(/"/g,'&quot;')}">${f.name}${f.role ? ' · ' + f.role.split('/')[0].trim() : ''}</option>`).join('')}
+                            </optgroup>
+                            <optgroup label="Pharmaceutical Sciences">
+                                ${sciencesFaculty.map(f => `<option value="${f.email}" data-name="${f.name.replace(/"/g,'&quot;')}">${f.name}${f.role ? ' · ' + f.role.split('/')[0].trim() : ''}</option>`).join('')}
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div>
                         <label style="display:block;font-size:0.85rem;font-weight:600;margin-bottom:0.3rem;">Degree Level</label>
                         <select id="rp-degree" style="width:100%;padding:0.6rem;border:1px solid #ddd;border-radius:6px;">
                             <option value="pharmd">PharmD</option>
@@ -2255,6 +2267,7 @@ window.StudentPortal = {
                                     <div style="font-weight:700;font-size:1rem;">${proj.title || 'Untitled'}</div>
                                     <div style="font-size:0.82rem;color:#666;margin-top:0.25rem;">
                                         Supervisor: <strong>${proj.faculty_name || '—'}</strong>
+                                        ${proj.co_faculty_name ? ` &nbsp;|&nbsp; Co-Author: <strong>${proj.co_faculty_name}</strong>` : ''}
                                         &nbsp;|&nbsp; ${degreeLabel[proj.degree_level] || 'PharmD'}
                                         ${proj.notes ? ` &nbsp;|&nbsp; <em>${proj.notes}</em>` : ''}
                                     </div>
@@ -2270,12 +2283,15 @@ window.StudentPortal = {
 
     _startResearchProject: async (studentId, studentName) => {
         const title        = document.getElementById('rp-title')?.value?.trim();
-        const facultyEl    = document.getElementById('rp-faculty');
-        const facultyEmail = facultyEl?.value;
-        const facultyName  = facultyEl?.options[facultyEl?.selectedIndex]?.getAttribute('data-name') || '';
-        const degree       = document.getElementById('rp-degree')?.value || 'pharmd';
-        const stage        = document.getElementById('rp-stage')?.value  || 'irb_submit';
-        const notes        = document.getElementById('rp-notes')?.value?.trim();
+        const facultyEl      = document.getElementById('rp-faculty');
+        const facultyEmail   = facultyEl?.value;
+        const facultyName    = facultyEl?.options[facultyEl?.selectedIndex]?.getAttribute('data-name') || '';
+        const coFacultyEl    = document.getElementById('rp-cofaculty');
+        const coFacultyEmail = coFacultyEl?.value || null;
+        const coFacultyName  = coFacultyEl?.value ? (coFacultyEl?.options[coFacultyEl?.selectedIndex]?.getAttribute('data-name') || '') : null;
+        const degree         = document.getElementById('rp-degree')?.value || 'pharmd';
+        const stage          = document.getElementById('rp-stage')?.value  || 'irb_submit';
+        const notes          = document.getElementById('rp-notes')?.value?.trim();
         if (!title)        { alert('Please enter a research title.'); return; }
         if (!facultyEmail) { alert('Please select a faculty supervisor.'); return; }
         const sb = window.SupabaseAuth?.supabase;
@@ -2284,6 +2300,7 @@ window.StudentPortal = {
             student_id: studentId, student_name: studentName,
             type: 'research_project', title,
             faculty_email: facultyEmail, faculty_name: facultyName,
+            co_faculty_email: coFacultyEmail, co_faculty_name: coFacultyName,
             degree_level: degree, stage,
             notes: notes || null,
             status: stage === 'published' ? 'completed' : 'active'
