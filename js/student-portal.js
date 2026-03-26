@@ -1471,11 +1471,18 @@ window.StudentPortal = {
             const requestType = StudentPortalManager.getRequestTypeById(typeId);
             const dept = StudentPortalManager.getDepartmentById(requestType.department);
             
+            // Get real student email from Supabase auth session
+            let realStudentEmail = StudentPortalManager.currentStudent.email || '';
+            try {
+                const { data: { user } } = await window.SupabaseAuth.supabase.auth.getUser();
+                if (user?.email) realStudentEmail = user.email;
+            } catch(e) {}
+
             // Create new ticket object and add to list
             const newTicket = {
                 ticketId: ticketId,
                 studentId: StudentPortalManager.currentStudent.studentId,
-                studentEmail: StudentPortalManager.currentStudent.email,
+                studentEmail: realStudentEmail,
                 title: title,
                 description: description,
                 requestType: typeId,
