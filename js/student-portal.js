@@ -206,10 +206,10 @@ StudentPortalManager.clinicalTracking.updateStats();
 // RENDER HOME PAGE - TICKET OVERVIEW
 // ============================================================
 
-function renderStudentPortalHome() {
+async function renderStudentPortalHome() {
     const root = document.getElementById('app-root');
     const { formatDate, formatTime } = StudentPortalManager;
-    
+
     // 🔄 Sync currentStudent from AuthSystem to ensure consistency
     if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser && AuthSystem.currentUserRole === 'student') {
         StudentPortalManager.currentStudent.studentId = AuthSystem.currentUser;
@@ -219,11 +219,10 @@ function renderStudentPortalHome() {
             StudentPortalManager.currentStudent.lastName = nameParts.slice(1).join(' ');
         }
     }
-    
+
     // Get student data from AuthSystem if available, otherwise use currentStudent
     let student;
     if (typeof AuthSystem !== 'undefined' && AuthSystem.currentUserRole === 'student') {
-        // Create student object from logged-in user data
         student = {
             firstName: (AuthSystem.currentUserName || AuthSystem.currentUser).split(' ')[0],
             name: AuthSystem.currentUserName || AuthSystem.currentUser,
@@ -236,10 +235,31 @@ function renderStudentPortalHome() {
         student = StudentPortalManager.currentStudent;
     }
 
-    // Count tickets by status - ONLY current student's tickets (exclude samples and submitted tickets)
-    const currentStudentTickets = StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample && t.status !== 'submitted');
-    const totalTickets = currentStudentTickets.length;
-    const activeTickets = currentStudentTickets.filter(t => ['in-progress'].includes(t.status)).length;
+    // Load this student's tickets directly from Supabase
+    let currentStudentTickets = StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample);
+    try {
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb && student.studentId) {
+            const { data } = await sb.from('submitted_tickets').select('*').eq('student_id', student.studentId).order('submitted_at', { ascending: false });
+            if (data && data.length > 0) {
+                currentStudentTickets = data.map(t => ({
+                    ticketId: t.ticket_id || t.id,
+                    studentId: t.student_id,
+                    studentEmail: t.student_email,
+                    title: t.title,
+                    description: t.description,
+                    status: t.status || 'submitted',
+                    priority: t.priority,
+                    department: t.department,
+                    submissionDate: t.submitted_at,
+                    requestType: t.request_type
+                }));
+            }
+        }
+    } catch(e) {}
+
+    const totalTickets    = currentStudentTickets.length;
+    const activeTickets   = currentStudentTickets.filter(t => ['in-progress', 'submitted'].includes(t.status)).length;
     const pendingResponse = currentStudentTickets.filter(t => t.status === 'waiting-student').length;
     const resolvedTickets = currentStudentTickets.filter(t => ['approved', 'closed', 'resolved'].includes(t.status)).length;
 
