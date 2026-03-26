@@ -122,16 +122,21 @@ const SupabaseDB = {
             if (error) throw error;
 
             // Convert database format back to app format
+            // IMPORTANT: spread metadata first, then explicit columns win (prevents metadata.status overwriting real status)
             return data.map(row => ({
+                ...row.metadata,
                 ticketId: row.ticket_id,
                 studentId: row.student_id,
+                student_email: row.student_email,
                 title: row.title,
                 description: row.description,
                 status: row.status,
+                priority: row.priority,
+                department: row.department,
+                request_type: row.request_type,
                 rotationName: row.rotation_name,
                 hospitalName: row.hospital_name,
                 submittedAt: new Date(row.submitted_at),
-                ...row.metadata
             }));
         } catch (error) {
             console.error('❌ Failed to fetch all tickets:', error);
