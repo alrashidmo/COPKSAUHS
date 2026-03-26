@@ -40,9 +40,13 @@ const SupabaseDB = {
             const ticketData = {
                 student_id: studentId,
                 ticket_id: ticket.ticketId,
+                student_email: ticket.studentEmail || '',
                 title: ticket.title,
                 description: ticket.description || '',
                 status: 'submitted',
+                priority: ticket.priority || 'medium',
+                department: ticket.department || '',
+                request_type: ticket.requestType || '',
                 rotation_name: ticket.rotationName || '',
                 hospital_name: ticket.hospitalName || '',
                 submitted_at: new Date().toISOString(),
