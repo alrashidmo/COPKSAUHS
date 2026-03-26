@@ -5365,56 +5365,77 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                     
                     card.addEventListener('click', function() {
                         const metric = this.dataset.metric;
-                        console.log('📊 Stat card clicked:', metric);
-                        
-                        const criticalTable = document.querySelector('table');
-                        if (!criticalTable) return;
-                        
-                        // Filter the critical requests table based on metric
-                        const rows = criticalTable.querySelectorAll('tbody tr');
-                        let filteredCount = 0;
-                        
-                        rows.forEach(row => {
-                            let show = true;
-                            const statusCell = row.cells[4]?.textContent || '';
-                            const daysCell = parseInt(row.cells[5]?.textContent) || 0;
-                            
-                            switch(metric) {
-                                case 'activeTickets':
-                                    // Show only non-final status tickets (not approved, rejected, closed)
-                                    show = !statusCell.includes('Approved') && !statusCell.includes('Rejected') && !statusCell.includes('Closed');
-                                    break;
-                                case 'resolvedToday':
-                                    // Show only approved/closed tickets
-                                    show = statusCell.includes('Approved') || statusCell.includes('Closed');
-                                    break;
-                                case 'totalTickets':
-                                    // Show all
-                                    show = true;
-                                    break;
-                                case 'avgResponseTime':
-                                    // Show tickets with higher days pending (slow response)
-                                    show = daysCell >= 3;
-                                    break;
-                            }
-                            
-                            if (show) {
-                                row.style.display = '';
-                                filteredCount++;
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        });
-                        
-                        // Show notification
-                        const metricLabels = {
-                            'totalTickets': 'Total Tickets',
-                            'activeTickets': 'Active Tickets Only',
-                            'resolvedToday': 'Resolved Today',
-                            'avgResponseTime': 'Slow Response (3+ days)'
+                        const allTickets = window.StudentPortalManager?.tickets || [];
+                        const now = new Date();
+                        const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+                        let filtered = [];
+                        let label = '';
+
+                        switch(metric) {
+                            case 'totalTickets':
+                                filtered = allTickets;
+                                label = 'All Tickets';
+                                break;
+                            case 'activeTickets':
+                                filtered = allTickets.filter(t => t.status === 'submitted');
+                                label = 'Active Tickets (Pending Action)';
+                                break;
+                            case 'resolvedToday':
+                                filtered = allTickets.filter(t => {
+                                    if (t.status !== 'approved' && t.status !== 'rejected') return false;
+                                    return new Date(t.lastUpdate) >= todayStart;
+                                });
+                                label = 'Resolved Today';
+                                break;
+                            case 'avgResponseTime':
+                                filtered = allTickets.filter(t => t.status === 'approved' || t.status === 'rejected');
+                                label = 'Resolved Tickets (Response Time)';
+                                break;
+                        }
+
+                        const statusBadge = s => {
+                            const colors = { submitted: '#FF9800', approved: '#4CAF50', rejected: '#F44336' };
+                            return `<span style="background:${colors[s]||'#999'};color:white;padding:2px 8px;border-radius:10px;font-size:0.75rem;font-weight:bold;">${s}</span>`;
                         };
-                        
-                        alert(`? Filtered: ${metricLabels[metric]}\n\nShowing ${filteredCount} out of ${rows.length} tickets`);
+
+                        const rows = filtered.map(t => {
+                            const submitted = t.submittedAt || t.submissionDate ? new Date(t.submittedAt || t.submissionDate).toLocaleDateString() : '—';
+                            const responseTime = (t.status === 'approved' || t.status === 'rejected') && t.lastUpdate
+                                ? (() => { const h = (new Date(t.lastUpdate) - new Date(t.submittedAt || t.submissionDate)) / 3600000; return h < 1 ? `${Math.round(h*60)}m` : `${h.toFixed(1)}h`; })()
+                                : '—';
+                            return `<tr style="border-bottom:1px solid #eee;">
+                                <td style="padding:8px 12px;font-size:0.85rem;color:#555;">${t.ticketId || '—'}</td>
+                                <td style="padding:8px 12px;font-size:0.85rem;">${t.title || '—'}</td>
+                                <td style="padding:8px 12px;font-size:0.85rem;color:#555;">${t.studentEmail || t.studentId || '—'}</td>
+                                <td style="padding:8px 12px;">${statusBadge(t.status)}</td>
+                                <td style="padding:8px 12px;font-size:0.85rem;color:#555;">${submitted}</td>
+                                ${metric === 'avgResponseTime' ? `<td style="padding:8px 12px;font-size:0.85rem;color:#555;">${responseTime}</td>` : ''}
+                            </tr>`;
+                        }).join('');
+
+                        const colHeaders = metric === 'avgResponseTime'
+                            ? '<th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Ticket ID</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Title</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Student</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Status</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Submitted</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Response Time</th>'
+                            : '<th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Ticket ID</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Title</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Student</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Status</th><th style="padding:10px 12px;text-align:left;background:#f5f5f5;">Submitted</th>';
+
+                        const modal = document.createElement('div');
+                        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;';
+                        modal.innerHTML = `
+                            <div style="background:white;border-radius:12px;width:90%;max-width:900px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,0.2);">
+                                <div style="padding:20px 24px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
+                                    <h3 style="margin:0;color:#1a3a5c;">${label} <span style="font-size:1rem;color:#666;">(${filtered.length})</span></h3>
+                                    <button onclick="this.closest('[style*=fixed]').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:#666;">&times;</button>
+                                </div>
+                                <div style="overflow-y:auto;flex:1;padding:16px 24px;">
+                                    ${filtered.length === 0 ? '<p style="color:#999;text-align:center;padding:40px;">No tickets found.</p>' : `
+                                    <table style="width:100%;border-collapse:collapse;">
+                                        <thead><tr>${colHeaders}</tr></thead>
+                                        <tbody>${rows}</tbody>
+                                    </table>`}
+                                </div>
+                            </div>`;
+                        document.body.appendChild(modal);
+                        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
                     });
                 });
                 console.log('? Stat cards initialized with interactivity');
