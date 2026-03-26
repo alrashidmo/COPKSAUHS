@@ -1639,25 +1639,33 @@ window.StudentPortal = {
     },
     showAllTickets: async () => {
         document.getElementById('page-title').textContent = 'My Tickets';
-        // Fetch real tickets from backend
+        const studentId = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : StudentPortalManager.currentStudent.studentId;
         try {
-            const studentId = (typeof AuthSystem !== 'undefined' && AuthSystem.currentUser) ? AuthSystem.currentUser : StudentPortalManager.currentStudent.studentId;
-            const tickets = await StudentPortalAPI.getStudentTickets(studentId);
-            // Only update if we got real data
-            if (tickets && tickets.length > 0) {
-                StudentPortalManager.tickets = tickets.map(ticket => ({
-                    ...ticket,
-                    // Fallbacks for missing fields (for compatibility with UI)
-                    assignedTo: ticket.assignedTo || { name: 'Unassigned', email: '' },
-                    messages: ticket.messages || [],
-                    sla: ticket.sla || 'N/A',
-                    dueDate: ticket.dueDate ? new Date(ticket.dueDate) : null,
-                    submissionDate: ticket.submissionDate ? new Date(ticket.submissionDate) : null,
-                    lastUpdate: ticket.lastUpdate ? new Date(ticket.lastUpdate) : null
-                }));
+            const sb = window.SupabaseAuth?.supabase;
+            if (sb && studentId) {
+                const { data } = await sb.from('submitted_tickets').select('*').eq('student_id', studentId).order('submitted_at', { ascending: false });
+                if (data && data.length > 0) {
+                    StudentPortalManager.tickets = data.map(t => ({
+                        ticketId: t.ticket_id || t.id,
+                        studentId: t.student_id,
+                        studentEmail: t.student_email,
+                        title: t.title,
+                        description: t.description,
+                        status: t.status || 'submitted',
+                        priority: t.priority,
+                        department: t.department,
+                        submissionDate: t.submitted_at ? new Date(t.submitted_at) : new Date(),
+                        lastUpdate: t.updated_at ? new Date(t.updated_at) : new Date(),
+                        requestType: t.request_type,
+                        assignedTo: { name: 'Unassigned', email: '' },
+                        messages: [],
+                        sla: '3-5 working days',
+                        attachments: t.attachments || []
+                    }));
+                }
             }
         } catch (error) {
-            console.log('Backend not available, using sample data');
+            console.log('Could not load tickets from Supabase:', error.message);
         }
         renderAllTickets();
     },
