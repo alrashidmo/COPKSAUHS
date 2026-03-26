@@ -19402,6 +19402,32 @@ window.sendEmailCommunication = function(requestId, studentName, studentEmail) {
 // STUDENT TICKET ACTIONS (Approve/Reject)
 // ============================================
 
+// Helper: call Edge Function to send ticket status email
+async function _sendTicketEmail(ticket, status, adminNotes) {
+    try {
+        const fnUrl = 'https://ayswzpiennofznmpooia.supabase.co/functions/v1/ticket-notification';
+        await fetch(fnUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                record: {
+                    ticket_id: ticket.ticketId,
+                    student_email: ticket.studentEmail,
+                    title: ticket.title,
+                    status: status,
+                    priority: ticket.priority,
+                    department: ticket.department,
+                    admin_notes: adminNotes || ''
+                },
+                old_record: { status: 'submitted' }
+            })
+        });
+        console.log(`📧 Email notification sent (${status}) to ${ticket.studentEmail}`);
+    } catch (e) {
+        console.warn('📧 Email notification failed (non-blocking):', e.message);
+    }
+}
+
 window.approveTicket = async function(ticketId, studentId, studentEmail) {
     if (!confirm(`✅ Approve this ticket?\n\nTicket: ${ticketId}\nStudent: ${studentId}`)) {
         return;
@@ -19433,12 +19459,9 @@ window.approveTicket = async function(ticketId, studentId, studentEmail) {
             }
         }
 
-        // Send approval email
-        const emailSubject = `? Your Request Approved - ${ticketId}`;
-        const emailBody = `Dear Student,\n\nGood news! Your request has been approved.\n\nTicket: ${ticket.title}\nID: ${ticketId}\nStatus: APPROVED\n\nYou can now proceed with the next steps.\n\nThank you!`;
-        
-        console.log(`? Ticket approved: ${ticketId}`);
-        console.log(`?? Sending email to: ${studentEmail}`);
+        // Send approval email via Edge Function
+        await _sendTicketEmail(ticket, 'approved', '');
+        console.log(`✅ Ticket approved: ${ticketId}`);
         
         // ?? Update clinical tracking if this is a clinical issue
         if (ticket.requestType === 'clinical' && typeof StudentPortalManager.clinicalTracking !== 'undefined') {
@@ -19498,13 +19521,9 @@ window.rejectTicket = async function(ticketId, studentId, studentEmail) {
             }
         }
 
-        // Send rejection email
-        const emailSubject = `?? Your Request Requires Attention - ${ticketId}`;
-        const emailBody = `Dear Student,\n\nYour request requires additional information or was not approved.\n\nTicket: ${ticket.title}\nID: ${ticketId}\n\nReason: ${rejectReason}\n\nPlease contact the department for more information.`;
-        
-        console.log(`? Ticket rejected: ${ticketId}`);
-        console.log(`? Reason: ${rejectReason}`);
-        console.log(`?? Sending email to: ${studentEmail}`);
+        // Send rejection email via Edge Function
+        await _sendTicketEmail(ticket, 'rejected', rejectReason);
+        console.log(`❌ Ticket rejected: ${ticketId}`);
         
         // ?? Update clinical tracking if this is a clinical issue
         if (ticket.requestType === 'clinical' && typeof StudentPortalManager.clinicalTracking !== 'undefined') {
