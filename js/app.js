@@ -19441,19 +19441,23 @@ window.approveTicket = async function(ticketId, studentId, studentEmail) {
             return;
         }
 
-        // Update ticket status
+        // Update ticket status in memory
         ticket.status = 'approved';
         ticket.lastUpdate = new Date();
 
-        // 💾 Save status update to Supabase - WAIT for it to complete!
+        // Remove from StudentPortalManager immediately so re-render doesn't show it
+        StudentPortalManager.tickets = StudentPortalManager.tickets.filter(t => t.ticketId !== ticketId);
+
+        // Remove from localStorage so it doesn't resurface
+        const lsKey = 'studentSubmittedTickets';
+        const lsTickets = JSON.parse(localStorage.getItem(lsKey) || '[]').filter(t => t.ticketId !== ticketId);
+        localStorage.setItem(lsKey, JSON.stringify(lsTickets));
+
+        // 💾 Save status update to Supabase
         if (typeof window.SupabaseService !== 'undefined') {
             try {
-                const success = await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved');
-                if (success) {
-                    console.log('✅ Ticket status updated in Supabase');
-                } else {
-                    console.warn('⚠️ Failed to update ticket in Supabase');
-                }
+                await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved');
+                console.log('✅ Ticket status updated in Supabase');
             } catch (error) {
                 console.error('❌ Error updating ticket in Supabase:', error);
             }
@@ -19502,20 +19506,24 @@ window.rejectTicket = async function(ticketId, studentId, studentEmail) {
             return;
         }
 
-        // Update ticket status
+        // Update ticket status in memory
         ticket.status = 'rejected';
         ticket.lastUpdate = new Date();
         ticket.rejectionReason = rejectReason;
 
-        // 💾 Save status update to Supabase - WAIT for it to complete!
+        // Remove from StudentPortalManager immediately so re-render doesn't show it
+        StudentPortalManager.tickets = StudentPortalManager.tickets.filter(t => t.ticketId !== ticketId);
+
+        // Remove from localStorage so it doesn't resurface
+        const lsKey = 'studentSubmittedTickets';
+        const lsTickets = JSON.parse(localStorage.getItem(lsKey) || '[]').filter(t => t.ticketId !== ticketId);
+        localStorage.setItem(lsKey, JSON.stringify(lsTickets));
+
+        // 💾 Save status update to Supabase
         if (typeof window.SupabaseService !== 'undefined') {
             try {
-                const success = await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected');
-                if (success) {
-                    console.log('✅ Ticket status updated in Supabase');
-                } else {
-                    console.warn('⚠️ Failed to update ticket in Supabase');
-                }
+                await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected');
+                console.log('✅ Ticket status updated in Supabase');
             } catch (error) {
                 console.error('❌ Error updating ticket in Supabase:', error);
             }

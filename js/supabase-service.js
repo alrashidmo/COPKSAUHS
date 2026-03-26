@@ -167,7 +167,6 @@ const SupabaseDB = {
                     status: newStatus,
                     updated_at: new Date().toISOString()
                 })
-                .eq('student_id', studentId)
                 .eq('ticket_id', ticketId);
 
             if (error) throw error;
