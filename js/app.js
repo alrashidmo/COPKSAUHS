@@ -3723,15 +3723,6 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         <div class="cert-wrap">
             <div class="right-bar"></div>
             <div class="top-band"></div>
-            <div class="logos">
-                <div class="logo-ksau">
-                    <div class="ar">كساو</div>
-                    <div class="en">KSAU</div>
-                    <span class="sub">HEALTH SCIENCES<br>College of Pharmacy · كلية الصيدلة</span>
-                </div>
-                <div class="logo-divider"></div>
-                <div class="logo-seal">King Saud bin Abdulaziz University for Health Sciences</div>
-            </div>
             <div class="cert-title">Certificate of Appreciation</div>
             <div class="divider"></div>
             <div class="cert-body">
