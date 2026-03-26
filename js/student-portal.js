@@ -745,10 +745,26 @@ function renderRequestForm(requestTypeId) {
                 <div class="form-group">
                     <label>Attachments (Optional)</label>
                     <div class="file-upload">
-                        <input type="file" id="attachmentInput" multiple accept=".pdf,.doc,.docx,.jpg,.png" />
-                        <label for="attachmentInput" class="file-upload-label">
+                        <input type="file" id="attachmentInput" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                            onchange="
+                                const files = Array.from(this.files).slice(0,5);
+                                const label = document.getElementById('attachmentLabel');
+                                const preview = document.getElementById('attachmentPreview');
+                                if (files.length) {
+                                    label.textContent = files.length + ' file(s) selected';
+                                    preview.innerHTML = files.map(f => {
+                                        const ok = f.size <= 5*1024*1024;
+                                        return '<div style=\'font-size:0.8rem;padding:0.2rem 0;color:\'+(ok?\'#333\':\'#c62828\')+\'\'>' + (ok?'✅':'❌ Too large: ') + f.name + ' (' + (f.size/1024).toFixed(0) + ' KB)</div>';
+                                    }).join('');
+                                } else {
+                                    label.textContent = '📎 Click to upload files or drag & drop';
+                                    preview.innerHTML = '';
+                                }
+                            "/>
+                        <label for="attachmentInput" class="file-upload-label" id="attachmentLabel">
                             📎 Click to upload files or drag & drop
                         </label>
+                        <div id="attachmentPreview" style="margin-top:6px;"></div>
                         <small style="display: block; margin-top: 8px; color: var(--text-muted);">Max 5 files, 5MB each (PDF, DOC, images)</small>
                     </div>
                 </div>
@@ -1498,6 +1514,25 @@ window.StudentPortal = {
                 if (user?.email) realStudentEmail = user.email;
             } catch(e) {}
 
+            // Upload attachments to Supabase Storage
+            const attachmentUrls = [];
+            const fileInput = document.getElementById('attachmentInput');
+            if (fileInput && fileInput.files.length > 0) {
+                const sb = window.SupabaseAuth?.supabase;
+                const files = Array.from(fileInput.files).slice(0, 5);
+                for (const file of files) {
+                    if (file.size > 5 * 1024 * 1024) { alert(`File "${file.name}" exceeds 5MB limit and was skipped.`); continue; }
+                    try {
+                        const path = `${StudentPortalManager.currentStudent.studentId}/${ticketId}/${file.name}`;
+                        const { error: upErr } = await sb.storage.from('ticket-attachments').upload(path, file, { upsert: true });
+                        if (!upErr) {
+                            const { data: urlData } = sb.storage.from('ticket-attachments').getPublicUrl(path);
+                            attachmentUrls.push({ name: file.name, url: urlData.publicUrl, size: file.size });
+                        }
+                    } catch(e) {}
+                }
+            }
+
             // Create new ticket object and add to list
             const newTicket = {
                 ticketId: ticketId,
@@ -1514,6 +1549,7 @@ window.StudentPortal = {
                 assignedTo: { name: 'Unassigned', email: dept.email },
                 dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
                 sla: '3-5 working days',
+                attachments: attachmentUrls,
                 messages: [{
                     id: 1,
                     sender: 'student',
@@ -1521,7 +1557,7 @@ window.StudentPortal = {
                     senderRole: 'Student',
                     timestamp: new Date(),
                     message: description,
-                    attachments: []
+                    attachments: attachmentUrls
                 }]
             };
             
