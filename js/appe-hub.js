@@ -317,14 +317,21 @@
         /* ── Core numbers ── */
         const total    = st.length;
         const placed   = as.filter(a => a.site_id);
-        const assigned = placed.length;
-        const pct      = total ? Math.round(assigned / total * 100) : 0;
+        // Count unique students with at least one placed block (not total rows)
+        const assignedStudentIds = new Set(placed.map(a => String(a.student_id)));
+        const assignedCount = st.filter(s => assignedStudentIds.has(String(s.id))).length;
+        const pct      = total ? Math.round(assignedCount / total * 100) : 0;
         const totalSlots = si.filter(s => s.is_active !== false).reduce((n, x) => n + (x.available_slots || 0), 0);
         const subOpen  = settings?.submissions_open !== false;
 
         /* ── Preferences ── */
-        const submittedIds  = new Set(pr.map(p => String(p.student_id)));
-        const prefsSubmitted = st.filter(s => submittedIds.has(String(s.id))).length;
+        // preferences.student_id = auth UUID; bridge via numericToAuthId
+        const { numericToAuthId = {} } = _data;
+        const submittedAuthIds = new Set(pr.map(p => String(p.student_id)));
+        const prefsSubmitted = st.filter(s => {
+            const authId = numericToAuthId[String(s.id)];
+            return authId && submittedAuthIds.has(authId);
+        }).length;
 
         /* ── Compliance ── */
         const compStore       = _getComplianceStore();
@@ -334,9 +341,10 @@
         }).length;
 
         /* ── Evaluations ── */
-        const evalScores = ev.filter(e => !isNaN(parseFloat(e.overall_score ?? e.rating_overall ?? e.score ?? e.rating)));
+        const _evalVal = e => parseFloat(e.overall_score ?? e.rating_overall ?? e.score ?? e.rating);
+        const evalScores = ev.filter(e => !isNaN(_evalVal(e)));
         const avgEval    = evalScores.length
-            ? (evalScores.reduce((s, e) => s + parseFloat(e.overall_score||e.score||e.rating), 0) / evalScores.length).toFixed(1)
+            ? (evalScores.reduce((s, e) => s + _evalVal(e), 0) / evalScores.length).toFixed(1)
             : null;
 
         /* ── Student score bands ── */
@@ -492,7 +500,7 @@
             </div>`;
         const kpiCards = [
             mkKPI('\uD83D\uDC65','P4 Students',     total||'0',                  'enrolled this year',                  '#1d4ed8','#eff6ff'),
-            mkKPI('\uD83D\uDCCB','Assigned',         pct+'%',                    `${assigned} of ${total} placed`,       '#15803d','#f0fdf4'),
+            mkKPI('\uD83D\uDCCB','Assigned',         pct+'%',                    `${assignedCount} of ${total} placed`,       '#15803d','#f0fdf4'),
             mkKPI('\u2B50',       'Preferences In',  prefsSubmitted+'/'+total,   `${total-prefsSubmitted} pending`,       '#b45309','#fffbeb'),
             mkKPI('\u2705',       'Compliance Ready',fullyCompliant+'/'+total,   `${total-fullyCompliant} need action`,   '#276749','#f0fff4'),
             mkKPI('\uD83D\uDCDD','Avg Eval Score',   avgEval?avgEval+'/5':'\u2014', `${evalScores.length} evaluations`,  '#7e22ce','#faf5ff'),
