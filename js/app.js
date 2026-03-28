@@ -4525,16 +4525,21 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 totalTickets: allTickets.length,
                 activeTickets: allTickets.filter(t => t.status === 'submitted').length,
                 avgResponseTime: (() => {
-                    const resolvedTickets = allTickets.filter(t => t.status === 'approved' || t.status === 'rejected');
-                    if (resolvedTickets.length === 0) return '0h';
-                    const totalHours = resolvedTickets.reduce((sum, ticket) => {
-                        const submitTime = new Date(ticket.submittedAt || ticket.submissionDate);
-                        const resolveTime = new Date(ticket.lastUpdate);
-                        const hours = (resolveTime - submitTime) / (1000 * 60 * 60);
+                    const resolvedTickets = allTickets.filter(t => {
+                        if (t.status !== 'approved' && t.status !== 'rejected') return false;
+                        const submitTime = new Date(t.submittedAt || t.submissionDate);
+                        const resolveTime = new Date(t.lastUpdate);
+                        return resolveTime > submitTime; // only count if action was actually taken after submission
+                    });
+                    if (resolvedTickets.length === 0) return '—';
+                    const totalHours = resolvedTickets.reduce((sum, t) => {
+                        const hours = (new Date(t.lastUpdate) - new Date(t.submittedAt || t.submissionDate)) / 3600000;
                         return sum + hours;
                     }, 0);
-                    const avgHours = totalHours / resolvedTickets.length;
-                    return avgHours < 1 ? `${Math.round(avgHours * 60)}m` : `${avgHours.toFixed(1)}h`;
+                    const avg = totalHours / resolvedTickets.length;
+                    if (avg < 1) return `${Math.round(avg * 60)}m`;
+                    if (avg < 24) return `${avg.toFixed(1)}h`;
+                    return `${(avg / 24).toFixed(1)}d`;
                 })(),
                 resolvedToday: allTickets.filter(t => {
                     if (t.status !== 'approved' && t.status !== 'rejected') return false;
@@ -5401,8 +5406,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
 
                         const rows = filtered.map(t => {
                             const submitted = t.submittedAt || t.submissionDate ? new Date(t.submittedAt || t.submissionDate).toLocaleDateString() : '—';
-                            const responseTime = (t.status === 'approved' || t.status === 'rejected') && t.lastUpdate
-                                ? (() => { const h = (new Date(t.lastUpdate) - new Date(t.submittedAt || t.submissionDate)) / 3600000; return h < 1 ? `${Math.round(h*60)}m` : `${h.toFixed(1)}h`; })()
+                            const responseTime = (t.status === 'approved' || t.status === 'rejected') && t.lastUpdate && t.submittedAt
+                                ? (() => { const h = (new Date(t.lastUpdate) - new Date(t.submittedAt)) / 3600000; if (h < 1) return `${Math.round(h*60)}m`; if (h < 24) return `${h.toFixed(1)}h`; return `${(h/24).toFixed(1)}d`; })()
                                 : '—';
                             return `<tr style="border-bottom:1px solid #eee;">
                                 <td style="padding:8px 12px;font-size:0.85rem;color:#555;">${t.ticketId || '—'}</td>

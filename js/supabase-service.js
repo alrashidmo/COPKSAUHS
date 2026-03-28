@@ -127,7 +127,7 @@ const SupabaseDB = {
                 ...row.metadata,
                 ticketId: row.ticket_id,
                 studentId: row.student_id,
-                student_email: row.student_email,
+                studentEmail: row.student_email,
                 title: row.title,
                 description: row.description,
                 status: row.status,
@@ -136,7 +136,8 @@ const SupabaseDB = {
                 request_type: row.request_type,
                 rotationName: row.rotation_name,
                 hospitalName: row.hospital_name,
-                submittedAt: new Date(row.submitted_at),
+                submittedAt: row.submitted_at ? new Date(row.submitted_at) : null,
+                lastUpdate: row.updated_at ? new Date(row.updated_at) : null,
             }));
         } catch (error) {
             console.error('❌ Failed to fetch all tickets:', error);
