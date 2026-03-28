@@ -123,8 +123,7 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
         try {
-            const [stRes, siRes, asRes, prRes, evRes, seRes, upRes, enRes, cmpRes] = await Promise.all([
-                sb.from('students').select('*').in('cohort', ['P4','APPE','p4','appe']),
+            const [siRes, asRes, prRes, evRes, seRes, upRes, enRes, yrCmpRes, compRes, spleRes] = await Promise.all([
                 sb.from('rotation_sites').select('*').order('site_name'),
                 sb.from('rotation_assignments').select('*').eq('academic_year', _year).order('student_score', { ascending: false }),
                 sb.from('rotation_preferences').select('*').eq('academic_year', _year).order('student_id'),
@@ -132,20 +131,25 @@
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
                 sb.from('user_profiles').select('user_id,full_name,email,class_year,student_id,status').eq('is_approved', true),
                 sb.from('student_enrollments').select('*').order('created_at', { ascending: false }),
-                // All years for comparison (lightweight — just key columns)
+                // All years for comparison card
                 sb.from('rotation_assignments').select('academic_year,student_id,student_score,site_id,assignment_method').in('academic_year', YEARS),
+                // Compliance from Supabase (replaces localStorage)
+                sb.from('student_compliance').select('*').eq('academic_year', _year),
+                // SPLE scores from Supabase (replaces localStorage)
+                sb.from('student_sple_scores').select('*').eq('academic_year', _year),
             ]);
-            if (!stRes.error) _data.students    = stRes.data  || [];
-            if (!siRes.error) _data.sites       = siRes.data  || [];
-            if (!asRes.error) _data.assignments = asRes.data  || [];
-            if (!prRes.error) _data.preferences = prRes.data  || [];
-            if (!evRes.error) _data.evaluations = evRes.data  || [];
+
+            if (!siRes.error)  _data.sites       = siRes.data  || [];
+            if (!asRes.error)  _data.assignments = asRes.data  || [];
+            if (!prRes.error)  _data.preferences = prRes.data  || [];
+            if (!evRes.error)  _data.evaluations = evRes.data  || [];
             if (!seRes.error && seRes.data) _data.settings = seRes.data;
-            if (!enRes.error) _data.enrollments = enRes.data  || [];
-            // user_profiles keyed by auth UUID (user_id)
+            if (!enRes.error)  _data.enrollments = enRes.data  || [];
+
+            // user_profiles: build maps and derive student list
             if (!upRes.error) {
-                _data.allProfiles   = upRes.data || [];
-                _data.profileMap    = {};
+                _data.allProfiles    = upRes.data || [];
+                _data.profileMap     = {};
                 _data.numericToAuthId = {};
                 (upRes.data || []).forEach(p => {
                     if (p.user_id) {
@@ -153,38 +157,25 @@
                         if (p.student_id) _data.numericToAuthId[String(p.student_id)] = p.user_id;
                     }
                 });
-                // Build comprehensive bridge: students.id (PK) → auth UUID
-                // Tries: college student_id → email → name
-                _data.studentsIdToAuthId = {};
-                (_data.students || []).forEach(s => {
-                    const key = String(s.id);
-                    // 1. By college student_id stored on students row
-                    if (s.student_id && _data.numericToAuthId[String(s.student_id)]) {
-                        _data.studentsIdToAuthId[key] = _data.numericToAuthId[String(s.student_id)]; return;
-                    }
-                    // 2. By PK (in case it equals college number)
-                    if (_data.numericToAuthId[key]) {
-                        _data.studentsIdToAuthId[key] = _data.numericToAuthId[key]; return;
-                    }
-                    // 3. By email match
-                    const email = (s.email || '').toLowerCase().trim();
-                    if (email) {
-                        const prof = (_data.allProfiles || []).find(p => (p.email || '').toLowerCase().trim() === email);
-                        if (prof?.user_id) { _data.studentsIdToAuthId[key] = prof.user_id; return; }
-                    }
-                    // 4. By name match (last resort)
-                    const name = (s.name || s.full_name || '').toLowerCase().trim();
-                    if (name) {
-                        const prof = (_data.allProfiles || []).find(p => (p.full_name || '').toLowerCase().trim() === name);
-                        if (prof?.user_id) { _data.studentsIdToAuthId[key] = prof.user_id; }
-                    }
-                });
+                // ★ Student list now derived from real authenticated users (P4, active)
+                //   s.id = auth UUID so all operations use consistent IDs
+                _data.students = (_data.allProfiles)
+                    .filter(p => p.class_year === 'P4' && p.status !== 'alumni')
+                    .map(p => ({
+                        id:        p.user_id,
+                        student_id: p.student_id,
+                        name:      p.full_name,
+                        full_name: p.full_name,
+                        email:     p.email,
+                        cohort:    'P4',
+                    }));
             }
-            // Build per-year comparison stats
-            if (!cmpRes.error) {
+
+            // Per-year comparison stats
+            if (!yrCmpRes.error) {
                 _data.allComparisons = {};
                 YEARS.forEach(yr => {
-                    const rows = (cmpRes.data || []).filter(r => r.academic_year === yr);
+                    const rows = (yrCmpRes.data || []).filter(r => r.academic_year === yr);
                     const uniqueStudents = [...new Set(rows.map(r => r.student_id))];
                     const scores = rows.map(r => r.student_score).filter(s => s != null);
                     const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : null;
@@ -193,8 +184,23 @@
                     _data.allComparisons[yr] = { studentCount: uniqueStudents.length, avgScore, placed, preferred, total: rows.length };
                 });
             }
+
+            // Compliance store: { student_id(authUUID): { item_key: status } }
+            _data.complianceStore = {};
+            (compRes.data || []).forEach(row => {
+                if (!_data.complianceStore[row.student_id]) _data.complianceStore[row.student_id] = {};
+                _data.complianceStore[row.student_id][row.item_key] = row.status;
+            });
+
+            // SPLE store: { student_id(authUUID): { exam1: score, exam2: score, ... } }
+            _data.spleStore = {};
+            (spleRes.data || []).forEach(row => {
+                if (!_data.spleStore[row.student_id]) _data.spleStore[row.student_id] = {};
+                _data.spleStore[row.student_id][`exam${row.exam_number}`] = Number(row.score);
+            });
+
         } catch (e) { console.warn('[APPE Hub]', e); }
-        window._appeData = _data; // expose for student profile
+        window._appeData = _data;
     }
 
     /* ═══════════════════════════════════════════════════════════
@@ -312,14 +318,8 @@
     }
 
     /* ── SPLE / Quarter helpers ───────────────────────────────── */
-    function _getSPLEStore() {
-        const yk = (_data.settings?.academic_year || '2025-2026').split('-')[0];
-        try { return JSON.parse(localStorage.getItem(`appe_sple_${yk}`) || '{}'); } catch(e) { return {}; }
-    }
-    function _saveSPLEStore(store) {
-        const yk = (_data.settings?.academic_year || '2025-2026').split('-')[0];
-        try { localStorage.setItem(`appe_sple_${yk}`, JSON.stringify(store)); } catch(e) {}
-    }
+    function _getSPLEStore()        { return _data.spleStore || {}; }
+    function _saveSPLEStore(store)  { _data.spleStore = store; } // in-memory only; Supabase saved via appeHubSaveSPLEInline
     function _quarterOf(dateStr, yr) {
         if (!dateStr) return null;
         const d = new Date(dateStr);
@@ -845,9 +845,7 @@
         { key:'hepb',       label:'Hep B Vaccine',   icon:'\uD83D\uDC89'  },
     ];
 
-    function _getComplianceStore() {
-        try { return JSON.parse(localStorage.getItem('appe_compliance')||'{}'); } catch(e) { return {}; }
-    }
+    function _getComplianceStore() { return _data.complianceStore || {}; }
 
     function _tabCompliance() {
         const { students } = _data;
@@ -940,12 +938,22 @@
         </div>`;
     }
 
-    window.appeHubCycleCompliance = function (sid, key) {
+    window.appeHubCycleCompliance = async function (sid, key) {
         const stored = _getComplianceStore();
         if (!stored[sid]) stored[sid] = {};
         const cycle  = { missing:'ok', ok:'expiring', expiring:'expired', expired:'missing' };
         stored[sid][key] = cycle[stored[sid][key] || 'missing'];
-        localStorage.setItem('appe_compliance', JSON.stringify(stored));
+        _data.complianceStore = stored;
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb) {
+            await sb.from('student_compliance').upsert({
+                student_id:   sid,
+                academic_year: _year,
+                item_key:     key,
+                status:       stored[sid][key],
+                updated_at:   new Date().toISOString()
+            }, { onConflict: 'student_id,academic_year,item_key' });
+        }
         const panel = document.getElementById('appe-hub-panel');
         if (panel) panel.innerHTML = _tabCompliance();
     };
@@ -1254,7 +1262,7 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Supabase not connected.'); return; }
 
-        const { students, sites, assignments, preferences, numericToAuthId = {}, studentsIdToAuthId = {} } = _data;
+        const { students, sites, assignments, preferences } = _data;
         const activeSites = sites.filter(s => s.is_active !== false);
         if (!activeSites.length) { alert('No active rotation sites available.'); return; }
 
@@ -1299,13 +1307,8 @@
         const now = new Date().toISOString();
 
         for (const student of sorted) {
-            // Bridge to auth UUID using the comprehensive map built in _loadData
-            const authId = studentsIdToAuthId[String(student.id)]
-                        || numericToAuthId[String(student.id)]
-                        || numericToAuthId[String(student.student_id)]
-                        || null;
-            const prefs = (authId ? prefMap[authId] : null) || prefMap[String(student.id)] || [];
-            console.log('[Match]', student.name || student.id, '→ authId:', authId, '→ prefs:', prefs.length);
+            // student.id IS the auth UUID — direct lookup, no bridge needed
+            const prefs = prefMap[student.id] || [];
             const assignedSiteIds = new Set();
             const score = scoreMap[String(student.id)] ?? null;
 
@@ -1681,13 +1684,26 @@
         if (ind) setTimeout(() => { if (ind) ind.textContent = ''; }, 2000);
     };
 
-    window.appeHubSaveSPLEInline = function (studentId, examNum, val) {
+    window.appeHubSaveSPLEInline = async function (studentId, examNum, val) {
         const store = _getSPLEStore();
         if (!store[studentId]) store[studentId] = {};
         const score = parseFloat(val);
         if (isNaN(score) || val === '') delete store[studentId][`exam${examNum}`];
         else store[studentId][`exam${examNum}`] = score;
         _saveSPLEStore(store);
+        const sb = window.SupabaseAuth?.supabase;
+        if (sb) {
+            if (!isNaN(score) && val !== '') {
+                await sb.from('student_sple_scores').upsert({
+                    student_id: studentId, academic_year: _year,
+                    exam_number: examNum, score,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'student_id,academic_year,exam_number' });
+            } else {
+                await sb.from('student_sple_scores').delete()
+                    .eq('student_id', studentId).eq('academic_year', _year).eq('exam_number', examNum);
+            }
+        }
         const ind = document.getElementById(`sple-saved-${studentId}-${examNum}`);
         if (ind) {
             ind.textContent = '\u2713'; ind.style.color = '#15803d';
@@ -2604,18 +2620,17 @@
         if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
 
         try {
-            // Update score on all existing rows for this student, or insert block=0 placeholder
-            const { data: existing } = await sb.from('rotation_assignments').select('student_id').eq('student_id', sid).limit(1);
+            const { data: existing } = await sb.from('rotation_assignments')
+                .select('id').eq('student_id', sid).eq('academic_year', _year).limit(1);
             if (existing && existing.length > 0) {
-                const { error } = await sb.from('rotation_assignments').update({ student_score: score }).eq('student_id', sid);
+                const { error } = await sb.from('rotation_assignments')
+                    .update({ student_score: score }).eq('student_id', sid).eq('academic_year', _year);
                 if (error) throw error;
             } else {
-                const { error } = await sb.from('rotation_assignments').insert({ student_id: sid, student_score: score, block_number: 0 });
+                const { error } = await sb.from('rotation_assignments')
+                    .insert({ student_id: sid, student_score: score, block_number: 0, academic_year: _year });
                 if (error) throw error;
             }
-            const error = null; // already handled above
-
-            if (error) throw error;
 
             // Update display
             const display = document.getElementById(`calc-${sid}`);

@@ -15,37 +15,43 @@ window.SupabaseAuth = {
         this.supabase = supabaseClient;
         console.log('🔐 Supabase Auth initialized');
 
-        // Check for existing session
+        // Check for existing session on page load
         const { data: { session } } = await this.supabase.auth.getSession();
         if (session) {
             this.currentUser = session.user;
             console.log('✅ Existing session found:', this.currentUser.email);
-            // Restore the app without requiring re-login
-            setTimeout(async () => {
-                try {
-                    const profile = await this.getUserProfile(this.currentUser.id);
-                    if (profile && profile.is_approved && window.AuthSystem) {
-                        window.AuthSystem.currentUser     = profile.student_id || profile.staff_id || this.currentUser.id;
-                        window.AuthSystem.currentUserRole = profile.account_type;
-                        window.AuthSystem.currentUserName = profile.full_name;
-                        window.AuthSystem.showPortal();
-                        window.AuthSystem.applyRoleBasedAccess();
-                    }
-                } catch(e) { console.warn('Session restore error:', e); }
-            }, 400);
+            this._restoreSession();
         }
 
         // Listen for auth state changes
         this.supabase.auth.onAuthStateChange((event, session) => {
             console.log('🔄 Auth state changed:', event);
             this.currentUser = session?.user || null;
-
-            if (event === 'SIGNED_IN') {
-                console.log('✅ User signed in:', this.currentUser?.email);
-            } else if (event === 'SIGNED_OUT') {
-                console.log('🚪 User signed out');
-            }
+            if (event === 'SIGNED_IN') console.log('✅ User signed in:', this.currentUser?.email);
+            else if (event === 'SIGNED_OUT') console.log('🚪 User signed out');
         });
+    },
+
+    // Retry until AuthSystem DOM is ready, then restore the session
+    _restoreSession() {
+        const tryRestore = async (attempts) => {
+            if (!window.AuthSystem || typeof window.AuthSystem.showPortal !== 'function') {
+                if (attempts < 40) setTimeout(() => tryRestore(attempts + 1), 200);
+                return;
+            }
+            try {
+                const profile = await this.getUserProfile(this.currentUser.id);
+                if (profile && profile.is_approved) {
+                    window.AuthSystem.currentUser     = profile.student_id || profile.staff_id || this.currentUser.id;
+                    window.AuthSystem.currentUserRole = profile.account_type;
+                    window.AuthSystem.currentUserName = profile.full_name;
+                    window.AuthSystem.showPortal();
+                    window.AuthSystem.applyRoleBasedAccess();
+                    console.log('✅ Session restored for', profile.full_name);
+                }
+            } catch(e) { console.warn('Session restore error:', e); }
+        };
+        setTimeout(() => tryRestore(0), 300);
     },
 
     /**
@@ -55,6 +61,21 @@ window.SupabaseAuth = {
     async signUp(userData) {
         try {
             console.log('📝 Signing up user:', userData.email);
+
+            // Check for duplicate email in pending_signups
+            const { data: existingPending } = await this.supabase
+                .from('pending_signups').select('id,status').eq('email', userData.email).maybeSingle();
+            if (existingPending) {
+                return { success: false, message: existingPending.status === 'pending'
+                    ? 'A signup request with this email is already pending admin approval.'
+                    : 'This email has already been submitted. Please sign in or contact support.' };
+            }
+            // Check for duplicate in approved user_profiles
+            const { data: existingProfile } = await this.supabase
+                .from('user_profiles').select('user_id').eq('email', userData.email).maybeSingle();
+            if (existingProfile) {
+                return { success: false, message: 'An account with this email already exists. Please sign in instead.' };
+            }
 
             // Create the signup request in pending_signups table
             const signupRequest = {

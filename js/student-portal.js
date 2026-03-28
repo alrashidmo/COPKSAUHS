@@ -2485,7 +2485,7 @@ async function renderRotationPreferences() {
 
     root.innerHTML = '<div style="padding:2rem;text-align:center;color:#888;"><div style="font-size:2.5rem;margin-bottom:0.75rem;">⏳</div><p>Loading rotation data...</p></div>';
 
-    let sites = [], settings = { submissions_open: true }, assignment = null, savedPrefs = [], availMap = {};
+    let sites = [], settings = { submissions_open: true }, assignments = [], savedPrefs = [], availMap = {};
 
     try {
         const sb = window.SupabaseAuth?.supabase;
@@ -2510,14 +2510,14 @@ async function renderRotationPreferences() {
             const [sitesRes, settingsRes, assignRes, prefsRes, avRes] = await Promise.all([
                 sb.from('rotation_sites').select('id, site_name, specialty').eq('is_active', true).order('site_name'),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
-                sb.from('rotation_assignments').select('*, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).maybeSingle(),
+                sb.from('rotation_assignments').select('*, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).order('block_number'),
                 sb.from('rotation_preferences').select('site_id, preference_rank, submitted_at, rotation_sites(site_name, specialty)').eq('student_id', _rotCurrentUserId).order('preference_rank'),
                 sb.from('rotation_site_availability').select('site_id, block_number')
             ]);
 
             if (!sitesRes.error && sitesRes.data) sites = sitesRes.data;
             if (!settingsRes.error && settingsRes.data) settings = settingsRes.data;
-            if (!assignRes.error) assignment = assignRes.data;
+            if (!assignRes.error) assignments = assignRes.data || [];
             if (!prefsRes.error && prefsRes.data) savedPrefs = prefsRes.data;
             if (!avRes.error && avRes.data) {
                 avRes.data.forEach(a => {
@@ -2538,14 +2538,19 @@ async function renderRotationPreferences() {
 
     const selectedIds = new Set(_rotPrefList.map(p => p.site_id));
 
-    const assignmentBanner = assignment?.site_id ? `
-        <div style="background:linear-gradient(135deg,#1B5E20,#2e7d32);color:white;border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:1.5rem;">
-            <div style="font-size:3rem;">🎉</div>
-            <div>
-                <div style="font-size:0.8rem;opacity:0.8;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.3rem;">Your APPE Assignment</div>
-                <div style="font-size:1.5rem;font-weight:700;margin-bottom:0.2rem;">${assignment.rotation_sites?.site_name || 'Assigned'}</div>
-                <div style="opacity:0.9;font-size:0.95rem;">${assignment.rotation_sites?.specialty || ''}</div>
-                ${assignment.preference_rank_received ? '<div style="margin-top:0.5rem;font-size:0.82rem;opacity:0.8;background:rgba(255,255,255,0.15);display:inline-block;padding:2px 12px;border-radius:12px;">Your #' + assignment.preference_rank_received + ' choice ✓</div>' : ''}
+    const placedBlocks = assignments.filter(a => a.site_id);
+    const assignmentBanner = placedBlocks.length > 0 ? `
+        <div style="background:linear-gradient(135deg,#1B5E20,#2e7d32);color:white;border-radius:14px;padding:1.5rem 2rem;margin-bottom:1.5rem;">
+            <div style="font-size:0.8rem;opacity:0.8;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.75rem;">🎉 Your APPE Rotation Schedule (${placedBlocks.length}/10 blocks)</div>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">
+                ${[1,2,3,4,5,6,7,8,9,10].map(b => {
+                    const a = assignments.find(x => x.block_number === b);
+                    return `<div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px 6px;text-align:center;min-height:60px;display:flex;flex-direction:column;justify-content:center;">
+                        <div style="font-size:0.62rem;opacity:0.7;margin-bottom:4px;font-weight:700;">Block ${b}</div>
+                        <div style="font-size:0.75rem;font-weight:700;line-height:1.25;">${a?.rotation_sites?.site_name || '<span style="opacity:0.4;">—</span>'}</div>
+                        ${a?.preference_rank_received ? `<div style="font-size:0.6rem;opacity:0.8;margin-top:3px;background:rgba(255,255,255,0.2);border-radius:4px;padding:1px 4px;">#${a.preference_rank_received} choice ✓</div>` : ''}
+                    </div>`;
+                }).join('')}
             </div>
         </div>` : '';
 
