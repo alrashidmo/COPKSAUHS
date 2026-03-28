@@ -140,6 +140,7 @@ const SupabaseDB = {
                 hospitalName: row.hospital_name,
                 submittedAt: row.submitted_at ? new Date(row.submitted_at) : null,
                 lastUpdate: row.updated_at ? new Date(row.updated_at) : null,
+                rejectionReason: row.admin_notes || '',
             }));
         } catch (error) {
             console.error('❌ Failed to fetch all tickets:', error);
@@ -160,16 +161,20 @@ const SupabaseDB = {
     /**
      * Update ticket status (admin action)
      */
-    async updateTicketStatus(studentId, ticketId, newStatus) {
+    async updateTicketStatus(studentId, ticketId, newStatus, adminNotes = '') {
         try {
-            if (!supabaseClient) throw new Error('Supabase not initialized');
+            const client = window.SupabaseAuth?.supabase || supabaseClient;
+            if (!client) throw new Error('Supabase not initialized');
 
-            const { error } = await supabaseClient
+            const updateData = {
+                status: newStatus,
+                updated_at: new Date().toISOString()
+            };
+            if (adminNotes) updateData.admin_notes = adminNotes;
+
+            const { error } = await client
                 .from('submitted_tickets')
-                .update({
-                    status: newStatus,
-                    updated_at: new Date().toISOString()
-                })
+                .update(updateData)
                 .eq('ticket_id', ticketId);
 
             if (error) throw error;

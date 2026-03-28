@@ -19500,7 +19500,7 @@ window.approveTicket = async function(ticketId, studentId, studentEmail) {
         // 💾 Save status update to Supabase
         if (typeof window.SupabaseService !== 'undefined') {
             try {
-                await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved');
+                await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'approved', '');
                 console.log('✅ Ticket status updated in Supabase');
             } catch (error) {
                 console.error('❌ Error updating ticket in Supabase:', error);
@@ -19566,7 +19566,7 @@ window.rejectTicket = async function(ticketId, studentId, studentEmail) {
         // 💾 Save status update to Supabase
         if (typeof window.SupabaseService !== 'undefined') {
             try {
-                await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected');
+                await window.SupabaseService.db.updateTicketStatus(studentId, ticketId, 'rejected', rejectReason);
                 console.log('✅ Ticket status updated in Supabase');
             } catch (error) {
                 console.error('❌ Error updating ticket in Supabase:', error);
