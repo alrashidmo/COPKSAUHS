@@ -235,11 +235,18 @@ async function renderStudentPortalHome() {
         student = StudentPortalManager.currentStudent;
     }
 
-    // Load this student's tickets directly from Supabase
+    // Load student profile level + tickets
+    let studentClassYear = null, studentStatus = null;
     let currentStudentTickets = StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample);
     try {
         const sb = window.SupabaseAuth?.supabase;
         if (sb && student.studentId) {
+            // Fetch level info using auth UUID
+            const { data: { user } } = await sb.auth.getUser();
+            if (user?.id) {
+                const { data: prof } = await sb.from('user_profiles').select('class_year,status').eq('user_id', user.id).maybeSingle();
+                if (prof) { studentClassYear = prof.class_year; studentStatus = prof.status; }
+            }
             const { data } = await sb.from('submitted_tickets').select('*').eq('student_id', student.studentId).order('submitted_at', { ascending: false });
             if (data && data.length > 0) {
                 currentStudentTickets = data.map(t => ({
@@ -270,7 +277,14 @@ async function renderStudentPortalHome() {
         <section class="home-section" style="background: linear-gradient(135deg, #1B5E20 0%, #0D3B12 100%); color: white; margin-bottom: 30px;">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <div>
-                    <h2 style="margin: 0 0 8px 0;">Welcome, ${student.firstName}! 👋</h2>
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <h2 style="margin: 0;">Welcome, ${student.firstName}! 👋</h2>
+                        ${(studentClassYear || studentStatus === 'alumni') ? `<span style="background:rgba(255,255,255,0.2);backdrop-filter:blur(4px);
+                            color:#fff;padding:3px 12px;border-radius:50px;font-size:0.82rem;font-weight:700;
+                            letter-spacing:0.5px;border:1px solid rgba(255,255,255,0.3);">
+                            ${studentStatus === 'alumni' ? '🎓 Alumni' : studentClassYear}
+                        </span>` : ''}
+                    </div>
                     <p style="margin: 0; opacity: 0.9;">Student ID: ${student.studentId} • ${student.program}</p>
                 </div>
                 <div style="text-align: right;">

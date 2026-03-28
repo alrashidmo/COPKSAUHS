@@ -96,14 +96,15 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
         try {
-            const [stRes, siRes, asRes, prRes, evRes, seRes, upRes] = await Promise.all([
+            const [stRes, siRes, asRes, prRes, evRes, seRes, upRes, enRes] = await Promise.all([
                 sb.from('students').select('*').in('cohort', ['P4','APPE','p4','appe']),
                 sb.from('rotation_sites').select('*').order('site_name'),
                 sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
                 sb.from('rotation_preferences').select('*').order('student_id'),
                 sb.from('rotation_evaluations').select('*').order('created_at', { ascending: false }),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
-                sb.from('user_profiles').select('user_id,full_name,email,class_year,student_id').in('class_year',['P4','p4']),
+                sb.from('user_profiles').select('user_id,full_name,email,class_year,student_id,status').eq('is_approved', true),
+                sb.from('student_enrollments').select('*').order('created_at', { ascending: false }),
             ]);
             if (!stRes.error) _data.students    = stRes.data  || [];
             if (!siRes.error) _data.sites       = siRes.data  || [];
@@ -111,10 +112,12 @@
             if (!prRes.error) _data.preferences = prRes.data  || [];
             if (!evRes.error) _data.evaluations = evRes.data  || [];
             if (!seRes.error && seRes.data) _data.settings = seRes.data;
-            // user_profiles keyed by auth UUID (user_id) — bridges preferences.student_id → name
+            if (!enRes.error) _data.enrollments = enRes.data  || [];
+            // user_profiles keyed by auth UUID (user_id)
             if (!upRes.error) {
-                _data.profileMap = {};
-                _data.numericToAuthId = {}; // numeric student_id → auth UUID
+                _data.allProfiles   = upRes.data || [];
+                _data.profileMap    = {};
+                _data.numericToAuthId = {};
                 (upRes.data || []).forEach(p => {
                     if (p.user_id) {
                         _data.profileMap[p.user_id] = p;
@@ -2056,6 +2059,8 @@
                 </div>
             </div>
 
+            ${_progressionPanel()}
+
             <div style="background:${C.card};border-radius:18px;padding:1.5rem;
                         box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
                         border:1px solid ${C.border};">
@@ -2098,6 +2103,109 @@
         if (!confirm('Clear ALL compliance data? This cannot be undone.')) return;
         localStorage.removeItem('appe_compliance');
         alert('Compliance data cleared.');
+        const panel = document.getElementById('appe-hub-panel');
+        if (panel) panel.innerHTML = _tabSettings();
+    };
+
+    function _progressionPanel() {
+        const all     = _data.allProfiles || [];
+        const active  = all.filter(p => p.status !== 'alumni');
+        const alumni  = all.filter(p => p.status === 'alumni');
+        if (!all.length) return '';
+
+        const yearOrder = { P1:1, P2:2, P3:3, P4:4 };
+        const sorted = [...active].sort((a, b) =>
+            (yearOrder[a.class_year] || 9) - (yearOrder[b.class_year] || 9) ||
+            (a.full_name || '').localeCompare(b.full_name || '')
+        );
+
+        const yearStyle = {
+            P1: `background:#e0f2fe;color:#0369a1`,
+            P2: `background:#fef3c7;color:#92400e`,
+            P3: `background:#ede9fe;color:#5b21b6`,
+            P4: `background:#dcfce7;color:#166534`,
+        };
+        const nextYear = { P1:'P2', P2:'P3', P3:'P4' };
+
+        const rows = sorted.map(p => {
+            const uid  = p.user_id;
+            const yr   = p.class_year || '—';
+            const pill = yearStyle[yr] || `background:#f3f4f6;color:#374151`;
+            const promoteBtn = nextYear[yr]
+                ? `<button onclick="window.appePromoteStudent('${uid}','${yr}')"
+                           style="background:${C.primary};color:#fff;border:none;padding:5px 14px;
+                                  border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:700;margin-right:6px;">
+                       → ${nextYear[yr]}
+                   </button>` : '';
+            const gradBtn = yr === 'P4'
+                ? `<button onclick="window.appeGraduateStudent('${uid}')"
+                           style="background:#7c3aed;color:#fff;border:none;padding:5px 14px;
+                                  border-radius:50px;cursor:pointer;font-size:0.78rem;font-weight:700;">
+                       🎓 Graduate
+                   </button>` : '';
+            return `
+            <tr style="border-bottom:1px solid ${C.border};">
+                <td style="padding:10px 12px;font-size:0.88rem;font-weight:600;color:${C.text};">${p.full_name || '—'}</td>
+                <td style="padding:10px 12px;">
+                    <span style="${pill};padding:3px 10px;border-radius:50px;font-size:0.78rem;font-weight:700;">${yr}</span>
+                </td>
+                <td style="padding:10px 12px;white-space:nowrap;">${promoteBtn}${gradBtn}</td>
+            </tr>`;
+        }).join('');
+
+        const alumniChips = alumni.map(p =>
+            `<span style="background:#f3f4f6;color:#374151;padding:4px 12px;border-radius:50px;
+                          font-size:0.8rem;font-weight:600;">🎓 ${p.full_name || '—'}</span>`
+        ).join('');
+
+        return `
+        <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                    box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                    border:1px solid ${C.border};">
+            <h3 style="margin:0 0 4px;font-size:0.95rem;font-weight:700;color:${C.text};">Student Progression</h3>
+            <p style="margin:0 0 1rem;font-size:0.8rem;color:${C.muted};">Promote students to the next year or graduate them to Alumni.</p>
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;">
+                    <thead>
+                        <tr style="background:#f8fafc;border-bottom:2px solid ${C.border};">
+                            <th style="padding:8px 12px;text-align:left;font-size:0.78rem;color:${C.muted};font-weight:700;">Name</th>
+                            <th style="padding:8px 12px;text-align:left;font-size:0.78rem;color:${C.muted};font-weight:700;">Year</th>
+                            <th style="padding:8px 12px;text-align:left;font-size:0.78rem;color:${C.muted};font-weight:700;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            ${alumni.length ? `
+            <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid ${C.border};">
+                <div style="font-size:0.82rem;font-weight:700;color:${C.muted};margin-bottom:8px;">Alumni (${alumni.length})</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">${alumniChips}</div>
+            </div>` : ''}
+        </div>`;
+    }
+
+    window.appePromoteStudent = async function (userId, currentYear) {
+        const next = { P1:'P2', P2:'P3', P3:'P4' }[currentYear];
+        if (!next) return;
+        if (!confirm(`Promote this student from ${currentYear} to ${next}?`)) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('user_profiles').update({ class_year: next }).eq('user_id', userId);
+        if (error) { alert('Error: ' + error.message); return; }
+        const p = (_data.allProfiles || []).find(x => x.user_id === userId);
+        if (p) p.class_year = next;
+        const panel = document.getElementById('appe-hub-panel');
+        if (panel) panel.innerHTML = _tabSettings();
+    };
+
+    window.appeGraduateStudent = async function (userId) {
+        if (!confirm('Mark this student as Alumni? They will be excluded from APPE matching and active operations.')) return;
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) return;
+        const { error } = await sb.from('user_profiles').update({ status: 'alumni' }).eq('user_id', userId);
+        if (error) { alert('Error: ' + error.message); return; }
+        const p = (_data.allProfiles || []).find(x => x.user_id === userId);
+        if (p) p.status = 'alumni';
         const panel = document.getElementById('appe-hub-panel');
         if (panel) panel.innerHTML = _tabSettings();
     };
@@ -2152,7 +2260,13 @@
        TAB: SCORES — MS Survey Score Management
     ═══════════════════════════════════════════════════════════ */
     function _tabScores() {
-        const students = _data.students || [];
+        // Exclude alumni students
+        const allStudents = _data.students || [];
+        const students = allStudents.filter(s => {
+            const authId = _data.numericToAuthId?.[String(s.id || s.student_id)];
+            if (!authId) return true; // no profile found, keep them
+            return _data.profileMap?.[authId]?.status !== 'alumni';
+        });
         if (!students.length) {
             return `<div style="text-align:center;padding:4rem;color:${C.muted};">
                 <div style="font-size:3rem;margin-bottom:1rem;">🏆</div>
