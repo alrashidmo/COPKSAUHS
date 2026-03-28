@@ -2128,11 +2128,25 @@
             if (a.student_id && a.student_score != null) scoreMap[a.student_id] = a.student_score;
         });
 
-        const rows = students.map(s => {
+        // Sort: scored students highest→lowest, then unscored alphabetically
+        const sorted = [...students].sort((a, b) => {
+            const sa = scoreMap[a.id || a.student_id];
+            const sb2 = scoreMap[b.id || b.student_id];
+            if (sa != null && sb2 != null) return sb2 - sa;
+            if (sa != null) return -1;
+            if (sb2 != null) return 1;
+            return (a.name || '').localeCompare(b.name || '');
+        });
+
+        const MEDALS = ['🥇','🥈','🥉'];
+        const rows = sorted.map((s, idx) => {
             const sid = s.id || s.student_id;
             const existingScore = scoreMap[sid] != null ? scoreMap[sid] : '';
+            const rank = existingScore !== '' ? idx + 1 : null;
+            const rankDisplay = rank ? (MEDALS[idx] || `<span style="font-weight:800;color:${C.muted};">#${rank}</span>`) : `<span style="color:${C.muted};">—</span>`;
             return `
-            <tr id="score-row-${sid}" style="border-bottom:1px solid ${C.border};">
+            <tr id="score-row-${sid}" style="border-bottom:1px solid ${C.border};${existingScore !== '' && idx < 3 ? 'background:linear-gradient(90deg,rgba(27,94,32,0.04) 0%,transparent 100%);' : ''}">
+                <td style="padding:12px 10px;text-align:center;font-size:1.1rem;">${rankDisplay}</td>
                 <td style="padding:12px 14px;font-weight:600;color:${C.text};">${s.name || s.full_name || '—'}</td>
                 <td style="padding:12px 14px;color:${C.muted};font-size:0.85rem;">${s.email || '—'}</td>
                 <td style="padding:12px 8px;">
@@ -2209,6 +2223,7 @@
                 <table style="width:100%;border-collapse:collapse;min-width:900px;">
                     <thead>
                         <tr style="border-bottom:2px solid ${C.border};">
+                            <th style="text-align:center;padding:12px 10px;font-size:0.72rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Rank</th>
                             <th style="text-align:left;padding:12px 14px;font-size:0.72rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Student</th>
                             <th style="text-align:left;padding:12px 14px;font-size:0.72rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Email</th>
                             <th style="${thStyle}">GPA<br><span style="font-weight:400;color:#1B5E20;">44%</span></th>
