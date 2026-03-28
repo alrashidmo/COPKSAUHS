@@ -20,6 +20,12 @@ window.SupabaseAuth = {
         if (session) {
             this.currentUser = session.user;
             console.log('✅ Existing session found:', this.currentUser.email);
+            // Restore the app without requiring re-login
+            setTimeout(() => {
+                if (typeof window.initializeApp === 'function') {
+                    window.initializeApp();
+                }
+            }, 300);
         }
 
         // Listen for auth state changes
