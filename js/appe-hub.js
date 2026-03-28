@@ -898,15 +898,16 @@
 
         // Build submitted/not-submitted lists from user_profiles (most accurate for P4 count)
         const profileList = Object.values(profileMap);
-        const submittedProfiles = profileList.filter(p => submittedAuthIds.has(String(p.id)));
-        const notSubProfiles    = profileList.filter(p => !submittedAuthIds.has(String(p.id)));
+        // profileMap is keyed by user_id (auth UUID); each value has {user_id, full_name, email, class_year}
+        const submittedProfiles = profileList.filter(p => submittedAuthIds.has(String(p.user_id)));
+        const notSubProfiles    = profileList.filter(p => !submittedAuthIds.has(String(p.user_id)));
 
         // Fallback to students table if profileMap empty
-        const submitted = submittedProfiles.length || profileList.length
-            ? submittedProfiles.map(p => ({ id: p.id, name: p.full_name || p.email }))
+        const submitted = profileList.length
+            ? submittedProfiles.map(p => ({ id: p.user_id, name: p.full_name || p.email }))
             : students.filter(s => submittedAuthIds.has(String(s.id)));
-        const notSub = notSubProfiles.length || profileList.length
-            ? notSubProfiles.map(p => ({ id: p.id, name: p.full_name || p.email }))
+        const notSub = profileList.length
+            ? notSubProfiles.map(p => ({ id: p.user_id, name: p.full_name || p.email }))
             : students.filter(s => !submittedAuthIds.has(String(s.id)));
 
         const total = submitted.length + notSub.length || students.length;
