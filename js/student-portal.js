@@ -2864,10 +2864,16 @@ window.rotStudent = {
         try {
             const sb = window.SupabaseAuth?.supabase;
             if (!sb || !_rotCurrentUserId) { alert('Not authenticated. Please log in again.'); return; }
-            const { error: delErr } = await sb.from('rotation_preferences').delete().eq('student_id', _rotCurrentUserId);
+            // Get current active academic year from settings
+            let activeYear = '2025-2026';
+            try {
+                const { data: ys } = await sb.from('rotation_settings').select('academic_year').eq('id', 1).maybeSingle();
+                if (ys?.academic_year) activeYear = ys.academic_year;
+            } catch(e) {}
+            const { error: delErr } = await sb.from('rotation_preferences').delete().eq('student_id', _rotCurrentUserId).eq('academic_year', activeYear);
             if (delErr) throw delErr;
             const now = new Date().toISOString();
-            const prefs = _rotPrefList.map((p, i) => ({ student_id: _rotCurrentUserId, site_id: p.site_id, preference_rank: i + 1, submitted_at: now, updated_at: now }));
+            const prefs = _rotPrefList.map((p, i) => ({ student_id: _rotCurrentUserId, site_id: p.site_id, preference_rank: i + 1, academic_year: activeYear, submitted_at: now, updated_at: now }));
             const { error: insErr } = await sb.from('rotation_preferences').insert(prefs);
             if (insErr) throw insErr;
             alert('✅ Your ' + _rotPrefList.length + ' rotation preferences have been submitted!');

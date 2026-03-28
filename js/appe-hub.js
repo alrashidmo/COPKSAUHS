@@ -33,6 +33,8 @@
     /* ── Module state ─────────────────────────────────────────── */
     let _tab    = 'dashboard';
     let _loaded = false;
+    let _year   = '2025-2026'; // currently viewed academic year (can differ from active write year)
+    const YEARS = ['2024-2025', '2025-2026', '2026-2027'];
     let _data   = {
         students:    [],
         sites:       [],
@@ -40,6 +42,7 @@
         preferences: [],
         evaluations: [],
         settings:    { submissions_open: true, academic_year: '2025-2026' },
+        allComparisons: {}, // { year: { students, avgScore, placed, preferred } }
     };
 
     /* ═══════════════════════════════════════════════════════════
@@ -82,11 +85,35 @@
         if (panel) panel.innerHTML = _renderTab(_tab);
     };
 
+    window.appeHubSwitchYear = async function (yr) {
+        if (!YEARS.includes(yr)) return;
+        _year   = yr;
+        _loaded = false;
+        const panel = document.getElementById('appe-hub-panel');
+        if (panel) panel.innerHTML = _loadingHTML(`Loading ${yr}\u2026`);
+        await _loadData();
+        _loaded = true;
+        // Re-render full shell so dropdown reflects selection, then re-render panel
+        const hub = document.getElementById('appe-hub-root') || document.querySelector('[data-section="appe-hub"]');
+        if (hub) { hub.innerHTML = _shellHTML(); }
+        const p2 = document.getElementById('appe-hub-panel');
+        if (p2) p2.innerHTML = _renderTab(_tab);
+        // Re-apply active tab button style
+        document.querySelectorAll('.appe-tab-btn').forEach(b => {
+            const active = b.dataset.tab === _tab;
+            b.style.background     = active ? 'rgba(255,255,255,0.2)' : 'transparent';
+            b.style.color          = active ? '#fff' : 'rgba(255,255,255,0.65)';
+            b.style.fontWeight     = active ? '700' : '500';
+            b.style.backdropFilter = active ? 'blur(4px)' : 'none';
+        });
+    };
+
     /* ═══════════════════════════════════════════════════════════
        INIT & DATA LOADING
     ═══════════════════════════════════════════════════════════ */
     async function _init() {
         await _loadData();
+        _year   = _data.settings?.academic_year || '2025-2026';
         _loaded = true;
         const panel = document.getElementById('appe-hub-panel');
         if (panel) panel.innerHTML = _renderTab(_tab);
@@ -96,15 +123,17 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
         try {
-            const [stRes, siRes, asRes, prRes, evRes, seRes, upRes, enRes] = await Promise.all([
+            const [stRes, siRes, asRes, prRes, evRes, seRes, upRes, enRes, cmpRes] = await Promise.all([
                 sb.from('students').select('*').in('cohort', ['P4','APPE','p4','appe']),
                 sb.from('rotation_sites').select('*').order('site_name'),
-                sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
-                sb.from('rotation_preferences').select('*').order('student_id'),
+                sb.from('rotation_assignments').select('*').eq('academic_year', _year).order('student_score', { ascending: false }),
+                sb.from('rotation_preferences').select('*').eq('academic_year', _year).order('student_id'),
                 sb.from('rotation_evaluations').select('*').order('created_at', { ascending: false }),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
                 sb.from('user_profiles').select('user_id,full_name,email,class_year,student_id,status').eq('is_approved', true),
                 sb.from('student_enrollments').select('*').order('created_at', { ascending: false }),
+                // All years for comparison (lightweight — just key columns)
+                sb.from('rotation_assignments').select('academic_year,student_id,student_score,site_id,assignment_method').in('academic_year', YEARS),
             ]);
             if (!stRes.error) _data.students    = stRes.data  || [];
             if (!siRes.error) _data.sites       = siRes.data  || [];
@@ -123,6 +152,19 @@
                         _data.profileMap[p.user_id] = p;
                         if (p.student_id) _data.numericToAuthId[String(p.student_id)] = p.user_id;
                     }
+                });
+            }
+            // Build per-year comparison stats
+            if (!cmpRes.error) {
+                _data.allComparisons = {};
+                YEARS.forEach(yr => {
+                    const rows = (cmpRes.data || []).filter(r => r.academic_year === yr);
+                    const uniqueStudents = [...new Set(rows.map(r => r.student_id))];
+                    const scores = rows.map(r => r.student_score).filter(s => s != null);
+                    const avgScore = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : null;
+                    const placed   = rows.filter(r => r.site_id).length;
+                    const preferred= rows.filter(r => r.assignment_method === 'auto').length;
+                    _data.allComparisons[yr] = { studentCount: uniqueStudents.length, avgScore, placed, preferred, total: rows.length };
                 });
             }
         } catch (e) { console.warn('[APPE Hub]', e); }
@@ -193,11 +235,14 @@
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                        <span style="background:rgba(255,255,255,0.15);color:#fff;padding:5px 14px;
-                                     border-radius:50px;font-size:0.78rem;font-weight:700;
-                                     backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,0.2);">
-                            \uD83D\uDCC5 ${_data.settings?.academic_year || '2025-2026'}
-                        </span>
+                        <select onchange="window.appeHubSwitchYear(this.value)"
+                                style="background:rgba(255,255,255,0.15);color:#fff;
+                                       padding:5px 14px;border-radius:50px;font-size:0.78rem;
+                                       font-weight:700;border:1px solid rgba(255,255,255,0.3);
+                                       cursor:pointer;backdrop-filter:blur(4px);outline:none;
+                                       appearance:none;-webkit-appearance:none;">
+                            ${YEARS.map(y => `<option value="${y}" ${_year===y?'selected':''} style="background:#1B5E20;color:#fff;">\uD83D\uDCC5 ${y}${y===(_data.settings?.academic_year||'2025-2026')?' \u2605':''}</option>`).join('')}
+                        </select>
                         <button onclick="window.appeHubRefresh()"
                                 style="background:rgba(255,255,255,0.12);color:rgba(255,255,255,0.9);
                                        border:1px solid rgba(255,255,255,0.25);padding:5px 14px;
@@ -1255,6 +1300,7 @@
                         student_score: score,
                         site_id: bestSite.id,
                         block_number: block,
+                        academic_year: _year,
                         preference_rank_received: bestRank || null,
                         assignment_method: bestRank ? 'auto' : 'auto-fallback',
                         assigned_at: now,
@@ -1266,6 +1312,7 @@
                         student_score: score,
                         site_id: null,
                         block_number: block,
+                        academic_year: _year,
                         preference_rank_received: null,
                         assignment_method: 'unassigned',
                         assigned_at: now,
@@ -1278,7 +1325,7 @@
 
         try {
             const { error } = await sb.from('rotation_assignments')
-                .upsert(results, { onConflict: 'student_id,block_number' });
+                .upsert(results, { onConflict: 'student_id,block_number,academic_year' });
             if (error) throw error;
 
             const placed = results.filter(r => r.site_id).length;
@@ -1800,8 +1847,68 @@
        TAB 9 - OUTCOMES
     ═══════════════════════════════════════════════════════════ */
     function _tabOutcomes() {
-        const { evaluations: ev, students: st, sites: si, assignments: as, settings } = _data;
+        const { evaluations: ev, students: st, sites: si, assignments: as, settings, allComparisons } = _data;
         const year = settings?.academic_year || '2025-2026';
+
+        /* ── 3-Year Comparison ── */
+        const activeYear = settings?.academic_year || '2025-2026';
+        const compCard = `
+        <div style="background:${C.card};border-radius:18px;padding:1.5rem;
+                    box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
+                    border:1px solid ${C.border};margin-bottom:1.5rem;">
+            <h3 style="margin:0 0 1.25rem;font-size:0.95rem;font-weight:700;color:${C.text};">📊 Year-over-Year Comparison</h3>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;">
+                ${YEARS.map(yr => {
+                    const d = allComparisons[yr] || {};
+                    const isActive = yr === activeYear;
+                    const isCurrent = yr === _year;
+                    return `
+                    <div style="border-radius:14px;padding:1.25rem;text-align:center;
+                                background:${isCurrent ? C.primaryPl : '#f8fafc'};
+                                border:2px solid ${isCurrent ? C.primary : C.border};">
+                        <div style="font-size:0.78rem;font-weight:700;color:${isCurrent?C.primary:C.muted};
+                                    margin-bottom:10px;letter-spacing:0.5px;">
+                            ${yr}${isActive ? ' ★' : ''}
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:8px;">
+                            <div>
+                                <div style="font-size:1.6rem;font-weight:800;color:${C.text};line-height:1;">
+                                    ${d.studentCount || '—'}
+                                </div>
+                                <div style="font-size:0.72rem;color:${C.muted};">Students</div>
+                            </div>
+                            <div style="height:1px;background:${C.border};"></div>
+                            <div>
+                                <div style="font-size:1.3rem;font-weight:700;color:${C.green};line-height:1;">
+                                    ${d.avgScore ? d.avgScore + '%' : '—'}
+                                </div>
+                                <div style="font-size:0.72rem;color:${C.muted};">Avg Score</div>
+                            </div>
+                            <div style="height:1px;background:${C.border};"></div>
+                            <div>
+                                <div style="font-size:1.3rem;font-weight:700;color:${C.blue};line-height:1;">
+                                    ${d.total ? Math.round(d.preferred/d.total*100)+'%' : '—'}
+                                </div>
+                                <div style="font-size:0.72rem;color:${C.muted};">Matched Preferred</div>
+                            </div>
+                            <div style="height:1px;background:${C.border};"></div>
+                            <div>
+                                <div style="font-size:1.3rem;font-weight:700;color:${C.amber};line-height:1;">
+                                    ${d.placed != null ? d.placed : '—'}
+                                </div>
+                                <div style="font-size:0.72rem;color:${C.muted};">Blocks Placed</div>
+                            </div>
+                        </div>
+                        ${isCurrent ? '' : `
+                        <button onclick="window.appeHubSwitchYear('${yr}')"
+                                style="margin-top:12px;background:${C.primary};color:#fff;border:none;
+                                       padding:5px 14px;border-radius:50px;cursor:pointer;font-size:0.75rem;font-weight:700;">
+                            View ${yr}
+                        </button>`}
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>`;
 
         /* ── Student Satisfaction (from real eval ratings) ── */
         const ratingFields = [
@@ -1993,9 +2100,10 @@
         return `
         <div style="display:grid;gap:1.25rem;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-                <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">Outcomes — ${year}</h2>
+                <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">Outcomes — ${_year}</h2>
                 <span style="font-size:0.78rem;color:${C.muted};">Live data from Supabase &nbsp;&middot;&nbsp; ${ev.length} evaluations on record</span>
             </div>
+            ${compCard}
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;">
                 ${satisfactionCard}
                 ${redFlagsCard}
