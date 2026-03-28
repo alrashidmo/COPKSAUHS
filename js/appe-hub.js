@@ -2199,15 +2199,41 @@
     };
 
     window.appeGraduateStudent = async function (userId) {
-        if (!confirm('Mark this student as Alumni? They will be excluded from APPE matching and active operations.')) return;
+        if (!confirm('Graduate this student to Alumni? They will be added to the Alumni Directory and excluded from APPE operations.')) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
+
+        // 1. Mark as alumni in user_profiles
         const { error } = await sb.from('user_profiles').update({ status: 'alumni' }).eq('user_id', userId);
         if (error) { alert('Error: ' + error.message); return; }
+
+        // 2. Add to alumni_profiles directory (the Alumni Unit)
         const p = (_data.allProfiles || []).find(x => x.user_id === userId);
-        if (p) p.status = 'alumni';
+        if (p) {
+            p.status = 'alumni';
+            const gradYear = new Date().getFullYear();
+            // Check if already in alumni_profiles (avoid duplicate)
+            const { data: existing } = await sb.from('alumni_profiles').select('id').eq('email', p.email).maybeSingle();
+            if (!existing) {
+                await sb.from('alumni_profiles').insert({
+                    alumni_id:         'GRAD-' + (p.student_id || userId.slice(0,8)),
+                    name:              p.full_name,
+                    email:             p.email || '',
+                    program:           'PharmD',
+                    graduation_year:   gradYear,
+                    student_id:        p.student_id || null,
+                    status:            'employed',
+                    engagement:        'moderate',
+                    mentor_willing:    false,
+                    preceptor_willing: false,
+                    country:           'Saudi Arabia',
+                });
+            }
+        }
+
         const panel = document.getElementById('appe-hub-panel');
         if (panel) panel.innerHTML = _tabSettings();
+        alert('Student graduated and added to the Alumni Directory!');
     };
 
     /* ═══════════════════════════════════════════════════════════
