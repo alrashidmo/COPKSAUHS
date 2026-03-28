@@ -1273,8 +1273,10 @@
         const now = new Date().toISOString();
 
         for (const student of sorted) {
-            // Bridge numeric ID → auth UUID to find preferences
-            const authId = numericToAuthId[String(student.id)];
+            // Bridge to auth UUID: try PK first, then college student_id field
+            const authId = numericToAuthId[String(student.id)]
+                        || numericToAuthId[String(student.student_id)]
+                        || null;
             const prefs = (authId ? prefMap[authId] : null) || prefMap[String(student.id)] || [];
             const assignedSiteIds = new Set();
             const score = scoreMap[String(student.id)] ?? null;
