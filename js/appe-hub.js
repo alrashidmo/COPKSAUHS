@@ -96,13 +96,14 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
         try {
-            const [stRes, siRes, asRes, prRes, evRes, seRes] = await Promise.all([
+            const [stRes, siRes, asRes, prRes, evRes, seRes, upRes] = await Promise.all([
                 sb.from('students').select('*').in('cohort', ['P4','APPE','p4','appe']),
                 sb.from('rotation_sites').select('*').order('site_name'),
                 sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
                 sb.from('rotation_preferences').select('*').order('student_id'),
                 sb.from('rotation_evaluations').select('*').order('created_at', { ascending: false }),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
+                sb.from('user_profiles').select('id,full_name,email,class_year').in('class_year',['P4','p4']),
             ]);
             if (!stRes.error) _data.students    = stRes.data  || [];
             if (!siRes.error) _data.sites       = siRes.data  || [];
@@ -110,6 +111,11 @@
             if (!prRes.error) _data.preferences = prRes.data  || [];
             if (!evRes.error) _data.evaluations = evRes.data  || [];
             if (!seRes.error && seRes.data) _data.settings = seRes.data;
+            // user_profiles keyed by auth UUID — bridges preferences.student_id → name
+            if (!upRes.error) {
+                _data.profileMap = {};
+                (upRes.data || []).forEach(p => { _data.profileMap[p.id] = p; });
+            }
         } catch (e) { console.warn('[APPE Hub]', e); }
         window._appeData = _data; // expose for student profile
     }
@@ -883,17 +889,34 @@
        TAB 4 - PREFERENCES
     ═══════════════════════════════════════════════════════════ */
     function _tabPreferences() {
-        const { students, preferences, settings } = _data;
-        if (!students.length) {
+        const { students, preferences, settings, profileMap = {} } = _data;
+
+        // Build submitted set from preferences — use profileMap (auth UUID → profile) as source of truth
+        // preferences.student_id = auth UUID; profileMap keys = auth UUID
+        const submittedAuthIds = new Set(preferences.map(p => String(p.student_id)));
+        const totalP4 = Object.keys(profileMap).length || students.length;
+
+        // Build submitted/not-submitted lists from user_profiles (most accurate for P4 count)
+        const profileList = Object.values(profileMap);
+        const submittedProfiles = profileList.filter(p => submittedAuthIds.has(String(p.id)));
+        const notSubProfiles    = profileList.filter(p => !submittedAuthIds.has(String(p.id)));
+
+        // Fallback to students table if profileMap empty
+        const submitted = submittedProfiles.length || profileList.length
+            ? submittedProfiles.map(p => ({ id: p.id, name: p.full_name || p.email }))
+            : students.filter(s => submittedAuthIds.has(String(s.id)));
+        const notSub = notSubProfiles.length || profileList.length
+            ? notSubProfiles.map(p => ({ id: p.id, name: p.full_name || p.email }))
+            : students.filter(s => !submittedAuthIds.has(String(s.id)));
+
+        const total = submitted.length + notSub.length || students.length;
+        const pct   = total ? Math.round(submitted.length / total * 100) : 0;
+        const subOpen = settings?.submissions_open !== false;
+
+        if (!total) {
             return _emptyState('\u2B50','No Students Found',
                 'Add P4 students to Supabase to track preference submissions.');
         }
-
-        const submittedIds = new Set(preferences.map(p => String(p.student_id)));
-        const submitted    = students.filter(s => submittedIds.has(String(s.id)));
-        const notSub       = students.filter(s => !submittedIds.has(String(s.id)));
-        const pct          = students.length ? Math.round(submitted.length / students.length * 100) : 0;
-        const subOpen      = settings?.submissions_open !== false;
 
         const donut = `
             <div style="background:${C.card};border-radius:18px;padding:2rem;
@@ -915,7 +938,7 @@
                 <div style="flex:1;min-width:200px;">
                     <div style="font-size:1.5rem;font-weight:800;color:${C.text};">
                         ${submitted.length}
-                        <span style="font-size:0.9rem;color:${C.muted};font-weight:400;">of ${students.length} submitted</span>
+                        <span style="font-size:0.9rem;color:${C.muted};font-weight:400;">of ${total} submitted</span>
                     </div>
                     <div style="margin-top:12px;background:#f1f5f9;border-radius:50px;height:8px;overflow:hidden;">
                         <div style="width:${pct}%;background:linear-gradient(90deg,${C.primaryMd},${C.primaryLt});
