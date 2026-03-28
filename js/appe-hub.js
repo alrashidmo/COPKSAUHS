@@ -103,7 +103,7 @@
                 sb.from('rotation_preferences').select('*').order('student_id'),
                 sb.from('rotation_evaluations').select('*').order('created_at', { ascending: false }),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
-                sb.from('user_profiles').select('user_id,full_name,email,class_year').in('class_year',['P4','p4']),
+                sb.from('user_profiles').select('user_id,full_name,email,class_year,student_id').in('class_year',['P4','p4']),
             ]);
             if (!stRes.error) _data.students    = stRes.data  || [];
             if (!siRes.error) _data.sites       = siRes.data  || [];
@@ -114,7 +114,13 @@
             // user_profiles keyed by auth UUID (user_id) — bridges preferences.student_id → name
             if (!upRes.error) {
                 _data.profileMap = {};
-                (upRes.data || []).forEach(p => { if (p.user_id) _data.profileMap[p.user_id] = p; });
+                _data.numericToAuthId = {}; // numeric student_id → auth UUID
+                (upRes.data || []).forEach(p => {
+                    if (p.user_id) {
+                        _data.profileMap[p.user_id] = p;
+                        if (p.student_id) _data.numericToAuthId[String(p.student_id)] = p.user_id;
+                    }
+                });
             }
         } catch (e) { console.warn('[APPE Hub]', e); }
         window._appeData = _data; // expose for student profile
@@ -1166,98 +1172,119 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Supabase not connected.'); return; }
 
-        const { students, sites, assignments, preferences } = _data;
+        const { students, sites, assignments, preferences, numericToAuthId = {} } = _data;
         const activeSites = sites.filter(s => s.is_active !== false);
+        if (!activeSites.length) { alert('No active rotation sites available.'); return; }
 
-        /* Only process students not yet assigned to a site */
-        const unassigned = students.filter(s =>
-            !assignments.find(a => String(a.student_id)===String(s.id) && a.site_id)
-        );
+        const studentsWithScores = students.filter(s => {
+            const score = assignments.find(a => String(a.student_id) === String(s.id))?.student_score;
+            return score != null;
+        });
+        if (!studentsWithScores.length) { alert('No students have scores yet. Enter scores in the Scores tab first.'); return; }
 
-        if (!unassigned.length) { alert('All students are already assigned!'); return; }
-        if (!activeSites.length){ alert('No active sites available.');          return; }
+        if (!confirm(`Run 10-block auto-match for ${studentsWithScores.length} student(s)?\nThis will replace existing auto-assignments.`)) return;
 
-        /* Build score map from existing rotation_assignments (student_score = ranking score) */
+        // Load block-level availability
+        const { data: avail, error: avErr } = await sb.from('rotation_site_availability').select('*');
+        if (avErr) { alert('Error loading availability: ' + avErr.message); return; }
+
+        // Block slot map: { site_id: { block_number: remaining_slots } }
+        const slotMap = {};
+        (avail || []).forEach(a => {
+            if (!slotMap[a.site_id]) slotMap[a.site_id] = {};
+            slotMap[a.site_id][a.block_number] = a.max_students;
+        });
+
+        // Score map: numeric student_id → score
         const scoreMap = {};
         assignments.forEach(a => { if (a.student_score != null) scoreMap[String(a.student_id)] = a.student_score; });
 
-        /* Build preference map: studentId → [{rank, site_id}] sorted by rank */
+        // Preference map: auth_uuid → [{rank, site_id}] sorted by rank
+        // Bridge: numeric student_id → auth_uuid via numericToAuthId
         const prefMap = {};
         preferences.forEach(p => {
             if (!prefMap[p.student_id]) prefMap[p.student_id] = [];
             prefMap[p.student_id].push({ rank: p.preference_rank, site_id: p.site_id });
         });
-        Object.values(prefMap).forEach(arr => arr.sort((a,b)=>a.rank-b.rank));
+        Object.values(prefMap).forEach(arr => arr.sort((a,b) => a.rank - b.rank));
 
-        /* Track slot usage from already-assigned students */
-        const usedSlots = {};
-        assignments.filter(a=>a.site_id).forEach(a => {
-            usedSlots[a.site_id] = (usedSlots[a.site_id]||0) + 1;
-        });
-
-        /* Sort unassigned students by ranking score DESC (higher ranked picks first) */
-        const sorted = [...unassigned].sort((a,b) =>
+        // Sort students by score DESC
+        const sorted = [...studentsWithScores].sort((a,b) =>
             (scoreMap[String(b.id)] ?? -1) - (scoreMap[String(a.id)] ?? -1)
         );
 
         const results = [];
-        sorted.forEach(student => {
-            const prefs  = prefMap[student.id] || [];
-            let bestSite = null, bestRank = null;
+        const now = new Date().toISOString();
 
-            /* Try each preference in order */
-            for (const pref of prefs) {
-                const site = activeSites.find(s => s.id === pref.site_id);
-                if (!site) continue;
-                if ((usedSlots[site.id]||0) < (site.available_slots||1)) {
-                    bestSite = site; bestRank = pref.rank; break;
+        for (const student of sorted) {
+            // Bridge numeric ID → auth UUID to find preferences
+            const authId = numericToAuthId[String(student.id)];
+            const prefs = (authId ? prefMap[authId] : null) || prefMap[String(student.id)] || [];
+            const assignedSiteIds = new Set();
+            const score = scoreMap[String(student.id)] ?? null;
+
+            for (let block = 1; block <= 10; block++) {
+                let bestSite = null, bestRank = null;
+
+                // Try preferred sites in rank order
+                for (const pref of prefs) {
+                    if (assignedSiteIds.has(pref.site_id)) continue;
+                    if ((slotMap[pref.site_id]?.[block] || 0) > 0) {
+                        bestSite = activeSites.find(s => s.id === pref.site_id);
+                        bestRank = pref.rank;
+                        break;
+                    }
+                }
+
+                // Fallback: any available site not yet used by this student
+                if (!bestSite) {
+                    bestSite = activeSites.find(s =>
+                        !assignedSiteIds.has(s.id) && (slotMap[s.id]?.[block] || 0) > 0
+                    );
+                }
+
+                if (bestSite) {
+                    slotMap[bestSite.id][block]--;
+                    assignedSiteIds.add(bestSite.id);
+                    results.push({
+                        student_id: student.id,
+                        student_name: student.name || student.id,
+                        student_score: score,
+                        site_id: bestSite.id,
+                        block_number: block,
+                        preference_rank_received: bestRank || null,
+                        assignment_method: bestRank ? 'auto' : 'auto-fallback',
+                        assigned_at: now,
+                    });
+                } else {
+                    results.push({
+                        student_id: student.id,
+                        student_name: student.name || student.id,
+                        student_score: score,
+                        site_id: null,
+                        block_number: block,
+                        preference_rank_received: null,
+                        assignment_method: 'unassigned',
+                        assigned_at: now,
+                    });
                 }
             }
-
-            /* Fallback: least-loaded active site */
-            if (!bestSite) {
-                const avail = activeSites.filter(s => (usedSlots[s.id]||0) < (s.available_slots||1));
-                if (avail.length) {
-                    bestSite = avail.sort((a,b) =>
-                        (usedSlots[a.id]||0)/(a.available_slots||1) -
-                        (usedSlots[b.id]||0)/(b.available_slots||1)
-                    )[0];
-                }
-            }
-
-            if (bestSite) {
-                usedSlots[bestSite.id] = (usedSlots[bestSite.id]||0) + 1;
-                results.push({
-                    student_id:               student.id,
-                    student_name:             student.name || student.id,
-                    student_score:            scoreMap[String(student.id)] ?? null,
-                    site_id:                  bestSite.id,
-                    assignment_method:        bestRank ? 'preference' : 'fallback',
-                    preference_rank_received: bestRank || null,
-                });
-            }
-        });
+        }
 
         if (!results.length) { alert('No assignments could be generated.'); return; }
 
-        const byPref     = results.filter(r=>r.preference_rank_received).length;
-        const byFallback = results.length - byPref;
-        if (!confirm(
-            `Assign ${results.length} student${results.length!==1?'s':''}?\n\n` +
-            `  \u2B50 ${byPref} matched to a preferred site\n` +
-            `  \u2696\uFE0F ${byFallback} assigned by fallback\n\n` +
-            `Priority was based on Student Ranking Scores.\nThis writes to Supabase. Continue?`
-        )) return;
-
         try {
             const { error } = await sb.from('rotation_assignments')
-                .upsert(results, { onConflict: 'student_id' });
+                .upsert(results, { onConflict: 'student_id,block_number' });
             if (error) throw error;
-            alert(`\u2705 ${results.length} students assigned successfully!`);
+
+            const placed = results.filter(r => r.site_id).length;
+            const byPref = results.filter(r => r.preference_rank_received).length;
+            alert(`✅ Auto-match complete!\n${sorted.length} students × 10 blocks = ${results.length} slots\n⭐ ${byPref} matched to a preferred site\n📍 ${placed} total placed`);
             await _loadData();
             const panel = document.getElementById('appe-hub-panel');
-            if (panel) panel.innerHTML = _tabMatching();
-        } catch (e) { alert('Error: ' + e.message); }
+            if (panel) panel.innerHTML = _renderTab('schedule');
+        } catch (e) { alert('Error saving assignments: ' + e.message); }
     };
 
     /* ═══════════════════════════════════════════════════════════
