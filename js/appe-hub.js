@@ -126,6 +126,7 @@
             { id:'matching',    icon:'\uD83D\uDD00', label:'Auto-Match'   },
             { id:'evaluations', icon:'\uD83D\uDCDD', label:'Evaluations'  },
             { id:'reports',     icon:'\uD83D\uDCC8', label:'Reports'      },
+            { id:'scores',      icon:'\uD83C\uDFC6', label:'Scores'       },
             { id:'outcomes',    icon:'\uD83C\uDFAF', label:'Outcomes'     },
             { id:'settings',    icon:'\u2699\uFE0F',  label:'Settings'     },
         ];
@@ -217,6 +218,7 @@
             case 'matching':    return _tabMatching();
             case 'evaluations': return _tabEvaluations();
             case 'reports':     return _tabReports();
+            case 'scores':      return _tabScores();
             case 'outcomes':    return _tabOutcomes();
             case 'settings':    return _tabSettings();
             default:            return _tabDashboard();
@@ -2107,6 +2109,179 @@
         return `text-align:${align};padding:12px 14px;font-size:0.75rem;color:${C.muted};
                 font-weight:700;text-transform:uppercase;letter-spacing:0.5px;`;
     }
+
+    /* ═══════════════════════════════════════════════════════════
+       TAB: SCORES — MS Survey Score Management
+    ═══════════════════════════════════════════════════════════ */
+    function _tabScores() {
+        const students = _data.students || [];
+        if (!students.length) {
+            return `<div style="text-align:center;padding:4rem;color:${C.muted};">
+                <div style="font-size:3rem;margin-bottom:1rem;">🏆</div>
+                <p style="font-size:1.1rem;">No P4 students found.</p>
+            </div>`;
+        }
+
+        // Build score lookup from rotation_assignments
+        const scoreMap = {};
+        (_data.assignments || []).forEach(a => {
+            if (a.student_id && a.student_score != null) scoreMap[a.student_id] = a.student_score;
+        });
+
+        const rows = students.map(s => {
+            const sid = s.id || s.student_id;
+            const existingScore = scoreMap[sid] != null ? scoreMap[sid] : '';
+            return `
+            <tr id="score-row-${sid}" style="border-bottom:1px solid ${C.border};">
+                <td style="padding:12px 14px;font-weight:600;color:${C.text};">${s.name || s.full_name || '—'}</td>
+                <td style="padding:12px 14px;color:${C.muted};font-size:0.85rem;">${s.email || '—'}</td>
+                <td style="padding:12px 8px;">
+                    <input type="number" id="gpa-${sid}" min="0" max="100" step="0.1"
+                           placeholder="0–100" oninput="window.appeCalcScore('${sid}')"
+                           style="width:80px;padding:6px 8px;border:1px solid ${C.border};border-radius:8px;
+                                  font-size:0.85rem;text-align:center;background:${C.card};">
+                </td>
+                <td style="padding:12px 8px;">
+                    <input type="number" id="exp-${sid}" min="0" max="100" step="0.1"
+                           placeholder="0–100" oninput="window.appeCalcScore('${sid}')"
+                           style="width:80px;padding:6px 8px;border:1px solid ${C.border};border-radius:8px;
+                                  font-size:0.85rem;text-align:center;background:${C.card};">
+                </td>
+                <td style="padding:12px 8px;">
+                    <input type="number" id="res-${sid}" min="0" max="100" step="0.1"
+                           placeholder="0–100" oninput="window.appeCalcScore('${sid}')"
+                           style="width:70px;padding:6px 8px;border:1px solid ${C.border};border-radius:8px;
+                                  font-size:0.85rem;text-align:center;background:${C.card};">
+                </td>
+                <td style="padding:12px 8px;">
+                    <input type="number" id="com-${sid}" min="0" max="100" step="0.1"
+                           placeholder="0–100" oninput="window.appeCalcScore('${sid}')"
+                           style="width:70px;padding:6px 8px;border:1px solid ${C.border};border-radius:8px;
+                                  font-size:0.85rem;text-align:center;background:${C.card};">
+                </td>
+                <td style="padding:12px 8px;">
+                    <input type="number" id="conf-${sid}" min="0" max="100" step="0.1"
+                           placeholder="0–100" oninput="window.appeCalcScore('${sid}')"
+                           style="width:70px;padding:6px 8px;border:1px solid ${C.border};border-radius:8px;
+                                  font-size:0.85rem;text-align:center;background:${C.card};">
+                </td>
+                <td style="padding:12px 14px;text-align:center;">
+                    <span id="calc-${sid}" style="font-size:1rem;font-weight:800;
+                          color:${existingScore !== '' ? '#1B5E20' : C.muted};">
+                        ${existingScore !== '' ? Number(existingScore).toFixed(1) : '—'}
+                    </span>
+                </td>
+                <td style="padding:12px 14px;text-align:center;">
+                    <button onclick="window.appeSaveScore('${sid}')"
+                            style="background:#1B5E20;color:#fff;border:none;padding:6px 16px;
+                                   border-radius:50px;cursor:pointer;font-size:0.8rem;font-weight:700;">
+                        Save
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        const thStyle = `text-align:center;padding:12px 8px;font-size:0.72rem;color:${C.muted};
+                         font-weight:700;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;`;
+
+        return `
+        <div style="background:${C.card};border-radius:16px;padding:1.5rem;border:1px solid ${C.border};">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:1rem;">
+                <div>
+                    <h2 style="margin:0;font-size:1.2rem;color:${C.text};font-weight:800;">🏆 MS Survey Score Management</h2>
+                    <p style="margin:4px 0 0;font-size:0.83rem;color:${C.muted};">
+                        Enter component scores for each student. Final score = GPA×44% + Experiential×44% + Research×4% + Community×4% + Conferences×4%
+                    </p>
+                </div>
+                <div style="background:#e8f5e9;color:#1B5E20;padding:8px 16px;border-radius:50px;font-size:0.82rem;font-weight:700;">
+                    ${students.length} P4 Students
+                </div>
+            </div>
+
+            <!-- Formula reminder -->
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.25rem;">
+                ${[['GPA','44%','#1B5E20'],['Experiential','44%','#1B5E20'],['Research','4%','#0277BD'],['Community','4%','#6A1B9A'],['Conferences','4%','#E65100']].map(([label,pct,col]) => `
+                <span style="background:${col}15;color:${col};border:1px solid ${col}30;padding:4px 12px;
+                              border-radius:50px;font-size:0.78rem;font-weight:700;">${label} ${pct}</span>`).join('')}
+            </div>
+
+            <div style="overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;min-width:900px;">
+                    <thead>
+                        <tr style="border-bottom:2px solid ${C.border};">
+                            <th style="text-align:left;padding:12px 14px;font-size:0.72rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Student</th>
+                            <th style="text-align:left;padding:12px 14px;font-size:0.72rem;color:${C.muted};font-weight:700;text-transform:uppercase;">Email</th>
+                            <th style="${thStyle}">GPA<br><span style="font-weight:400;color:#1B5E20;">44%</span></th>
+                            <th style="${thStyle}">Experiential<br><span style="font-weight:400;color:#1B5E20;">44%</span></th>
+                            <th style="${thStyle}">Research<br><span style="font-weight:400;color:#0277BD;">4%</span></th>
+                            <th style="${thStyle}">Community<br><span style="font-weight:400;color:#6A1B9A;">4%</span></th>
+                            <th style="${thStyle}">Conferences<br><span style="font-weight:400;color:#E65100;">4%</span></th>
+                            <th style="${thStyle}">Final Score<br><span style="font-weight:400;">/100</span></th>
+                            <th style="${thStyle}">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+        </div>`;
+    }
+
+    /* Global helpers for Score tab */
+    window.appeCalcScore = function(sid) {
+        const val = id => {
+            const el = document.getElementById(`${id}-${sid}`);
+            return el ? (parseFloat(el.value) || 0) : 0;
+        };
+        const score = val('gpa') * 0.44 + val('exp') * 0.44 + val('res') * 0.04 + val('com') * 0.04 + val('conf') * 0.04;
+        const display = document.getElementById(`calc-${sid}`);
+        if (display) {
+            display.textContent = score > 0 ? score.toFixed(1) : '—';
+            display.style.color = score > 0 ? '#1B5E20' : '#999';
+        }
+    };
+
+    window.appeSaveScore = async function(sid) {
+        const val = id => {
+            const el = document.getElementById(`${id}-${sid}`);
+            return el ? (parseFloat(el.value) || 0) : 0;
+        };
+        const gpa   = val('gpa');
+        const exp   = val('exp');
+        const res   = val('res');
+        const com   = val('com');
+        const conf  = val('conf');
+
+        if (gpa === 0 && exp === 0 && res === 0 && com === 0 && conf === 0) {
+            alert('Please enter at least one score component before saving.');
+            return;
+        }
+
+        const score = +(gpa * 0.44 + exp * 0.44 + res * 0.04 + com * 0.04 + conf * 0.04).toFixed(2);
+
+        const sb = window.SupabaseAuth?.supabase;
+        if (!sb) { alert('Supabase not connected.'); return; }
+
+        const btn = document.querySelector(`#score-row-${sid} button`);
+        if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
+
+        try {
+            // Upsert into rotation_assignments on student_id
+            const { error } = await sb.from('rotation_assignments')
+                .upsert({ student_id: sid, student_score: score }, { onConflict: 'student_id' });
+
+            if (error) throw error;
+
+            // Update display
+            const display = document.getElementById(`calc-${sid}`);
+            if (display) { display.textContent = score.toFixed(1); display.style.color = '#1B5E20'; }
+            if (btn) { btn.textContent = '✓ Saved'; btn.style.background = '#2e7d32'; }
+            setTimeout(() => { if (btn) { btn.textContent = 'Save'; btn.disabled = false; btn.style.background = '#1B5E20'; } }, 2000);
+        } catch (e) {
+            console.error('[Scores] save error', e);
+            alert('Failed to save score: ' + e.message);
+            if (btn) { btn.textContent = 'Save'; btn.disabled = false; }
+        }
+    };
 
     function _downloadCSV(filename, rows) {
         const csv  = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
