@@ -2479,6 +2479,20 @@ async function renderRotationPreferences() {
             const { data: { user } } = await sb.auth.getUser();
             _rotCurrentUserId = user?.id;
 
+            // P4 check — only P4 students can access rotation preferences
+            const { data: profile } = await sb.from('user_profiles').select('class_year').eq('id', _rotCurrentUserId).maybeSingle();
+            if (profile && profile.class_year !== 'P4') {
+                root.innerHTML = `
+                    <div style="padding:3rem;text-align:center;max-width:500px;margin:0 auto;">
+                        <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+                        <h2 style="color:#1a3a5c;margin-bottom:0.5rem;">APPE Rotation Preferences</h2>
+                        <p style="color:#888;font-size:0.95rem;">This section is only available to <strong>P4 students</strong>.</p>
+                        <p style="color:#aaa;font-size:0.85rem;">Your current class year: <strong>${profile.class_year || 'Not assigned'}</strong></p>
+                        <p style="color:#aaa;font-size:0.85rem;">If you believe this is an error, please contact the Academic Affairs office.</p>
+                    </div>`;
+                return;
+            }
+
             const [sitesRes, settingsRes, assignRes, prefsRes, avRes] = await Promise.all([
                 sb.from('rotation_sites').select('id, site_name, specialty').eq('is_active', true).order('site_name'),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
