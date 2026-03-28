@@ -153,6 +153,32 @@
                         if (p.student_id) _data.numericToAuthId[String(p.student_id)] = p.user_id;
                     }
                 });
+                // Build comprehensive bridge: students.id (PK) → auth UUID
+                // Tries: college student_id → email → name
+                _data.studentsIdToAuthId = {};
+                (_data.students || []).forEach(s => {
+                    const key = String(s.id);
+                    // 1. By college student_id stored on students row
+                    if (s.student_id && _data.numericToAuthId[String(s.student_id)]) {
+                        _data.studentsIdToAuthId[key] = _data.numericToAuthId[String(s.student_id)]; return;
+                    }
+                    // 2. By PK (in case it equals college number)
+                    if (_data.numericToAuthId[key]) {
+                        _data.studentsIdToAuthId[key] = _data.numericToAuthId[key]; return;
+                    }
+                    // 3. By email match
+                    const email = (s.email || '').toLowerCase().trim();
+                    if (email) {
+                        const prof = (_data.allProfiles || []).find(p => (p.email || '').toLowerCase().trim() === email);
+                        if (prof?.user_id) { _data.studentsIdToAuthId[key] = prof.user_id; return; }
+                    }
+                    // 4. By name match (last resort)
+                    const name = (s.name || s.full_name || '').toLowerCase().trim();
+                    if (name) {
+                        const prof = (_data.allProfiles || []).find(p => (p.full_name || '').toLowerCase().trim() === name);
+                        if (prof?.user_id) { _data.studentsIdToAuthId[key] = prof.user_id; }
+                    }
+                });
             }
             // Build per-year comparison stats
             if (!cmpRes.error) {
@@ -1228,7 +1254,7 @@
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Supabase not connected.'); return; }
 
-        const { students, sites, assignments, preferences, numericToAuthId = {} } = _data;
+        const { students, sites, assignments, preferences, numericToAuthId = {}, studentsIdToAuthId = {} } = _data;
         const activeSites = sites.filter(s => s.is_active !== false);
         if (!activeSites.length) { alert('No active rotation sites available.'); return; }
 
@@ -1273,11 +1299,13 @@
         const now = new Date().toISOString();
 
         for (const student of sorted) {
-            // Bridge to auth UUID: try PK first, then college student_id field
-            const authId = numericToAuthId[String(student.id)]
+            // Bridge to auth UUID using the comprehensive map built in _loadData
+            const authId = studentsIdToAuthId[String(student.id)]
+                        || numericToAuthId[String(student.id)]
                         || numericToAuthId[String(student.student_id)]
                         || null;
             const prefs = (authId ? prefMap[authId] : null) || prefMap[String(student.id)] || [];
+            console.log('[Match]', student.name || student.id, '→ authId:', authId, '→ prefs:', prefs.length);
             const assignedSiteIds = new Set();
             const score = scoreMap[String(student.id)] ?? null;
 
