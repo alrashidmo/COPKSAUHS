@@ -649,8 +649,8 @@
     ═══════════════════════════════════════════════════════════ */
     function _tabSchedule() {
         const { assignments: as, sites: si } = _data;
-        const placed = as.filter(a => a.site_id);
-        if (!placed.length) {
+        const blockAssignments = as.filter(a => a.block_number >= 1);
+        if (!blockAssignments.length) {
             return _emptyState('\uD83D\uDCC5','No Assignments Yet',
                 'Run the Auto-Match algorithm to assign students to rotation sites.',
                 'Run Matching',"window.appeHubSwitchTab('matching')");
@@ -663,89 +663,68 @@
             {bg:'#e8f5e9',fg:'#2e7d32'},{bg:'#e3f2fd',fg:'#1565c0'},{bg:'#fce4ec',fg:'#c62828'},
             {bg:'#fff3e0',fg:'#e65100'},{bg:'#f3e5f5',fg:'#6a1b9a'},{bg:'#e0f7fa',fg:'#00695c'},
             {bg:'#fff8e1',fg:'#f57f17'},{bg:'#fbe9e7',fg:'#bf360c'},{bg:'#e8eaf6',fg:'#283593'},
-            {bg:'#f9fbe7',fg:'#558b2f'},
+            {bg:'#f9fbe7',fg:'#558b2f'},{bg:'#fde0dc',fg:'#b71c1c'},{bg:'#e8f5e9',fg:'#388e3c'},
         ];
         const allSpecs = [...new Set(si.map(s=>s.specialty).filter(Boolean))].sort();
         const specIdx  = {};
         allSpecs.forEach((sp,i) => { specIdx[sp] = i; });
         const sc = sp => PALETTE[(specIdx[sp] ?? 0) % PALETTE.length];
 
-        const bySite = {};
-        placed.forEach(a => {
-            const key = a.site_id;
-            if (!bySite[key]) bySite[key] = { site: siteMap[a.site_id]||{}, students: [] };
-            bySite[key].students.push(a);
+        // Group: { student_id → { name, score, blocks: { block_number → assignment } } }
+        const byStudent = {};
+        blockAssignments.forEach(a => {
+            if (!byStudent[a.student_id]) byStudent[a.student_id] = { name: a.student_name || a.student_id, score: a.student_score, blocks: {} };
+            byStudent[a.student_id].blocks[a.block_number] = a;
         });
 
-        const siteCards = Object.values(bySite)
-            .sort((a,b) => (a.site.site_name||'').localeCompare(b.site.site_name||''))
-            .map(({ site, students }) => {
-                const c = sc(site.specialty);
-                const stuRows = students.map(s => {
-                    const rank = s.preference_rank_received;
-                    const [rankBg, rankFg] = rank===1 ? [C.greenPl,C.green] : rank<=3 ? [C.amberPl,C.amber] : [C.bluePl,C.blue];
-                    return `
-                    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid ${C.border};">
-                        <div style="width:32px;height:32px;border-radius:50%;background:${c.bg};
-                                    display:flex;align-items:center;justify-content:center;
-                                    font-size:0.75rem;font-weight:700;color:${c.fg};flex-shrink:0;">
-                            ${(s.student_name||'?').charAt(0).toUpperCase()}
+        // Sort students by score desc
+        const studentRows = Object.entries(byStudent)
+            .sort((a,b) => (b[1].score||0) - (a[1].score||0))
+            .map(([sid, stu], idx) => {
+                const blockCells = Array.from({length:10}, (_,i) => {
+                    const block = i + 1;
+                    const a = stu.blocks[block];
+                    if (!a || !a.site_id) {
+                        return `<td style="padding:6px 4px;text-align:center;">
+                            <span style="font-size:0.7rem;color:${C.muted};">—</span>
+                        </td>`;
+                    }
+                    const site = siteMap[a.site_id] || {};
+                    const c = sc(site.specialty);
+                    const isPref = a.preference_rank_received != null;
+                    return `<td style="padding:4px 3px;text-align:center;">
+                        <div title="${site.site_name||''} (${site.specialty||''})"
+                             style="background:${c.bg};color:${c.fg};border:1px solid ${c.fg}30;
+                                    border-radius:8px;padding:4px 5px;font-size:0.68rem;font-weight:600;
+                                    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;
+                                    ${isPref ? '' : 'opacity:0.75;'}">
+                            ${site.site_name ? site.site_name.split(' ').slice(0,2).join(' ') : 'Site '+a.site_id}
+                            ${isPref ? `<span style="font-size:0.6rem;opacity:0.8;">#${a.preference_rank_received}</span>` : ''}
                         </div>
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-size:0.85rem;font-weight:600;color:${C.text};
-                                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-                                ${s.student_name || s.student_id}
-                            </div>
-                            <div style="font-size:0.72rem;color:${C.muted};">Score: ${s.student_score ?? '\u2014'}</div>
-                        </div>
-                        <span style="background:${rankBg};color:${rankFg};padding:2px 9px;
-                                     border-radius:50px;font-size:0.7rem;font-weight:700;white-space:nowrap;">
-                            ${rank ? '#'+rank+' choice' : s.assignment_method||'auto'}
-                        </span>
-                    </div>`;
+                    </td>`;
                 }).join('');
 
+                const prefCount = Object.values(stu.blocks).filter(a=>a.preference_rank_received!=null).length;
                 return `
-                <div style="background:${C.card};border-radius:18px;overflow:hidden;
-                            box-shadow:0 1px 3px rgba(0,0,0,0.06),0 8px 24px rgba(0,0,0,0.05);
-                            border:1px solid ${C.border};">
-                    <div style="padding:1rem 1.25rem;background:${c.bg};border-bottom:3px solid ${c.fg}25;">
-                        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
-                            <div>
-                                <div style="font-weight:700;color:${C.text};font-size:0.92rem;margin-bottom:2px;">
-                                    ${site.site_name || 'Site ' + site.id}
-                                </div>
-                                <div style="font-size:0.75rem;color:${C.muted};">${site.location||''}</div>
-                            </div>
-                            <div style="text-align:right;flex-shrink:0;">
-                                <span style="background:${c.bg};color:${c.fg};border:1px solid ${c.fg}40;
-                                             padding:3px 10px;border-radius:50px;font-size:0.72rem;font-weight:700;">
-                                    ${site.specialty||'\u2014'}
-                                </span>
-                                <div style="font-size:0.7rem;color:${C.muted};margin-top:5px;">
-                                    ${students.length} student${students.length!==1?'s':''}
-                                </div>
-                            </div>
-                        </div>
-                        ${site.preceptor_name ? `
-                        <div style="margin-top:8px;font-size:0.78rem;color:${C.muted};">
-                            ${site.preceptor_name}
-                            ${site.preceptor_email ? ` &middot; <a href="mailto:${site.preceptor_email}" style="color:${C.blue};text-decoration:none;">${site.preceptor_email}</a>` : ''}
-                        </div>` : ''}
-                    </div>
-                    <div style="padding:0.25rem 1.25rem 1rem;">${stuRows}</div>
-                </div>`;
+                <tr style="border-bottom:1px solid ${C.border};${idx%2===0?'background:'+C.bg+';':''}">
+                    <td style="padding:8px 12px;white-space:nowrap;">
+                        <div style="font-weight:600;font-size:0.85rem;color:${C.text};">${stu.name}</div>
+                        <div style="font-size:0.7rem;color:${C.muted};">Score: ${stu.score ?? '—'} &middot; ${prefCount}/10 preferred</div>
+                    </td>
+                    ${blockCells}
+                </tr>`;
             }).join('');
 
-        const unassigned = _data.students.length - placed.length;
+        const totalPlaced = blockAssignments.filter(a=>a.site_id).length;
+        const totalSlots  = blockAssignments.length;
+
         return `
         <div style="display:grid;gap:1.25rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;">
                 <div>
-                    <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">Rotation Schedule</h2>
+                    <h2 style="margin:0;font-size:1.15rem;font-weight:700;color:${C.text};">📅 10-Block Rotation Schedule</h2>
                     <p style="margin:4px 0 0;font-size:0.82rem;color:${C.muted};">
-                        ${placed.length} placed across ${Object.keys(bySite).length} sites
-                        ${unassigned > 0 ? ` &middot; <span style="color:${C.amber};font-weight:600;">${unassigned} unassigned</span>` : ''}
+                        ${Object.keys(byStudent).length} students &middot; ${totalPlaced} of ${totalSlots} blocks placed
                     </p>
                 </div>
                 <button onclick="window.appeHubSwitchTab('matching')"
@@ -754,8 +733,16 @@
                     Re-run Matching
                 </button>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem;">
-                ${siteCards}
+            <div style="background:${C.card};border-radius:16px;border:1px solid ${C.border};overflow-x:auto;">
+                <table style="width:100%;border-collapse:collapse;min-width:900px;">
+                    <thead>
+                        <tr style="border-bottom:2px solid ${C.border};">
+                            <th style="text-align:left;padding:10px 12px;font-size:0.72rem;color:${C.muted};font-weight:700;text-transform:uppercase;white-space:nowrap;">Student</th>
+                            ${Array.from({length:10},(_,i)=>`<th style="text-align:center;padding:10px 4px;font-size:0.72rem;color:${C.muted};font-weight:700;">B${i+1}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>${studentRows}</tbody>
+                </table>
             </div>
         </div>`;
     }
@@ -2304,9 +2291,16 @@
         if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
 
         try {
-            // Upsert into rotation_assignments on student_id
-            const { error } = await sb.from('rotation_assignments')
-                .upsert({ student_id: sid, student_score: score }, { onConflict: 'student_id' });
+            // Update score on all existing rows for this student, or insert block=0 placeholder
+            const { data: existing } = await sb.from('rotation_assignments').select('student_id').eq('student_id', sid).limit(1);
+            if (existing && existing.length > 0) {
+                const { error } = await sb.from('rotation_assignments').update({ student_score: score }).eq('student_id', sid);
+                if (error) throw error;
+            } else {
+                const { error } = await sb.from('rotation_assignments').insert({ student_id: sid, student_score: score, block_number: 0 });
+                if (error) throw error;
+            }
+            const error = null; // already handled above
 
             if (error) throw error;
 

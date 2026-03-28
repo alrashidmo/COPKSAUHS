@@ -19910,66 +19910,92 @@ window.rotAdmin = {
     },
 
     async runAutoAssign() {
-        if (!confirm('Run auto-assign? This will replace all existing auto-assignments. Manual overrides will be preserved.')) return;
+        if (!confirm('Run auto-assign for all 10 blocks? This will replace existing auto-assignments. Manual overrides will be preserved.')) return;
         try {
             const sb = window.SupabaseAuth?.supabase;
             if (!sb) { alert('Not connected.'); return; }
 
-            const [sitesRes, studentsRes, prefsRes] = await Promise.all([
+            const [sitesRes, studentsRes, prefsRes, availRes] = await Promise.all([
                 sb.from('rotation_sites').select('*').eq('is_active', true),
-                sb.from('rotation_assignments').select('*'),
-                sb.from('rotation_preferences').select('*').order('preference_rank')
+                sb.from('rotation_assignments').select('*').order('student_score', { ascending: false }),
+                sb.from('rotation_preferences').select('*').order('preference_rank'),
+                sb.from('rotation_site_availability').select('*')
             ]);
             if (sitesRes.error) throw sitesRes.error;
             if (studentsRes.error) throw studentsRes.error;
             if (prefsRes.error) throw prefsRes.error;
 
             const sites = sitesRes.data || [];
-            const students = (studentsRes.data || []).filter(s => s.student_score != null);
-            const prefs = prefsRes.data || [];
-
+            // Unique students by student_id (take highest-scored row)
+            const studentMap = {};
+            (studentsRes.data || []).forEach(s => {
+                if (!studentMap[s.student_id] || (s.student_score || 0) > (studentMap[s.student_id].student_score || 0))
+                    studentMap[s.student_id] = s;
+            });
+            const students = Object.values(studentMap).filter(s => s.student_score != null);
             students.sort((a, b) => (b.student_score || 0) - (a.student_score || 0));
 
-            const slotMap = {};
-            sites.forEach(s => { slotMap[s.id] = s.available_slots; });
+            const prefs = prefsRes.data || [];
+            const avail = availRes.data || [];
 
+            // Block-level slot map: { site_id: { block_number: remaining_slots } }
+            const slotMap = {};
+            avail.forEach(a => {
+                if (!slotMap[a.site_id]) slotMap[a.site_id] = {};
+                slotMap[a.site_id][a.block_number] = a.max_students;
+            });
+
+            // Pref map: { student_id: [prefs sorted by rank] }
             const prefMap = {};
             prefs.forEach(p => {
                 if (!prefMap[p.student_id]) prefMap[p.student_id] = [];
                 prefMap[p.student_id].push(p);
             });
+            Object.values(prefMap).forEach(arr => arr.sort((a, b) => a.preference_rank - b.preference_rank));
 
             const newAssignments = [];
+            const now = new Date().toISOString();
+
             for (const student of students) {
-                if (student.assignment_method === 'manual') continue; // preserve manual
                 const studentPrefs = prefMap[student.student_id] || [];
-                let assigned = false;
-                for (const pref of studentPrefs) {
-                    if (slotMap[pref.site_id] > 0) {
-                        slotMap[pref.site_id]--;
-                        newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: pref.site_id, student_score: student.student_score, preference_rank_received: pref.preference_rank, assignment_method: 'auto', assigned_at: new Date().toISOString() });
-                        assigned = true;
-                        break;
+                const assignedSiteIds = new Set();
+
+                for (let block = 1; block <= 10; block++) {
+                    let assigned = false;
+
+                    // Try preferred sites in rank order
+                    for (const pref of studentPrefs) {
+                        if (assignedSiteIds.has(pref.site_id)) continue; // no repeat sites
+                        if ((slotMap[pref.site_id]?.[block] || 0) > 0) {
+                            slotMap[pref.site_id][block]--;
+                            newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: pref.site_id, block_number: block, student_score: student.student_score, preference_rank_received: pref.preference_rank, assignment_method: 'auto', assigned_at: now });
+                            assignedSiteIds.add(pref.site_id);
+                            assigned = true;
+                            break;
+                        }
                     }
-                }
-                if (!assigned) {
-                    const fallback = sites.find(s => slotMap[s.id] > 0);
-                    if (fallback) {
-                        slotMap[fallback.id]--;
-                        newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: fallback.id, student_score: student.student_score, preference_rank_received: null, assignment_method: 'auto-fallback', assigned_at: new Date().toISOString() });
-                    } else {
-                        newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: null, student_score: student.student_score, preference_rank_received: null, assignment_method: 'unassigned', assigned_at: new Date().toISOString() });
+
+                    if (!assigned) {
+                        // Fallback: any available site not yet used by this student
+                        const fallback = sites.find(s => !assignedSiteIds.has(s.id) && (slotMap[s.id]?.[block] || 0) > 0);
+                        if (fallback) {
+                            slotMap[fallback.id][block]--;
+                            newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: fallback.id, block_number: block, student_score: student.student_score, preference_rank_received: null, assignment_method: 'auto-fallback', assigned_at: now });
+                            assignedSiteIds.add(fallback.id);
+                        } else {
+                            newAssignments.push({ student_id: student.student_id, student_name: student.student_name, site_id: null, block_number: block, student_score: student.student_score, preference_rank_received: null, assignment_method: 'unassigned', assigned_at: now });
+                        }
                     }
                 }
             }
 
             if (newAssignments.length > 0) {
-                const { error } = await sb.from('rotation_assignments').upsert(newAssignments, { onConflict: 'student_id' });
+                const { error } = await sb.from('rotation_assignments').upsert(newAssignments, { onConflict: 'student_id,block_number' });
                 if (error) throw error;
             }
 
-            const assigned = newAssignments.filter(a => a.site_id).length;
-            alert('✅ Auto-assign complete! ' + assigned + ' of ' + newAssignments.length + ' students assigned.');
+            const placed = newAssignments.filter(a => a.site_id).length;
+            alert(`✅ Auto-assign complete!\n${students.length} students × 10 blocks = ${newAssignments.length} total slots\n${placed} successfully placed.`);
             window.app.renderRotationSchedule();
             setTimeout(() => window.rotAdmin.switchTab('assignments'), 300);
         } catch (e) { alert('Auto-assign error: ' + e.message); }
