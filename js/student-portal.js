@@ -2480,7 +2480,7 @@ async function renderRotationPreferences() {
             _rotCurrentUserId = user?.id;
 
             // P4 check — only P4 students can access rotation preferences
-            const { data: profile } = await sb.from('user_profiles').select('class_year').eq('id', _rotCurrentUserId).maybeSingle();
+            const { data: profile } = await sb.from('user_profiles').select('class_year').eq('user_id', _rotCurrentUserId).maybeSingle();
             if (profile && profile.class_year !== 'P4') {
                 root.innerHTML = `
                     <div style="padding:3rem;text-align:center;max-width:500px;margin:0 auto;">

@@ -103,7 +103,7 @@
                 sb.from('rotation_preferences').select('*').order('student_id'),
                 sb.from('rotation_evaluations').select('*').order('created_at', { ascending: false }),
                 sb.from('rotation_settings').select('*').eq('id', 1).maybeSingle(),
-                sb.from('user_profiles').select('id,full_name,email,class_year').in('class_year',['P4','p4']),
+                sb.from('user_profiles').select('user_id,full_name,email,class_year').in('class_year',['P4','p4']),
             ]);
             if (!stRes.error) _data.students    = stRes.data  || [];
             if (!siRes.error) _data.sites       = siRes.data  || [];
@@ -111,10 +111,10 @@
             if (!prRes.error) _data.preferences = prRes.data  || [];
             if (!evRes.error) _data.evaluations = evRes.data  || [];
             if (!seRes.error && seRes.data) _data.settings = seRes.data;
-            // user_profiles keyed by auth UUID — bridges preferences.student_id → name
+            // user_profiles keyed by auth UUID (user_id) — bridges preferences.student_id → name
             if (!upRes.error) {
                 _data.profileMap = {};
-                (upRes.data || []).forEach(p => { _data.profileMap[p.id] = p; });
+                (upRes.data || []).forEach(p => { if (p.user_id) _data.profileMap[p.user_id] = p; });
             }
         } catch (e) { console.warn('[APPE Hub]', e); }
         window._appeData = _data; // expose for student profile
