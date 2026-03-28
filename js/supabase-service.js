@@ -35,7 +35,9 @@ const SupabaseDB = {
      */
     async saveSubmittedTicket(studentId, ticket) {
         try {
-            if (!supabaseClient) throw new Error('Supabase not initialized');
+            // Use authenticated client (SupabaseAuth) if available, fallback to service client
+            const client = window.SupabaseAuth?.supabase || supabaseClient;
+            if (!client) throw new Error('Supabase not initialized');
 
             const ticketData = {
                 student_id: studentId,
@@ -53,7 +55,7 @@ const SupabaseDB = {
                 metadata: ticket
             };
 
-            const { data, error } = await supabaseClient
+            const { error } = await client
                 .from('submitted_tickets')
                 .insert([ticketData]);
 
@@ -63,7 +65,6 @@ const SupabaseDB = {
             return true;
         } catch (error) {
             console.error('❌ Failed to save ticket:', error);
-            // Fallback to localStorage if database fails
             console.warn('⚠️ Falling back to localStorage');
             let tickets = JSON.parse(localStorage.getItem(`tickets_${studentId}`) || '[]');
             tickets.push(ticket);
@@ -112,9 +113,10 @@ const SupabaseDB = {
      */
     async getAllSubmittedTickets() {
         try {
-            if (!supabaseClient) throw new Error('Supabase not initialized');
+            const client = window.SupabaseAuth?.supabase || supabaseClient;
+            if (!client) throw new Error('Supabase not initialized');
 
-            const { data, error } = await supabaseClient
+            const { data, error } = await client
                 .from('submitted_tickets')
                 .select('*')
                 .order('submitted_at', { ascending: false });
