@@ -19430,10 +19430,16 @@ window.sendEmailCommunication = function(requestId, studentName, studentEmail) {
 
 // Helper: call Edge Function to send ticket status email
 async function _sendTicketEmail(ticket, status, adminNotes) {
+    const studentEmail = ticket.studentEmail || ticket.student_email || '';
+    if (!studentEmail) {
+        console.warn('📧 Cannot send email: no student_email on ticket', ticket.ticketId);
+        alert(`⚠️ Email not sent: ticket has no student email.\nTicket ID: ${ticket.ticketId}`);
+        return;
+    }
     try {
         const fnUrl = 'https://ayswzpiennofznmpooia.supabase.co/functions/v1/ticket-notification';
-        const anonKey = window.SUPABASE_CONFIG?.anonKey || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.anonKey : '');
-        await fetch(fnUrl, {
+        const anonKey = typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.anonKey : '';
+        const res = await fetch(fnUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -19443,7 +19449,7 @@ async function _sendTicketEmail(ticket, status, adminNotes) {
             body: JSON.stringify({
                 record: {
                     ticket_id: ticket.ticketId,
-                    student_email: ticket.studentEmail,
+                    student_email: studentEmail,
                     title: ticket.title,
                     status: status,
                     priority: ticket.priority,
@@ -19453,9 +19459,16 @@ async function _sendTicketEmail(ticket, status, adminNotes) {
                 old_record: { status: 'submitted' }
             })
         });
-        console.log(`📧 Email notification sent (${status}) to ${ticket.studentEmail}`);
+        const data = await res.json().catch(() => ({}));
+        if (res.ok) {
+            console.log(`📧 Email sent (${status}) to ${studentEmail}`, data);
+        } else {
+            console.error(`📧 Email failed:`, data);
+            alert(`⚠️ Email notification failed.\nStatus: ${res.status}\nError: ${JSON.stringify(data)}`);
+        }
     } catch (e) {
-        console.warn('📧 Email notification failed (non-blocking):', e.message);
+        console.error('📧 Email fetch error:', e.message);
+        alert(`⚠️ Email notification error: ${e.message}`);
     }
 }
 
