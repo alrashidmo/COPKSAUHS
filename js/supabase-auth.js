@@ -21,11 +21,18 @@ window.SupabaseAuth = {
             this.currentUser = session.user;
             console.log('✅ Existing session found:', this.currentUser.email);
             // Restore the app without requiring re-login
-            setTimeout(() => {
-                if (typeof window.initializeApp === 'function') {
-                    window.initializeApp();
-                }
-            }, 300);
+            setTimeout(async () => {
+                try {
+                    const profile = await this.getUserProfile(this.currentUser.id);
+                    if (profile && profile.is_approved && window.AuthSystem) {
+                        window.AuthSystem.currentUser     = profile.student_id || profile.staff_id || this.currentUser.id;
+                        window.AuthSystem.currentUserRole = profile.account_type;
+                        window.AuthSystem.currentUserName = profile.full_name;
+                        window.AuthSystem.showPortal();
+                        window.AuthSystem.applyRoleBasedAccess();
+                    }
+                } catch(e) { console.warn('Session restore error:', e); }
+            }, 400);
         }
 
         // Listen for auth state changes
