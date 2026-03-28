@@ -801,88 +801,102 @@ function renderRequestForm(requestTypeId) {
 // ============================================================
 
 function renderAllTickets() {
-    const root = document.getElementById('app-root');
     const { formatDate } = StudentPortalManager;
+    const allMyTickets = StudentPortalManager.tickets.filter(t => !t.isSample);
 
-    let html = `
+    const activeTickets   = allMyTickets.filter(t => t.status === 'submitted');
+    const resolvedTickets = allMyTickets.filter(t => t.status === 'approved' || t.status === 'rejected');
+
+    const statusColors = { approved: '#28a745', rejected: '#dc3545', submitted: '#FF9800' };
+    const statusIcons  = { approved: '✅', rejected: '❌', submitted: '⏳' };
+
+    const renderTicketCard = (ticket) => {
+        const submitted = formatDate(ticket.submittedAt || ticket.submissionDate) || '—';
+        const updated   = ticket.lastUpdate ? formatDate(ticket.lastUpdate) : '—';
+        const isResolved = ticket.status === 'approved' || ticket.status === 'rejected';
+        const color = statusColors[ticket.status] || '#999';
+        const icon  = statusIcons[ticket.status]  || '📋';
+        const reason = ticket.rejectionReason || ticket.admin_notes || ticket.approvalNotes || '';
+
+        return `
+        <div style="background:white;border-radius:10px;border:1px solid #e0e0e0;border-left:4px solid ${color};padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+                <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                        <span style="font-size:1.1rem;">${icon}</span>
+                        <strong style="font-size:1rem;color:#1a3a5c;">${ticket.title || '—'}</strong>
+                    </div>
+                    <small style="color:#999;">${ticket.ticketId || ''}</small>
+                </div>
+                <span style="background:${color};color:white;padding:4px 12px;border-radius:20px;font-size:0.8rem;font-weight:bold;white-space:nowrap;">
+                    ${ticket.status.toUpperCase()}
+                </span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:14px;font-size:0.88rem;">
+                <div>
+                    <small style="color:#999;display:block;">Department</small>
+                    <strong>${ticket.department || '—'}</strong>
+                </div>
+                <div>
+                    <small style="color:#999;display:block;">Priority</small>
+                    <strong>${ticket.priority ? ticket.priority.toUpperCase() : '—'}</strong>
+                </div>
+                <div>
+                    <small style="color:#999;display:block;">Submitted</small>
+                    <strong>${submitted}</strong>
+                </div>
+                ${isResolved ? `<div>
+                    <small style="color:#999;display:block;">Decision Date</small>
+                    <strong>${updated}</strong>
+                </div>` : ''}
+            </div>
+
+            ${isResolved && reason ? `
+            <div style="margin-top:12px;background:${ticket.status === 'rejected' ? '#fff5f5' : '#f0fff4'};border-left:3px solid ${color};padding:10px 14px;border-radius:0 6px 6px 0;">
+                <small style="color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">
+                    ${ticket.status === 'rejected' ? 'Reason for Rejection' : 'Admin Notes'}
+                </small>
+                <p style="margin:4px 0 0;color:#333;font-size:0.9rem;">${reason}</p>
+            </div>` : ''}
+
+            ${!isResolved ? `
+            <div style="margin-top:12px;font-size:0.85rem;color:#FF9800;">
+                ⏳ Pending review — you will be notified once a decision is made.
+            </div>` : ''}
+        </div>`;
+    };
+
+    const root2 = document.getElementById('app-root');
+    root2.innerHTML = `
     <div class="student-portal-home">
-        <div class="section-header" style="margin-bottom: 30px;">
+        <div class="section-header" style="margin-bottom:24px;">
             <h3>My Tickets</h3>
             <button class="btn btn-outline" onclick="StudentPortal.renderHome()">← Back to Home</button>
         </div>
 
-        <!-- FILTERS -->
-        <section class="home-section" style="margin-bottom: 20px;">
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button class="filter-btn active" onclick="StudentPortal.filterTickets('all')">All (${StudentPortalManager.tickets.filter(t => t.studentId === student.studentId && !t.isSample && t.status !== 'submitted').length})</button>
-                <button class="filter-btn" onclick="StudentPortal.filterTickets('active')">Active</button>
-                <button class="filter-btn" onclick="StudentPortal.filterTickets('resolved')">Resolved</button>
-                <button class="filter-btn" onclick="StudentPortal.filterTickets('closed')">Closed</button>
+        <!-- ACTIVE TICKETS -->
+        <section class="home-section" style="margin-bottom:28px;">
+            <div class="section-header" style="margin-bottom:14px;">
+                <h4 style="margin:0;color:#FF9800;">⏳ Active Tickets (${activeTickets.length})</h4>
             </div>
+            ${activeTickets.length === 0
+                ? `<div style="background:#fff9e6;border:1px solid #FFE082;border-radius:8px;padding:20px;text-align:center;color:#888;">No pending tickets.</div>`
+                : activeTickets.map(renderTicketCard).join('')
+            }
         </section>
 
-        <!-- TICKETS LIST -->
-        <section class="home-section tickets-container">
-    `;
-
-    StudentPortalManager.tickets
-        .filter(ticket => ticket.studentId === student.studentId && !ticket.isSample && ticket.status !== 'submitted')
-        .forEach(ticket => {
-        const requestType = StudentPortalManager.getRequestTypeById(ticket.requestType);
-        const dept = StudentPortalManager.getDepartmentById(ticket.department);
-        const messageCount = ticket.messages.length;
-
-        html += `
-        <div class="ticket-card" onclick="StudentPortal.openTicket('${ticket.ticketId}')">
-            <div class="ticket-card-header">
-                <div style="display: flex; gap: 10px; align-items: center; flex: 1;">
-                    <span style="font-size: 1.8rem;">${requestType.icon}</span>
-                    <div style="flex: 1;">
-                        <h4 style="margin: 0 0 4px 0;">${ticket.title}</h4>
-                        <small style="color: var(--text-muted);">${ticket.ticketId}</small>
-                    </div>
-                </div>
-                <div style="text-align: right;">
-                    <span class="ticket-status-badge ${ticket.status}">${ticket.status.replace('-', ' ')}</span>
-                    ${ticket.priority === 'critical' || ticket.priority === 'high' ? `<div style="color: #E74C3C; font-size: 1.2rem; margin-top: 5px;">!</div>` : ''}
-                </div>
+        <!-- TICKET HISTORY -->
+        <section class="home-section">
+            <div class="section-header" style="margin-bottom:14px;">
+                <h4 style="margin:0;color:#1a3a5c;">📂 Ticket History (${resolvedTickets.length})</h4>
             </div>
-
-            <div class="ticket-card-body">
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; font-size: 0.9rem;">
-                    <div>
-                        <small style="color: var(--text-muted); display: block;">Department</small>
-                        <strong>${dept.name}</strong>
-                    </div>
-                    <div>
-                        <small style="color: var(--text-muted); display: block;">Submitted</small>
-                        <strong>${formatDate(ticket.submissionDate)}</strong>
-                    </div>
-                    <div>
-                        <small style="color: var(--text-muted); display: block;">Assigned To</small>
-                        <strong>${ticket.assignedTo.name}</strong>
-                    </div>
-                    <div>
-                        <small style="color: var(--text-muted); display: block;">SLA</small>
-                        <strong>${ticket.sla}</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="ticket-card-footer">
-                <span style="color: var(--text-muted);">💬 ${messageCount} messages</span>
-                <span style="color: var(--primary-green); font-weight: 600;">View Details →</span>
-            </div>
-        </div>
-        `;
-    });
-
-    html += `
+            ${resolvedTickets.length === 0
+                ? `<div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:20px;text-align:center;color:#888;">No resolved tickets yet.</div>`
+                : resolvedTickets.map(renderTicketCard).join('')
+            }
         </section>
-    </div>
-    `;
-
-    root.innerHTML = html;
+    </div>`;
 }
 
 // ============================================================
