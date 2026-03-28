@@ -19432,9 +19432,14 @@ window.sendEmailCommunication = function(requestId, studentName, studentEmail) {
 async function _sendTicketEmail(ticket, status, adminNotes) {
     try {
         const fnUrl = 'https://ayswzpiennofznmpooia.supabase.co/functions/v1/ticket-notification';
+        const anonKey = window.SUPABASE_CONFIG?.anonKey || (typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG.anonKey : '');
         await fetch(fnUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${anonKey}`,
+                'apikey': anonKey,
+            },
             body: JSON.stringify({
                 record: {
                     ticket_id: ticket.ticketId,
