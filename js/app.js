@@ -6351,7 +6351,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         document.body.appendChild(modal);
     }
 
-    _saveClinicalFromEditor(acadYear) {
+    async _saveClinicalFromEditor(acadYear) {
+        if (!(await window._requirePassword())) return;
         const yk   = acadYear.split('-')[0];
         const form = document.getElementById('clinicalYearForm');
         const GROUPED = ['courseQuality','preceptorByRotation','siteByRotation','satisfactionByRotation','belowBenchmark','sitesByType'];
@@ -6460,7 +6461,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         document.body.appendChild(modal);
     }
 
-    _saveStudentScores(acadYear) {
+    async _saveStudentScores(acadYear) {
+        if (!(await window._requirePassword())) return;
         const yk     = acadYear.split('-')[0];
         const modal  = document.getElementById('studentScoreModal');
         const scores = {};
@@ -7055,6 +7057,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         }
 
         window.qaKpiSave = async (input, tab, goalId, kpiName, target) => {
+            if (!(await window._requirePassword())) return;
             const actual = input.value.trim();
             const sb = window.SupabaseAuth?.supabase;
             if (!sb || !actual) return;
@@ -7072,6 +7075,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         };
 
         window.qaSurveySave = async (input, surveyGroup, surveyName, field) => {
+            if (!(await window._requirePassword())) return;
             const val = input.value.trim();
             const sb = window.SupabaseAuth?.supabase;
             if (!sb || !val) return;
@@ -7099,6 +7103,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         };
 
         window.qaSaveGroup = async (groupId, btn) => {
+            if (!(await window._requirePassword())) return;
             if (btn) { btn.disabled = true; btn.textContent = '⏳ Saving...'; }
             const tbl = document.getElementById('table-' + groupId);
             if (!tbl) { if (btn) { btn.disabled = false; btn.textContent = '💾 Save Data'; } return; }
@@ -8307,6 +8312,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         if (initCharts) setTimeout(initCharts, 50);
     }
     async updateGoalStatus(goalId) {
+        if (!(await window._requirePassword())) return;
         const table = document.getElementById(`table-${goalId}`);
         if (!table) return;
 
@@ -8560,7 +8566,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         }
     }
 
-    _saveIPPEScores(level) {
+    async _saveIPPEScores(level) {
+        if (!(await window._requirePassword())) return;
         const modal = document.getElementById('ippeScoreModal');
         const scores = {};
         modal.querySelectorAll('input[data-sid]').forEach(inp => {
@@ -8924,7 +8931,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         });
     }
 
-    _saveIPPEGradingConfig(level) {
+    async _saveIPPEGradingConfig(level) {
+        if (!(await window._requirePassword())) return;
         const modal = document.getElementById('ippeGradingConfigModal');
         const gc    = this._loadIPPEGradingConfig();
 
@@ -9128,7 +9136,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         document.body.appendChild(modal);
     }
 
-    _saveIPPEHours(level) {
+    async _saveIPPEHours(level) {
+        if (!(await window._requirePassword())) return;
         const modal  = document.getElementById('ippeHoursModal');
         const saved  = {};
         modal.querySelectorAll('input[data-sid]').forEach(inp => { const v=parseFloat(inp.value); if(!isNaN(v)) saved[inp.dataset.sid]=v; });
@@ -9333,7 +9342,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         document.body.appendChild(modal);
     }
 
-    _saveCLOAchievement(level) {
+    async _saveCLOAchievement(level) {
+        if (!(await window._requirePassword())) return;
         const modal = document.getElementById('cloAchModal');
         const ach   = {};
         modal.querySelectorAll('input[data-clo]').forEach(inp=>{ const v=parseFloat(inp.value); if(!isNaN(v)) ach[inp.dataset.clo]=v; });
@@ -9378,7 +9388,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         document.body.appendChild(modal);
     }
 
-    _saveCLOConfig(level) {
+    async _saveCLOConfig(level) {
+        if (!(await window._requirePassword())) return;
         const tbody = document.getElementById('cloConfigBody');
         const clos  = [];
         tbody.querySelectorAll('tr').forEach(tr=>{
@@ -11234,7 +11245,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 `;
     }
 
-    handlePharmaSave() {
+    async handlePharmaSave() {
+        if (!(await window._requirePassword())) return;
         const form = document.getElementById('pharma-edit-form');
 
         // Manual extraction for simplicity in this context
@@ -11366,7 +11378,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         window._facultyEditorModal = modal;
     }
 
-    _saveFacultyFromEditor(deptLabel) {
+    async _saveFacultyFromEditor(deptLabel) {
+        if (!(await window._requirePassword())) return;
         const modal  = window._facultyEditorModal;
         const list   = modal?._getList() || [];
         this._saveFacultyList(deptLabel, list);
@@ -11471,7 +11484,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         document.body.appendChild(modal);
     }
 
-    _saveDeptYearData(deptLabel, acadYear) {
+    async _saveDeptYearData(deptLabel, acadYear) {
+        if (!(await window._requirePassword())) return;
         const deptId = deptLabel.toLowerCase().includes('practice') ? 'practice' : 'sciences';
         const yk     = acadYear.split('-')[0];
         const form   = document.getElementById('deptYearForm');
@@ -11979,6 +11993,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
     }
 
     async handlePharmaSave_v2() {
+        if (!(await window._requirePassword())) return;
         const form = document.getElementById('pharma-edit-form');
         const inputs = form.querySelectorAll('input');
         const values = {};
@@ -12386,7 +12401,8 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
                 `;
     }
 
-    handleFacultySave(email) {
+    async handleFacultySave(email) {
+        if (!(await window._requirePassword())) return;
         const form = document.getElementById('faculty-edit-form');
         const inputs = form.querySelectorAll('input');
         const values = {};
@@ -14169,6 +14185,7 @@ This letter is officially approved and valid for ${request.eventDetails?.duratio
         /* ── Edit Center ── */
         window._mouEditId = null;
         window._mouSave = async () => {
+            if (!(await window._requirePassword())) return;
             const g = id => document.getElementById(id)?.value?.trim()||'';
             const payload = {
                 institution_name:  g('mou-name'),
@@ -15171,7 +15188,8 @@ window.renderGradingModal = (type, studentId) => {
     document.getElementById('grading-modal-container').innerHTML = modalHtml;
 };
 
-window.saveRubricGrade = (type, studentId) => {
+window.saveRubricGrade = async (type, studentId) => {
+    if (!(await window._requirePassword())) return;
     const form = document.getElementById('rubric-form');
     const inputs = form.querySelectorAll('input[type="radio"]:checked');
     const answers = {};
@@ -15295,7 +15313,8 @@ App.prototype.renderAlumniEditPanel = function(tab, tabTitle) {
     return editHtml;
 };
 
-App.prototype.saveAlumniTabEdit = function(tab) {
+App.prototype.saveAlumniTabEdit = async function(tab) {
+    if (!(await window._requirePassword())) return;
     const editData = {
         title: document.getElementById('edit_title').value,
         icon: document.getElementById('edit_icon').value,
@@ -15369,7 +15388,8 @@ App.prototype.createEditableMetric = function(tab, metricKey, defaultValue, hove
     return `<span class="editable-metric" data-tab="${tab}" data-key="${metricKey}" data-value="${value}" style="cursor: pointer; padding: 0.25rem 0.5rem; border-radius: 4px; transition: all 0.2s; display: inline-block;" onmouseover="this.style.backgroundColor='${hoverColor}'; this.style.boxShadow='0 0 0 2px ${borderColor}';" onmouseout="this.style.backgroundColor='transparent'; this.style.boxShadow='none';" onclick="app.editMetricInline('${tab}', '${metricKey}', '${value}')">${value}</span>`;
 };
 
-App.prototype.editMetricInline = function(tab, metricKey, currentValue) {
+App.prototype.editMetricInline = async function(tab, metricKey, currentValue) {
+    if (!(await window._requirePassword())) return;
     const metricElement = document.querySelector(`[data-tab="${tab}"][data-key="${metricKey}"]`);
     if (!metricElement) {
         console.log(`Element not found: [data-tab="${tab}"][data-key="${metricKey}"]`);
@@ -15457,7 +15477,8 @@ App.prototype.addNewMetric = function(tab) {
     alert('Metric added! Click Save All Metrics to finalize.');
 };
 
-App.prototype.saveAllMetrics = function(tab) {
+App.prototype.saveAllMetrics = async function(tab) {
+    if (!(await window._requirePassword())) return;
     alert('Metrics saved! Refreshing view...');
     this.render(tab);
 };
@@ -15688,6 +15709,7 @@ App.prototype.renderAlumniDirectory = async function() {
     };
 
     window._alumniSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const name    = document.getElementById('an-name')?.value?.trim();
@@ -16464,6 +16486,7 @@ App.prototype.renderAlumniEvents = async function() {
     const { events } = await this._loadAlumniData();
 
     window._eventSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -16573,6 +16596,7 @@ App.prototype.renderAlumniAchievements = async function() {
     const { achievements, alumni } = await this._loadAlumniData();
 
     window._achievementSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -17395,6 +17419,7 @@ App.prototype.renderResearchPublications = async function() {
     const stuLed = pubs.filter(p => (p.type||'').toLowerCase().includes('student')).length;
 
     window._researchPubSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected to database.'); return; }
         const payload = {
@@ -17526,6 +17551,7 @@ App.prototype.renderResearchProjects = async function() {
     stageOrder.forEach(s => { stageCounts[s] = projects.filter(p => p.status === s || (p.stages && p.stages[p.stages.length-1] === s)).length; });
 
     window._researchProjSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -17639,6 +17665,7 @@ App.prototype.renderResearchIRB = async function() {
     const expiring = irb.filter(i => { const d = daysLeft(i); return d >= 0 && d <= 30; });
 
     window._researchIRBSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -17727,6 +17754,7 @@ App.prototype.renderResearchGrants = async function() {
     const statusBg   = { submitted:'#e3f2fd', awarded:'#e8f5e9', rejected:'#ffebee', active:'#e8f5e9', pending:'#fff3e0' };
 
     window._researchGrantSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -17940,6 +17968,7 @@ App.prototype.renderResearchCollaboration = async function() {
     const typeBg    = { 'Internal':'#e8f5e9','External':'#e3f2fd','Industry':'#fff3e0','Hospital':'#f3e5f5' };
 
     window._researchCollabSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -18014,6 +18043,7 @@ App.prototype.renderResearchRecognition = async function() {
     const typeColors = { 'Award':'#FF9800','Citation':'#2196F3','Presentation':'#1B5E20' };
 
     window._researchRecogSave = async () => {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) { alert('Not connected.'); return; }
         const payload = {
@@ -19719,6 +19749,7 @@ window.rotAdmin = {
     },
 
     async saveBlockCapacity(siteId, blockNum, val) {
+        if (!(await window._requirePassword())) return;
         const sb = window.SupabaseAuth?.supabase;
         if (!sb) return;
         const { error } = await sb.from('rotation_site_availability').update({ max_students: parseInt(val) || 1 }).eq('site_id', siteId).eq('block_number', blockNum);
@@ -19788,6 +19819,7 @@ window.rotAdmin = {
     },
 
     async saveSite(id) {
+        if (!(await window._requirePassword())) return;
         const name = document.getElementById(`site-name-edit-${id}`)?.value?.trim();
         const specialty = document.getElementById(`site-spec-edit-${id}`)?.value?.trim();
         const preceptor_name = document.getElementById(`site-prec-edit-${id}`)?.value?.trim();
@@ -19833,6 +19865,7 @@ window.rotAdmin = {
     },
 
     async saveAllScores() {
+        if (!(await window._requirePassword())) return;
         try {
             const sb = window.SupabaseAuth?.supabase;
             if (!sb) { alert('Not connected.'); return; }
@@ -19884,6 +19917,7 @@ window.rotAdmin = {
     },
 
     async saveScore(studentId) {
+        if (!(await window._requirePassword())) return;
         const sid = studentId.replace(/[^a-zA-Z0-9]/g, '_');
         const name = document.getElementById('name-' + sid)?.value?.trim();
         const score = parseFloat(document.getElementById('score-' + sid)?.value);
