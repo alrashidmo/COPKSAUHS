@@ -1286,7 +1286,8 @@ window.StudentManagement = {
         modal.style.display = 'flex';
     },
 
-    addStudentManual() {
+    async addStudentManual() {
+        if (!(await window._requirePassword())) return;
         const studentNo = document.getElementById('newStudentNo').value.trim();
         const name = document.getElementById('newStudentName').value.trim();
         const email = document.getElementById('newStudentEmail').value.trim();
@@ -15127,7 +15128,8 @@ window.updateBulkView = (type) => {
     if (window.app) window.app.renderIPPE_Admin_Bulk();
 };
 
-window.saveBulkData = (studentId, type, value) => {
+window.saveBulkData = async (studentId, type, value) => {
+    if (!(await window._requirePassword())) return;
     // Simple save for attendance
     const student = window.appStore.data.students.find(s => s.id === studentId);
     if (student && type === 'attendance') {
@@ -15416,7 +15418,8 @@ App.prototype.editMetricInline = async function(tab, metricKey, currentValue) {
     }, 10);
 };
 
-App.prototype.saveMetricInline = function(tab, metricKey, newValue) {
+App.prototype.saveMetricInline = async function(tab, metricKey, newValue) {
+    if (!(await window._requirePassword())) return;
     this.saveMetricValue(tab, metricKey, newValue);
     // Re-render the current tab
     this.render(tab);
@@ -15451,16 +15454,18 @@ App.prototype.showDataEditor = function(tab) {
     document.getElementById(`alumni_data_editor_${tab}`).innerHTML = editorPanel;
 };
 
-App.prototype.updateMetric = function(tab, key, value) {
+App.prototype.updateMetric = async function(tab, key, value) {
+    if (!(await window._requirePassword())) return;
     const metrics = this.getAlumniTabMetrics(tab);
     metrics[key] = value;
     this.saveAlumniMetrics(tab, metrics);
 };
 
-App.prototype.addNewMetric = function(tab) {
+App.prototype.addNewMetric = async function(tab) {
+    if (!(await window._requirePassword())) return;
     const keyInput = document.getElementById(`new_metric_key_${tab}`);
     const valueInput = document.getElementById(`new_metric_value_${tab}`);
-    
+
     if (!keyInput.value.trim() || !valueInput.value.trim()) {
         alert('Please enter both metric name and value');
         return;
