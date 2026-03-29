@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; margin: 2.5cm; color: #1a1a1a; line-height: 1.5; }
+  h1 { font-size: 20pt; color: #1B5E20; border-bottom: 3px solid #1B5E20; padding-bottom: 6px; margin-top: 0; }
+  h2 { font-size: 15pt; color: #1B5E20; border-bottom: 1px solid #a5d6a7; padding-bottom: 4px; margin-top: 30px; }
+  h3 { font-size: 12pt; color: #2e7d32; margin-top: 18px; margin-bottom: 4px; }
+  h4 { font-size: 11pt; color: #333; margin-top: 14px; margin-bottom: 2px; font-style: italic; }
+  table { border-collapse: collapse; width: 100%; margin: 10px 0 18px 0; font-size: 10pt; }
+  th { background: #1B5E20; color: white; padding: 7px 10px; text-align: left; }
+  td { padding: 6px 10px; border: 1px solid #c8e6c9; vertical-align: top; }
+  tr:nth-child(even) td { background: #f1f8e9; }
+  .badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 9pt; font-weight: bold; }
+  .badge-read  { background: #e3f2fd; color: #1565c0; }
+  .badge-write { background: #fce4ec; color: #b71c1c; }
+  .badge-both  { background: #f3e5f5; color: #6a1b9a; }
+  .note { background: #fff8e1; border-left: 4px solid #f9a825; padding: 8px 12px; margin: 10px 0; font-size: 10pt; }
+  .warning { background: #fce4ec; border-left: 4px solid #c62828; padding: 8px 12px; margin: 10px 0; font-size: 10pt; }
+  .tip { background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 8px 12px; margin: 10px 0; font-size: 10pt; }
+  .section-intro { color: #555; font-size: 10.5pt; margin-bottom: 10px; }
+  code { background: #f5f5f5; padding: 1px 5px; border-radius: 3px; font-family: Consolas, monospace; font-size: 10pt; }
+  .toc a { color: #1B5E20; text-decoration: none; }
+  .toc li { margin: 3px 0; }
+  .file-tag { display: inline-block; background: #263238; color: #80cbc4; padding: 1px 7px; border-radius: 4px; font-size: 9pt; font-family: Consolas, monospace; margin: 1px; }
+  .key-col { color: #b71c1c; font-weight: bold; }
+  .fk-col { color: #1565c0; font-weight: bold; }
+  hr { border: none; border-top: 1px solid #ddd; margin: 30px 0; }
+  .flow-box { background: #f8fafc; border: 1px solid #ddd; border-radius: 6px; padding: 12px 16px; margin: 10px 0; font-size: 10pt; }
+  .flow-step { display: flex; align-items: flex-start; margin: 6px 0; }
+  .step-num { background: #1B5E20; color: white; border-radius: 50%; width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; font-size: 9pt; font-weight: bold; flex-shrink: 0; margin-right: 10px; margin-top: 1px; }
+  .cover { text-align: center; padding: 60px 0 40px 0; }
+  .cover h1 { border: none; font-size: 26pt; }
+  .cover .subtitle { font-size: 13pt; color: #555; margin: 10px 0 30px 0; }
+  .cover .meta { font-size: 10pt; color: #888; }
+  @media print { .page-break { page-break-before: always; } }
+</style>
+</head>
+<body>
+
+<!-- COVER PAGE -->
+<div class="cover">
+  <div style="font-size:48pt;">🎓</div>
+  <h1>College of Pharmacy Platform</h1>
+  <div class="subtitle">Complete Supabase Database Integration Guide</div>
+  <div style="width:120px;height:3px;background:#1B5E20;margin:0 auto 20px auto;"></div>
+  <div class="meta">
+    King Saud Bin Abdulaziz University for Health Sciences<br>
+    Academic Year 2025–2026<br>
+    Last Updated: March 2026
+  </div>
+</div>
+
+<hr>
+
+<!-- TABLE OF CONTENTS -->
+<h2>Table of Contents</h2>
+<ol class="toc">
+  <li><a href="#overview">System Overview</a></li>
+  <li><a href="#architecture">Architecture &amp; Key Concepts</a></li>
+  <li><a href="#files">JavaScript Files &amp; Their Roles</a></li>
+  <li><a href="#auth">Authentication &amp; User Tables</a></li>
+  <li><a href="#appe">APPE Hub Tables</a></li>
+  <li><a href="#portal">Student Portal Tables</a></li>
+  <li><a href="#alumni">Alumni Unit Tables</a></li>
+  <li><a href="#research">Research &amp; Academic Tables</a></li>
+  <li><a href="#platform">Platform &amp; Support Tables</a></li>
+  <li><a href="#flows">Key Data Flows</a></li>
+  <li><a href="#rls">Row Level Security (RLS)</a></li>
+  <li><a href="#quickref">Quick Reference Card</a></li>
+</ol>
+
+<hr class="page-break">
+
+<!-- SECTION 1: OVERVIEW -->
+<h2 id="overview">1. System Overview</h2>
+<p class="section-intro">
+  The College of Pharmacy platform is a single-page web application (SPA) built with vanilla JavaScript,
+  hosted on Vercel, with Supabase as the backend database and authentication provider.
+  There is no separate server — all database operations happen directly from the browser using the Supabase JavaScript client.
+</p>
+
+<table>
+  <tr><th>Component</th><th>Technology</th><th>Purpose</th></tr>
+  <tr><td>Frontend</td><td>HTML + Vanilla JavaScript</td><td>All UI rendering</td></tr>
+  <tr><td>Hosting</td><td>Vercel</td><td>Static file hosting, auto-deploys from GitHub</td></tr>
+  <tr><td>Database</td><td>Supabase (PostgreSQL)</td><td>All data storage</td></tr>
+  <tr><td>Authentication</td><td>Supabase Auth</td><td>Login, sessions, user management</td></tr>
+  <tr><td>File Storage</td><td>Supabase Storage</td><td>Research documents, uploads</td></tr>
+  <tr><td>Source Control</td><td>GitHub (alrashidmo/COPKSAUHS)</td><td>Code versioning &amp; deployment trigger</td></tr>
+</table>
+
+<div class="tip">
+  <strong>Total Supabase tables: 41</strong> across all platform modules.
+  Every table uses Row Level Security (RLS) — all queries must come from an authenticated user.
+</div>
+
+<hr>
+
+<!-- SECTION 2: KEY CONCEPTS -->
+<h2 id="architecture">2. Architecture &amp; Key Concepts</h2>
+
+<h3>2.1 The Two Types of User ID</h3>
+<p>This is the most important concept to understand. There are <strong>two different IDs</strong> for each user:</p>
+
+<table>
+  <tr><th>ID Type</th><th>Where It Comes From</th><th>Example Value</th><th>Used In</th></tr>
+  <tr>
+    <td><strong>Auth UUID</strong><br><code>user_profiles.user_id</code></td>
+    <td>Supabase Auth — auto-generated when account is created</td>
+    <td><code>a3f8d2c1-7b4e-...</code></td>
+    <td>rotation_preferences, rotation_assignments, student_compliance, student_sple_scores, alumni_mentorship_pairs</td>
+  </tr>
+  <tr>
+    <td><strong>College Student ID</strong><br><code>user_profiles.student_id</code></td>
+    <td>Manually entered during signup (university ID number)</td>
+    <td><code>442001234</code></td>
+    <td>Display purposes, CSV imports</td>
+  </tr>
+</table>
+
+<div class="warning">
+  <strong>Critical Rule:</strong> All APPE Hub operational tables (assignments, preferences, compliance, SPLE)
+  use the <strong>Auth UUID</strong> as <code>student_id</code>. Never use the college student number as a database key.
+</div>
+
+<h3>2.2 Academic Year Filtering</h3>
+<p>All APPE operational tables include an <code>academic_year</code> column (e.g., <code>'2025-2026'</code>).
+The hub supports three years simultaneously: <code>2024-2025</code>, <code>2025-2026</code>, <code>2026-2027</code>.</p>
+<ul>
+  <li>The <strong>active year</strong> is stored in <code>rotation_settings.academic_year</code> — this is where new data is written</li>
+  <li>Admins can <strong>view</strong> any year using the year dropdown in the APPE Hub header</li>
+  <li>Student portal submissions are automatically tagged with the active year</li>
+</ul>
+
+<h3>2.3 Student Source of Truth</h3>
+<div class="tip">
+  <strong>The <code>user_profiles</code> table is the single source of truth for students.</strong><br>
+  The APPE Hub builds its student list from <code>user_profiles</code> filtered by <code>class_year = 'P4'</code>
+  and <code>status != 'alumni'</code>. There is a legacy <code>students</code> table that is no longer the primary source.
+</div>
+
+<h3>2.4 Approval Workflow</h3>
+<div class="flow-box">
+  <div class="flow-step"><span class="step-num">1</span> Student fills signup form → row inserted into <code>pending_signups</code> with <code>status = 'pending'</code></div>
+  <div class="flow-step"><span class="step-num">2</span> Admin sees it in Admin Hub → clicks Approve</div>
+  <div class="flow-step"><span class="step-num">3</span> Database function <code>approve_signup_request()</code> runs → creates Supabase Auth account + row in <code>user_profiles</code></div>
+  <div class="flow-step"><span class="step-num">4</span> <code>pending_signups.status</code> updated to <code>'approved'</code></div>
+  <div class="flow-step"><span class="step-num">5</span> Student can now log in</div>
+</div>
+
+<hr>
+
+<!-- SECTION 3: JS FILES -->
+<h2 id="files">3. JavaScript Files &amp; Their Roles</h2>
+
+<table>
+  <tr><th>File</th><th>Module</th><th>Responsibility</th><th>Tables Used</th></tr>
+  <tr>
+    <td><code>supabase-auth.js</code></td>
+    <td>Authentication</td>
+    <td>Login, signup, session restore, admin approval. Initializes the Supabase client shared by all other files.</td>
+    <td>pending_signups, user_profiles</td>
+  </tr>
+  <tr>
+    <td><code>appe-hub.js</code></td>
+    <td>APPE Experience Hub</td>
+    <td>Admin view of all P4 rotation operations: dashboard, schedule, scoring, matching, compliance, SPLE, outcomes.</td>
+    <td>rotation_sites, rotation_assignments, rotation_preferences, rotation_evaluations, rotation_settings, rotation_site_availability, student_compliance, student_sple_scores, student_enrollments, user_profiles, alumni_profiles</td>
+  </tr>
+  <tr>
+    <td><code>student-portal.js</code></td>
+    <td>Student Portal</td>
+    <td>Student-facing views: rotation preferences submission, schedule display, tickets, research log, awards, community service.</td>
+    <td>rotation_assignments, rotation_preferences, rotation_sites, rotation_settings, rotation_site_availability, rotation_evaluations, user_profiles, submitted_tickets, student_research_log, student_awards, community_service_log, alumni_profiles, alumni_mentorship_pairs, certificate_requests, college_resources</td>
+  </tr>
+  <tr>
+    <td><code>app.js</code></td>
+    <td>Admin Hub + All Other Modules</td>
+    <td>All admin operations: Alumni Unit, Research Unit, Academic Affairs, Clinical Affairs, Quality Assurance, Community Service, student management.</td>
+    <td>35 tables — see sections below</td>
+  </tr>
+  <tr>
+    <td><code>alumni-data.js</code></td>
+    <td>Alumni Data</td>
+    <td>Default/fallback data structures for the Alumni Unit when Supabase returns no data.</td>
+    <td>No direct queries (data layer only)</td>
+  </tr>
+</table>
+
+<hr>
+
+<!-- SECTION 4: AUTH TABLES -->
+<h2 id="auth">4. Authentication &amp; User Tables</h2>
+
+<h3>4.1 <code>user_profiles</code></h3>
+<p class="section-intro">The central user table. Every approved user has one row here. This is the primary student source for all APPE operations.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="key-col">user_id</td><td>UUID</td><td><strong>Primary reference key.</strong> Matches <code>auth.users.id</code> in Supabase Auth. Used as <code>student_id</code> in all operational tables.</td></tr>
+  <tr><td>full_name</td><td>TEXT</td><td>Student/staff full name</td></tr>
+  <tr><td>email</td><td>TEXT</td><td>Login email</td></tr>
+  <tr><td>account_type</td><td>TEXT</td><td><code>'student'</code>, <code>'staff'</code>, or <code>'admin'</code></td></tr>
+  <tr><td>class_year</td><td>TEXT</td><td><code>'P1'</code>, <code>'P2'</code>, <code>'P3'</code>, <code>'P4'</code>, or <code>'Alumni'</code></td></tr>
+  <tr><td>status</td><td>TEXT</td><td><code>'active'</code> or <code>'alumni'</code>. Alumni are excluded from APPE matching.</td></tr>
+  <tr><td>student_id</td><td>TEXT</td><td>College student number (e.g., "442001234"). Display only — not a DB key.</td></tr>
+  <tr><td>staff_id</td><td>TEXT</td><td>Staff ID number (for staff accounts)</td></tr>
+  <tr><td>department</td><td>TEXT</td><td>Department name</td></tr>
+  <tr><td>is_approved</td><td>BOOLEAN</td><td>Must be <code>true</code> for the user to log in and be visible</td></tr>
+  <tr><td>phone</td><td>TEXT</td><td>Phone number</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">supabase-auth.js</span> <span class="file-tag">appe-hub.js</span> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>4.2 <code>pending_signups</code></h3>
+<p class="section-intro">Holds signup requests awaiting admin approval. Students never appear in <code>user_profiles</code> until approved.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="key-col">id</td><td>UUID</td><td>Primary key</td></tr>
+  <tr><td>email</td><td>TEXT</td><td>Signup email (checked for duplicates before insertion)</td></tr>
+  <tr><td>password_hash</td><td>TEXT</td><td>Password submitted — used by DB function when creating the account</td></tr>
+  <tr><td>full_name</td><td>TEXT</td><td>Name entered during signup</td></tr>
+  <tr><td>account_type</td><td>TEXT</td><td>student / staff</td></tr>
+  <tr><td>student_id</td><td>TEXT</td><td>College student number entered during signup</td></tr>
+  <tr><td>class_year</td><td>TEXT</td><td>P1–P4 selected during signup</td></tr>
+  <tr><td>status</td><td>TEXT</td><td><code>'pending'</code>, <code>'approved'</code>, or <code>'rejected'</code></td></tr>
+  <tr><td>submitted_at</td><td>TIMESTAMPTZ</td><td>When the signup was submitted</td></tr>
+  <tr><td>approved_by</td><td>UUID</td><td>Admin's user_id who approved</td></tr>
+  <tr><td>rejected_by</td><td>UUID</td><td>Admin's user_id who rejected</td></tr>
+  <tr><td>rejection_reason</td><td>TEXT</td><td>Optional rejection message</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">supabase-auth.js</span></p>
+<div class="note">The approval triggers the database function <code>approve_signup_request(signup_request_id, approving_admin_id)</code> which creates the Supabase Auth account and the <code>user_profiles</code> row atomically.</div>
+
+<hr>
+
+<!-- SECTION 5: APPE HUB TABLES -->
+<h2 id="appe">5. APPE Hub Tables</h2>
+<p class="section-intro">These tables power the APPE Experience Hub (P4 clinical rotation management). All operational tables use <code>academic_year</code> for year-based filtering and Auth UUID as <code>student_id</code>.</p>
+
+<h3>5.1 <code>rotation_sites</code></h3>
+<p>The catalogue of all available APPE rotation sites.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="key-col">id</td><td>UUID</td><td>Primary key — referenced by assignments, preferences, availability</td></tr>
+  <tr><td>site_name</td><td>TEXT</td><td>Full name of the rotation site</td></tr>
+  <tr><td>specialty</td><td>TEXT</td><td>Clinical specialty (e.g., Cardiology, Oncology)</td></tr>
+  <tr><td>rotation_type</td><td>TEXT</td><td><code>'clinical'</code> or <code>'non-clinical'</code></td></tr>
+  <tr><td>preceptor_name</td><td>TEXT</td><td>Responsible preceptor</td></tr>
+  <tr><td>location</td><td>TEXT</td><td>Hospital/facility name</td></tr>
+  <tr><td>is_active</td><td>BOOLEAN</td><td>Only active sites appear in matching and student selection</td></tr>
+  <tr><td>available_slots</td><td>INT</td><td>Total capacity (legacy — per-block slots are in rotation_site_availability)</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>5.2 <code>rotation_site_availability</code></h3>
+<p>Per-block slot counts for each site. One row per site per block (up to 10 blocks).</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">site_id</td><td>UUID</td><td>References <code>rotation_sites.id</code></td></tr>
+  <tr><td>block_number</td><td>INT</td><td>1 through 10</td></tr>
+  <tr><td>max_students</td><td>INT</td><td>How many students can be placed at this site in this block</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> (auto-match reads this to respect capacity) <span class="file-tag">student-portal.js</span> (shows available blocks on site cards)</p>
+<div class="note">This table is set fresh each academic year. The admin seeds random availability via the Settings tab or manually via Supabase.</div>
+
+<h3>5.3 <code>rotation_preferences</code></h3>
+<p>Student-submitted ranked site preferences. One row per site per student per year.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="key-col">id</td><td>BIGINT</td><td>Auto-increment primary key</td></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td><strong>Auth UUID</strong> of the student (<code>user_profiles.user_id</code>)</td></tr>
+  <tr><td class="fk-col">site_id</td><td>UUID</td><td>References <code>rotation_sites.id</code></td></tr>
+  <tr><td>preference_rank</td><td>INT</td><td>1 = most preferred, higher = less preferred</td></tr>
+  <tr><td>academic_year</td><td>TEXT</td><td>e.g., <code>'2025-2026'</code> — year this preference belongs to</td></tr>
+  <tr><td>submitted_at</td><td>TIMESTAMPTZ</td><td>When submitted</td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMPTZ</td><td>Last update</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> (admin views, auto-match reads) <span class="file-tag">student-portal.js</span> (students submit)</p>
+<div class="tip">When a student resubmits preferences, all old rows for that student+year are <strong>deleted</strong> first, then new rows are inserted.</div>
+
+<h3>5.4 <code>rotation_assignments</code></h3>
+<p>The output of auto-match. One row per student per block per year = up to 10 rows per student.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="key-col">id</td><td>BIGINT</td><td>Auto-increment primary key</td></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td><strong>Auth UUID</strong> of the student</td></tr>
+  <tr><td>student_name</td><td>TEXT</td><td>Student name (denormalized for display)</td></tr>
+  <tr><td class="fk-col">site_id</td><td>UUID</td><td>References <code>rotation_sites.id</code> (NULL if unassigned)</td></tr>
+  <tr><td>block_number</td><td>INT</td><td>1–10 (0 = score placeholder row before matching)</td></tr>
+  <tr><td>academic_year</td><td>TEXT</td><td>e.g., <code>'2025-2026'</code></td></tr>
+  <tr><td>student_score</td><td>NUMERIC</td><td>Composite score (GPA×44% + Exp×44% + Research×4% + Community×4% + Conferences×4%)</td></tr>
+  <tr><td>preference_rank_received</td><td>INT</td><td>Which preference rank the student got (NULL = fallback assignment)</td></tr>
+  <tr><td>assignment_method</td><td>TEXT</td><td><code>'auto'</code> (matched preference), <code>'auto-fallback'</code>, or <code>'unassigned'</code></td></tr>
+  <tr><td>assigned_at</td><td>TIMESTAMPTZ</td><td>When the assignment was made</td></tr>
+</table>
+<p><strong>Unique constraint:</strong> <code>(student_id, block_number, academic_year)</code> — prevents duplicate block assignments per student per year.</p>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> (admin) <span class="file-tag">student-portal.js</span> (student views their 10-block schedule) <span class="file-tag">app.js</span></p>
+
+<h3>5.5 <code>rotation_settings</code></h3>
+<p>Single-row global configuration table (always <code>id = 1</code>).</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td>id</td><td>INT</td><td>Always 1 — only one settings row exists</td></tr>
+  <tr><td>academic_year</td><td>TEXT</td><td><strong>The active write year</strong>. New submissions/matches use this year. Also shown in hub header.</td></tr>
+  <tr><td>submissions_open</td><td>BOOLEAN</td><td>If false, students cannot submit/edit rotation preferences</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>5.6 <code>rotation_evaluations</code></h3>
+<p>Post-rotation evaluations submitted by students about their experience at a site.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID of the student</td></tr>
+  <tr><td class="fk-col">site_id</td><td>UUID</td><td>Site being evaluated</td></tr>
+  <tr><td>specialty</td><td>TEXT</td><td>Specialty name (denormalized)</td></tr>
+  <tr><td>preceptor_name</td><td>TEXT</td><td>Preceptor being evaluated</td></tr>
+  <tr><td>rating_overall</td><td>NUMERIC</td><td>Overall rating (1–5)</td></tr>
+  <tr><td>rating_learning</td><td>NUMERIC</td><td>Learning experience rating</td></tr>
+  <tr><td>rating_preceptor</td><td>NUMERIC</td><td>Preceptor quality rating</td></tr>
+  <tr><td>rating_career</td><td>NUMERIC</td><td>Career relevance rating</td></tr>
+  <tr><td>workload_level</td><td>TEXT</td><td>light / moderate / heavy</td></tr>
+  <tr><td>would_recommend</td><td>BOOLEAN</td><td>Would recommend to other students</td></tr>
+  <tr><td>highlight</td><td>TEXT</td><td>Free-text highlight comment</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMPTZ</td><td>Submission timestamp</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>5.7 <code>student_compliance</code></h3>
+<p>Tracks compliance item status per student per year. Replaces the old localStorage-based system.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID of the student</td></tr>
+  <tr><td>academic_year</td><td>TEXT</td><td>e.g., <code>'2025-2026'</code></td></tr>
+  <tr><td>item_key</td><td>TEXT</td><td>Identifier of the compliance item (e.g., <code>'cpr'</code>, <code>'malpractice'</code>)</td></tr>
+  <tr><td>status</td><td>TEXT</td><td><code>'ok'</code>, <code>'expiring'</code>, <code>'expired'</code>, or <code>'missing'</code></td></tr>
+  <tr><td>notes</td><td>TEXT</td><td>Optional admin notes</td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMPTZ</td><td>Last update</td></tr>
+</table>
+<p><strong>Unique constraint:</strong> <code>(student_id, academic_year, item_key)</code></p>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> (admin clicks compliance status chips) <span class="file-tag">app.js</span></p>
+
+<h3>5.8 <code>student_sple_scores</code></h3>
+<p>SPLE (Standardized Pharmacy Licensure Exam) practice scores per student per year. Replaces localStorage.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID of the student</td></tr>
+  <tr><td>academic_year</td><td>TEXT</td><td>e.g., <code>'2025-2026'</code></td></tr>
+  <tr><td>exam_number</td><td>INT</td><td>1 through 6 (six SPLE attempts)</td></tr>
+  <tr><td>score</td><td>NUMERIC</td><td>Score (0–100)</td></tr>
+  <tr><td>exam_date</td><td>DATE</td><td>Optional date of the exam</td></tr>
+  <tr><td>updated_at</td><td>TIMESTAMPTZ</td><td>Last update</td></tr>
+</table>
+<p><strong>Unique constraint:</strong> <code>(student_id, academic_year, exam_number)</code></p>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>5.9 <code>student_enrollments</code></h3>
+<p>Historical record of each student's enrollment per academic year. Used for progression tracking.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">user_id</td><td>UUID</td><td>Auth UUID of the student</td></tr>
+  <tr><td>student_id</td><td>TEXT</td><td>College student number</td></tr>
+  <tr><td>full_name</td><td>TEXT</td><td>Name at time of enrollment</td></tr>
+  <tr><td>academic_year</td><td>TEXT</td><td>e.g., <code>'2025-2026'</code></td></tr>
+  <tr><td>class_year</td><td>TEXT</td><td>P1 / P2 / P3 / P4 that year</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>active / withdrawn / graduated</td></tr>
+</table>
+<p><strong>Unique constraint:</strong> <code>(user_id, academic_year)</code></p>
+<p><strong>Used by:</strong> <span class="file-tag">appe-hub.js</span></p>
+
+<hr>
+
+<!-- SECTION 6: STUDENT PORTAL TABLES -->
+<h2 id="portal">6. Student Portal Tables</h2>
+
+<h3>6.1 <code>submitted_tickets</code></h3>
+<p>Support/help tickets submitted by students to academic affairs or other departments.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td>id / ticket_id</td><td>TEXT</td><td>Ticket identifier</td></tr>
+  <tr><td>student_id</td><td>TEXT</td><td>College student number (auth user ID)</td></tr>
+  <tr><td>student_email</td><td>TEXT</td><td>Student email</td></tr>
+  <tr><td>title</td><td>TEXT</td><td>Ticket title</td></tr>
+  <tr><td>description</td><td>TEXT</td><td>Ticket body</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>submitted / in-progress / waiting-student / approved / closed</td></tr>
+  <tr><td>priority</td><td>TEXT</td><td>low / medium / high</td></tr>
+  <tr><td>department</td><td>TEXT</td><td>Routing department</td></tr>
+  <tr><td>request_type</td><td>TEXT</td><td>Category of request</td></tr>
+  <tr><td>submitted_at</td><td>TIMESTAMPTZ</td><td>Submission time</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>6.2 <code>student_research_log</code></h3>
+<p>Research activities logged by students (projects they are involved in).</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID</td></tr>
+  <tr><td>project_title</td><td>TEXT</td><td>Research project name</td></tr>
+  <tr><td>role</td><td>TEXT</td><td>Student's role in the project</td></tr>
+  <tr><td>degree_level</td><td>TEXT</td><td>pharmd / msc</td></tr>
+  <tr><td>stage</td><td>TEXT</td><td>Current stage of the project</td></tr>
+  <tr><td>description</td><td>TEXT</td><td>Project description</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>active / completed</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>6.3 <code>student_awards</code></h3>
+<p>Awards and recognitions logged by students.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID</td></tr>
+  <tr><td>name</td><td>TEXT</td><td>Award name</td></tr>
+  <tr><td>organization</td><td>TEXT</td><td>Awarding organization</td></tr>
+  <tr><td>category</td><td>TEXT</td><td>Award category</td></tr>
+  <tr><td>level</td><td>TEXT</td><td>local / national / international</td></tr>
+  <tr><td>date</td><td>DATE</td><td>Award date</td></tr>
+  <tr><td>description</td><td>TEXT</td><td>Description</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>6.4 <code>community_service_log</code></h3>
+<p>Community service hours logged by students and staff.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID</td></tr>
+  <tr><td>activity_name</td><td>TEXT</td><td>Name of the service activity</td></tr>
+  <tr><td>hours</td><td>NUMERIC</td><td>Hours contributed</td></tr>
+  <tr><td>date</td><td>DATE</td><td>Date of activity</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>pending / approved</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>6.5 <code>certificate_requests</code></h3>
+<p>Requests for official certificates (enrollment, completion, etc.).</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID</td></tr>
+  <tr><td>certificate_type</td><td>TEXT</td><td>Type of certificate requested</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>pending / processing / ready / delivered</td></tr>
+  <tr><td>requested_at</td><td>TIMESTAMPTZ</td><td>Request timestamp</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<h3>6.6 <code>college_resources</code></h3>
+<p>Library of resources (links, documents) visible to students in the portal.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td>title</td><td>TEXT</td><td>Resource title</td></tr>
+  <tr><td>url</td><td>TEXT</td><td>Link to resource</td></tr>
+  <tr><td>category</td><td>TEXT</td><td>Resource category</td></tr>
+  <tr><td>is_active</td><td>BOOLEAN</td><td>Whether visible to students</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">student-portal.js</span> <span class="file-tag">app.js</span></p>
+
+<hr>
+
+<!-- SECTION 7: ALUMNI TABLES -->
+<h2 id="alumni">7. Alumni Unit Tables</h2>
+
+<h3>7.1 <code>alumni_profiles</code></h3>
+<p>The Alumni Directory. One row per graduate. Automatically populated when a P4 student is graduated via the APPE Hub Student Progression panel.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="key-col">id</td><td>UUID</td><td>Primary key</td></tr>
+  <tr><td>alumni_id</td><td>TEXT</td><td>Display ID (e.g., "GRAD-442001234")</td></tr>
+  <tr><td>name</td><td>TEXT</td><td>Full name</td></tr>
+  <tr><td>email</td><td>TEXT</td><td>Email address (used to prevent duplicates)</td></tr>
+  <tr><td>program</td><td>TEXT</td><td>e.g., "PharmD"</td></tr>
+  <tr><td>graduation_year</td><td>INT</td><td>Year of graduation</td></tr>
+  <tr><td>specialty</td><td>TEXT</td><td>Clinical specialty</td></tr>
+  <tr><td>current_employer</td><td>TEXT</td><td>Current workplace</td></tr>
+  <tr><td>job_title</td><td>TEXT</td><td>Current job title</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>employed / postgraduate / other</td></tr>
+  <tr><td>engagement</td><td>TEXT</td><td>active / moderate / low</td></tr>
+  <tr><td>mentor_willing</td><td>BOOLEAN</td><td>Willing to mentor current students</td></tr>
+  <tr><td>preceptor_willing</td><td>BOOLEAN</td><td>Willing to be an APPE preceptor</td></tr>
+  <tr><td>student_id</td><td>TEXT</td><td>College student number (for cross-reference)</td></tr>
+  <tr><td>country</td><td>TEXT</td><td>Country of residence</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span> <span class="file-tag">appe-hub.js</span> (graduation creates entry) <span class="file-tag">student-portal.js</span> (mentor search)</p>
+
+<h3>7.2 <code>alumni_events</code></h3>
+<p>Events organized for or by alumni.</p>
+<p><strong>Key columns:</strong> <code>alumni_id</code> (FK), <code>event_name</code>, <code>event_date</code>, <code>event_type</code>, <code>location</code></p>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span></p>
+
+<h3>7.3 <code>alumni_achievements</code></h3>
+<p>Professional achievements of alumni (board certifications, awards, publications).</p>
+<p><strong>Key columns:</strong> <code>alumni_id</code> (FK), <code>achievement_type</code>, <code>title</code>, <code>year</code></p>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span></p>
+
+<h3>7.4 <code>alumni_mentorship_pairs</code></h3>
+<p>Active mentorship connections between alumni and current students.</p>
+<table>
+  <tr><th>Column</th><th>Type</th><th>Description</th></tr>
+  <tr><td class="fk-col">mentor_alumni_id</td><td>UUID</td><td>References <code>alumni_profiles.id</code></td></tr>
+  <tr><td class="fk-col">student_id</td><td>TEXT</td><td>Auth UUID of the student being mentored</td></tr>
+  <tr><td>status</td><td>TEXT</td><td>active / completed / cancelled</td></tr>
+  <tr><td>created_at</td><td>TIMESTAMPTZ</td><td>When the pair was created</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span> <span class="file-tag">student-portal.js</span></p>
+
+<h3>7.5 <code>alumni_engagement_log</code></h3>
+<p>Log of engagement activities (guest lectures, career days, etc.).</p>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span></p>
+
+<hr>
+
+<!-- SECTION 8: RESEARCH & ACADEMIC TABLES -->
+<h2 id="research">8. Research &amp; Academic Tables</h2>
+
+<h3>8.1 Research Unit Tables</h3>
+<table>
+  <tr><th>Table</th><th>Purpose</th></tr>
+  <tr><td><code>research_projects</code></td><td>Active research projects (title, PI, status, degree_level, stage)</td></tr>
+  <tr><td><code>research_publications</code></td><td>Published papers and articles</td></tr>
+  <tr><td><code>research_grants</code></td><td>Grant applications and awards</td></tr>
+  <tr><td><code>research_collaborations</code></td><td>Collaborative partnerships with other institutions</td></tr>
+  <tr><td><code>research_documents</code></td><td>Uploaded documents linked to research projects</td></tr>
+  <tr><td><code>research_irb</code></td><td>IRB (ethics) submissions and approvals</td></tr>
+  <tr><td><code>research_recognition</code></td><td>Awards and recognition for research</td></tr>
+  <tr><td><code>faculty_scholar_sync</code></td><td>Synced faculty scholar profiles</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span> <span class="file-tag">student-portal.js</span></p>
+
+<h3>8.2 Academic Affairs Tables</h3>
+<table>
+  <tr><th>Table</th><th>Purpose</th></tr>
+  <tr><td><code>academic_courses</code></td><td>Course catalogue with CLOs and credit hours</td></tr>
+  <tr><td><code>course_clos</code></td><td>Course Learning Outcomes per course</td></tr>
+  <tr><td><code>course_year_data</code></td><td>Year-specific course data (enrollment, pass rates)</td></tr>
+  <tr><td><code>clo_achievement</code></td><td>Student achievement per CLO</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span></p>
+
+<h3>8.3 Quality Assurance Tables</h3>
+<table>
+  <tr><th>Table</th><th>Purpose</th></tr>
+  <tr><td><code>qa_kpis</code></td><td>Key Performance Indicators tracked by QA</td></tr>
+  <tr><td><code>qa_surveys</code></td><td>Survey results and satisfaction scores</td></tr>
+  <tr><td><code>dept_stats</code></td><td>Department-level statistics</td></tr>
+  <tr><td><code>dept_collaborations</code></td><td>Cross-department collaboration records</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span></p>
+
+<h3>8.4 Clinical Affairs Tables</h3>
+<table>
+  <tr><th>Table</th><th>Purpose</th></tr>
+  <tr><td><code>mous</code></td><td>Memoranda of Understanding with clinical training sites</td></tr>
+  <tr><td><code>rotation_eval_history</code></td><td>Historical evaluation data per site per year</td></tr>
+</table>
+<p><strong>Used by:</strong> <span class="file-tag">app.js</span> <span class="file-tag">student-portal.js</span></p>
+
+<hr>
+
+<!-- SECTION 9: DATA FLOWS -->
+<h2 id="flows">9. Key Data Flows</h2>
+
+<h3>9.1 Student Signup → Login</h3>
+<div class="flow-box">
+  <div class="flow-step"><span class="step-num">1</span><div>Student fills signup form → <code>supabase-auth.js signUp()</code> checks for duplicate email in <code>pending_signups</code> and <code>user_profiles</code></div></div>
+  <div class="flow-step"><span class="step-num">2</span><div>If no duplicate → INSERT into <code>pending_signups</code> with <code>status='pending'</code></div></div>
+  <div class="flow-step"><span class="step-num">3</span><div>Admin sees request in Admin Hub → clicks Approve → <code>supabase-auth.js approveSignup()</code> calls RPC <code>approve_signup_request()</code></div></div>
+  <div class="flow-step"><span class="step-num">4</span><div>DB function creates Supabase Auth user + inserts row into <code>user_profiles</code> → updates <code>pending_signups.status = 'approved'</code></div></div>
+  <div class="flow-step"><span class="step-num">5</span><div>Student logs in → <code>supabase-auth.js signIn()</code> → session created → <code>_restoreSession()</code> retries until <code>AuthSystem</code> is ready → portal shown</div></div>
+</div>
+
+<h3>9.2 APPE Auto-Match Flow</h3>
+<div class="flow-box">
+  <div class="flow-step"><span class="step-num">1</span><div>Admin enters scores for P4 students in Scores tab → saved to <code>rotation_assignments</code> (<code>block_number=0</code>, <code>academic_year=_year</code>)</div></div>
+  <div class="flow-step"><span class="step-num">2</span><div>Students submit preferences in Student Portal → INSERT into <code>rotation_preferences</code> (student_id = Auth UUID, academic_year = active year)</div></div>
+  <div class="flow-step"><span class="step-num">3</span><div>Admin clicks Run Auto-Match → reads <code>rotation_site_availability</code> for block capacity</div></div>
+  <div class="flow-step"><span class="step-num">4</span><div>Students sorted by score DESC → each student assigned to 10 blocks respecting preferences and capacity</div></div>
+  <div class="flow-step"><span class="step-num">5</span><div>Results UPSERTED into <code>rotation_assignments</code> with conflict key <code>(student_id, block_number, academic_year)</code></div></div>
+  <div class="flow-step"><span class="step-num">6</span><div>Students see their 10-block schedule in Student Portal → <code>rotation_assignments</code> queried by Auth UUID</div></div>
+</div>
+
+<h3>9.3 Student Progression → Alumni</h3>
+<div class="flow-box">
+  <div class="flow-step"><span class="step-num">1</span><div>Admin clicks Promote (e.g., P3→P4) in APPE Hub Settings → UPDATE <code>user_profiles.class_year</code></div></div>
+  <div class="flow-step"><span class="step-num">2</span><div>Admin clicks Graduate on a P4 student → UPDATE <code>user_profiles.status = 'alumni'</code></div></div>
+  <div class="flow-step"><span class="step-num">3</span><div>Simultaneously → INSERT into <code>alumni_profiles</code> (checked for duplicate by email first)</div></div>
+  <div class="flow-step"><span class="step-num">4</span><div>Student disappears from APPE Hub operations (filtered by <code>status != 'alumni'</code>)</div></div>
+  <div class="flow-step"><span class="step-num">5</span><div>Student now appears in Alumni Unit → Alumni Directory</div></div>
+</div>
+
+<hr>
+
+<!-- SECTION 10: RLS -->
+<h2 id="rls">10. Row Level Security (RLS)</h2>
+<p class="section-intro">Every table has RLS enabled. All queries require an authenticated user session.</p>
+
+<table>
+  <tr><th>Policy Pattern</th><th>Tables Using It</th><th>Effect</th></tr>
+  <tr><td><code>auth.role() = 'authenticated'</code></td><td>rotation_assignments, rotation_preferences, student_compliance, student_sple_scores, rotation_sites, rotation_evaluations</td><td>Any logged-in user can read/write</td></tr>
+  <tr><td>Student owns their data</td><td>rotation_preferences (student submit), rotation_evaluations (student submit)</td><td>Students can only insert/delete their own rows</td></tr>
+  <tr><td>Public read</td><td>rotation_sites, college_resources</td><td>Visible to all authenticated users</td></tr>
+</table>
+
+<div class="warning">
+  <strong>If a query returns no data unexpectedly</strong>, the first thing to check is RLS policies in Supabase → Table Editor → Policies.
+  Missing or restrictive policies are the most common cause of silent data failures.
+</div>
+
+<hr>
+
+<!-- SECTION 11: QUICK REFERENCE -->
+<h2 id="quickref">11. Quick Reference Card</h2>
+
+<h3>Which table do I look at for...?</h3>
+<table>
+  <tr><th>Question</th><th>Table</th><th>Key Column</th></tr>
+  <tr><td>Who are the approved users?</td><td><code>user_profiles</code></td><td><code>is_approved = true</code></td></tr>
+  <tr><td>Who are the current P4 students?</td><td><code>user_profiles</code></td><td><code>class_year = 'P4' AND status != 'alumni'</code></td></tr>
+  <tr><td>Who is waiting for approval?</td><td><code>pending_signups</code></td><td><code>status = 'pending'</code></td></tr>
+  <tr><td>What sites are available?</td><td><code>rotation_sites</code></td><td><code>is_active = true</code></td></tr>
+  <tr><td>How many slots per block per site?</td><td><code>rotation_site_availability</code></td><td><code>site_id, block_number</code></td></tr>
+  <tr><td>What did a student rank?</td><td><code>rotation_preferences</code></td><td><code>student_id (Auth UUID), academic_year</code></td></tr>
+  <tr><td>Where is a student assigned?</td><td><code>rotation_assignments</code></td><td><code>student_id (Auth UUID), block_number, academic_year</code></td></tr>
+  <tr><td>What is a student's score?</td><td><code>rotation_assignments</code></td><td><code>student_score</code> (any row for that student)</td></tr>
+  <tr><td>Is submissions window open?</td><td><code>rotation_settings</code></td><td><code>submissions_open</code> (id=1)</td></tr>
+  <tr><td>What year is active?</td><td><code>rotation_settings</code></td><td><code>academic_year</code> (id=1)</td></tr>
+  <tr><td>Student compliance status?</td><td><code>student_compliance</code></td><td><code>student_id, academic_year, item_key</code></td></tr>
+  <tr><td>Student SPLE scores?</td><td><code>student_sple_scores</code></td><td><code>student_id, academic_year, exam_number</code></td></tr>
+  <tr><td>Alumni directory?</td><td><code>alumni_profiles</code></td><td><code>graduation_year, status</code></td></tr>
+  <tr><td>Support tickets?</td><td><code>submitted_tickets</code></td><td><code>student_id, status</code></td></tr>
+</table>
+
+<h3>The Golden Rules</h3>
+<div class="tip">
+  <strong>Rule 1:</strong> <code>user_profiles.user_id</code> (Auth UUID) is the universal student key across all APPE tables.<br>
+  <strong>Rule 2:</strong> Always filter by <code>academic_year</code> when querying APPE operational tables.<br>
+  <strong>Rule 3:</strong> <code>rotation_settings</code> row id=1 is the global config — active year + submissions status.<br>
+  <strong>Rule 4:</strong> Alumni are excluded by checking <code>user_profiles.status != 'alumni'</code>.<br>
+  <strong>Rule 5:</strong> If data doesn't appear, check RLS policies first.
+</div>
+
+<hr>
+<p style="text-align:center;color:#888;font-size:9pt;">
+  College of Pharmacy Platform — Internal Documentation — KSAU-HS 2025–2026
+</p>
+
+</body>
+</html>
